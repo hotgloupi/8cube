@@ -18,13 +18,13 @@ int main(int argc, char* argv[])
 	fs::path lib_dir = exec_dir.parent_path().append("lib", fs::path::codecvt());
 	fs::path python_lib_dir = lib_dir.append("python", fs::path::codecvt());
 
+	app::python::interpreter.setglobal("lib_dir", python_lib_dir.string());
+
 	std::string init_script =
 		"import sys\nsys.path.insert(0, lib_dir)\n"
 		"from pycube.main import main\n"
 		"main()\n"
 	;
-
-	app::python::interpreter.setglobal("lib_dir", python_lib_dir.string());
 
 	return !app::python::interpreter.exec(init_script);
 }
