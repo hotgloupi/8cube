@@ -1,0 +1,12 @@
+
+include_rules
+
+# all project variable and the following ones are available:
+#   * BUILD_TYPE: lower cased build type string.
+#   * ROOT_DIR: path to the project root directory (relative to the current directory).
+#   * SOURCE_DIR: path to the mirrored source directory (relative to the current directory).
+#
+
+
+: foreach {SOURCE_DIR}/*.cpp |> !make_cpp_object |>
+: foreach {SOURCE_DIR}/*.py |> !make_python_object |>

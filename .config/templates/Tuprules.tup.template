@@ -1,0 +1,22 @@
+
+# This file is generated in each build directory.
+# All project variables and the following ones are defined:
+#   * BUILD_TYPE: lower cased build type string.
+#   * ROOT_DIR: path to the project root directory (relative to the current directory).
+#
+
+BUILD_TYPE = {BUILD_TYPE}
+BUILD_DIR = $(TUP_CWD)
+ROOT_DIR = $(BUILD_DIR)/{ROOT_DIR}
+
+SOURCE_DIR = $(BUILD_DIR)/..
+
+CC          = {CC}
+CXX         = {CXX}
+
+CFLAGS      +=  -I$(ROOT_DIR)/src -I{PYTHON_INCLUDE_DIR} -I{BOOST_INCLUDE_DIR}
+CXXFLAGS    +=  -std=c++0x
+LDFLAGS     +=  -L{PYTHON_LIBRARY_DIR} -L{BOOST_LIBRARY_DIR} -Wl,-static -l{PYTHON_LIBRARY} -Wl,-static -l{BOOST_PYTHON_LIBRARY} -Wl,-static -l{BOOST_FILESYSTEM_LIBRARY} -Wl,-static -l{BOOST_SYSTEM_LIBRARY} -Wl,-rpath,$ORIGIN../lib
+!make_cpp_object = |> $(CXX) $(CFLAGS) $(CXXFLAGS) $(CXXFLAGS_%f) -c %f -o %o |> %b.o
+!link_cpp_executable = |> $(CXX) %f $(LDFLAGS) $(LDFLAGS_%o) -o %o |>
+!make_python_object = |> python $(ROOT_DIR)/.config/compile_python.py %f %o |> %B.pyc
