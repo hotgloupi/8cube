@@ -7,6 +7,6 @@ include_rules
 #   * SOURCE_DIR: path to the mirrored source directory (relative to the current directory).
 #
 
+: foreach {SOURCE_DIR}/*.py |> !copy_file |> %B.py
 
 : foreach {SOURCE_DIR}/*.cpp |> !make_cpp_object |>
-: foreach {SOURCE_DIR}/*.py |> !make_python_object |>

@@ -45,7 +45,8 @@ TUPRULES_TEMPLATE_PATH_CMD = None
 # to change that.
 #
 SOURCE_DIRECTORIES = [
-    'src',                            # project root dir
+    'src/app',
+    ('src/pycube', 'release/lib/python'),
 ]
 
 # Source directories are treated as tree. If you set this to False, you'll have
