@@ -14,11 +14,29 @@ SOURCE_DIR = $(BUILD_DIR)/..
 CC          = {CC}
 CXX         = {CXX}
 
-CFLAGS      +=  -I$(ROOT_DIR)/src -I{PYTHON_INCLUDE_DIR} -I{BOOST_INCLUDE_DIR}
-CXXFLAGS    +=  -std=c++0x
-LDFLAGS     +=  -L{PYTHON_LIBRARY_DIR} -L{BOOST_LIBRARY_DIR} -Wl,-static -l{PYTHON_LIBRARY} -Wl,-static -l{BOOST_PYTHON_LIBRARY} -Wl,-static -l{BOOST_FILESYSTEM_LIBRARY} -Wl,-static -l{BOOST_SYSTEM_LIBRARY} -Wl,-rpath,$ORIGIN../lib
-!make_cpp_object = |> $(CXX) $(CFLAGS) $(CXXFLAGS) $(CXXFLAGS_%f) -c %f -o %o |> %b.o
-!link_cpp_executable = |> $(CXX) %f $(LDFLAGS) $(LDFLAGS_%o) -o %o |>
+CFLAGS      +=\
+ -I$(ROOT_DIR)/src\
+ -I{PYTHON_INCLUDE_DIR}\
+ -I{BOOST_INCLUDE_DIR}\
+ -I{SDL_INCLUDE_DIR}
 
+CXXFLAGS    +=  -std=c++0x
+
+LDFLAGS     +=\
+ -L{PYTHON_LIBRARY_DIR}\
+ -L{BOOST_LIBRARY_DIR}\
+ -L{SDL_LIBRARY_DIR}\
+ -Wl,-static -l{SDL_LIBRARY}\
+ -Wl,-static -l{PYTHON_LIBRARY}\
+ -Wl,-static -l{BOOST_PYTHON_LIBRARY}\
+ -Wl,-static -l{BOOST_FILESYSTEM_LIBRARY}\
+ -Wl,-static -l{BOOST_SIGNALS_LIBRARY}\
+ -Wl,-static -l{BOOST_SYSTEM_LIBRARY}\
+ -Wl,-rpath,$ORIGIN../lib
+
+!make_cpp_object = |> $(CXX) $(CFLAGS) $(CXXFLAGS) $(CXXFLAGS_%f) -c %f -o %o |> %B.o
+!link_cpp_executable = |> $(CXX) %f $(LDFLAGS) $(LDFLAGS_%o) -o %o |>
+!link_shared_library = |> $(CXX) -shared %f $(LDFLAGS) $(LDFLAGS_%o) -o %o |> %B.so
 copy_script = $(ROOT_DIR)/.config/copy_file.py
 !copy_file = |> python $(copy_script) "%f" %o |>
+

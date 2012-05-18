@@ -25,15 +25,26 @@ BUILD_TYPES = ['Debug', 'Release']
 DEFAULT_BUILD_TYPE = 'Debug'
 
 # Tup template file path
-TUP_TEMPLATE_PATH = '.config/templates/Tupfile.templates'
-TUP_TEMPLATE_PATH_CMD = None
+#TUP_TEMPLATE_PATH = '.config/templates/Tupfile.templates'
+#TUP_TEMPLATE_PATH_CMD = None
 
 # Tup template generator (used when TUP_TEMPLATE_PATH is None).
 # Can be a python function or a shell command that accept a relative directory
 # path as only argument and respectively returns or print out the tup file
 # template.
-TUP_TEMPLATE_GEN = None
-TUP_TEMPLATE_GEN_CMD = None
+def _getTemplate(dir_):
+    with open('.config/templates/Tupfile.templates') as f:
+        data = f.read()
+    if dir_.startswith('release/lib/python'):
+        data += """
+
+: foreach *.o |> !link_shared_library |> %B.pyd
+
+"""
+    return data
+
+
+TUP_TEMPLATE_GEN = _getTemplate
 
 # tup build specific rules template file path
 TUPRULES_TEMPLATE_PATH = '.config/templates/Tuprules.tup.template'
@@ -46,7 +57,8 @@ TUPRULES_TEMPLATE_PATH_CMD = None
 #
 SOURCE_DIRECTORIES = [
     'src/app',
-    ('src/pycube', 'release/lib/python'),
+    'src/etc',
+    ('src/cube', 'release/lib/python'),
 ]
 
 # Source directories are treated as tree. If you set this to False, you'll have
@@ -79,7 +91,7 @@ def shared_library_ext():
 
 TARGETS = [
     {
-        'input_items': [('src', '*.o')],
+        'input_items': [('src/app', '*.o')],
         'command': '!link_cpp_executable',
         'output_file': executable('my_program'),
         'output_directory': 'release/bin',
@@ -115,16 +127,23 @@ setdefault("BOOST_LIBRARY_DIR", None)
 
 setdefault("BOOST_PYTHON_LIBRARY", None)
 setdefault("BOOST_FILESYSTEM_LIBRARY", None)
+setdefault("BOOST_SIGNALS_LIBRARY", None)
 setdefault("BOOST_SYSTEM_LIBRARY", None)
+
+setdefault("SDL_INCLUDE_DIR", None)
+setdefault("SDL_LIBRARY_DIR", None)
+setdefault("SDL_LIBRARY", 'SDL.dll')
 
 
 _library_dirs = [
     PYTHON_LIBRARY_DIR,
     BOOST_LIBRARY_DIR,
+    SDL_LIBRARY_DIR,
 ]
 
 setdefault("SHIPPED_LIBRARIES", [
     'boost_python3',
+    'SDL'
 ])
 
 import os as _os
@@ -143,11 +162,12 @@ def _get_libraries(libs):
 
 lib_dir = sys.platform.startswith('win') and 'bin' or 'lib'
 
-for dir_, file_ in _get_libraries(SHIPPED_LIBRARIES):
+for dir_, file_ in set(_get_libraries(SHIPPED_LIBRARIES)):
     TARGETS.append({
         'input_items': [],
         'command': 'cp %s .' % cleanjoin(dir_, file_),
         'output_file': file_,
         'output_directory': 'release/' + lib_dir,
     })
+
 
