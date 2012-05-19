@@ -13,11 +13,11 @@ namespace cube { namespace gl { namespace renderers {
 	namespace detail {
 
 		struct OpenGLType
-			: public cube::gl::RendererType
+			: public cube::gl::renderer::RendererType
 		{
-			virtual std::unique_ptr<cube::gl::Renderer> create() const
+			virtual std::unique_ptr<cube::gl::renderer::Renderer> create() const
 			{
-				std::unique_ptr<cube::gl::Renderer> renderer(new OpenGL);
+				std::unique_ptr<cube::gl::renderer::Renderer> renderer(new OpenGL);
 				renderer->initialize();
 				return renderer;
 			}
@@ -59,7 +59,7 @@ namespace cube { namespace gl { namespace renderers {
 		std::cout << "Shutting down OpenGL renderer\n";
 	}
 
-	cube::gl::RendererType const& OpenGL::description() const
+	cube::gl::renderer::RendererType const& OpenGL::description() const
 	{
 		static detail::OpenGLType descr;
 		return descr;

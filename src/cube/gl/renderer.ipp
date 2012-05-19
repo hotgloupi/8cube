@@ -7,7 +7,7 @@
 
 #include "renderer.hpp"
 
-namespace cube { namespace gl {
+namespace cube { namespace gl { namespace renderer {
 
 	RendererType const& default_renderer_type = renderers::all()[0]->description();
 
@@ -22,6 +22,6 @@ namespace cube { namespace gl {
 		throw std::runtime_error("Should have been overrided");
 	}
 
-}}
+}}}
 
 #endif

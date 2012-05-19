@@ -5,7 +5,7 @@
 
 # include <boost/signal.hpp>
 
-namespace cube { namespace system {
+namespace cube { namespace system { namespace window {
 
 	class Window
 	{
@@ -23,7 +23,7 @@ namespace cube { namespace system {
 		virtual ~Window();
 		uint32_t poll();
 		uint32_t poll(uint32_t max);
-		cube::gl::Renderer& renderer();
+		cube::gl::renderer::Renderer& renderer();
 
 	public:
 # define EXPOSE_SIGNAL(name, ...)                                             \
@@ -38,6 +38,6 @@ namespace cube { namespace system {
 # undef EXPOSE_SIGNAL
 	};
 
-}} // !cube::system
+}}} // !cube::system::window
 
 #endif

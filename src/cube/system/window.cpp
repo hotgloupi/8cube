@@ -12,7 +12,7 @@ namespace detail {
 
 #define MAKE_CONNECTOR_WRAPPER(evt)                                           \
 	static boost::signals::connection                                         \
-	connect_ ## evt(::cube::system::Window& w, py::object& o)                 \
+	connect_ ## evt(::cube::system::window::Window& w, py::object& o)         \
 	{                                                                         \
 		return w.connect_##evt(o);                                            \
 	}                                                                         \
@@ -43,7 +43,7 @@ BOOST_PYTHON_MODULE(window)
 		)
 	;
 
-	using namespace cube::system;
+	using namespace cube::system::window;
 
 # define DEF_CONNECT(name_)                                                   \
 		def(                                                                  \

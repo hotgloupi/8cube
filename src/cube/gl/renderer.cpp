@@ -6,10 +6,10 @@
 namespace  detail {
 
 	struct WrapRenderer
-		: cube::gl::Renderer
-		, boost::python::wrapper<cube::gl::Renderer>
+		: cube::gl::renderer::Renderer
+		, boost::python::wrapper<cube::gl::renderer::Renderer>
 	{
-		cube::gl::RendererType const& description() const
+		cube::gl::renderer::RendererType const& description() const
 		{
 			return this->get_override("description")();
 		}
@@ -21,10 +21,10 @@ namespace  detail {
 	};
 
 	struct WrapRendererType
-		: cube::gl::RendererType
-		, boost::python::wrapper<cube::gl::RendererType>
+		: cube::gl::renderer::RendererType
+		, boost::python::wrapper<cube::gl::renderer::RendererType>
 	{
-		virtual std::unique_ptr<cube::gl::Renderer> create() const
+		virtual std::unique_ptr<cube::gl::renderer::Renderer> create() const
 		{
 			throw false;
 		}
@@ -40,12 +40,12 @@ BOOST_PYTHON_MODULE(renderer)
 			"Renderer"
 		).def(
 			"description",
-			py::pure_virtual(&cube::gl::Renderer::description),
+			py::pure_virtual(&cube::gl::renderer::Renderer::description),
 			py::return_internal_reference<>()
 		)
 		.def(
 			"swap_buffers",
-			py::pure_virtual(&cube::gl::Renderer::swap_buffers)
+			py::pure_virtual(&cube::gl::renderer::Renderer::swap_buffers)
 		)
 	;
 	py::class_<detail::WrapRendererType, boost::noncopyable>(

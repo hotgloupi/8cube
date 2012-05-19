@@ -3,7 +3,7 @@
 
 # include <memory>
 
-namespace cube { namespace gl {
+namespace cube { namespace gl { namespace renderer {
 
 	class RendererType;
 
@@ -30,6 +30,6 @@ namespace cube { namespace gl {
 	std::unique_ptr<Renderer>
 	create_renderer(RendererType const& renderer_type = default_renderer_type);
 
-}}
+}}}
 
 #endif

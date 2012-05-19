@@ -7,13 +7,13 @@
 
 # include <SDL/SDL.h>
 
-namespace cube { namespace system {
+namespace cube { namespace system { namespace window {
 
 	struct Window::Impl
 		: private boost::noncopyable
 	{
 		::SDL_Surface*          screen;
-		::cube::gl::Renderer*   renderer;
+		::cube::gl::renderer::Renderer*   renderer;
 # define DECLARE_SIGNAL(name) \
 		Window::on_ ## name ## _t    on_##name
 
@@ -48,7 +48,7 @@ namespace cube { namespace system {
 		//SDL_EnableKeyRepeat(130, 35);
 		::SDL_EnableUNICODE(SDL_ENABLE);
 
-		_impl->renderer = ::cube::gl::create_renderer().release();
+		_impl->renderer = ::cube::gl::renderer::create_renderer().release();
 
 		//this->_renderer = new Renderers::GLRenderer();
 		//this->_renderer->Initialise();
@@ -104,12 +104,12 @@ namespace cube { namespace system {
 		return count;
 	}
 
-	cube::gl::Renderer& Window::renderer()
+	cube::gl::renderer::Renderer& Window::renderer()
 	{
 		return *_impl->renderer;
 	}
 
 
-}} // !cube::system
+}}} // !cube::system::window
 
 #endif
