@@ -15,6 +15,7 @@ namespace cube { namespace gl { namespace renderers {
 	public:
 		virtual void initialize();
 		virtual void shutdown();
+		virtual void swap_buffers();
 		virtual cube::gl::RendererType const& description() const;
 		virtual ~OpenGL();
 	};

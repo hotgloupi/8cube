@@ -3,15 +3,20 @@
 
 # include <wrappers/boost/python.hpp>
 
-namespace  {
+namespace  detail {
 
 	struct WrapRenderer
 		: cube::gl::Renderer
 		, boost::python::wrapper<cube::gl::Renderer>
 	{
-		cube::gl::RendererType const& description()
+		cube::gl::RendererType const& description() const
 		{
 			return this->get_override("description")();
+		}
+
+		void swap_buffers()
+		{
+			this->get_override("swap_buffers")();
 		}
 	};
 
@@ -31,15 +36,19 @@ BOOST_PYTHON_MODULE(renderer)
 
 	namespace py = boost::python;
 
-	py::class_<WrapRenderer, boost::noncopyable>(
+	py::class_<detail::WrapRenderer, boost::noncopyable>(
 			"Renderer"
 		).def(
 			"description",
-			py::pure_virtual(&WrapRenderer::description),
-			py::return_internal_reference<1>()
+			py::pure_virtual(&cube::gl::Renderer::description),
+			py::return_internal_reference<>()
+		)
+		.def(
+			"swap_buffers",
+			py::pure_virtual(&cube::gl::Renderer::swap_buffers)
 		)
 	;
-	py::class_<WrapRendererType, boost::noncopyable>(
+	py::class_<detail::WrapRendererType, boost::noncopyable>(
 			"RendererType"
 		)
 	;

@@ -26,12 +26,16 @@ namespace cube { namespace system {
 		cube::gl::Renderer& renderer();
 
 	public:
-		typedef boost::signal<void(uint32_t, uint32_t)> on_expose_t;
-		typedef boost::signal<void()> on_idle_t;
+# define EXPOSE_SIGNAL(name, ...)                                             \
+		typedef boost::signal<void(__VA_ARGS__)> on_ ## name ## _t;           \
+		boost::signals::connection                                            \
+		connect_ ## name(on_ ## name ## _t::slot_function_type subscribe_cb)  \
 
-	public:
-		boost::signals::connection connect_expose(on_expose_t::slot_function_type subscribe_cb);
-		boost::signals::connection connect_idle(on_idle_t::slot_function_type subscribe_cb);
+		EXPOSE_SIGNAL(expose, uint32_t, uint32_t);
+		EXPOSE_SIGNAL(idle, void);
+		EXPOSE_SIGNAL(quit, void);
+
+# undef EXPOSE_SIGNAL
 	};
 
 }} // !cube::system

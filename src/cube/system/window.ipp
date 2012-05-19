@@ -9,12 +9,19 @@
 
 namespace cube { namespace system {
 
-	struct Window::Impl : private boost::noncopyable
+	struct Window::Impl
+		: private boost::noncopyable
 	{
-        ::SDL_Surface*          screen;
-        ::cube::gl::Renderer*   renderer;
-		Window::on_expose_t     on_expose;
-		Window::on_idle_t       on_idle;
+		::SDL_Surface*          screen;
+		::cube::gl::Renderer*   renderer;
+# define DECLARE_SIGNAL(name) \
+		Window::on_ ## name ## _t    on_##name
+
+		DECLARE_SIGNAL(expose);
+		DECLARE_SIGNAL(idle);
+		DECLARE_SIGNAL(quit);
+
+# undef DECLARE_SIGNAL
 
 		Impl()
 			: screen(nullptr)
@@ -65,6 +72,7 @@ namespace cube { namespace system {
 
 	MAKE_CONNECTOR(expose)
 	MAKE_CONNECTOR(idle)
+	MAKE_CONNECTOR(quit)
 
 #undef MAKE_CONNECTOR
 
@@ -75,15 +83,19 @@ namespace cube { namespace system {
 
 	uint32_t Window::poll(uint32_t max)
 	{
-		std::cout << "BIET\n";
 		uint32_t count = 0;
 
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
-			if (e.type == SDL_VIDEOEXPOSE)
+			switch (e.type)
+			{
+			case SDL_VIDEOEXPOSE:
 				_impl->on_expose(_width, _height);
-
+				break;
+			case SDL_QUIT:
+				_impl->on_quit();
+			}
 			if (++count >= max)
 				break;
 		}

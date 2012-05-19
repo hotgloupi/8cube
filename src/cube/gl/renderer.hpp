@@ -13,7 +13,8 @@ namespace cube { namespace gl {
 		virtual ~Renderer() { this->shutdown(); }
 		virtual void initialize() {};
 		virtual void shutdown() {}
-		virtual RendererType const& description() const;
+		virtual void swap_buffers() = 0;
+		virtual RendererType const& description() const = 0;
 	};
 
 

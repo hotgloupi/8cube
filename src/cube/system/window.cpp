@@ -12,13 +12,14 @@ namespace detail {
 
 #define MAKE_CONNECTOR_WRAPPER(evt)                                           \
 	static boost::signals::connection                                         \
-	connect_##evt(::cube::system::Window& w, py::object& o)                   \
+	connect_ ## evt(::cube::system::Window& w, py::object& o)                 \
 	{                                                                         \
 		return w.connect_##evt(o);                                            \
 	}                                                                         \
 
-	MAKE_CONNECTOR_WRAPPER(idle)
 	MAKE_CONNECTOR_WRAPPER(expose)
+	MAKE_CONNECTOR_WRAPPER(idle)
+	MAKE_CONNECTOR_WRAPPER(quit)
 
 #undef MAKE_CONNECTOR_WRAPPER
 
@@ -44,21 +45,25 @@ BOOST_PYTHON_MODULE(window)
 
 	using namespace cube::system;
 
+# define DEF_CONNECT(name_)                                                   \
+		def(                                                                  \
+			"connect_" # name_,                                               \
+			&detail::connect_ ## name_,                                       \
+			py::args("on_" #name_ "_callback"),                               \
+			"Subscribe to the " #name_ " signal"                              \
+		)
+
 	py::class_<Window, boost::noncopyable>("Window",
 			"Main window",
 			py::init<std::string const&, uint32_t, uint32_t>(
 				py::args("title", "width", "height"),
 				"Window ctor"
 			)
-		).def(
-			"connect_expose",
-			&detail::connect_expose,
-			py::args("subscribe_callback"),
-			"Subscribe to the expose signal"
-		).def(
-			"connect_idle",
-			&detail::connect_idle
-		).def(
+		)
+		.DEF_CONNECT(expose)
+		.DEF_CONNECT(idle)
+		.DEF_CONNECT(quit)
+		.def(
 			"poll",
 			static_cast<uint32_t (Window::*)()>(&Window::poll)
 		).def(
@@ -70,5 +75,7 @@ BOOST_PYTHON_MODULE(window)
 			py::return_internal_reference<1>()
 		)
 	;
+
+# undef DEF_CONNECT
 
 }

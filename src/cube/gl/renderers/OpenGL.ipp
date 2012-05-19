@@ -3,6 +3,7 @@
 
 # include <stdexcept>
 
+# include <wrappers/sdl.hpp>
 # include <wrappers/opengl.hpp>
 
 # include "OpenGL.hpp"
@@ -45,6 +46,12 @@ namespace cube { namespace gl { namespace renderers {
 			throw std::runtime_error(
 				"ARB_vertex_shader and ARB_fragment_shader are required"
 			);
+	}
+
+	void OpenGL::swap_buffers()
+	{
+		std::cout << "Swap buffers\n";
+        ::SDL_GL_SwapBuffers();
 	}
 
 	void OpenGL::shutdown()
