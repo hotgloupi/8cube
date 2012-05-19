@@ -16,27 +16,34 @@ CXX         = {CXX}
 
 CFLAGS      +=\
  -I$(ROOT_DIR)/src\
- -I{PYTHON_INCLUDE_DIR}\
+ -I{PYTHON_LIBRARY.include_dir}\
+ -I{GLEW_LIBRARY.include_dir}\
  -I{BOOST_INCLUDE_DIR}\
  -I{SDL_INCLUDE_DIR}
 
-CXXFLAGS    +=  -std=c++0x
+CXXFLAGS    += -x c++ -std=c++0x -g3 -Wall -Wextra
 
 LDFLAGS     +=\
- -L{PYTHON_LIBRARY_DIR}\
+ -L{PYTHON_LIBRARY.static_library_dir}\
  -L{BOOST_LIBRARY_DIR}\
  -L{SDL_LIBRARY_DIR}\
+ -L{GLEW_LIBRARY.shared_library_dir}\
  -Wl,-static -l{SDL_LIBRARY}\
- -Wl,-static -l{PYTHON_LIBRARY}\
+ -Wl,-static -l{PYTHON_LIBRARY.static_library}\
  -Wl,-static -l{BOOST_PYTHON_LIBRARY}\
  -Wl,-static -l{BOOST_FILESYSTEM_LIBRARY}\
  -Wl,-static -l{BOOST_SIGNALS_LIBRARY}\
  -Wl,-static -l{BOOST_SYSTEM_LIBRARY}\
+ -Wl,-static -l{GLEW_LIBRARY.static_library}s\
+ -Wl,-static -lOpenGL32\
  -Wl,-rpath,$ORIGIN../lib
+
+
 
 !make_cpp_object = |> $(CXX) $(CFLAGS) $(CXXFLAGS) $(CXXFLAGS_%f) -c %f -o %o |> %B.o
 !link_cpp_executable = |> $(CXX) %f $(LDFLAGS) $(LDFLAGS_%o) -o %o |>
 !link_shared_library = |> $(CXX) -shared %f $(LDFLAGS) $(LDFLAGS_%o) -o %o |> %B.so
+!link_static_library = |> ar rc %o %f && ranlib %o |>
 copy_script = $(ROOT_DIR)/.config/copy_file.py
 !copy_file = |> python $(copy_script) "%f" %o |>
 

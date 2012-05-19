@@ -23,6 +23,7 @@ namespace cube { namespace system {
 		virtual ~Window();
 		uint32_t poll();
 		uint32_t poll(uint32_t max);
+		cube::gl::Renderer& renderer();
 
 	public:
 		typedef boost::signal<void(uint32_t, uint32_t)> on_expose_t;

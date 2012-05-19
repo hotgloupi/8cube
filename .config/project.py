@@ -36,9 +36,16 @@ def _getTemplate(dir_):
     with open('.config/templates/Tupfile.templates') as f:
         data = f.read()
     if dir_.startswith('release/lib/python'):
-        data += """
 
-: foreach *.o |> !link_shared_library |> %B.pyd
+        data += """
+LDFLAGS = -L$(BUILD_DIR)/release/lib -lcube $(LDFLAGS) -L$(BUILD_DIR)/release/lib -lcube
+: foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.pyd
+
+"""
+    elif dir_.startswith('src/cube'):
+        data = """include_rules
+
+: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
 
 """
     return data
@@ -58,6 +65,7 @@ TUPRULES_TEMPLATE_PATH_CMD = None
 SOURCE_DIRECTORIES = [
     'src/app',
     'src/etc',
+    'src/cube',
     ('src/cube', 'release/lib/python'),
 ]
 
@@ -88,6 +96,8 @@ def shared_library_ext():
             sys.platform.startswith('mac') and 'dylib' or 'so'
         )
     )
+def static_library(name):
+    return name + '.a'
 
 TARGETS = [
     {
@@ -96,6 +106,12 @@ TARGETS = [
         'output_file': executable('my_program'),
         'output_directory': 'release/bin',
     },
+    {
+        'input_items': [('src/cube', '*.o')],
+        'command': '!link_static_library',
+        'output_file': 'libcube.a',
+        'output_directory': 'release/lib',
+    }
 ]
 
 # Same as before
@@ -115,12 +131,23 @@ setdefault("CXX", "g++")
 setdefault("CCACHE", "ccache")
 
 
-import sysconfig
+import tupcfg
 
-setdefault("PYTHON_DIR", cleanpath(sysconfig.get_config_var('prefix')))
-setdefault("PYTHON_INCLUDE_DIR", PYTHON_DIR + "/include")
-setdefault("PYTHON_LIBRARY_DIR", PYTHON_DIR + "/libs")
-setdefault("PYTHON_LIBRARY", 'python32')
+
+LIBRARY_NAMES = [
+    'python',
+    'glew',
+]
+
+LIBRARIES = dict(
+    (libname, tupcfg.find_library(libname, globals()))
+    for libname in LIBRARY_NAMES
+)
+
+for lib in LIBRARIES.values():
+    setdefault(lib.name.upper() + '_LIBRARY', lib)
+
+import sysconfig
 
 setdefault("BOOST_INCLUDE_DIR", None)
 setdefault("BOOST_LIBRARY_DIR", None)
@@ -136,7 +163,7 @@ setdefault("SDL_LIBRARY", 'SDL.dll')
 
 
 _library_dirs = [
-    PYTHON_LIBRARY_DIR,
+    PYTHON_LIBRARY.static_library_dir,
     BOOST_LIBRARY_DIR,
     SDL_LIBRARY_DIR,
 ]
@@ -169,5 +196,4 @@ for dir_, file_ in set(_get_libraries(SHIPPED_LIBRARIES)):
         'output_file': file_,
         'output_directory': 'release/' + lib_dir,
     })
-
 
