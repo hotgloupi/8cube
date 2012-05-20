@@ -53,6 +53,9 @@ LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
 #: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
 
 """
+    elif dir_.startswith('src/greenlet'):
+        data = "include_rules\n"
+        data += ':foreach {SOURCE_DIR}/*.c |> gcc $(CFLAGS) -I{PYTHON.include_dir} -l{PYTHON.static_library} -c %f -o %o |> %B.o\n'
     return data
 
 
@@ -71,7 +74,9 @@ SOURCE_DIRECTORIES = [
     'src/app',
     'src/etc',
     'src/cube',
+    'src/greenlet',
     ('src/cube', 'release/lib/python'),
+    'src/greenlet',
 ]
 
 # Source directories are treated as tree. If you set this to False, you'll have
@@ -116,6 +121,12 @@ TARGETS = [
         'command': '!link_static_library',
         'output_file': 'libcube.a',
         'output_directory': 'release/lib',
+    },
+    {
+        'input_items': ['src/greenlet/greenlet.o'],
+        'command': '!link_shared_library',
+        'output_file': 'greenlet.so',
+        'output_directory': 'release/lib/python',
     }
 ]
 
