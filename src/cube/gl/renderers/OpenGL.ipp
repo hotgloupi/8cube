@@ -2,6 +2,7 @@
 # define CUBE_GL_RENDERERS_OPENGL_IPP
 
 # include <stdexcept>
+# include <string>
 
 # include <wrappers/sdl.hpp>
 # include <wrappers/opengl.hpp>
@@ -21,6 +22,15 @@ namespace cube { namespace gl { namespace renderers {
 				renderer->initialize();
 				return renderer;
 			}
+			virtual std::string __str__() const
+			{
+				std::string gl_version = (char const*)glGetString(GL_VERSION);
+				std::string glew_version = (char const*)glewGetString(GLEW_VERSION);
+				return (
+					"OpenGL v" + gl_version + "\n"
+					"GLEW v" + glew_version + "\n"
+				);
+			}
 		};
 
 	}
@@ -32,10 +42,6 @@ namespace cube { namespace gl { namespace renderers {
 
 	void OpenGL::initialize()
 	{
-		std::cout << "Initialize OpenGL renderer" << std::endl
-		          << " - OpenGL v" << (char const*)glGetString(GL_VERSION) << std::endl
-		          << " - Glew v" << (char const*)glewGetString(GLEW_VERSION) << std::endl;
-
 		auto error = glewInit();
 		if (error != GLEW_OK)
 			throw std::runtime_error(
@@ -50,7 +56,6 @@ namespace cube { namespace gl { namespace renderers {
 
 	void OpenGL::swap_buffers()
 	{
-		std::cout << "Swap buffers\n";
         ::SDL_GL_SwapBuffers();
 	}
 

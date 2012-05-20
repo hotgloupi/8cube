@@ -5,14 +5,13 @@ import cube
 
 class Application(cube.Application):
     def __init__(self):
-        self._window = cube.system.Window("8cube", 640, 480)
-        print("self =", self)
+        self._window = cube.gui.RootWindow("8cube", 640, 480)
         events = [
             'idle', 'expose', 'quit',
         ]
         self._handlers = {}
         for event in events:
-            connection = self.connect(event, getattr(self, '_on_' + event))
+            connection = self._window.connect(event, getattr(self, '_on_' + event))
             self._handlers[event] = {'connection': connection}
 
     def __del__(self):
@@ -26,6 +25,9 @@ class Application(cube.Application):
             self._window.poll()
             frame_time = time.time() - start
             if frame_time < frame_time_target:
+                self._window.render()
+            frame_time = time.time() - start
+            if frame_time < frame_time_target:
                 time.sleep(frame_time_target - frame_time)
 
     def shutdown(self):
@@ -36,15 +38,11 @@ class Application(cube.Application):
         self._window = None
 
 
-    def connect(self, event, callback):
-        return getattr(self._window, 'connect_' + event)(callback)
-
-
     def _on_idle(self):
         pass
 
     def _on_expose(self, width, height):
-        self._window.swap_buffers()
+        self._window.renderer.swap_buffers()
         #renderer.swap_buffers();
         print("on expose", self, width, height)
 
