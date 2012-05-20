@@ -23,10 +23,15 @@ namespace detail {
 
 #undef MAKE_CONNECTOR_WRAPPER
 
-  static void swap_buffers(::cube::system::window::Window& w)
-  {
-    w.renderer().swap_buffers();
-  }
+	static void swap_buffers(::cube::system::window::Window& w)
+	{
+		w.renderer().swap_buffers();
+	}
+
+	static cube::gl::renderer::detail::WrapRenderer get_renderer(::cube::system::window::Window& w)
+	{
+		return &w.renderer();
+	}
 
 } // !detail
 
@@ -72,12 +77,14 @@ BOOST_PYTHON_MODULE(window)
 		.def(
 			"poll",
 			static_cast<uint32_t (Window::*)()>(&Window::poll)
-		).def(
+		)
+		.def(
 			"poll",
 			static_cast<uint32_t (Window::*)(uint32_t)>(&Window::poll)
-		).def("swap_buffers", &detail::swap_buffers)
+		)
+		.def("renderer", &detail::get_renderer)
+		.def("swap_buffers", &detail::swap_buffers)
 	;
 
 # undef DEF_CONNECT
-
 }

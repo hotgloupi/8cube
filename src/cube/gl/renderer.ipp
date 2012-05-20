@@ -38,68 +38,48 @@ namespace cube { namespace gl { namespace renderer {
 
 	namespace  detail {
 
-		struct WrapRenderer
-			: Renderer
-			, boost::python::wrapper<Renderer>
-		{
-			RendererType const& description() const
-			{
-				std::cerr << __PRETTY_FUNCTION__ << "\n";
-				return this->get_override("description")();
-			}
 
-			void swap_buffers()
-			{
-				std::cerr << "swap buffers !\n";
-				this->get_override("swap_buffers")();
-			}
-		~WrapRenderer() {
+		WrapRenderer::WrapRenderer(cube::gl::renderer::Renderer* renderer)
+			: renderer(renderer)
+		{}
+
+		WrapRenderer::WrapRenderer(WrapRenderer&& other)
+			: renderer(other.renderer)
+		{}
+
+		WrapRenderer::WrapRenderer(WrapRenderer const& other)
+			: renderer(other.renderer)
+		{}
+
+		WrapRendererType WrapRenderer::description() const
+		{
+			assert(this->renderer != nullptr);
+			return &this->renderer->description();
+		}
+
+		void WrapRenderer::swap_buffers()
+		{
+			std::cerr << "proxy swap buffers !\n";
+			assert(this->renderer != nullptr);
+			this->renderer->swap_buffers();
+		}
+
+		WrapRenderer::~WrapRenderer()
+		{
 			std::cerr << __PRETTY_FUNCTION__ << "\n";
 		}
-			virtual void initialize()
-		  {
-			throw false;
-		  }
-			virtual void shutdown()
-		  {
-			throw false;
-		  }
-		};
 
-		struct WrapRendererType
-			: RendererType
-			, boost::python::wrapper<RendererType>
-		{
-			virtual std::unique_ptr<Renderer> create() const
-			{
-				throw false;
-			}
-		};
+		WrapRendererType::WrapRendererType(cube::gl::renderer::RendererType const* renderer_type)
+			: renderer_type(renderer_type)
+		{}
 
-		void pyexport()
-		{
-			namespace py = boost::python;
+		WrapRendererType::WrapRendererType(WrapRendererType&& other)
+			: renderer_type(other.renderer_type)
+		{}
 
-			// Export Renderer class
-			py::class_<detail::WrapRenderer, boost::noncopyable>(
-					"Renderer"
-				).def(
-					"description",
-					py::pure_virtual(&cube::gl::renderer::Renderer::description),
-					py::return_internal_reference<1>()
-				)
-				.def(
-					"swap_buffers",
-					py::pure_virtual(&cube::gl::renderer::Renderer::swap_buffers)
-				)
-			;
-
-			// Export RendererType class
-			py::class_<detail::WrapRendererType, boost::noncopyable>(
-					"RendererType"
-				)
-			;
-		}
+		WrapRendererType::WrapRendererType(WrapRendererType const& other)
+			: renderer_type(other.renderer_type)
+		{}
 
 	} // !detail
 

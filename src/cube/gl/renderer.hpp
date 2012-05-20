@@ -31,9 +31,26 @@ namespace cube { namespace gl { namespace renderer {
 	std::unique_ptr<Renderer>
 	create_renderer(RendererType const& renderer_type = default_renderer_type);
 
-  namespace detail {
+	namespace detail {
 
-      void pyexport();
+		struct WrapRendererType
+		{
+			RendererType const* renderer_type;
+			WrapRendererType(cube::gl::renderer::RendererType const* renderer_type = nullptr);
+			WrapRendererType(WrapRendererType&& other);
+			WrapRendererType(WrapRendererType const& other);
+		};
+
+		struct WrapRenderer
+		{
+			Renderer* renderer;
+			WrapRenderer(cube::gl::renderer::Renderer* renderer = nullptr);
+			WrapRenderer(WrapRenderer&& other);
+			WrapRenderer(WrapRenderer const& other);
+			WrapRendererType description() const;
+			void swap_buffers();
+			~WrapRenderer();
+		};
 
   }
 
