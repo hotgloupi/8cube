@@ -1,6 +1,3 @@
-[submodule "src/etc"]
-	path = src/etc
-	url = git@github.com:hotgloupi/etc.git
 [submodule "src/greenlet"]
 	path = src/greenlet
 	url = https://github.com/python-greenlet/greenlet.git
