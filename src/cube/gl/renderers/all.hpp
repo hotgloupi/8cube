@@ -9,8 +9,9 @@ namespace cube { namespace gl { namespace renderers {
 
 	std::vector<cube::gl::renderer::Renderer*> const& all()
 	{
-		static std::vector<cube::gl::renderer::Renderer*> renderers{{
-			new OpenGL{},
+		static OpenGL opengl_renderer;
+    static std::vector<cube::gl::renderer::Renderer*> renderers{{
+			&opengl_renderer,
 		}};
 		return renderers;
 	}

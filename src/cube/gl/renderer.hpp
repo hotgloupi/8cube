@@ -10,9 +10,10 @@ namespace cube { namespace gl { namespace renderer {
 	class Renderer
 	{
 	public:
-		virtual ~Renderer() { this->shutdown(); }
-		virtual void initialize() {};
-		virtual void shutdown() {}
+    Renderer();
+		virtual ~Renderer();
+		virtual void initialize() = 0;
+		virtual void shutdown() = 0;
 		virtual void swap_buffers() = 0;
 		virtual RendererType const& description() const = 0;
 	};
@@ -30,6 +31,12 @@ namespace cube { namespace gl { namespace renderer {
 	std::unique_ptr<Renderer>
 	create_renderer(RendererType const& renderer_type = default_renderer_type);
 
-}}}
+  namespace detail {
+
+      void pyexport();
+
+  }
+
+}}} // !cube::gl::renderer
 
 #endif

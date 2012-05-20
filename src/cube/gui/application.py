@@ -44,10 +44,8 @@ class Application(cube.Application):
         pass
 
     def _on_expose(self, width, height):
-        renderer = self._window.renderer()
-        print(renderer.description)
-        print(renderer.description())
-        renderer.swap_buffers();
+        self._window.swap_buffers()
+        #renderer.swap_buffers();
         print("on expose", self, width, height)
 
     def _on_quit(self):

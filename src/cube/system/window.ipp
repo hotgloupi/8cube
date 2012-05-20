@@ -1,11 +1,11 @@
 #ifndef  CUBE_SYSTEM_WINDOW_IPP
 # define CUBE_SYSTEM_WINDOW_IPP
 
-# include <cube/gl/Renderer.hpp>
+# include <wrappers/sdl.hpp>
 
-# include "Window.hpp"
+# include <cube/gl/renderer.hpp>
 
-# include <SDL/SDL.h>
+# include "window.hpp"
 
 namespace cube { namespace system { namespace window {
 
@@ -104,7 +104,7 @@ namespace cube { namespace system { namespace window {
 		return count;
 	}
 
-	cube::gl::renderer::Renderer& Window::renderer()
+	::cube::gl::renderer::Renderer& Window::renderer()
 	{
 		return *_impl->renderer;
 	}

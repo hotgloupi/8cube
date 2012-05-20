@@ -9,4 +9,11 @@ include_rules
 
 : foreach {SOURCE_DIR}/*.py |> !copy_file |> %B.py
 
-: foreach {SOURCE_DIR}/*.cpp |> !make_cpp_object |>
+: foreach {SOURCE_DIR}/*.cpp |> \
+	export f=`realpath %f --relative-to {ROOT_DIR}` && \
+	export cwd=`realpath . --relative-to {ROOT_DIR}` && \
+	cd {ROOT_DIR} && g++ -g3 -Isrc -std=c++0x $(CFLAGS) -c ${{f}} -o ${{cwd}}/%o \
+	|> %B.o
+
+
+#: foreach {SOURCE_DIR}/*.cpp |> !make_cpp_object |>

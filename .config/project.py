@@ -38,14 +38,19 @@ def _getTemplate(dir_):
     if dir_.startswith('release/lib/python'):
 
         data += """
-LDFLAGS = -L$(BUILD_DIR)/release/lib -lcube $(LDFLAGS) -L$(BUILD_DIR)/release/lib -lcube
-: foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.pyd
+LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
+: foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.so
 
 """
     elif dir_.startswith('src/cube'):
         data = """include_rules
 
-: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
+: foreach {SOURCE_DIR}/*.ipp |> \
+	export f=`realpath %f --relative-to {ROOT_DIR}` && \
+	export cwd=`realpath . --relative-to {ROOT_DIR}` && \
+	cd {ROOT_DIR} && g++ -Isrc -x c++ -std=c++0x -g3 $(CFLAGS) -c ${{f}} -o ${{cwd}}/%o \
+	|> %b.o
+#: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
 
 """
     return data
@@ -136,7 +141,13 @@ import tupcfg
 
 LIBRARY_NAMES = [
     'python',
-    'glew',
+    'GL',
+    'GLEW',
+    'boost_python3',
+    'boost_filesystem',
+    'boost_signals',
+    'boost_system',
+    'SDL',
 ]
 
 LIBRARIES = dict(
@@ -145,27 +156,44 @@ LIBRARIES = dict(
 )
 
 for lib in LIBRARIES.values():
-    setdefault(lib.name.upper() + '_LIBRARY', lib)
+    setdefault(lib.name.upper(), lib)
 
 import sysconfig
 
-setdefault("BOOST_INCLUDE_DIR", None)
-setdefault("BOOST_LIBRARY_DIR", None)
+print('$$$$$$$$$$', PYTHON.include_dir)
+CFLAGS = ''
+LDFLAGS = ''
 
-setdefault("BOOST_PYTHON_LIBRARY", None)
-setdefault("BOOST_FILESYSTEM_LIBRARY", None)
-setdefault("BOOST_SIGNALS_LIBRARY", None)
-setdefault("BOOST_SYSTEM_LIBRARY", None)
+LIBRARIES = list(globals()[name.upper()] for name in LIBRARY_NAMES)
 
-setdefault("SDL_INCLUDE_DIR", None)
-setdefault("SDL_LIBRARY_DIR", None)
-setdefault("SDL_LIBRARY", 'SDL.dll')
 
+include_dirs = set()
+static_library_dirs = set()
+shared_library_dirs = set()
+
+for library in LIBRARIES:
+
+    try: include_dirs.add(library.include_dir)
+    except: pass
+    try:
+        static_library_dirs.add(library.static_library_dir)
+    except: pass
+    try:
+        shared_library_dirs.add(library.shared_library_dir)
+    except: pass
+
+library_dirs = static_library_dirs.union(shared_library_dirs)
+print('#' * 80)
+print(include_dirs, library_dirs)
+print('#' * 80)
+
+CFLAGS = ' '.join('-I' + d for d in include_dirs)
+LDFLAGS = ' '.join('-L' + d for d in library_dirs)
 
 _library_dirs = [
-    PYTHON_LIBRARY.static_library_dir,
-    BOOST_LIBRARY_DIR,
-    SDL_LIBRARY_DIR,
+    PYTHON.shared_library_dir,
+    BOOST_PYTHON3.shared_library_dir,
+    SDL.shared_library_dir,
 ]
 
 setdefault("SHIPPED_LIBRARIES", [
