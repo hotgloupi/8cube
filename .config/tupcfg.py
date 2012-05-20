@@ -24,15 +24,16 @@ class Library:
         self.upper_name = name.upper()
         self._env = env
         self._params = kwargs
-        self.properties = [
-            'prefix',
-            "version",
-            "include_dir",
-            "static_library_dir",
-            "shared_library_dir",
-            "static_library",
-            "shared_library",
-        ]
+
+    @property
+    def lib_prefix(self):
+        fallback = (sys.platform.startswith('win') and [''] or ['lib'])[0]
+        print("FALLBACK = '%s'" % fallback, self._params.get('lib_prefix'))
+        return self._getprop(
+            'lib_prefix',
+            global_ = False,
+            fallback = (sys.platform.startswith('win') and [''] or ['lib'])[0]
+        )
 
     @property
     def architecture(self):
@@ -79,7 +80,8 @@ class Library:
             contains_static_library = True,
             hints = [
                 cleanjoin(self.prefix, 'lib'),
-                cleanjoin(self.prefix, 'lib' + self.architecture)
+                cleanjoin(self.prefix, 'lib' + self.architecture),
+                cleanjoin(self.prefix, 'libs'),
             ]
         )
 
@@ -117,7 +119,8 @@ class Library:
                 cleanjoin(self.prefix, 'lib'),
                 cleanjoin(self.prefix, 'lib' + self.architecture),
                 cleanjoin(self.prefix, 'bin'),
-                cleanjoin(self.prefix, 'bin' + self.architecture)
+                cleanjoin(self.prefix, 'bin' + self.architecture),
+                cleanjoin(self.prefix, 'DLLs'),
             ]
         )
 
@@ -156,6 +159,8 @@ class Library:
         l = res is not None and [res] or []
         l += fallback is not None and [fallback] or []
         l.extend(hints)
+        l = list(set(l))
+        print("PROP '%s'" % prop, l)
 
         res = None
         while len(l):
@@ -163,10 +168,10 @@ class Library:
             if directory and not os.path.isdir(top):
                 print("not dir", top)
                 continue
-            if contains_static_library and not self._contains(top, 'lib', exts=self.static_library_exts):
+            if contains_static_library and not self._contains_static_library(top):
                 print("do not contain static lib", top)
                 continue
-            if contains_shared_library and not self._contains(top, 'lib', exts=self.shared_library_exts):
+            if contains_shared_library and not self._contains_shared_library(top):
                 print("do not contain shared lib", top)
                 continue
             res = top
@@ -180,16 +185,29 @@ class Library:
                     prop, self.name, upper_prop_lib, prop.upper()
                 )
             )
+        if '\\' in res:
+            return cleanpath(res)
         return res
 
-    def _contains(self, directory, prefix='', name=None, exts=[]):
-        print(directory, prefix, name, exts)
+    def _contains_static_library(self, dir_, **kwargs):
+        kwargs.setdefault('prefixes', set([self.lib_prefix, 'lib']))
+        kwargs.setdefault('exts', self.static_library_exts)
+        kwargs.setdefault('name', self.name)
+        return self._contains(dir_, **kwargs)
+
+    def _contains_shared_library(self, dir_, **kwargs):
+        kwargs.setdefault('prefixes', set([self.lib_prefix, 'lib']))
+        kwargs.setdefault('exts', self.shared_library_exts)
+        kwargs.setdefault('name', self.name)
+        return self._contains(dir_, **kwargs)
+
+    def _contains(self, directory, prefixes=[], name=None, exts=[]):
         name = name is None and self.name or name
-        print("$", prefix, name, self.name, str(exts))
         for fname in os.listdir(directory):
             for ext in exts:
-                if fname.startswith(prefix + name) and fname.endswith('.' +  ext):
-                    return True
+                for prefix in prefixes:
+                    if fname.startswith(prefix + name) and fname.endswith('.' +  ext):
+                        return True
 
         return False
 
@@ -204,8 +222,8 @@ def python_library(globals_):
         version = version,
         prefix = prefix,
         include_dir = sysconfig.get_config_vars()['INCLUDEPY'],
-        static_library_file = sysconfig.get_config_vars()['LIBRARY'],
-        shared_library_file = sysconfig.get_config_vars()['LDLIBRARY']
+        static_library_file = sysconfig.get_config_vars().get('LIBRARY'),
+        shared_library_file = sysconfig.get_config_vars().get('LDLIBRARY')
     )
 
 
