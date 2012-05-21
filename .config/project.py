@@ -45,17 +45,18 @@ LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
     elif dir_.startswith('src/cube'):
         data = """include_rules
 
-: foreach {SOURCE_DIR}/*.ipp |> \
-	export f=`realpath %f --relative-to {ROOT_DIR}` && \
-	export cwd=`realpath . --relative-to {ROOT_DIR}` && \
-	cd {ROOT_DIR} && g++ -Isrc -x c++ -std=c++0x -g3 $(CFLAGS) -c ${{f}} -o ${{cwd}}/%o \
-	|> %b.o
-#: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
+#: foreach {SOURCE_DIR}/*.ipp |> \
+#	export f=`$(realpath) %f --relative-to {ROOT_DIR}` && \
+#	export cwd=`$(realpath) . --relative-to {ROOT_DIR}` && \
+#	cd {ROOT_DIR} && g++ -Isrc -x c++ -std=c++0x -g3 $(CFLAGS) -c ${{f}} -o `$(realpath) ${{cwd}}/%o` \
+#	|> %b.o
+
+: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
 
 """
     elif dir_.startswith('src/greenlet'):
         data = "include_rules\n"
-        data += ':foreach {SOURCE_DIR}/*.c |> gcc $(CFLAGS) -I{PYTHON.include_dir} -l{PYTHON.static_library} -c %f -o %o |> %B.o\n'
+        data += ':foreach {SOURCE_DIR}/*.c |> gcc $(CFLAGS) -fPIC -I{PYTHON.include_dir} -c %f -o %o |> %B.o\n'
     return data
 
 
@@ -139,7 +140,7 @@ RECURSE_OVER_TARGET_DIRECTORIES = True
 ##
 
 def setdefault(name, value, globals=globals()):
-    globals.setdefault(name, value)
+    return globals.setdefault(name, value)
 
 setdefault("CC", "gcc")
 setdefault("CXX", "g++")
@@ -171,7 +172,6 @@ for lib in LIBRARIES.values():
 
 import sysconfig
 
-print('$$$$$$$$$$', PYTHON.include_dir)
 CFLAGS = ''
 LDFLAGS = ''
 
@@ -187,13 +187,18 @@ for library in LIBRARIES:
     try: include_dirs.add(library.include_dir)
     except: pass
     try:
-        static_library_dirs.add(library.static_library_dir)
+        static_library_dirs.add(library._library_dir('static', quiet=True))
     except: pass
     try:
-        shared_library_dirs.add(library.shared_library_dir)
+        shared_library_dirs.add(library._library_dir('shared', quiet=True))
     except: pass
 
 library_dirs = static_library_dirs.union(shared_library_dirs)
+library_dirs.remove(None)
+
+if setdefault('BOOST_INCLUDE_DIR', None) is not None:
+    include_dirs.add(BOOST_INCLUDE_DIR)
+
 print('#' * 80)
 print(include_dirs, library_dirs)
 print('#' * 80)

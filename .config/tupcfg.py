@@ -2,6 +2,25 @@
 
 import os, platform, sys, sysconfig
 
+DEBUG = False
+VERBOSE = True
+
+def debug(*msg):
+    if DEBUG:
+        print('----', *msg)
+
+def log(*msg):
+    if VERBOSE:
+        print('---', *msg)
+
+
+def warn(*msg):
+    if VERBOSE:
+        print('WARNING:', *msg)
+
+def error(*msg):
+    print('ERROR:', *msg)
+
 
 def cleanpath(p):
     p = os.path.normpath(p).replace('\\', '/')
@@ -25,10 +44,10 @@ class Library:
         self._env = env
         self._params = kwargs
 
+
     @property
     def lib_prefix(self):
         fallback = (sys.platform.startswith('win') and [''] or ['lib'])[0]
-        print("FALLBACK = '%s'" % fallback, self._params.get('lib_prefix'))
         return self._getprop(
             'lib_prefix',
             global_ = False,
@@ -64,82 +83,105 @@ class Library:
         )
 
 
-    @property
-    def static_library_exts(self):
-        if sys.platform.startswith('win'):
-            return ['a', 'lib']
-        else:
-            return ['a']
+    def _library_exts(self, kind, quiet=False):
+        if kind == 'static':
+            if sys.platform.startswith('win'):
+                return ['a', 'lib']
+            else:
+                return ['a']
+        elif kind == 'shared':
+            if sys.platform.startswith('win'):
+                return ['dll']
+            elif sys.platform.startswith('mac'): # XXX darwin
+                return ['dylib']
+            else:
+                return ['so']
+        raise Exception("Unknown kind '%s'" % str(kind))
 
-    @property
-    def static_library_dir(self):
-        return self._getprop(
-            'static_library_dir',
-            global_ = True,
-            directory = True,
-            contains_static_library = True,
-            hints = [
+    def _library_dir(self, kind, quiet=False):
+        hints = {
+            'static': [
                 cleanjoin(self.prefix, 'lib'),
                 cleanjoin(self.prefix, 'lib' + self.architecture),
                 cleanjoin(self.prefix, 'libs'),
-            ]
-        )
-
-    @property
-    def static_library(self):
-        try:
-            f = self._getprop('static_library_file')
-            if f.startswith('lib'):
-                return '.'.join(f.split('.')[:-1])[3:]
-            else:
-                return '.'.join(f.split('.')[:-1])
-        except:
-            pass
-
-        return self._getprop('static_library', fallback=self.name)
-
-
-    @property
-    def shared_library_exts(self):
-        if sys.platform.startswith('win'):
-            return ['dll']
-        elif sys.platform.startswith('mac'):
-            return ['dylib']
-        else:
-            return ['so']
-
-    @property
-    def shared_library_dir(self):
-        return self._getprop(
-            'shared_library_dir',
-            global_ = True,
-            directory = True,
-            contains_shared_library = True,
-            hints = [
+            ],
+            'shared': [
                 cleanjoin(self.prefix, 'lib'),
                 cleanjoin(self.prefix, 'lib' + self.architecture),
                 cleanjoin(self.prefix, 'bin'),
                 cleanjoin(self.prefix, 'bin' + self.architecture),
                 cleanjoin(self.prefix, 'DLLs'),
-            ]
+                'c:/Windows/System32',
+            ],
+        }
+        try:
+            f = self._getprop(kind + '_library_name', quiet=True)
+            match_name = f.startswith('lib') and f[3:] or f
+            debug("Using %s_library_name=%s as a fallback name" % (kind, match_name))
+        except:
+            match_name = self.name
+
+        return self._getprop(
+            kind + '_library_dir',
+            global_ = True,
+            directory = True,
+            contains_library = True,
+            match_name = match_name,
+            kind = kind,
+            hints = hints[kind],
+            quiet = quiet
         )
 
-    @property
-    def shared_library(self):
+    def _library(self, kind, quiet=False):
+        assert kind is not None
         try:
-            f = self._getprop('shared_library_file')
-            if f.startswith('lib'):
-                return '.'.join(f.split('.')[:-1])[3:]
-            else:
-                return '.'.join(f.split('.')[:-1])
+            f = self._getprop(kind + '_library_name', quiet=True)
+            match_name = f.startswith('lib') and f[3:] or f
+            debug("Using %s_library_name=%s as a fallback name" % (kind, match_name))
         except:
-            pass
-        return self._getprop('shared_library', fallback=self.name)
+            match_name = self.name
+
+        name = self._getprop(kind + '_library', fallback=match_name, quiet=quiet)
+        try:
+            found = []
+            lib_dir = self._library_dir(kind, quiet=quiet)
+            if lib_dir is None:
+                return name
+            for f in os.listdir(self._library_dir(kind)):
+                if name in f and any(f.endswith('.' + ext) for ext in self._library_exts(kind)):
+                    found.append(f)
+            names = []
+            for ext in self._library_exts(kind):
+                matches = [f for f in found if f.endswith('.' + ext) and not f.startswith('.')]
+                for match in matches:
+                    debug("Found file '%s'" % match)
+                    if match.startswith('lib'):
+                        match = match[3:]
+                    match = match[:-len(ext) - 1]
+                    names.append(match)
+                if len(names) == 1:
+                    name = names[0]
+                    assert name is not None
+                    debug("found -l name '%s' for %s %s library" % (name, self.name, kind))
+                    return name
+
+            name = min(names)
+            assert name is not None
+
+            debug("found -l name '%s' for %s %s library" % (name, self.name, kind))
+        except Exception as err:
+            from traceback import format_tb
+            warn(err, self._library_dir(kind))
+            for l in format_tb(err.__traceback__):
+                print('##', *(l.split('\n')), sep='\n## ')
+        return name
+
 
 
     def _getprop(self, prop, global_=None, directory=False, fallback=None,
-                 contains_static_library=False,
-                 contains_shared_library=False, hints=[]):
+                 contains_library=False, match_name=None,
+                 kind=None, hints=[],
+                 quiet=False):
         upper_prop_lib = self.upper_name + '_' + prop.upper()
         if global_ is True:
             global_name = prop.upper()
@@ -160,44 +202,37 @@ class Library:
         l += fallback is not None and [fallback] or []
         l.extend(hints)
         l = list(set(l))
-        print("PROP '%s'" % prop, l)
 
         res = None
         while len(l):
             top = l.pop(0)
             if directory and not os.path.isdir(top):
-                print("not dir", top)
                 continue
-            if contains_static_library and not self._contains_static_library(top):
-                print("do not contain static lib", top)
+            if contains_library and not self._contains_library(top, kind=kind, name=match_name):
+                #print("%s does not contain %s library named %s" % (top, kind, match_name))
                 continue
-            if contains_shared_library and not self._contains_shared_library(top):
-                print("do not contain shared lib", top)
+            if contains_library and not self._contains_library(top, kind=kind, name=match_name):
+                #print("%s does not contain %s library named %s" % (top, kind, match_name))
                 continue
             res = top
             break
 
 
         if res is None:
-            raise Exception(
-                "Cannot find %s property for %s \
-                (please specify %s or %s with -D switch)." % (
-                    prop, self.name, upper_prop_lib, prop.upper()
+            if not quiet:
+                error(
+                    "Cannot find %s property for %s \
+                    (please specify %s or %s with -D switch)." % (
+                        prop, self.name, upper_prop_lib, prop.upper()
+                    )
                 )
-            )
-        if '\\' in res:
+        elif '\\' in res:
             return cleanpath(res)
         return res
 
-    def _contains_static_library(self, dir_, **kwargs):
+    def _contains_library(self, dir_, kind=None, **kwargs):
         kwargs.setdefault('prefixes', set([self.lib_prefix, 'lib']))
-        kwargs.setdefault('exts', self.static_library_exts)
-        kwargs.setdefault('name', self.name)
-        return self._contains(dir_, **kwargs)
-
-    def _contains_shared_library(self, dir_, **kwargs):
-        kwargs.setdefault('prefixes', set([self.lib_prefix, 'lib']))
-        kwargs.setdefault('exts', self.shared_library_exts)
+        kwargs.setdefault('exts', self._library_exts(kind))
         kwargs.setdefault('name', self.name)
         return self._contains(dir_, **kwargs)
 
@@ -211,11 +246,25 @@ class Library:
 
         return False
 
+    @staticmethod
+    def gen_property(kind, fname):
+        k = '_%s%s_result' % (kind, fname)
+        def closure(self):
+            if True or not hasattr(self, k):
+                log("Search for %s.%s'" % (self.name.upper(), kind + fname))
+                func = getattr(self, fname)
+                setattr(self, k, func(kind))
+            return getattr(self, k)
+        return property(closure)
+
+for kind in ['static', 'shared']:
+    for fname in ['_library', '_library_exts', '_library_dir']:
+        setattr(Library, kind + fname, Library.gen_property(kind, fname))
+
 
 def python_library(globals_):
     prefix = sysconfig.get_config_var('prefix')
     version = sysconfig.get_config_var('VERSION')
-    print("PYTHON INCLUDE DIR = ", sysconfig.get_config_vars()['INCLUDEPY'])
     return Library(
         'python',
         env = globals_,
@@ -226,9 +275,36 @@ def python_library(globals_):
         shared_library_file = sysconfig.get_config_vars().get('LDLIBRARY')
     )
 
+def GL_library(globals_):
+    kwargs = {}
+    if sys.platform.startswith('win'):
+        kwargs.update({
+            'shared_library_name': 'opengl32',
+            'shared_library_dir': 'c:\\Windows\\System32',
+            'static_library_name': 'opengl32',
+            'static_library_dir': 'c:\\Windows\\System32',
+        })
+    return Library(
+        'GL',
+        env = globals_,
+        **kwargs
+    )
+
+def GLEW_library(globals_):
+    kwargs = {}
+    if sys.platform.startswith('win'):
+        kwargs.update({
+            'shared_library_name': 'glew32',
+            'static_library_name': 'glew32',
+        })
+    return Library(
+        'GLEW',
+        env = globals_,
+        **kwargs
+    )
 
 def find_library(name, globals_=globals()):
-    if name.lower() + '_library' in globals():
+    if name + '_library' in globals():
         return globals()[name + '_library'](globals_)
     else:
         return Library(name, globals_)
