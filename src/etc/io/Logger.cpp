@@ -1,11 +1,13 @@
 
+#include <cassert>
+
 #include "Logger.hpp"
 
 namespace etc { namespace io {
 
     namespace
     {
-        size_t const max_level_idx = static_cast<size_t>(Level::_MaxValue);
+        size_t const max_level_idx = static_cast<size_t>(Logger::Level::_MaxValue);
 
         std::string const level_strings[max_level_idx] = {
             "DEBUG",
@@ -17,7 +19,7 @@ namespace etc { namespace io {
     }
 
     Logger::Logger(Logger::Level level)
-      : _level(level),
+      : _level(level)
       , _streams{
             {&std::cerr, false},
             {&std::cerr, false},

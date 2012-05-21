@@ -1,7 +1,7 @@
 #ifndef  ETC_IO_LOGGER_HXX
 # define ETC_IO_LOGGER_HXX
 
-# include <etc/print.hh>
+# include <etc/to_string.hpp>
 
 namespace etc { namespace io {
 
@@ -10,7 +10,7 @@ namespace etc { namespace io {
       {
         if (level < this->_level)
           return;
-        this->_message(level, to_string(values...))
+        this->_message(level, etc::to_string(values...));
       }
 
     template<typename... T>
@@ -20,22 +20,23 @@ namespace etc { namespace io {
       }
 
     template<typename... T>
-      void Logger::info(T const&...)
+      void Logger::info(T const&... values)
       {
         return this->message(Logger::Level::Info, values...);
       }
 
     template<typename... T>
-      void Logger::warn(T const&...)
+      void Logger::warn(T const&... values)
       {
         return this->message(Logger::Level::Warn, values...);
       }
 
     template<typename... T>
-      void Logger::fatal(T const&...)
+      void Logger::fatal(T const&... values)
       {
         return this->message(Logger::Level::Fatal, values...);
       }
+
 }} // !etc::io
 
 #endif

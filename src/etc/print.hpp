@@ -73,6 +73,6 @@ namespace etc {
 
 } // !etc
 
-# include <etc/print.ipp>
+# include "print.ipp"
 
 #endif

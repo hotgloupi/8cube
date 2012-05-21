@@ -159,7 +159,6 @@ class Library:
         l = res is not None and [res] or []
         l += fallback is not None and [fallback] or []
         l.extend(hints)
-        l = list(set(l))
         print("PROP '%s'" % prop, l)
 
         res = None
