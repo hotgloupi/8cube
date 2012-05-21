@@ -1,12 +1,11 @@
 #ifndef  ETC_IO_LOGGER_HH
 # define ETC_IO_LOGGER_HH
 
+# include <iosfwd>
+
 # include <boost/noncopyable.hpp>
 
-namespace elle
-{
-  namespace utility
-  {
+namespace etc { namespace io {
 
     class Logger
       : private boost::noncopyable
@@ -40,7 +39,7 @@ namespace elle
       template<typename... T> void message(Level level, T const&...);
       template<typename... T> void debug(T const&...);
       template<typename... T> void info(T const&...);
-      template<typename... T> void warning(T const&...);
+      template<typename... T> void warn(T const&...);
       template<typename... T> void fatal(T const&...);
 
     protected:
@@ -50,8 +49,8 @@ namespace elle
   }
 }
 
-# include <elle/utility/Logger.hxx>
+# include "Logger.ipp"
 
-#endif /* ! LOGGER_HH */
+#endif
 
 
