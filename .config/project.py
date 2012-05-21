@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+import sys
+
 # The project name (this is not the version code name).
 NAME = 'test'
 
@@ -28,6 +30,27 @@ DEFAULT_BUILD_TYPE = 'Debug'
 #TUP_TEMPLATE_PATH = '.config/templates/Tupfile.templates'
 #TUP_TEMPLATE_PATH_CMD = None
 
+# Convenient function to get a portable executable name
+def executable(name):
+    return name + (sys.platform.startswith('win') and '.exe' or '')
+
+def shared_library_ext():
+    return (
+        sys.platform.startswith('win') and 'dll' or (
+            sys.platform.startswith('mac') and 'dylib' or 'so'
+        )
+    )
+
+SHARED_LIBRARY_EXT = shared_library_ext()
+
+def static_library(name):
+    return name + '.a'
+
+if sys.platform.startswith('win'):
+    PYTHON_MODULE_EXT = 'pyd'
+else:
+    PYTHON_MODULE_EXT = SHARED_LIBRARY_EXT
+
 # Tup template generator (used when TUP_TEMPLATE_PATH is None).
 # Can be a python function or a shell command that accept a relative directory
 # path as only argument and respectively returns or print out the tup file
@@ -39,7 +62,7 @@ def _getTemplate(dir_):
 
         data += """
 LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
-: foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.so
+: foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.{PYTHON_MODULE_EXT}
 
 """
     elif dir_.startswith('src/cube'):
@@ -95,20 +118,6 @@ RECURSE_OVER_SOURCE_DIRECTORIES = True
 #   - 'output_directory' (optional): where to build out files (defaults to build dir).
 #
 
-import sys
-
-# Convenient function to get a portable executable name
-def executable(name):
-    return name + (sys.platform.startswith('win') and '.exe' or '')
-
-def shared_library_ext():
-    return (
-        sys.platform.startswith('win') and 'dll' or (
-            sys.platform.startswith('mac') and 'dylib' or 'so'
-        )
-    )
-def static_library(name):
-    return name + '.a'
 
 TARGETS = [
     {
@@ -126,7 +135,7 @@ TARGETS = [
     {
         'input_items': ['src/greenlet/greenlet.o'],
         'command': '!link_shared_library',
-        'output_file': 'greenlet.so',
+        'output_file': 'greenlet.{PYTHON_MODULE_EXT}',
         'output_directory': 'release/lib/python',
     }
 ]

@@ -294,8 +294,8 @@ def GLEW_library(globals_):
     kwargs = {}
     if sys.platform.startswith('win'):
         kwargs.update({
-            'shared_library_name': 'glew32',
-            'static_library_name': 'glew32',
+            'shared_library_name': 'glew32s',
+            'static_library_name': 'glew32s',
         })
     return Library(
         'GLEW',
