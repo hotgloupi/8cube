@@ -37,6 +37,7 @@ namespace cube { namespace system { namespace window {
 	{
 		if (::SDL_Init(SDL_INIT_VIDEO))
 			throw std::runtime_error(SDL_GetError());
+		::SDL_WM_SetCaption(title.c_str(), 0);
 		::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		::SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 		if (!(_impl->screen = SDL_SetVideoMode(width, height, 0, SDL_RESIZABLE | SDL_OPENGL)))
@@ -44,7 +45,6 @@ namespace cube { namespace system { namespace window {
 			::SDL_Quit();
 			throw std::runtime_error(SDL_GetError());
 		}
-		::SDL_WM_SetCaption(title.c_str(), 0);
 		//SDL_EnableKeyRepeat(130, 35);
 		::SDL_EnableUNICODE(SDL_ENABLE);
 
