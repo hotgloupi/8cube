@@ -27,6 +27,6 @@ BOOST_PYTHON_MODULE(renderer)
 	py::class_<detail::WrapRendererType>(
 		"RendererType"
 		)
-    .def("__str__", &detail::WrapRendererType::__str__)
+		.def("__str__", &detail::WrapRendererType::__str__)
 	;
 }

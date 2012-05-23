@@ -7,18 +7,18 @@ VERBOSE = False
 
 def debug(*msg):
     if DEBUG:
-        print('----', *msg)
+        print('--------[', *msg)
 
 def log(*msg):
     if VERBOSE:
-        print('---', *msg)
+        print('***', *msg)
 
 
 def warn(*msg):
     print('WARNING:', *msg)
 
 def error(*msg):
-    print('ERROR:', *msg)
+    print('# ERROR:', *msg)
 
 
 def cleanpath(p):
@@ -45,9 +45,20 @@ def split_ext(f):
             i = f.index('.so')
             return (f[:i], f[i + 1:])
         parts = f.split('.')
-        return ('.'.join(parts[:-1]), parts[-1])
+        return (parts[0], '.'.join(parts[1:]))
     else:
-        return f
+        return (f, '')
+
+def cached(func):
+    _ = {}
+    def wrapper(*args, **kwargs):
+        k = args + tuple(kwargs.items())
+        if k in _:
+            return _[k]
+        _[k] = v = func(*args, **kwargs)
+        return v
+    wrapper.__name__ == func.__name__
+    return wrapper
 
 
 class Library:
@@ -62,6 +73,7 @@ class Library:
 
 
     @property
+    @cached
     def lib_prefix(self):
         fallback = (sys.platform.startswith('win') and [''] or ['lib'])[0]
         return self._getprop(
@@ -71,6 +83,7 @@ class Library:
         )
 
     @property
+    @cached
     def architecture(self):
         return self._getprop(
             'architecture',
@@ -79,6 +92,7 @@ class Library:
         )
 
     @property
+    @cached
     def prefix(self):
         return self._getprop(
             'prefix',
@@ -88,6 +102,7 @@ class Library:
         )
 
     @property
+    @cached
     def include_dir(self):
         return self._getprop(
             'include_dir',
@@ -99,21 +114,23 @@ class Library:
         )
 
 
+    @cached
     def _library_exts(self, kind, quiet=False):
         if kind == 'static':
             if sys.platform.startswith('win'):
-                return ['a', 'lib']
+                return ['dll.a', 'a', 'lib',]
             else:
                 return ['a']
         elif kind == 'shared':
             if sys.platform.startswith('win'):
-                return ['dll']
+                return ['dll', 'lib']
             elif sys.platform.startswith('mac'): # XXX darwin
                 return ['dylib']
             else:
                 return ['so']
         raise Exception("Unknown kind '%s'" % str(kind))
 
+    @cached
     def _library_dir(self, kind, quiet=False):
         hints = {
             'static': [
@@ -148,10 +165,9 @@ class Library:
             quiet = quiet
         )
 
+    @cached
     def _is_library_file(self, kind, dir_, f, allow_symlink=False):
         fext = get_ext(f)
-        if '.' in fext:
-            fext = fext.split('.')[0]
         valid_ext = any(
             (fext == ext) for ext in self._library_exts(kind)
         )
@@ -168,10 +184,12 @@ class Library:
         )
         return res
 
+    @cached
     def _library_filename(self, kind, quiet=False, allow_symlink=False, shortest=True):
         assert kind is not None
         try:
             f = self._getprop(kind + '_library_name', quiet=True)
+            debug("Found prop:", f)
             match_name = f.startswith('lib') and f[3:] or f
             debug("Using %s_library_name=%s as a fallback name" % (kind, match_name))
         except:
@@ -181,31 +199,43 @@ class Library:
         if name.startswith('lib'):
             name = name[3:]
         match_name = name
-        debug("Searching for library filename of", match_name)
+        debug("Searching for library filename of", match_name, name)
         result = None
         try:
             found = []
             lib_dir = self._library_dir(kind, quiet=quiet)
             if lib_dir is None:
-                return name + self._library_exts(kind, quiet=quiet)[0]
+                warn("default name picked because the library directory of", self.name, "coudn't be found")
+                return name + '.' + self._library_exts(kind, quiet=quiet)[0]
             for f in os.listdir(lib_dir):
                 if name in f and not f.startswith('.'):
                     if self._is_library_file(kind, lib_dir, f, allow_symlink = allow_symlink):
                         found.append(f)
+                    else:
+                        debug("Ignore file", f)
 
-            def strip(n):
+            def match_ref(ref, n):
+                if ref == n:
+                    return True
                 if n.startswith('lib'):
                     n = n[3:]
-                return n.strip('-.123456789').lower()
+                if ref == n:
+                    return True
+                n = n.strip('.123456789').lower()
+                if ref == n:
+                    return True
+                if '-' in n:
+                    n = n.split('-')[0]
+                return n == ref
             files = []
             exts = self._library_exts(kind)
             for f in found:
                 fname, fext = split_ext(f)
-                if strip(fname) != strip(match_name):
-                    debug("Ignore %s lib name" % match_name, strip(fname), '( !=', strip(match_name), ')')
+                if not match_ref(match_name, fname):
+                    debug("Ignore result", f, '(', fname, 'does not match', match_name, ')')
                     continue
                 for ext in exts:
-                    if fext.startswith(ext) and strip(fname) == strip(match_name):
+                    if fext.startswith(ext):
                         debug("Found file '%s'" % f)
                         files.append(f)
                         break
@@ -227,10 +257,12 @@ class Library:
         except Exception as err:
             from traceback import format_tb
             warn(err, self._library_dir(kind))
-            for l in format_tb(err.__traceback__):
-                print('##', *(l.split('\n')), sep='\n## ')
+            if VERBOSE:
+                for l in format_tb(err.__traceback__):
+                    print('##', *(l.split('\n')), sep='\n## ')
         return result
 
+    @cached
     def _library_filepath(self, kind, quiet=False):
         d = self._library_dir(kind, quiet=quiet)
         fname = self._library_filename(kind, quiet=quiet)
@@ -238,13 +270,18 @@ class Library:
             return None
         return cleanjoin(d, fname)
 
+    @cached
     def _library(self, kind, quiet=False):
         fname = self._library_filename(kind, quiet=quiet, allow_symlink=True, shortest=True)
+        print("FOUND", fname)
         if fname is None:
             return None
         if fname.startswith('lib'):
             fname = fname[3:]
-        return remove_ext(fname)
+        name, ext = split_ext(fname)
+        if '.' in ext and not ext.startswith('so.'):
+            name += '.' + '.'.join(ext.split('.')[:-1]) #+ '-PATCHED-'+kind+'-' + name + '-' + ext
+        return name
 
 
 
@@ -273,6 +310,7 @@ class Library:
         l.extend(hints)
         unique = set(l)
         l = list(e for e in l if e in unique and len([unique.remove(e)]))
+        debug("Searching property '%s'" % prop, prop, "in", l)
 
         res = None
         while len(l):
@@ -280,10 +318,7 @@ class Library:
             if directory and not os.path.isdir(top):
                 continue
             if contains_library and not self._contains_library(top, kind=kind, name=match_name):
-                #print("%s does not contain %s library named %s" % (top, kind, match_name))
-                continue
-            if contains_library and not self._contains_library(top, kind=kind, name=match_name):
-                #print("%s does not contain %s library named %s" % (top, kind, match_name))
+                debug("%s does not contain %s library named %s" % (top, kind, match_name))
                 continue
             res = top
             break
@@ -291,41 +326,37 @@ class Library:
 
         if res is None:
             if not quiet:
-                error(
-                    "Cannot find %s property for %s \
-                    (please specify %s or %s with -D switch)." % (
-                        prop, self.name, upper_prop_lib, prop.upper()
-                    )
-                )
+                warn("Cannot find %s property for %s." % (prop, self.name))
+                warn("Please define %s or %s (with -D)" % (upper_prop_lib, prop.upper()))
         elif '\\' in res:
             return cleanpath(res)
         return res
 
     def _contains_library(self, dir_, kind=None, **kwargs):
-        kwargs.setdefault('prefixes', set([self.lib_prefix, 'lib']))
+        kwargs.setdefault('prefixes', tuple(set([self.lib_prefix, 'lib'])))
         kwargs.setdefault('exts', self._library_exts(kind))
         kwargs.setdefault('name', self.name)
         return self._contains(dir_, **kwargs)
 
-    def _contains(self, directory, prefixes=[], name=None, exts=[]):
+    def _contains(self, directory, prefixes=(), name=None, exts=()):
         name = name is None and self.name or name
+        debug("searching", name, "in", directory, '(with exts =', exts,')')
         for fname in os.listdir(directory):
             for ext in exts:
                 for prefix in prefixes:
-                    if fname.startswith(prefix + name) and fname.endswith('.' +  ext):
+                    n, e = split_ext(fname)
+                    if e == ext and fname.startswith(prefix + name):
+                        debug("found match for file", fname, '(', n, e,')')
                         return True
 
         return False
 
     @staticmethod
     def gen_property(kind, fname):
-        k = '_%s%s_result' % (kind, fname)
         def closure(self):
-            if not hasattr(self, k):
-                log("Search for %s.%s'" % (self.name.upper(), kind + fname))
-                func = getattr(self, fname)
-                setattr(self, k, func(kind))
-            return getattr(self, k)
+            func = getattr(self, fname)
+            log("Search for %s.%s'" % (self.name.upper(), kind + fname))
+            return func(kind)
         return property(closure)
 
 for kind in ['static', 'shared']:
@@ -334,18 +365,18 @@ for kind in ['static', 'shared']:
 
 
 def python_library(globals_):
-    prefix = sysconfig.get_config_var('prefix')
-    version = sysconfig.get_config_var('VERSION')
+    cfg = sysconfig.get_config_vars()
+    prefix = cfg['prefix']
+    version = cfg['VERSION']
     kwargs = {
         'env': globals_,
         'version': version,
         'prefix': prefix,
-        'include_dir': sysconfig.get_config_vars()['INCLUDEPY'],
-        'static_library_name': remove_ext(sysconfig.get_config_vars().get('LIBRARY')),
-        'shared_library_name': remove_ext(sysconfig.get_config_vars().get('LDLIBRARY'))
+        'include_dir': cfg['INCLUDEPY'],
+        'static_library_name': remove_ext(cfg.get('LIBRARY', 'python' + version.replace('.', ''))),
+        'shared_library_name': remove_ext(cfg.get('LDLIBRARY', 'python' + version.replace('.', ''))),
     }
     return Library('python', **kwargs)
-    return l
 
 def GL_library(globals_):
     kwargs = {}

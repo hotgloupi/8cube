@@ -28,30 +28,28 @@ CXXFLAGS    += -x c++ -std=c++0x -ggdb3 -Wall -Wextra
 LDFLAGS     +=\
  {LDFLAGS}\
  -Wl,-rpath,"\$ORIGIN../lib"\
+ -l{SDL.static_library}\
+ -l{GLEW.static_library}\
+ -l{PYTHON.static_library}\
+ -l{BOOST_SYSTEM.static_library}\
+ -l{BOOST_FILESYSTEM.static_library}\
+ -l{BOOST_SIGNALS.static_library}\
  -l{BOOST_PYTHON3.shared_library}\
- -l{PYTHON.shared_library}\
- -l{GLEW.shared_library}\
- -l{GL.shared_library}\
- -l{SDL.shared_library}\
+ -Wl,-static -l{GL.shared_library}\
+
 
 
 LDFLAGS_STATIC=\
  $(LDFLAGS)\
- -l{BOOST_SYSTEM.static_library}\
- -l{BOOST_FILESYSTEM.static_library}\
- -l{BOOST_SIGNALS.static_library}\
 
 LDFLAGS_SHARED=\
  $(LDFLAGS)\
- -Wl,-shared -l{BOOST_SIGNALS.shared_library}\
- -Wl,-shared -l{BOOST_FILESYSTEM.shared_library}\
- -Wl,-shared -l{BOOST_SYSTEM.shared_library}\
 
 
 
 !make_cpp_object = |> $(CXX) $(CFLAGS)  $(CXXFLAGS) $(CXXFLAGS_%f) -c %f -o %o |> %B.o
 !link_cpp_executable = |> $(CXX) %f $(LDFLAGS_STATIC) $(LDFLAGS_%o) -o %o |>
-!link_shared_library = |> $(CXX) %f $(LDFLAGS_SHARED) $(LDFLAGS_%o) -shared -o %o |> %B.{SHARED_LIBRARY_EXT}
+!link_shared_library = |> $(CXX) %f $(LDFLAGS_SHARED) $(LDFLAGS_%o) $(REVERSE) -shared -o %o |> %B.{SHARED_LIBRARY_EXT}
 !link_static_library = |> ar rc %o %f && ranlib %o |>
 copy_script = $(ROOT_DIR)/.config/copy_file.py
 !copy_file = |> python $(copy_script) "%f" %o |>
