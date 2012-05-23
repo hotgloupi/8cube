@@ -3,7 +3,7 @@
 import os, platform, sys, sysconfig
 
 DEBUG = False
-VERBOSE = True
+VERBOSE = False
 
 def debug(*msg):
     if DEBUG:
@@ -15,8 +15,7 @@ def log(*msg):
 
 
 def warn(*msg):
-    if VERBOSE:
-        print('WARNING:', *msg)
+    print('WARNING:', *msg)
 
 def error(*msg):
     print('ERROR:', *msg)
@@ -33,6 +32,23 @@ def cleanabspath(p):
 
 def cleanjoin(*args):
     return cleanpath(os.path.join(*args))
+
+def remove_ext(f):
+    return split_ext(f)[0]
+
+def get_ext(f):
+    return split_ext(f)[1]
+
+def split_ext(f):
+    if '.' in f and f.index('.') > 0:
+        if '.so.' in f:
+            i = f.index('.so')
+            return (f[:i], f[i + 1:])
+        parts = f.split('.')
+        return ('.'.join(parts[:-1]), parts[-1])
+    else:
+        return f
+
 
 class Library:
 
@@ -132,7 +148,27 @@ class Library:
             quiet = quiet
         )
 
-    def _library(self, kind, quiet=False):
+    def _is_library_file(self, kind, dir_, f, allow_symlink=False):
+        fext = get_ext(f)
+        if '.' in fext:
+            fext = fext.split('.')[0]
+        valid_ext = any(
+            (fext == ext) for ext in self._library_exts(kind)
+        )
+        if not valid_ext:
+            return False
+
+        path = os.path.join(dir_, f)
+        res = (
+            (
+                allow_symlink or not os.path.islink(path)
+            ) and (
+                kind == 'static' or os.access(path, os.X_OK)
+            )
+        )
+        return res
+
+    def _library_filename(self, kind, quiet=False, allow_symlink=False, shortest=True):
         assert kind is not None
         try:
             f = self._getprop(kind + '_library_name', quiet=True)
@@ -142,39 +178,73 @@ class Library:
             match_name = self.name
 
         name = self._getprop(kind + '_library', fallback=match_name, quiet=quiet)
+        if name.startswith('lib'):
+            name = name[3:]
+        match_name = name
+        debug("Searching for library filename of", match_name)
+        result = None
         try:
             found = []
             lib_dir = self._library_dir(kind, quiet=quiet)
             if lib_dir is None:
-                return name
-            for f in os.listdir(self._library_dir(kind)):
-                if name in f and any(f.endswith('.' + ext) for ext in self._library_exts(kind)):
-                    found.append(f)
-            names = []
-            for ext in self._library_exts(kind):
-                matches = [f for f in found if f.endswith('.' + ext) and not f.startswith('.')]
-                for match in matches:
-                    debug("Found file '%s'" % match)
-                    if match.startswith('lib'):
-                        match = match[3:]
-                    match = match[:-len(ext) - 1]
-                    names.append(match)
-                if len(names) == 1:
-                    name = names[0]
-                    assert name is not None
-                    debug("found -l name '%s' for %s %s library" % (name, self.name, kind))
-                    return name
+                return name + self._library_exts(kind, quiet=quiet)[0]
+            for f in os.listdir(lib_dir):
+                if name in f and not f.startswith('.'):
+                    if self._is_library_file(kind, lib_dir, f, allow_symlink = allow_symlink):
+                        found.append(f)
 
-            name = min(names)
-            assert name is not None
+            def strip(n):
+                if n.startswith('lib'):
+                    n = n[3:]
+                return n.strip('-.123456789').lower()
+            files = []
+            exts = self._library_exts(kind)
+            for f in found:
+                fname, fext = split_ext(f)
+                if strip(fname) != strip(match_name):
+                    debug("Ignore %s lib name" % match_name, strip(fname), '( !=', strip(match_name), ')')
+                    continue
+                for ext in exts:
+                    if fext.startswith(ext) and strip(fname) == strip(match_name):
+                        debug("Found file '%s'" % f)
+                        files.append(f)
+                        break
+                #if len(files) == 1: #first extension might be the most accurate
+                #    result = files[0]
+                #    if self._is_library_file(kind, lib_dir, result, allow_symlink = False):
+                #        assert result is not None
+                #        return result
 
-            debug("found -l name '%s' for %s %s library" % (name, self.name, kind))
+            if not files:
+                raise Exception("Cannot find library name for " + name)
+            if shortest:
+                result = sorted(files, key=lambda k: len(k))[0]
+            else:
+                result = sorted(files, key=lambda k: -len(k))[0]
+            debug("Choose %s in ("  % match_name, files, "):", result)
+            assert result is not None
+
         except Exception as err:
             from traceback import format_tb
             warn(err, self._library_dir(kind))
             for l in format_tb(err.__traceback__):
                 print('##', *(l.split('\n')), sep='\n## ')
-        return name
+        return result
+
+    def _library_filepath(self, kind, quiet=False):
+        d = self._library_dir(kind, quiet=quiet)
+        fname = self._library_filename(kind, quiet=quiet)
+        if d is None or fname is None:
+            return None
+        return cleanjoin(d, fname)
+
+    def _library(self, kind, quiet=False):
+        fname = self._library_filename(kind, quiet=quiet, allow_symlink=True, shortest=True)
+        if fname is None:
+            return None
+        if fname.startswith('lib'):
+            fname = fname[3:]
+        return remove_ext(fname)
 
 
 
@@ -201,7 +271,8 @@ class Library:
         l = res is not None and [res] or []
         l += fallback is not None and [fallback] or []
         l.extend(hints)
-        l = list(set(l))
+        unique = set(l)
+        l = list(e for e in l if e in unique and len([unique.remove(e)]))
 
         res = None
         while len(l):
@@ -250,7 +321,7 @@ class Library:
     def gen_property(kind, fname):
         k = '_%s%s_result' % (kind, fname)
         def closure(self):
-            if True or not hasattr(self, k):
+            if not hasattr(self, k):
                 log("Search for %s.%s'" % (self.name.upper(), kind + fname))
                 func = getattr(self, fname)
                 setattr(self, k, func(kind))
@@ -258,22 +329,23 @@ class Library:
         return property(closure)
 
 for kind in ['static', 'shared']:
-    for fname in ['_library', '_library_exts', '_library_dir']:
+    for fname in ['_library', '_library_exts', '_library_dir', '_library_filename', '_library_filepath']:
         setattr(Library, kind + fname, Library.gen_property(kind, fname))
 
 
 def python_library(globals_):
     prefix = sysconfig.get_config_var('prefix')
     version = sysconfig.get_config_var('VERSION')
-    return Library(
-        'python',
-        env = globals_,
-        version = version,
-        prefix = prefix,
-        include_dir = sysconfig.get_config_vars()['INCLUDEPY'],
-        static_library_file = sysconfig.get_config_vars().get('LIBRARY'),
-        shared_library_file = sysconfig.get_config_vars().get('LDLIBRARY')
-    )
+    kwargs = {
+        'env': globals_,
+        'version': version,
+        'prefix': prefix,
+        'include_dir': sysconfig.get_config_vars()['INCLUDEPY'],
+        'static_library_name': remove_ext(sysconfig.get_config_vars().get('LIBRARY')),
+        'shared_library_name': remove_ext(sysconfig.get_config_vars().get('LDLIBRARY'))
+    }
+    return Library('python', **kwargs)
+    return l
 
 def GL_library(globals_):
     kwargs = {}

@@ -186,6 +186,15 @@ LDFLAGS = ''
 
 LIBRARIES = list(globals()[name.upper()] for name in LIBRARY_NAMES)
 
+for l in LIBRARIES:
+    for attr in [
+        'include_dir',
+        'shared_library',
+        'shared_library_filename',
+        'shared_library_filepath',
+    ]:
+        print(l.name.upper() + '.' + attr, '=',  getattr(l, attr))
+
 
 include_dirs = set()
 static_library_dirs = set()
@@ -215,33 +224,19 @@ print('#' * 80)
 CFLAGS = ' '.join('-I' + d for d in include_dirs)
 LDFLAGS = ' '.join('-L' + d for d in library_dirs)
 
-_library_dirs = [
-    PYTHON.shared_library_dir,
-    BOOST_PYTHON3.shared_library_dir,
-    SDL.shared_library_dir,
-]
-
 setdefault("SHIPPED_LIBRARIES", [
-    'boost_python3',
-    'SDL'
+    l for l in LIBRARIES if l.shared_library
 ])
 
-import os as _os
-
-def _get_libraries_for(lib):
-    ext = shared_library_ext()
-    for d in _library_dirs:
-        for l in _os.listdir(d):
-            if lib in l and l.endswith(ext):
-                yield d, l
+import os
 
 def _get_libraries(libs):
     for lib in libs:
-        for dir_, file_ in _get_libraries_for(lib):
-            yield dir_, file_
+        if lib.shared_library:
+            p = lib.shared_library_filepath
+            yield os.path.split(p)
 
 lib_dir = sys.platform.startswith('win') and 'bin' or 'lib'
-
 for dir_, file_ in set(_get_libraries(SHIPPED_LIBRARIES)):
     TARGETS.append({
         'input_items': [],
