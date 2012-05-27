@@ -79,7 +79,7 @@ LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
 """
     elif dir_.startswith('src/greenlet'):
         data = "include_rules\n"
-        data += ':foreach {SOURCE_DIR}/*.c |> gcc $(CFLAGS) -fPIC -I{PYTHON.include_dir} -c %f -o %o |> %B.o\n'
+        data += ':foreach {SOURCE_DIR}/*.c |> gcc $(CFLAGS) -fPIC -c %f -o %o |> %B.o\n'
     return data
 
 
@@ -132,12 +132,12 @@ TARGETS = [
         'output_file': 'libcube.a',
         'output_directory': 'release/lib',
     },
-    {
-        'input_items': ['src/greenlet/greenlet.o'],
-        'command': '!link_shared_library',
-        'output_file': 'greenlet.{PYTHON_MODULE_EXT}',
-        'output_directory': 'release/lib/python',
-    }
+    #{
+    #    'input_items': ['src/greenlet/greenlet.o'],
+    #    'command': '!link_shared_library',
+    #    'output_file': 'greenlet.{PYTHON_MODULE_EXT}',
+    #    'output_directory': 'release/lib/python',
+    #}
 ]
 
 # Same as before
@@ -151,97 +151,275 @@ RECURSE_OVER_TARGET_DIRECTORIES = True
 def setdefault(name, value, globals=globals()):
     return globals.setdefault(name, value)
 
-setdefault("CC", "gcc")
-setdefault("CXX", "g++")
+setdefault('PREFIX', '/usr')
 
-setdefault("CCACHE", "ccache")
+import distutils.ccompiler
+import distutils.sysconfig
 
+py_libname = None
+try:
+    py_ldflags = distutils.sysconfig.get_config_var('BLDLIBRARY').split(' ')
+    for f in py_ldflags:
+        if f.startswith('-l'):
+            py_libname = f[2:]
+            break
+except:
+    py_libname = 'python3'
 
-import tupcfg
-
-
-LIBRARY_NAMES = [
-    'python',
-    'GL',
-    'GLEW',
-    'boost_python3',
-    'boost_filesystem',
-    'boost_signals',
-    'boost_system',
-    'SDL',
+INCLUDE_DIRS = [
+    '$(SOURCE_DIR)',
+    distutils.sysconfig.get_python_inc(),
+    cleanjoin(PREFIX, 'include'),
 ]
 
-LIBRARIES = dict(
-    (libname, tupcfg.find_library(libname, globals()))
-    for libname in LIBRARY_NAMES
+LIBRARY_DIRS = [
+    cleanjoin(PREFIX, 'lib'),
+    '/usr/lib/i386-linux-gnu', # for libGL.so
+]
+
+RUNTIME_LIBRARY_DIRS = LIBRARY_DIRS + [
+]
+
+STATIC_LIBRARY_NAMES = [
+    'GLU',
+    'GLEW',
+    'SDL',
+    'SDL_image',
+    'boost_system',
+    'boost_signals',
+    'boost_filesystem',
+    'boost_python-py32',
+]
+
+RUNTIME_LIBRARY_NAMES = [
+    py_libname,
+    'GL',
+    'asound',
+    'dl',
+    'pulse-simple',
+    'pulse',
+    'caca',
+    'm',
+    'Xext',
+    'X11',
+    'pthread',
+    'xcb',
+    'Xau',
+    'Xdmcp',
+]
+
+LIBRARY_NAMES = STATIC_LIBRARY_NAMES + RUNTIME_LIBRARY_NAMES
+SHIPPED_LIBRARY_NAMES = [
+    py_libname,
+]
+gcc = distutils.ccompiler.new_compiler()
+
+gcc.set_include_dirs(INCLUDE_DIRS)
+gcc.set_library_dirs(LIBRARY_DIRS)
+gcc.set_runtime_library_dirs(RUNTIME_LIBRARY_DIRS)
+gcc.set_libraries(LIBRARY_NAMES)
+
+gcc.language_map['.ipp'] = 'c++'
+gcc.src_extensions.append('.ipp')
+
+for k, v in {
+    'compiler'     : ["g++"],
+    'compiler_so'  : ["g++"],
+    'compiler_cxx' : ["g++"],
+    'linker_so'    : ["g++", "-shared"],
+    'linker_exe'   : ["g++"]
+}.items():
+    gcc.set_executable(k, v)
+
+class CommandCatcher:
+    def __init__(self, compiler, defaults={}):
+        self.compiler = compiler
+        self.compiler.spawn = self
+        self.defaults = defaults
+
+    def __call__(self, cmd):
+        #print("GOT", cmd)
+        self._cmd = cmd
+
+    def cmd(self, method, in_files, out_file=None, **kwargs):
+        if method not in []:
+            for k, v in self.defaults.items():
+                kwargs.setdefault(k, v)
+        if not isinstance(in_files, list):
+            in_files = [in_files]
+        extra_objects = kwargs.pop('extra_objects', [])
+
+        method = getattr(self.compiler, method)
+        if out_file:
+            out = method(in_files, out_file, **kwargs)
+        else:
+            out = method(in_files, **kwargs)
+        if out is None:
+            out = out_file
+        if isinstance(out, list):
+            assert(len(out) == 1)
+            out = out[0]
+        #print("   -->", out)
+        res = []
+        static_libs = []
+        dynamic_libs = []
+        objects = []
+        outflag = False
+        for p in self._cmd:
+            if p in in_files:
+                p = '%f'
+            if out in p:
+                p = '%o'
+
+            if p.startswith('-Wl') or p.startswith('-L'):
+                dynamic_libs.append(p)
+            elif p.startswith('-l'):
+                if p[2:] in STATIC_LIBRARY_NAMES:
+                    static_libs.append(p)
+                else:
+                    dynamic_libs.append(p)
+            elif p == '%f':
+                objects.append(p)
+            else:
+                if p == '-o':
+                    outflag = True
+                else:
+                    outflag = False
+                res.append(p)
+        for i, p in enumerate(res):
+            if p == '-o':
+                break
+        objects.extend(extra_objects)
+        if len(static_libs):
+            static_libs = ['-Wl,-Bstatic'] + static_libs
+        if len(dynamic_libs):
+            dynamic_libs = ['-Wl,-Bdynamic', '-Wl,-R,\$ORIGIN/../lib'] + dynamic_libs
+        print(objects, static_libs, dynamic_libs)
+        res = res[:i] + objects + static_libs + dynamic_libs + res[i:]
+        return ' '.join(res)
+
+
+catcher = CommandCatcher(gcc, {
+    'extra_preargs': '-std=c++0x -ggdb3 -Wall -Wextra'.split(' '),
+})
+
+
+MAKE_CPP_OBJECT = catcher.cmd(
+    'compile', ['SRC_MARKER.cpp'],
+    extra_preargs = '-x c++ -std=c++0x -ggdb3 -Wall -Wextra'.split(' '),
 )
 
-for lib in LIBRARIES.values():
-    setdefault(lib.name.upper(), lib)
+LINK_CPP_EXECUTABLE = catcher.cmd(
+    'link_executable', ['OBJECT_MARKER.o'],
+    'OUTPUT_MARKER',
+)
 
-import sysconfig
+LINK_CPP_SHARED_LIBRARY = catcher.cmd(
+    'link_shared_lib', ['OBJECT_MARKER.o'], 'OUTPUT_MARKER',
+    extra_objects = ['$(LDFLAGS_SHARED)',],
+)
 
-CFLAGS = ''
-LDFLAGS = ''
-
-LIBRARIES = list(globals()[name.upper()] for name in LIBRARY_NAMES)
-
-for l in LIBRARIES:
-    for attr in [
-        'include_dir',
-        'shared_library',
-        'shared_library_filename',
-        'shared_library_filepath',
-    ]:
-        print(l.name.upper() + '.' + attr, '=',  getattr(l, attr))
-
-
-include_dirs = set()
-static_library_dirs = set()
-shared_library_dirs = set()
-
-for library in LIBRARIES:
-
-    try: include_dirs.add(library.include_dir)
-    except: pass
-    try:
-        static_library_dirs.add(library._library_dir('static', quiet=True))
-    except: pass
-    try:
-        shared_library_dirs.add(library._library_dir('shared', quiet=True))
-    except: pass
-
-library_dirs = static_library_dirs.union(shared_library_dirs)
-library_dirs.remove(None)
-
-if setdefault('BOOST_INCLUDE_DIR', None) is not None:
-    include_dirs.add(BOOST_INCLUDE_DIR)
-
-print('#' * 80)
-print(include_dirs, library_dirs)
-print('#' * 80)
-
-CFLAGS = ' '.join('-I' + d for d in include_dirs)
-LDFLAGS = ' '.join('-L' + d for d in library_dirs)
-
-setdefault("SHIPPED_LIBRARIES", [
-    l for l in LIBRARIES if l.shared_library
-])
-
+print(MAKE_CPP_OBJECT)
+print(LINK_CPP_EXECUTABLE)
+print(LINK_CPP_SHARED_LIBRARY)
 import os
-
-def _get_libraries(libs):
-    for lib in libs:
-        if lib.shared_library:
-            p = lib.shared_library_filepath
-            yield os.path.split(p)
-
 lib_dir = sys.platform.startswith('win') and 'bin' or 'lib'
-for dir_, file_ in set(_get_libraries(SHIPPED_LIBRARIES)):
+for lib in SHIPPED_LIBRARY_NAMES:
+    path = gcc.find_library_file(LIBRARY_DIRS + RUNTIME_LIBRARY_DIRS, lib)
+    if path is None:
+        print("WARNING: Cannot ship library file for '%s'" % lib)
+        continue
+    fname = os.path.basename(path)
     TARGETS.append({
         'input_items': [],
-        'command': 'cp %s .' % cleanjoin(dir_, file_),
-        'output_file': file_,
+        'command': 'cp -Lp %s . && chmod +x %s' % (path, fname),
+        'output_file': fname,
         'output_directory': 'release/' + lib_dir,
     })
 
+setdefault("CC", "gcc")
+setdefault("CXX", "g++")
+#
+#setdefault("CCACHE", "ccache")
+#
+#
+#import tupcfg
+#
+#
+#LIBRARY_NAMES = [
+#    'python',
+#    'GL',
+#    'GLEW',
+#    'boost_python3',
+#    'boost_filesystem',
+#    'boost_signals',
+#    'boost_system',
+#    'SDL',
+#]
+#
+#LIBRARIES = dict(
+#    (libname, tupcfg.find_library(libname, globals()))
+#    for libname in LIBRARY_NAMES
+#)
+#
+#for lib in LIBRARIES.values():
+#    setdefault(lib.name.upper(), lib)
+#
+#import sysconfig
+#
+#CFLAGS = ''
+#LDFLAGS = ''
+#
+#LIBRARIES = list(globals()[name.upper()] for name in LIBRARY_NAMES)
+#
+#for l in LIBRARIES:
+#    for attr in [
+#        'include_dir',
+#        'shared_library',
+#        'shared_library_filename',
+#        'shared_library_filepath',
+#    ]:
+#        print(l.name.upper() + '.' + attr, '=',  getattr(l, attr))
+#
+#
+#include_dirs = set()
+#static_library_dirs = set()
+#shared_library_dirs = set()
+#
+#for library in LIBRARIES:
+#
+#    try: include_dirs.add(library.include_dir)
+#    except: pass
+#    try:
+#        static_library_dirs.add(library._library_dir('static', quiet=True))
+#    except: pass
+#    try:
+#        shared_library_dirs.add(library._library_dir('shared', quiet=True))
+#    except: pass
+#
+#library_dirs = static_library_dirs.union(shared_library_dirs)
+#library_dirs.remove(None)
+#
+#if setdefault('BOOST_INCLUDE_DIR', None) is not None:
+#    include_dirs.add(BOOST_INCLUDE_DIR)
+#
+#print('#' * 80)
+#print(include_dirs, library_dirs)
+#print('#' * 80)
+#
+#CFLAGS = ' '.join('-I' + d for d in include_dirs)
+#LDFLAGS = ' '.join('-L' + d for d in library_dirs)
+#
+#setdefault("SHIPPED_LIBRARIES", [
+#    l for l in LIBRARIES if l.shared_library
+#])
+#
+#import os
+#
+#def _get_libraries(libs):
+#    for lib in libs:
+#        if lib.shared_library:
+#            p = lib.shared_library_filepath
+#            yield os.path.split(p)
+#
+#

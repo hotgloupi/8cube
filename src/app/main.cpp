@@ -5,12 +5,14 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <wrappers/boost/filesystem.hpp>
-#include <wrappers/windows.hpp>
+#include <wrappers/opengl.hpp>
 
 #include "python/Interpreter.hpp"
 
 namespace fs = boost::filesystem;
 namespace algo = boost::algorithm;
+
+static int load_libraries(fs::path lib_dir);
 
 int main(int argc, char* argv[])
 {
@@ -20,23 +22,14 @@ int main(int argc, char* argv[])
 	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
 	fs::path lib_dir = exec_dir.parent_path().append("lib", fs::path::codecvt());
 
-#ifdef _WIN32
-	{
-		fs::directory_iterator dir(exec_dir), end;
-		for (; dir != end; ++dir)
-		{
-			fs::path p(*dir);
-			if (algo::ends_with(p.string(), ".dll"))
-			{
-				std::cout << "-- Load library: " << p.string() << std::endl;
-				::LoadLibrary(p.string().c_str());
-			}
-		}
-	}
-#endif
+  load_libraries(exec_dir);
+  load_libraries(lib_dir);
+
+  auto& interpreter = app::python::Interpreter::instance();
 
 	fs::path python_lib_dir = lib_dir.append("python", fs::path::codecvt());
-	app::python::interpreter.setglobal("lib_dir", python_lib_dir.string());
+	interpreter.setglobal("lib_dir", python_lib_dir.string());
+
 
 	std::string init_script =
 		"import sys\nsys.path.insert(0, lib_dir)\n"
@@ -44,5 +37,38 @@ int main(int argc, char* argv[])
 		"main()\n"
 	;
 
-	return !app::python::interpreter.exec(init_script);
+	return !interpreter.exec(init_script);
+}
+
+#ifdef _WIN32
+# include <wrappers/windows.hpp>
+#else
+# include <dlfcn.h>
+#endif
+
+static int load_libraries(fs::path lib_dir)
+{
+  fs::directory_iterator dir(lib_dir), end;
+  for (; dir != end; ++dir)
+  {
+    fs::path p(*dir);
+    //std::cout << "-- file: " << p.string() << std::endl;
+    if (algo::ends_with(p.string(), ".dll") ||
+        algo::ends_with(p.string(), ".so"))
+    {
+      std::cout << "-- Load library: " << p.string() << std::endl;
+#ifdef _WIN32
+      ::LoadLibrary(p.string().c_str());
+#else
+      //auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
+      //if (!handle)
+      //  {
+      //    std::cerr << "Error while loading " << p.string() << ": " << dlerror() << std::endl;
+      //  }
+      //  if (auto res = dlsym(handle, "__caca0_free_bitmap"))
+      //    std::cout << "found: " << (void const*)res << std::endl;
+#endif
+    }
+  }
+  return 0;
 }

@@ -45,7 +45,8 @@ def split_ext(f):
             i = f.index('.so')
             return (f[:i], f[i + 1:])
         parts = f.split('.')
-        return (parts[0], '.'.join(parts[1:]))
+        #return (parts[0], '.'.join(parts[1:]))
+        return ('.'.join(parts[:-1]), parts[-1])
     else:
         return (f, '')
 
@@ -168,10 +169,12 @@ class Library:
     @cached
     def _is_library_file(self, kind, dir_, f, allow_symlink=False):
         fext = get_ext(f)
+        if fext.startswith('so.'): fext = 'so'
         valid_ext = any(
             (fext == ext) for ext in self._library_exts(kind)
         )
         if not valid_ext:
+            debug(f, "has not a valid extention:", fext, "not in", self._library_exts(kind))
             return False
 
         path = os.path.join(dir_, f)
@@ -179,7 +182,7 @@ class Library:
             (
                 allow_symlink or not os.path.islink(path)
             ) and (
-                kind == 'static' or os.access(path, os.X_OK)
+                kind == 'static' or os.access(path, os.F_OK)
             )
         )
         return res
@@ -345,6 +348,7 @@ class Library:
             for ext in exts:
                 for prefix in prefixes:
                     n, e = split_ext(fname)
+                    if e.startswith('so.'): e = 'so'
                     if e == ext and fname.startswith(prefix + name):
                         debug("found match for file", fname, '(', n, e,')')
                         return True

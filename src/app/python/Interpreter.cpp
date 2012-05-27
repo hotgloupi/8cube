@@ -80,6 +80,4 @@ namespace app { namespace python {
 
 	}
 
-	Interpreter& interpreter = Interpreter::instance();
-
 }} // !app::python

@@ -24,8 +24,6 @@ namespace app { namespace python {
 		static Interpreter& instance();
 	};
 
-	extern Interpreter& interpreter;
-
 }} // !app::python
 
 #endif
