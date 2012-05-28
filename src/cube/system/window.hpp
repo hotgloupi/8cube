@@ -36,6 +36,7 @@ namespace cube { namespace system { namespace window {
 		connect_ ## name(on_ ## name ## _t::slot_function_type subscribe_cb)  \
 
 		EXPOSE_SIGNAL(expose, uint32_t, uint32_t);
+		EXPOSE_SIGNAL(resize, uint32_t, uint32_t);
 		EXPOSE_SIGNAL(idle, void);
 		EXPOSE_SIGNAL(quit, void);
 

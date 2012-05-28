@@ -20,6 +20,7 @@ namespace cube { namespace system { namespace window {
 		DECLARE_SIGNAL(expose);
 		DECLARE_SIGNAL(idle);
 		DECLARE_SIGNAL(quit);
+		DECLARE_SIGNAL(resize);
 
 # undef DECLARE_SIGNAL
 
@@ -48,7 +49,8 @@ namespace cube { namespace system { namespace window {
 		//SDL_EnableKeyRepeat(130, 35);
 		::SDL_EnableUNICODE(SDL_ENABLE);
 
-		_impl->renderer = ::cube::gl::renderer::create_renderer().release();
+		cube::gl::viewport::Viewport viewport{0, 0, (float)width, (float)height};
+		_impl->renderer = ::cube::gl::renderer::create_renderer(viewport).release();
 
 		//this->_renderer = new Renderers::GLRenderer();
 		//this->_renderer->Initialise();
@@ -63,6 +65,55 @@ namespace cube { namespace system { namespace window {
 		delete this->_impl;
 	}
 
+	uint32_t Window::poll()
+	{
+		return this->poll(100);
+	}
+
+	uint32_t Window::poll(uint32_t max)
+	{
+		uint32_t count = 0;
+		bool has_expose = false;
+		bool has_resize = false;
+
+		SDL_Event e;
+		while (SDL_PollEvent(&e))
+		{
+			switch (e.type)
+			{
+			case SDL_VIDEORESIZE:
+				_width = e.resize.w;
+				_height = e.resize.h;
+				has_resize = true;
+				break;
+			case SDL_VIDEOEXPOSE:
+				has_expose = true;
+				break;
+			case SDL_QUIT:
+				_impl->on_quit();
+				break;
+			}
+			if (++count >= max)
+				break;
+		}
+
+		if (has_resize)
+			_impl->on_resize(_width, _height);
+		if (has_expose)
+			_impl->on_expose(_width, _height);
+
+		if (count == 0)
+			_impl->on_idle();
+		return count;
+	}
+
+	::cube::gl::renderer::Renderer& Window::renderer()
+	{
+		return *_impl->renderer;
+	}
+
+
+
 #define MAKE_CONNECTOR(evt)                                                    \
 	boost::signals::connection                                                 \
 	Window::connect_##evt(on_##evt##_t::slot_function_type subscribe_cb)       \
@@ -73,41 +124,9 @@ namespace cube { namespace system { namespace window {
 	MAKE_CONNECTOR(expose)
 	MAKE_CONNECTOR(idle)
 	MAKE_CONNECTOR(quit)
+	MAKE_CONNECTOR(resize)
 
 #undef MAKE_CONNECTOR
-
-	uint32_t Window::poll()
-	{
-		return this->poll(100);
-	}
-
-	uint32_t Window::poll(uint32_t max)
-	{
-		uint32_t count = 0;
-
-		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			switch (e.type)
-			{
-			case SDL_VIDEOEXPOSE:
-				_impl->on_expose(_width, _height);
-				break;
-			case SDL_QUIT:
-				_impl->on_quit();
-			}
-			if (++count >= max)
-				break;
-		}
-		if (count == 0)
-			_impl->on_idle();
-		return count;
-	}
-
-	::cube::gl::renderer::Renderer& Window::renderer()
-	{
-		return *_impl->renderer;
-	}
 
 
 }}} // !cube::system::window
