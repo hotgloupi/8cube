@@ -33,19 +33,22 @@ def cleanabspath(p):
 def cleanjoin(*args):
     return cleanpath(os.path.join(*args))
 
-def remove_ext(f):
-    return split_ext(f)[0]
+def remove_ext(f, only_simple_ext=False):
+    return split_ext(f, only_simple_ext=only_simple_ext)[0]
 
-def get_ext(f):
-    return split_ext(f)[1]
+def get_ext(f, only_simple_ext=False):
+    return split_ext(f, only_simple_ext=only_simple_ext)[1]
 
-def split_ext(f):
+def split_ext(f, only_simple_ext=False):
     if '.' in f and f.index('.') > 0:
         if '.so.' in f:
-            i = f.index('.so')
+            i = f.index('.so.')
             return (f[:i], f[i + 1:])
         parts = f.split('.')
-        return (parts[0], '.'.join(parts[1:]))
+        if only_simple_ext:
+            return ('.'.join(parts[:-1]), parts[-1])
+        else:
+            return (parts[0], '.'.join(parts[1:]))
     else:
         return (f, '')
 
@@ -340,11 +343,14 @@ class Library:
 
     def _contains(self, directory, prefixes=(), name=None, exts=()):
         name = name is None and self.name or name
-        debug("searching", name, "in", directory, '(with exts =', exts,')')
+        simple_ext = not any('.' in ext for ext in exts)
+        debug("searching", name, "in", directory, '(with exts =', exts,', prefixes =', prefixes,')', simple_ext)
         for fname in os.listdir(directory):
             for ext in exts:
                 for prefix in prefixes:
-                    n, e = split_ext(fname)
+                    n, e = split_ext(fname, only_simple_ext = simple_ext)
+                    if e.startswith('so.'):
+                        e = 'so'
                     if e == ext and fname.startswith(prefix + name):
                         debug("found match for file", fname, '(', n, e,')')
                         return True
@@ -373,8 +379,14 @@ def python_library(globals_):
         'version': version,
         'prefix': prefix,
         'include_dir': cfg['INCLUDEPY'],
-        'static_library_name': remove_ext(cfg.get('LIBRARY', 'python' + version.replace('.', ''))),
-        'shared_library_name': remove_ext(cfg.get('LDLIBRARY', 'python' + version.replace('.', ''))),
+        'static_library_name': remove_ext(
+            cfg.get('LIBRARY', 'python' + version.replace('.', '')),
+            only_simple_ext=True,
+        ),
+        'shared_library_name': remove_ext(
+            cfg.get('LDLIBRARY', 'python' + version.replace('.', '')),
+            only_simple_ext=True,
+        ),
     }
     return Library('python', **kwargs)
 
