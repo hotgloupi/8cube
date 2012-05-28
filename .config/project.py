@@ -289,7 +289,7 @@ class CommandCatcher:
         for i, p in enumerate(res):
             if p == '-o':
                 break
-        objects.extend(extra_objects)
+        objects = extra_objects + objects + extra_objects
         if len(static_libs):
             static_libs = ['-Wl,-Bstatic'] + static_libs
         if len(dynamic_libs):

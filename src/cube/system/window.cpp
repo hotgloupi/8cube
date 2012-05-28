@@ -20,12 +20,13 @@ namespace detail {
 	MAKE_CONNECTOR_WRAPPER(expose)
 	MAKE_CONNECTOR_WRAPPER(idle)
 	MAKE_CONNECTOR_WRAPPER(quit)
+	MAKE_CONNECTOR_WRAPPER(resize)
 
 #undef MAKE_CONNECTOR_WRAPPER
 
 	static cube::gl::renderer::detail::WrapRenderer get_renderer(::cube::system::window::Window& w)
 	{
-		return cube::gl::renderer::detail::WrapRenderer{&w.renderer()};
+		return cube::gl::renderer::detail::WrapRenderer{w.renderer()};
 	}
 
 } // !detail
@@ -67,6 +68,7 @@ BOOST_PYTHON_MODULE(window)
 			)
 		)
 		.DEF_CONNECT(expose)
+		.DEF_CONNECT(resize)
 		.DEF_CONNECT(idle)
 		.DEF_CONNECT(quit)
 		.def(

@@ -7,7 +7,7 @@ class Application(cube.Application):
     def __init__(self):
         self._window = cube.gui.RootWindow("8cube", 640, 480)
         events = [
-            'idle', 'expose', 'quit',
+            'idle', 'quit',
         ]
         self._handlers = {}
         for event in events:
@@ -40,11 +40,6 @@ class Application(cube.Application):
 
     def _on_idle(self):
         pass
-
-    def _on_expose(self, width, height):
-        self._window.renderer.swap_buffers()
-        #renderer.swap_buffers();
-        print("on expose", self, width, height)
 
     def _on_quit(self):
         self._running = False
