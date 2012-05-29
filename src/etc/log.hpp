@@ -1,18 +1,37 @@
 #ifndef  ETC_LOG_HPP
 # define ETC_LOG_HPP
 
-# include <etc/io/Logger.hpp>
+# include <etc/log/Logger.hpp>
 
 namespace etc { namespace log {
 
-    template<typename... T> void debug(T const&...);
-    template<typename... T> void info(T const&...);
-    template<typename... T> void warn(T const&...);
-    template<typename... T> void fatal(T const&...);
+    extern etc::log::Logger default_logger;
 
-    extern elle::utility::Logger default_logger;
+    template<typename... T> void debug(T const&... values)
+    {
+      default_logger.debug(values...);
+    }
+
+    template<typename... T> void info(T const&... values)
+    {
+      return default_logger.info(values...);
+    }
+
+    template<typename... T> void warn(T const&... values)
+    {
+      return default_logger.warn(values...);
+    }
+
+    template<typename... T> void error(T const&... values)
+    {
+      return default_logger.error(values...);
+    }
+
+    template<typename... T> void fatal(T const&... values)
+    {
+      return default_logger.fatal(values...);
+    }
+
 }}
-
-# include <etc/log.ipp>
 
 #endif

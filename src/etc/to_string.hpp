@@ -8,7 +8,7 @@ namespace etc {
     template<typename... T>
     std::string to_string(T const&... values)
     {
-        return etc::sprint(values...);
+        return stringify(values...);
     }
 
 }

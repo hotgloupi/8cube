@@ -60,7 +60,11 @@ def _getTemplate(dir_):
         data = f.read()
     if dir_.startswith('release/lib/python'):
 
-        data += """
+        data = """include_rules
+
+: foreach {SOURCE_DIR}/*.py |> !copy_file |> %B.py
+: foreach {SOURCE_DIR}/*.pymod.cpp |> !make_cpp_object |>
+
 LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
 : foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.{PYTHON_MODULE_EXT}
 
@@ -74,7 +78,7 @@ LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
 #	cd {ROOT_DIR} && g++ -Isrc -x c++ -std=c++0x -g3 $(CFLAGS) -c ${{f}} -o `$(realpath) ${{cwd}}/%o` \
 #	|> %b.o
 
-: foreach {SOURCE_DIR}/*.ipp |> !make_cpp_object |> %b.o
+: foreach {SOURCE_DIR}/*.impl.cpp |> !make_cpp_object |> %b.o
 
 """
     elif dir_.startswith('src/greenlet'):
