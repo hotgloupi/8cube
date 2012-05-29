@@ -52,8 +52,8 @@ BOOST_PYTHON_MODULE(window)
 
 	using namespace cube::system::window;
 
-# define DEF_CONNECT(name_)                                                   \
-		def(                                                                  \
+# define DEF_CONNECT(name_)                                             \
+		def(                                                                \
 			"connect_" # name_,                                               \
 			&detail::connect_ ## name_,                                       \
 			py::args("on_" #name_ "_callback"),                               \

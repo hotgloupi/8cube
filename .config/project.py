@@ -79,7 +79,7 @@ LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
 """
     elif dir_.startswith('src/greenlet'):
         data = "include_rules\n"
-        data += ':foreach {SOURCE_DIR}/*.c |> gcc $(CFLAGS) -fPIC -c %f -o %o |> %B.o\n'
+        data += ':foreach {SOURCE_DIR}/*.c |>!make_c_object |>\n'
     return data
 
 
@@ -181,18 +181,19 @@ RUNTIME_LIBRARY_DIRS = LIBRARY_DIRS + [
 ]
 
 STATIC_LIBRARY_NAMES = [
+]
+
+RUNTIME_LIBRARY_NAMES = [
     'GLU',
     'GLEW',
     'SDL',
     'SDL_image',
     'boost_system',
-    'boost_signals',
     'boost_filesystem',
-    'boost_python-py32',
-]
-
-RUNTIME_LIBRARY_NAMES = [
     py_libname,
+    'boost_signals',
+    #'boost_python-py32',
+    'boost_python3',
     'GL',
     'asound',
     'dl',
@@ -210,7 +211,7 @@ RUNTIME_LIBRARY_NAMES = [
 
 LIBRARY_NAMES = STATIC_LIBRARY_NAMES + RUNTIME_LIBRARY_NAMES
 SHIPPED_LIBRARY_NAMES = [
-    py_libname,
+    #py_libname,
 ]
 gcc = distutils.ccompiler.new_compiler()
 
@@ -221,15 +222,6 @@ gcc.set_libraries(LIBRARY_NAMES)
 
 gcc.language_map['.ipp'] = 'c++'
 gcc.src_extensions.append('.ipp')
-
-for k, v in {
-    'compiler'     : ["g++"],
-    'compiler_so'  : ["g++"],
-    'compiler_cxx' : ["g++"],
-    'linker_so'    : ["g++", "-shared"],
-    'linker_exe'   : ["g++"]
-}.items():
-    gcc.set_executable(k, v)
 
 class CommandCatcher:
     def __init__(self, compiler, defaults={}):
@@ -303,11 +295,25 @@ catcher = CommandCatcher(gcc, {
     'extra_preargs': '-std=c++0x -ggdb3 -Wall -Wextra'.split(' '),
 })
 
+MAKE_C_OBJECT = catcher.cmd(
+    'compile', ['SRC_MARKER.c'],
+    extra_preargs = '-ggdb3 -Wall -Wextra -fPIC'.split(' ')
+)
+
+for k, v in {
+    'compiler'     : ["g++"],
+    'compiler_so'  : ["g++"],
+    'compiler_cxx' : ["g++"],
+    'linker_so'    : ["g++", "-shared"],
+    'linker_exe'   : ["g++"]
+}.items():
+    gcc.set_executable(k, v)
 
 MAKE_CPP_OBJECT = catcher.cmd(
     'compile', ['SRC_MARKER.cpp'],
-    extra_preargs = '-x c++ -std=c++0x -ggdb3 -Wall -Wextra'.split(' '),
+    extra_preargs = '-x c++ -std=c++0x -ggdb3 -Wall -Wextra -fPIC'.split(' '),
 )
+
 
 LINK_CPP_EXECUTABLE = catcher.cmd(
     'link_executable', ['OBJECT_MARKER.o'],
@@ -330,6 +336,7 @@ for lib in SHIPPED_LIBRARY_NAMES:
         print("WARNING: Cannot ship library file for '%s'" % lib)
         continue
     fname = os.path.basename(path)
+
     TARGETS.append({
         'input_items': [],
         'command': 'cp -Lp %s . && chmod +x %s' % (path, fname),

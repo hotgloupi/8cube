@@ -15,6 +15,7 @@ realpath = $(CONF_DIR)/bin/realpath
 PATH=$(PATH):$(CONFIG_DIR)/bin
 export PATH=$(PATH)
 
+!make_c_object = |> {MAKE_C_OBJECT} |> %B.o
 !make_cpp_object = |> {MAKE_CPP_OBJECT} |> %B.o
 !link_cpp_executable = |> {LINK_CPP_EXECUTABLE} |>
 !link_shared_library = |> {LINK_CPP_SHARED_LIBRARY} |> %B.{SHARED_LIBRARY_EXT}
