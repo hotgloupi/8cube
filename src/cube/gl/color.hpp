@@ -86,7 +86,7 @@ namespace cube { namespace gl { namespace color {
 			: r(), g(), b(), a()
 		{}
 
-		Color4(T r, T g, T b, T a)
+		Color4(T r, T g, T b, T a = traits<T>::max_component_value())
 			: r(r), g(g), b(b), a(a)
 		{}
 
@@ -118,8 +118,6 @@ namespace cube { namespace gl { namespace color {
     typedef Color4<type> Color4 ## suffix;                                   \
     template struct Color3<type>;                                            \
     template struct Color4<type>;                                            \
-    template Color3<type> const& parse_color3(std::string const&);           \
-    template Color4<type> const& parse_color4(std::string const&)            \
   /**/
 
 	CUBE_GL_COLOR_DECLARE_TYPE(float, f);

@@ -298,5 +298,7 @@ namespace cube { namespace gl { namespace color {
           return it->second;
     }
 
+    template Color3<float> const& parse_color3(std::string const&);
+    template Color4<float> const& parse_color4(std::string const&);
 
 }}}

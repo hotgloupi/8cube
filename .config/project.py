@@ -63,22 +63,21 @@ def _getTemplate(dir_):
         data = """include_rules
 
 : foreach {SOURCE_DIR}/*.py |> !copy_file |> %B.py
-: foreach {SOURCE_DIR}/*.pymod.cpp |> !make_cpp_object |>
+: foreach {SOURCE_DIR}/*.py++ |> !make_cpp_object |>
 
-LDFLAGS_SHARED = $(BUILD_DIR)/release/lib/libcube.a $(LDFLAGS_SHARED)
-: foreach *.o | $(BUILD_DIR)/release/lib/libcube.a |> !link_shared_library |> %B.{PYTHON_MODULE_EXT}
+LIBS = \\
+        $(BUILD_DIR)/release/lib/libcube.a \\
+        $(BUILD_DIR)/release/lib/libetc.a \\
+
+LDFLAGS_SHARED = $(LIBS) $(LDFLAGS_SHARED)
+
+: foreach *.o | $(LIBS) |> !link_shared_library |> %B.{PYTHON_MODULE_EXT}
 
 """
     elif dir_.startswith('src/cube'):
         data = """include_rules
 
-#: foreach {SOURCE_DIR}/*.ipp |> \
-#	export f=`$(realpath) %f --relative-to {ROOT_DIR}` && \
-#	export cwd=`$(realpath) . --relative-to {ROOT_DIR}` && \
-#	cd {ROOT_DIR} && g++ -Isrc -x c++ -std=c++0x -g3 $(CFLAGS) -c ${{f}} -o `$(realpath) ${{cwd}}/%o` \
-#	|> %b.o
-
-: foreach {SOURCE_DIR}/*.impl.cpp |> !make_cpp_object |> %b.o
+: foreach {SOURCE_DIR}/*.cpp |> !make_cpp_object |> %b.o
 
 """
     elif dir_.startswith('src/greenlet'):
@@ -134,6 +133,12 @@ TARGETS = [
         'input_items': [('src/cube', '*.o')],
         'command': '!link_static_library',
         'output_file': 'libcube.a',
+        'output_directory': 'release/lib',
+    },
+    {
+        'input_items': [('src/etc', '*.o')],
+        'command': '!link_static_library',
+        'output_file': 'libetc.a',
         'output_directory': 'release/lib',
     },
     #{
