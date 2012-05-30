@@ -1,0 +1,16 @@
+
+#include <wrappers/boost/python.hpp>
+
+#include "vector.hpp"
+using namespace ::cube::gl::vector;
+
+BOOST_PYTHON_MODULE(vector)
+{
+	namespace py = boost::python;
+
+	py::class_<Vector2f>("Vector2f")
+	;
+
+	py::class_<Vector3f>("Vector3f")
+	;
+}

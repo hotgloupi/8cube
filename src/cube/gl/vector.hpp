@@ -3,18 +3,16 @@
 
 # include <glm/glm.hpp>
 # include <glm/core/type_vec2.hpp>
+# include <glm/core/type_vec3.hpp>
 //# include <glm/gtx/transform.hpp>
 
 namespace cube { namespace gl { namespace vector {
 
 	using namespace ::glm;
 
-	typedef ::glm::detail::tvec2<float> vec2f;
+	typedef ::glm::detail::tvec2<float> Vector2f;
+	typedef ::glm::detail::tvec3<float> Vector3f;
 
 }}}
 
-#endif /* ! MATRIX_HPP */
-
-
-
-
+#endif /* ! VECTOR_HPP */

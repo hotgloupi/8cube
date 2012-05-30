@@ -39,5 +39,5 @@ find "$DEST_DIR" -name '*.o' -exec rm -fv {} \;
 find "$DEST_DIR" -name '*.a' -exec rm -fv {} \;
 find "$DEST_DIR" -name 'Tupfile' -exec rm -v {} \;
 find "$DEST_DIR" -name '__pycache__' -exec rm -frv {} \;
-find "$DEST_DIR" -executable -and -type f -exec strip -s {} \
+find "$DEST_DIR" -executable -and -type f -exec strip -s {} \;
 
