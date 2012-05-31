@@ -52,7 +52,7 @@ namespace cube { namespace gl { namespace renderer {
 		case ContentType::int16:
 			return ContentTypeSize<ContentType::int16>::value;
 		case ContentType::uint16:
-			return ContentTypeSize<ContentType::uint6>::value;
+			return ContentTypeSize<ContentType::uint16>::value;
 		case ContentType::int32:
 			return ContentTypeSize<ContentType::int32>::value;
 		case ContentType::uint32:
@@ -66,27 +66,32 @@ namespace cube { namespace gl { namespace renderer {
 
 	enum class ContentHint
 	{
-		stream_content,
+		stream_content = 0,
 		static_content,
 		dynamic_content,
 	};
 
 	enum class ContentKind
 	{
-		Position = 0,
-		Color,
-		Normal,
-		TexCoord,
+		position = 0,
+		color,
+		normal,
+		tex_coord0,
+		tex_coord1,
+		tex_coord2,
 	};
 
 	class VertexBuffer
 	{
 	public:
-		virtual void attribute(ContentType type, Kind attr, uint32_t size) = 0;
+		virtual ~VertexBuffer() {}
+		virtual void attribute(ContentType type, ContentKind attr, uint32_t size) = 0;
 		virtual void data(void const* data, std::size_t size, ContentHint hint) = 0;
 		virtual void sub_data(void const* data, std::size_t offset, std::size_t size) = 0;
-		virtual ~VertexBuffer() {}
-	}
+  protected:
+    virtual void _bind() = 0;
+    virtual void _unbind() = 0;
+	};
 
 	class Renderer
 	{
@@ -118,7 +123,7 @@ namespace cube { namespace gl { namespace renderer {
 			Renderer& _r;
 		public:
 			Painter(Painter&& other) : _r(other._r) {}
-			~Painter() { _r.end(); _r.pop_state(); }
+			~Painter() { _r._end(); _r.pop_state(); }
 		private:
 			Painter(Renderer& r) : _r(r) {}
 
@@ -160,7 +165,7 @@ namespace cube { namespace gl { namespace renderer {
 		virtual Painter begin(Mode mode) = 0;
 		virtual VertexBufferPtr new_vertex_buffer() = 0;
 	protected:
-		virtual void end() = 0;
+		virtual void _end() = 0;
 
 	};
 

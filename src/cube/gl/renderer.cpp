@@ -1,18 +1,26 @@
-#ifndef  CUBE_GL_RENDERER_IPP
-# define CUBE_GL_RENDERER_IPP
+#include "renderer.hpp"
 
-# include <iostream>
-# include <stdexcept>
+#include <iostream>
+#include <stdexcept>
 
-# include <wrappers/boost/python.hpp>
+#include <wrappers/boost/python.hpp>
 
-# include "renderers/all.hpp"
+#include "opengl/Renderer.hpp"
 
-# include "renderer.hpp"
 
 namespace cube { namespace gl { namespace renderer {
 
-	RendererType const& default_renderer_type = renderers::all()[0]->description();
+	std::vector<cube::gl::renderer::Renderer*> const& all_renderers()
+	{
+		static ::cube::gl::opengl::GLRenderer opengl_renderer;
+
+		static std::vector<Renderer*> renderers{{
+			&opengl_renderer,
+		}};
+		return renderers;
+	}
+
+	RendererType const& default_renderer_type = all_renderers()[0]->description();
 
 	std::unique_ptr<Renderer>
 		create_renderer(cube::gl::viewport::Viewport const& vp,
@@ -143,4 +151,3 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	}
 
 }}}} // !cube::gl::renderer::detail
-#endif

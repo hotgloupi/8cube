@@ -1,13 +1,13 @@
-#ifndef  CUBE_GL_RENDERERS_OPENGL_HPP
-# define CUBE_GL_RENDERERS_OPENGL_HPP
+#ifndef  CUBE_GL_OPENGL_RENDERER_HPP
+# define CUBE_GL_OPENGL_RENDERER_HPP
 
 # include <iostream>
 
 # include <cube/gl/renderer.hpp>
 
-namespace cube { namespace gl { namespace renderers {
+namespace cube { namespace gl { namespace opengl {
 
-	class OpenGL
+	class GLRenderer
 		: public cube::gl::renderer::Renderer
 	{
 	public:
@@ -17,13 +17,13 @@ namespace cube { namespace gl { namespace renderers {
 		virtual void shutdown();
 		virtual void swap_buffers();
 		virtual cube::gl::renderer::RendererType const& description() const;
-		virtual ~OpenGL();
+		virtual ~GLRenderer();
 		virtual Painter begin(Mode mode);
 		virtual VertexBufferPtr new_vertex_buffer();
 	protected:
-		virtual void end();
+		virtual void _end();
 	};
 
-}}} // !cube::gl::renderers
+}}} // !cube::gl::opengl
 
 #endif

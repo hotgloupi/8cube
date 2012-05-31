@@ -10,13 +10,24 @@ namespace cube { namespace gl { namespace vector {
 
 	using namespace ::glm;
 
-	template<typename T>
-		using Vector2 = ::glm::detail::tvec2<T>;
-	template<typename T>
-		using Vector3 = ::glm::detail::tvec3<T>;
+# define _CUBE_GL_VECTOR_DEF(arity)                                           \
+	template<typename T>                                                      \
+	struct Vector##arity                                                      \
+		: public detail::tvec##arity<T>                                       \
+	{                                                                         \
+		template<typename... K>                                               \
+		Vector##arity(K... values)                                            \
+			: detail::tvec##arity<T>{values...}                               \
+		{};                                                                   \
+	};                                                                        \
+	typedef Vector##arity<float> Vector##arity##f                             \
+	/**/
 
-	typedef Vector2<float> Vector2f;
-	typedef Vector3<float> Vector3f;
+	_CUBE_GL_VECTOR_DEF(2);
+	_CUBE_GL_VECTOR_DEF(3);
+
+# undef _CUBE_GL_VECTOR_DEF
+
 
 }}}
 
