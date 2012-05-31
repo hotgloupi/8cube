@@ -14,11 +14,86 @@ namespace cube { namespace gl { namespace renderer {
 
 	class RendererType;
 
+	enum class ContentType
+	{
+		int8    = 0x000101,
+		uint8   = 0x000100,
+		int16   = 0x000201,
+		uint16  = 0x000200,
+		int32   = 0x000401,
+		uint32  = 0x000400,
+		float32 = 0x010400
+	};
+
+	template<ContentType type> struct ContentTypeSize;
+	template<> struct ContentTypeSize<ContentType::int8>
+		{ static size_t const value = sizeof(int8_t); };
+	template<> struct ContentTypeSize<ContentType::uint8>
+		{ static size_t const value = sizeof(uint8_t); };
+	template<> struct ContentTypeSize<ContentType::int16>
+		{ static size_t const value = sizeof(int16_t); };
+	template<> struct ContentTypeSize<ContentType::uint16>
+		{ static size_t const value = sizeof(uint16_t); };
+	template<> struct ContentTypeSize<ContentType::int32>
+		{ static size_t const value = sizeof(int32_t); };
+	template<> struct ContentTypeSize<ContentType::uint32>
+		{ static size_t const value = sizeof(uint32_t); };
+	template<> struct ContentTypeSize<ContentType::float32>
+		{ static size_t const value = sizeof(float); };
+
+	inline size_t get_content_type_size(ContentType type)
+	{
+		switch (type)
+		{
+		case ContentType::int8:
+			return ContentTypeSize<ContentType::int8>::value;
+		case ContentType::uint8:
+			return ContentTypeSize<ContentType::uint8>::value;
+		case ContentType::int16:
+			return ContentTypeSize<ContentType::int16>::value;
+		case ContentType::uint16:
+			return ContentTypeSize<ContentType::uint6>::value;
+		case ContentType::int32:
+			return ContentTypeSize<ContentType::int32>::value;
+		case ContentType::uint32:
+			return ContentTypeSize<ContentType::uint32>::value;
+		case ContentType::float32:
+			return ContentTypeSize<ContentType::float32>::value;
+		default:
+			throw false;
+		}
+	}
+
+	enum class ContentHint
+	{
+		stream_content,
+		static_content,
+		dynamic_content,
+	};
+
+	enum class ContentKind
+	{
+		Position = 0,
+		Color,
+		Normal,
+		TexCoord,
+	};
+
+	class VertexBuffer
+	{
+	public:
+		virtual void attribute(ContentType type, Kind attr, uint32_t size) = 0;
+		virtual void data(void const* data, std::size_t size, ContentHint hint) = 0;
+		virtual void sub_data(void const* data, std::size_t offset, std::size_t size) = 0;
+		virtual ~VertexBuffer() {}
+	}
+
 	class Renderer
 	{
 	public:
 		enum class Mode { none, _2d, _3d };
 		typedef ::cube::gl::matrix::mat44f matrix_type;
+    typedef std::unique_ptr<VertexBuffer> VertexBufferPtr;
 
 	protected:
 		struct State
@@ -83,6 +158,7 @@ namespace cube { namespace gl { namespace renderer {
 		virtual void swap_buffers() = 0;
 		virtual RendererType const& description() const = 0;
 		virtual Painter begin(Mode mode) = 0;
+		virtual VertexBufferPtr new_vertex_buffer() = 0;
 	protected:
 		virtual void end() = 0;
 

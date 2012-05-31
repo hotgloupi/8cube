@@ -60,6 +60,7 @@ namespace cube { namespace gl { namespace renderers {
 
 			GLWRAP(Enable);
 			GLWRAP(Disable);
+			GLWRAP(GenBuffersARB);
 
 # undef GLWRAP
 		};
@@ -89,7 +90,7 @@ namespace cube { namespace gl { namespace renderers {
 
 	void OpenGL::swap_buffers()
 	{
-        ::SDL_GL_SwapBuffers();
+		::SDL_GL_SwapBuffers();
 	}
 
 	void OpenGL::shutdown()
@@ -138,6 +139,65 @@ namespace cube { namespace gl { namespace renderers {
 	{
 
 	}
+
+	namespace {
+
+		class VertexBuffer
+			: public ::cube::gl::renderer::VertexBuffer
+		{
+		public:
+			enum { max_attributes = 8 };
+		private:
+			struct VertexBufferAttribute
+			{
+				GLint       content_kind;
+				GLint       nb_elements;
+				GLint       content_type;
+				GLvoid*     offset;
+			};
+			std::vector<VertexBufferAttribute> _attributes;
+			GLuint _id;
+			GLuint _stride;
+		public:
+			VertexBuffer()
+				: _attributes{}
+				, _id{}
+				, _stride{0}
+			{
+				gl::GenBuffersARB(1, &_id);
+			}
+
+			virtual ~VertexBuffer()
+			{
+				gl::DeleteBuffersARB(1, &_id);
+			}
+
+			virtual void attribute(ContentType type, Kind kind, uint32_t size)
+			{
+				if (_attributes.size() >= max_attribute)
+					throw std::runtime_error("Too much attributes");
+				_attributes.push_back(VertexBufferAttribute{
+					kind,
+					size,
+					gl::content_type_map[type],
+					reinterpret_cast<GLvoid*>(_stride),
+				});
+
+				_stride += (
+					_attributes.back().nb_elements *
+					static_cast<GLuint>(cube::gl::renderer::get_content_type_size(type))
+				);
+			}
+
+		virtual void data(void const* data, std::size_t size, ContentHint hint) = 0;
+		virtual void sub_data(void const* data, std::size_t offset, std::size_t size) = 0;
+		};
+
+	} // !anonymous
+
+	OpenGL::VertexBufferPtr OpenGL::new_vertex_buffer()
+  {
+  }
 
 }}} // !cube::gl::renderers
 

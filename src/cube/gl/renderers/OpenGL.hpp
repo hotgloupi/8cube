@@ -19,6 +19,7 @@ namespace cube { namespace gl { namespace renderers {
 		virtual cube::gl::renderer::RendererType const& description() const;
 		virtual ~OpenGL();
 		virtual Painter begin(Mode mode);
+		virtual VertexBufferPtr new_vertex_buffer();
 	protected:
 		virtual void end();
 	};

@@ -1,0 +1,20 @@
+
+#include <wrappers/boost/python.hpp>
+
+#include "viewport.hpp"
+using namespace cube::gl::viewport;
+
+
+BOOST_PYTHON_MODULE(viewport)
+{
+	namespace py = boost::python;
+
+	py::class_<Viewport, boost::noncopyable>(
+			"Viewport",
+			py::init<float, float, float, float>(
+				py::args("x", "y", "w", "h")
+			)
+		)
+	;
+
+}
