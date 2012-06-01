@@ -91,7 +91,8 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 		: _renderer(other._renderer)
 		, _mode(other._mode)
 		, _painter(other._painter)
-	{}
+	{
+	}
 
 	PainterWithProxy::PainterWithProxy(Renderer& r, Renderer::Mode m)
 		: _renderer(r)

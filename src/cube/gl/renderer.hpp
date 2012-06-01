@@ -78,6 +78,7 @@ namespace cube { namespace gl { namespace renderer {
 	enum class ContentKind
 	{
 		vertex = 0,
+		index,
 		color,
 		normal,
 		tex_coord0,
@@ -92,11 +93,22 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual ~VertexBuffer() {}
 		virtual void attribute(ContentType type, ContentKind attr, uint32_t size) = 0;
-		virtual void data(void const* data, std::size_t size, ContentHint hint) = 0;
-		virtual void sub_data(void const* data, std::size_t offset, std::size_t size) = 0;
-  protected:
-    virtual void _bind() = 0;
-    virtual void _unbind() = 0;
+		virtual void content(void const* data, std::size_t size, ContentHint hint) = 0;
+		virtual void sub_content(void const* data, std::size_t offset, std::size_t size) = 0;
+	protected:
+		virtual void _bind() = 0;
+		virtual void _unbind() = 0;
+	};
+
+	class IndexBuffer
+	{
+	public:
+		virtual ~IndexBuffer() {}
+		virtual void content(ContentType type, std::size_t size, void const* data) = 0;
+		virtual void sub_content(void const* data, std::size_t offset, std::size_t size) = 0;
+	protected:
+		virtual void _bind() = 0;
+		virtual void _unbind() = 0;
 	};
 
 	class Renderer

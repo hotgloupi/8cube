@@ -1,8 +1,6 @@
 #ifndef  CUBE_GL_OPENGL_RENDERER_HPP
 # define CUBE_GL_OPENGL_RENDERER_HPP
 
-# include <iostream>
-
 # include <cube/gl/renderer.hpp>
 
 namespace cube { namespace gl { namespace opengl {
