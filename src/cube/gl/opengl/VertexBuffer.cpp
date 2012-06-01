@@ -27,7 +27,7 @@ namespace cube { namespace gl { namespace opengl {
 		_attributes.push_back(VertexBufferAttribute{
 			kind,
 			size,
-			gl::content_type_map[type],
+			gl::get_content_type(type),
 			reinterpret_cast<GLvoid*>(_stride),
 		});
 
@@ -41,10 +41,10 @@ namespace cube { namespace gl { namespace opengl {
 	                           std::size_t size,
 	                           ContentHint hint)
 	{
-		//_bind();
+		_bind();
 		gl::BufferDataARB(GL_ARRAY_BUFFER_ARB,
-						  size, data, content_hint_map[hint]);
-		//_unbind();
+		                  size, data, gl::get_content_hint(hint));
+		_unbind();
 	}
 
 	void GLVertexBuffer::sub_data(void const* data,
@@ -63,7 +63,7 @@ namespace cube { namespace gl { namespace opengl {
 		{
 			switch (attr.kind)
 			{
-			case ContentKind::position:
+			case ContentKind::vertex:
 				gl::VertexPointer(attr.nb_elements, attr.type, _stride, attr.offset);
 				gl::EnableClientState(GL_VERTEX_ARRAY);
 				break;
@@ -109,7 +109,7 @@ namespace cube { namespace gl { namespace opengl {
 		{
 			switch (attr.kind)
 			{
-			case ContentKind::position:
+			case ContentKind::vertex:
 				gl::DisableClientState(GL_VERTEX_ARRAY);
 				break;
 

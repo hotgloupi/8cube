@@ -62,29 +62,28 @@ namespace cube { namespace gl { namespace opengl {
 
 # undef _CUBE_GL_OPENGL_WRAP
 
-			static std::unordered_map<ContentType, int> content_type_map;
-			static std::unordered_map<ContentKind, int> content_kind_map;
-			static std::unordered_map<ContentHint, int> content_hint_map;
+		public:
+			static inline int get_content_type(ContentType value) { return _content_type_map[(size_t) value]; }
+			static inline int get_content_kind(ContentKind value) { return _content_kind_map[(size_t) value]; }
+			static inline int get_content_hint(ContentHint value) { return _content_hint_map[(size_t) value]; }
+		private:
+			static int _content_type_map[(size_t)ContentType::_max_value];
+			static int _content_kind_map[(size_t)ContentKind::_max_value];
+			static int _content_hint_map[(size_t)ContentHint::_max_value];
 		};
 
-		std::unordered_map<ContentType, int> gl::content_type_map = {
-			{ContentType::int8,  GL_BYTE},
-			{ContentType::uint8, GL_UNSIGNED_BYTE},
-			{ContentType::int16, GL_SHORT},
-			{ContentType::uint16, GL_UNSIGNED_SHORT},
-			{ContentType::int32, GL_INT},
-			{ContentType::uint32, GL_UNSIGNED_INT},
-			{ContentType::float32, GL_FLOAT},
+		int gl::_content_type_map[(size_t)ContentType::_max_value] = {
+			GL_BYTE,    GL_UNSIGNED_BYTE,   GL_SHORT,   GL_UNSIGNED_SHORT,
+			GL_INT,     GL_UNSIGNED_INT,    GL_FLOAT
 		};
 
-		std::unordered_map<ContentKind, int> content_kind_map  = {
+		int gl::_content_kind_map[(size_t)ContentKind::_max_value]  = {
+			GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_NORMAL_ARRAY,
+			GL_TEXTURE0_ARB, GL_TEXTURE1_ARB, GL_TEXTURE2_ARB,
 		};
 
-
-		std::unordered_map<ContentHint, int> content_hint_map = {
-			{ContentHint::stream_content, GL_STREAM_DRAW},
-			{ContentHint::static_content, GL_STATIC_DRAW},
-			{ContentHint::dynamic_content, GL_DYNAMIC_DRAW},
+		int gl::_content_hint_map[(size_t)ContentHint::_max_value] = {
+			GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW,
 		};
 
 	} // !anonymous

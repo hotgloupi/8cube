@@ -16,13 +16,15 @@ namespace cube { namespace gl { namespace renderer {
 
 	enum class ContentType
 	{
-		int8    = 0x000101,
-		uint8   = 0x000100,
-		int16   = 0x000201,
-		uint16  = 0x000200,
-		int32   = 0x000401,
-		uint32  = 0x000400,
-		float32 = 0x010400
+		int8 = 0,
+		uint8,
+		int16,
+		uint16,
+		int32,
+		uint32,
+		float32,
+
+		_max_value,
 	};
 
 	template<ContentType type> struct ContentTypeSize;
@@ -69,16 +71,20 @@ namespace cube { namespace gl { namespace renderer {
 		stream_content = 0,
 		static_content,
 		dynamic_content,
+
+		_max_value,
 	};
 
 	enum class ContentKind
 	{
-		position = 0,
+		vertex = 0,
 		color,
 		normal,
 		tex_coord0,
 		tex_coord1,
 		tex_coord2,
+
+		_max_value,
 	};
 
 	class VertexBuffer

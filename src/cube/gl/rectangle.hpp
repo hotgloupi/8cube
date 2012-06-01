@@ -27,18 +27,18 @@ namespace cube { namespace gl { namespace rectangle {
 			, size(w, h)
 		{}
 
-        Rectangle2& operator =(Rectangle2 const& other)
-        {
-          if (this != &other)
-          {
-            this->position = other.position;
-            this->size = other.size;
-          }
-          return *this;
-        }
-    };
+		Rectangle2& operator =(Rectangle2 const& other)
+		{
+			if (this != &other)
+			{
+				this->position = other.position;
+				this->size = other.size;
+			}
+			return *this;
+		}
+	};
 
-    typedef Rectangle2<float> Rectangle2f;
+	typedef Rectangle2<float> Rectangle2f;
 
 }}} // !cube::gl::rectangle
 
