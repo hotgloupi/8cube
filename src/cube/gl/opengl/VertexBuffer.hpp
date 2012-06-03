@@ -8,32 +8,13 @@ namespace cube { namespace gl { namespace opengl {
 	class GLVertexBuffer
 		: public VertexBuffer
 	{
-	public:
-		enum { max_attributes = 8 };
 	private:
-		struct VertexBufferAttribute
-		{
-			ContentKind kind;
-			GLint       nb_elements;
-			GLint       type;
-			GLvoid*     offset;
-		};
-		std::vector<VertexBufferAttribute> _attributes;
-		GLuint _id;
-		GLuint _stride;
+		gl::VBO<false>*    _vbo;
 	public:
 		GLVertexBuffer();
 		virtual ~GLVertexBuffer();
 
-		virtual void attribute(ContentType type,
-		                       ContentKind kind,
-		                       uint32_t size);
-		virtual void content(void const* data,
-		                     std::size_t size,
-		                     ContentHint hint);
-		virtual void sub_content(void const* data,
-		                         std::size_t offset,
-		                         std::size_t size);
+		virtual void refresh();
 	protected:
 		virtual void _bind();
 		virtual void _unbind();

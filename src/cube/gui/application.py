@@ -11,7 +11,9 @@ class Application(cube.Application):
         ]
         self._handlers = {}
         for event in events:
-            connection = self._window.connect(event, getattr(self, '_on_' + event))
+            connection = getattr(
+                self._window.inputs, 'on_' + event
+            ).connect(getattr(self, '_on_' + event))
             self._handlers[event] = {'connection': connection}
 
     def __del__(self):

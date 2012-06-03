@@ -1,0 +1,95 @@
+
+#include <wrappers/boost/python.hpp>
+
+#include "inputs.hpp"
+
+using namespace cube::system::inputs;
+
+namespace {
+
+	template<typename T>
+		struct WrapSignal
+		{
+			T& signal;
+
+			WrapSignal(T& signal) : signal(signal) {}
+			WrapSignal(WrapSignal const&) = default;
+			WrapSignal(WrapSignal&&) = default;
+			WrapSignal& operator =(WrapSignal const&) = delete;
+
+			boost::signals::connection
+				connect(boost::python::object o)
+				{
+					return this->signal.connect(o);
+				}
+			static bool exported; // see ugly macro below
+		};
+
+	template<typename T>
+		bool WrapSignal<T>::exported = false;
+}
+
+
+BOOST_PYTHON_MODULE(inputs)
+{
+	namespace py = boost::python;
+
+	py::class_<boost::signals::connection>(
+			"Connection",
+			"Window's events slot"
+		).def(
+			"disconnect",
+			&boost::signals::connection::disconnect,
+			"Disconnects the signal"
+		).def(
+			"connected",
+			&boost::signals::connection::connected,
+			"True if the connection is both initialized and active"
+		)
+	;
+
+#define MKSTR(S) #S
+
+#define DEF_CONNECT(cls, name) do {                                           \
+	typedef WrapSignal<Inputs::on_ ## name ## _t> Wrapper;                    \
+	struct get { static Wrapper name(Inputs * const self) {                   \
+		return Wrapper(self->on_ ## name());                                  \
+	}};                                                                       \
+                                                                              \
+	cls.add_property(                                                         \
+		"on_" #name,                                                          \
+		py::make_function(                                                    \
+			&get::name,                                                       \
+			py::return_value_policy<py::return_by_value>()                    \
+		),                                                                    \
+		"connector for the " MKSTR(name) " signal"                            \
+	);                                                                        \
+	if (!Wrapper::exported)                                                   \
+	{                                                                         \
+		Wrapper::exported = true;                                             \
+		py::class_<Wrapper>(                                                  \
+				MKSTR(on_ ## name ## _t),                                     \
+				MKSTR(name) " signal type",                                   \
+				py::no_init                                                   \
+			)                                                                 \
+			.def(                                                             \
+				"connect",                                                    \
+				&Wrapper::connect,                                            \
+				py::with_custodian_and_ward<1, 2>()                           \
+			)                                                                 \
+		;                                                                     \
+	}                                                                         \
+} while (false)                                                               \
+	/**/
+
+	py::class_<Inputs, boost::noncopyable> cls("Inputs");
+
+	DEF_CONNECT(cls, expose);
+	DEF_CONNECT(cls, resize);
+	DEF_CONNECT(cls, idle);
+	DEF_CONNECT(cls, quit);
+
+# undef DEF_CONNECT
+
+}
+

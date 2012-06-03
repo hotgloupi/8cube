@@ -5,6 +5,7 @@
 
 # include <cube/gl/renderer.hpp>
 
+# include "inputs.hpp"
 # include "window.hpp"
 
 namespace cube { namespace system { namespace window {
@@ -14,16 +15,7 @@ namespace cube { namespace system { namespace window {
 	{
 		::SDL_Surface*          screen;
 		::cube::gl::renderer::Renderer*   renderer;
-# define DECLARE_SIGNAL(name) \
-		Window::on_ ## name ## _t    on_##name
-
-		DECLARE_SIGNAL(expose);
-		DECLARE_SIGNAL(idle);
-		DECLARE_SIGNAL(quit);
-		DECLARE_SIGNAL(resize);
-
-# undef DECLARE_SIGNAL
-
+    ::cube::system::inputs::Inputs    inputs;
 		Impl()
 			: screen(nullptr)
 			, renderer(nullptr)
@@ -90,7 +82,7 @@ namespace cube { namespace system { namespace window {
 				has_expose = true;
 				break;
 			case SDL_QUIT:
-				_impl->on_quit();
+				_impl->inputs.on_quit()();
 				break;
 			}
 			if (++count >= max)
@@ -98,12 +90,12 @@ namespace cube { namespace system { namespace window {
 		}
 
 		if (has_resize)
-			_impl->on_resize(_width, _height);
+			_impl->inputs.on_resize()(_width, _height);
 		if (has_expose)
-			_impl->on_expose(_width, _height);
+			_impl->inputs.on_expose()(_width, _height);
 
 		if (count == 0)
-			_impl->on_idle();
+			_impl->inputs.on_idle()();
 		return count;
 	}
 
@@ -112,22 +104,10 @@ namespace cube { namespace system { namespace window {
 		return *_impl->renderer;
 	}
 
-
-
-#define MAKE_CONNECTOR(evt)                                                    \
-	boost::signals::connection                                                 \
-	Window::connect_##evt(on_##evt##_t::slot_function_type subscribe_cb)       \
-	{                                                                          \
-		return this->_impl->on_##evt.connect(subscribe_cb);                    \
-	}                                                                          \
-
-	MAKE_CONNECTOR(expose)
-	MAKE_CONNECTOR(idle)
-	MAKE_CONNECTOR(quit)
-	MAKE_CONNECTOR(resize)
-
-#undef MAKE_CONNECTOR
-
+	::cube::system::inputs::Inputs& Window::inputs()
+	{
+		return _impl->inputs;
+	}
 
 }}} // !cube::system::window
 

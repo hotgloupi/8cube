@@ -36,7 +36,7 @@ namespace etc { namespace log {
       assert(idx < max_level_idx);
       std::ostream* out = this->_streams[idx].out;
       assert(out != nullptr);
-      (*out) << '[' << level_strings[idx] << "] " << message;
+      (*out) << '[' << level_strings[idx] << "] " << message << std::endl; // XXX
     }
 
 }}

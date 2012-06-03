@@ -4,113 +4,29 @@
 # include <string>
 # include <memory>
 # include <vector>
+# include <set>
 
 # include <boost/noncopyable.hpp>
 
+# include "fwd.hpp"
 # include "matrix.hpp"
 # include "viewport.hpp"
+
+# include "renderer/constants.hpp"
+# include "renderer/VertexBuffer.hpp"
+# include "renderer/Drawable.hpp"
 
 namespace cube { namespace gl { namespace renderer {
 
 	class RendererType;
 
-	enum class ContentType
-	{
-		int8 = 0,
-		uint8,
-		int16,
-		uint16,
-		int32,
-		uint32,
-		float32,
+	///////////////////////////////////////////////////////////////////////////
+	// Renderer class
 
-		_max_value,
-	};
-
-	template<ContentType type> struct ContentTypeSize;
-	template<> struct ContentTypeSize<ContentType::int8>
-		{ static size_t const value = sizeof(int8_t); };
-	template<> struct ContentTypeSize<ContentType::uint8>
-		{ static size_t const value = sizeof(uint8_t); };
-	template<> struct ContentTypeSize<ContentType::int16>
-		{ static size_t const value = sizeof(int16_t); };
-	template<> struct ContentTypeSize<ContentType::uint16>
-		{ static size_t const value = sizeof(uint16_t); };
-	template<> struct ContentTypeSize<ContentType::int32>
-		{ static size_t const value = sizeof(int32_t); };
-	template<> struct ContentTypeSize<ContentType::uint32>
-		{ static size_t const value = sizeof(uint32_t); };
-	template<> struct ContentTypeSize<ContentType::float32>
-		{ static size_t const value = sizeof(float); };
-
-	inline size_t get_content_type_size(ContentType type)
-	{
-		switch (type)
-		{
-		case ContentType::int8:
-			return ContentTypeSize<ContentType::int8>::value;
-		case ContentType::uint8:
-			return ContentTypeSize<ContentType::uint8>::value;
-		case ContentType::int16:
-			return ContentTypeSize<ContentType::int16>::value;
-		case ContentType::uint16:
-			return ContentTypeSize<ContentType::uint16>::value;
-		case ContentType::int32:
-			return ContentTypeSize<ContentType::int32>::value;
-		case ContentType::uint32:
-			return ContentTypeSize<ContentType::uint32>::value;
-		case ContentType::float32:
-			return ContentTypeSize<ContentType::float32>::value;
-		default:
-			throw false;
-		}
-	}
-
-	enum class ContentHint
-	{
-		stream_content = 0,
-		static_content,
-		dynamic_content,
-
-		_max_value,
-	};
-
-	enum class ContentKind
-	{
-		vertex = 0,
-		index,
-		color,
-		normal,
-		tex_coord0,
-		tex_coord1,
-		tex_coord2,
-
-		_max_value,
-	};
-
-	class VertexBuffer
-	{
-	public:
-		virtual ~VertexBuffer() {}
-		virtual void attribute(ContentType type, ContentKind attr, uint32_t size) = 0;
-		virtual void content(void const* data, std::size_t size, ContentHint hint) = 0;
-		virtual void sub_content(void const* data, std::size_t offset, std::size_t size) = 0;
-	protected:
-		virtual void _bind() = 0;
-		virtual void _unbind() = 0;
-	};
-
-	class IndexBuffer
-	{
-	public:
-		virtual ~IndexBuffer() {}
-		virtual void content(ContentType type, std::size_t size, void const* data) = 0;
-		virtual void sub_content(void const* data, std::size_t offset, std::size_t size) = 0;
-	protected:
-		virtual void _bind() = 0;
-		virtual void _unbind() = 0;
-	};
-
+	/*************************************************************************
+	 * The renderer class is an abstract class that acts mostly like OpenGL
+	 * render state machine.
+	 */
 	class Renderer
 	{
 	public:
@@ -128,25 +44,13 @@ namespace cube { namespace gl { namespace renderer {
 			matrix_type mvp;
 		};
 	public:
-		/**
-		 * A painter is returned by the Renderer::begin(Mode) method
-		 * It follows RIIA principles:
-		 *      - Push a new state into the renderer on creation.
-		 *      - Pop that state on destruction.
-		 */
-		struct Painter
-			: private boost::noncopyable
-		{
-		private:
-			Renderer& _r;
-		public:
-			Painter(Painter&& other) : _r(other._r) {}
-			~Painter() { _r._end(); _r.pop_state(); }
-		private:
-			Painter(Renderer& r) : _r(r) {}
-
-			friend class Renderer;
-		};
+		/*********************************************************************
+		 * A painter is returned by the Renderer::begin(Mode) method.        *
+		 * It follows RIIA principles:                                       *
+		 *      - Push a new state into the renderer on creation.            *
+		 *      - Pop that state on destruction.                             *
+		 *********************************************************************/
+		struct Painter;
 		friend class Painter;
 
 	protected:
@@ -159,20 +63,30 @@ namespace cube { namespace gl { namespace renderer {
 		/// Calls shutdown() method
 		virtual ~Renderer();
 
-	/**
-	 * All renderers act as a state machine. States are pushed with the
-	 * Renderer::begin(State) method by implementations classes.
-	 */
+	/*************************************************************************
+	 * All renderers act as a state machine. States are pushed with the      *
+	 * Renderer::begin(State) method by implementations classes.             *
+	 *************************************************************************/
 	protected:
+		/**
+		 * Retreive the current_state.
+		 */
 		State const& current_state() const;
+
+		/**
+		 * This method is meant to be used by the implementation sub class.
+		 * The state is popped when the returned Painter is deleted.
+		 */
 		Painter begin(State const& state);
+
+	// Internal methods to manipulate the state stack.
 	private:
 		void push_state(State const& state);
 		void pop_state();
 
-	/**
-	 * Interface supplied by all implementations.
-	 */
+	/*************************************************************************
+	 * Interface supplied by all implementations.                            *
+	 *************************************************************************/
 	public:
 		/// default implementation sets _viewport
 		void viewport(cube::gl::viewport::Viewport const& vp);
@@ -182,11 +96,47 @@ namespace cube { namespace gl { namespace renderer {
 		virtual RendererType const& description() const = 0;
 		virtual Painter begin(Mode mode) = 0;
 		virtual VertexBufferPtr new_vertex_buffer() = 0;
+		virtual void draw_elements(DrawMode mode,
+		                           unsigned int count,
+		                           ContentType type,
+		                           void* indices) = 0;
 	protected:
 		virtual void _end() = 0;
-
 	};
 
+
+	///////////////////////////////////////////////////////////////////////////
+	// Painter class
+
+	struct Renderer::Painter
+		: private boost::noncopyable
+	{
+	private:
+		Renderer&               _renderer;
+		std::set<Drawable*>     _bound_drawables;
+
+	public:
+		Painter(Painter&& other);
+		~Painter();
+		void draw(std::vector<Drawable*> objects);
+		void bind(Drawable& drawable);
+		void draw_elements(DrawMode mode,
+		                   VertexBuffer& indices,
+		                   unsigned int start = 0,
+		                   unsigned int count = -1);
+		void unbind(Drawable& drawable);
+
+		// used by the renderer begin method
+	private:
+		Painter(Renderer& renderer)
+			: _renderer(renderer)
+		{}
+
+		friend class Renderer;
+	};
+
+  ////////////////////////////////////////////////////////////////////////////
+  // RendererType class
 
 	class RendererType
 	{
@@ -197,6 +147,9 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ~RendererType() {}
 	};
 
+	///////////////////////////////////////////////////////////////////////////
+	// high level functions
+
 	extern RendererType const& default_renderer_type;
 
 	/**
@@ -206,14 +159,21 @@ namespace cube { namespace gl { namespace renderer {
 		create_renderer(cube::gl::viewport::Viewport const& vp,
 		                RendererType const& renderer_type = default_renderer_type);
 
+	///////////////////////////////////////////////////////////////////////////
+	// Python export these classes. Needed for cube.gl.window.Window.
+
 	namespace detail {
 
+		///////////////////////////////////////////////////////////////////////
+		// Wrap RendererType class.
 		struct WrapRendererType
 		{
 			RendererType const* renderer_type;
 			std::string __str__() const;
 		};
 
+		///////////////////////////////////////////////////////////////////////
+		// Painter proxy class.
 		struct PainterWithProxy
 		{
 		private:
@@ -228,6 +188,8 @@ namespace cube { namespace gl { namespace renderer {
 			void __exit__();
 		};
 
+		///////////////////////////////////////////////////////////////////////
+		// Wrap renderer class
 		struct WrapRenderer
 		{
 		private:
@@ -241,9 +203,10 @@ namespace cube { namespace gl { namespace renderer {
 			void swap_buffers();
 			void viewport(float x, float y, float w, float h);
 			PainterWithProxy begin(Renderer::Mode mode);
+			VertexBuffer* new_vertex_buffer();
 		};
 
-	} // !anonymous
+	} // !detail
 
 }}} // !cube::gl::renderer
 

@@ -1,13 +1,12 @@
-#ifndef __CUBE_GL_COLOR_HPP__
-#define __CUBE_GL_COLOR_HPP__
+#ifndef  CUBE_GL_COLOR_HPP
+# define CUBE_GL_COLOR_HPP
 
 # include <string>
 # include <limits>
 
-namespace cube { namespace gl { namespace color {
+# include "fwd.hpp"
 
-	template<typename T> struct Color3;
-	template<typename T> struct Color4;
+namespace cube { namespace gl { namespace color {
 
 	template<typename T>
 		Color3<T> const& parse_color3(std::string const& s);
@@ -40,6 +39,8 @@ namespace cube { namespace gl { namespace color {
 
 	template<typename T> struct Color3
 	{
+		typedef T component_t;
+		static unsigned int const arity = 3;
 	public:
 		union
 		{
@@ -74,6 +75,8 @@ namespace cube { namespace gl { namespace color {
 
 	template<typename T> struct Color4
 	{
+		typedef T component_t;
+		static unsigned int const arity = 4;
 	public:
 		union
 		{
@@ -82,9 +85,9 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
-		Color4()
-			: r(), g(), b(), a()
-		{}
+		Color4() = default;
+		Color4(Color4<T> const&) = default;
+		Color4(Color4<T>&&) = default;
 
 		Color4(T r, T g, T b, T a = traits<T>::max_component_value())
 			: r(r), g(g), b(b), a(a)

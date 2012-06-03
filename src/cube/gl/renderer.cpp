@@ -5,10 +5,15 @@
 
 #include <wrappers/boost/python.hpp>
 
+#include <etc/print.hpp>
+
 #include "opengl/Renderer.hpp"
 
 
 namespace cube { namespace gl { namespace renderer {
+
+	//////////////////////////////////////////////////////////////////////////
+	// free functions
 
 	std::vector<cube::gl::renderer::Renderer*> const& all_renderers()
 	{
@@ -28,6 +33,9 @@ namespace cube { namespace gl { namespace renderer {
 		{
 			return description.create(vp);
 		}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Renderer class
 
 	Renderer::Renderer()
 		: _viewport{0,0,0,0}
@@ -72,13 +80,77 @@ namespace cube { namespace gl { namespace renderer {
 		return _states.back();
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Painter class
+
+	Renderer::Painter::Painter(Painter&& other)
+		: _renderer(other._renderer)
+		 , _bound_drawables(std::move(other._bound_drawables))
+	{}
+
+	Renderer::Painter::~Painter()
+	{
+		for (Drawable* drawable: _bound_drawables)
+			drawable->_unbind();
+		_bound_drawables.clear();
+
+		_renderer._end();
+		_renderer.pop_state();
+	}
+
+	void Renderer::Painter::bind(Drawable& drawable)
+	{
+		if (_bound_drawables.find(&drawable) != _bound_drawables.end())
+			return;
+		drawable._bind();
+		_bound_drawables.insert(&drawable);
+	}
 	Renderer::Painter Renderer::begin(State const& state)
 	{
 		_states.push_back(state);
 		return Painter(*this);
 	}
 
+	void Renderer::Painter::draw_elements(DrawMode mode,
+	                                      VertexBuffer& indices,
+	                                      unsigned int start,
+	                                      unsigned int count)
+	{
+		this->bind(indices);
+
+		auto const& attr = indices.attributes()[0];
+
+		etc::print("start =", start, "count =", count,
+		           "attr.nb_elements =", attr.nb_elements);
+		if (count == ((unsigned int) -1))
+			count = attr.nb_elements - start;
+		else if (count > attr.nb_elements - start)
+			throw std::runtime_error("Count is out of range.");
+
+		_renderer.draw_elements(
+			mode,
+			count,
+			attr.type,
+			(uint8_t*)0 + (start * get_content_type_size(attr.type))
+		);
+
+		this->unbind(indices);
+	}
+
+
+	void Renderer::Painter::unbind(Drawable& drawable)
+	{
+		auto it = _bound_drawables.find(&drawable);
+		if (it == _bound_drawables.end())
+			throw std::runtime_error("Cannot unbind the drawable");
+		drawable._unbind();
+		_bound_drawables.erase(it);
+	}
+
 }}} // !cube::gl::renderer
+
+//////////////////////////////////////////////////////////////////////////////
+// Python wrappers
 
 namespace cube { namespace gl { namespace renderer { namespace detail {
 
@@ -149,6 +221,11 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	PainterWithProxy WrapRenderer::begin(Renderer::Mode mode)
 	{
 		return PainterWithProxy(*_renderer, mode);
+	}
+
+	VertexBuffer* WrapRenderer::new_vertex_buffer()
+	{
+		return _renderer->new_vertex_buffer().release();
 	}
 
 }}}} // !cube::gl::renderer::detail

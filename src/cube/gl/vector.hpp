@@ -6,21 +6,25 @@
 # include <glm/core/type_vec3.hpp>
 //# include <glm/gtx/transform.hpp>
 
+# include "fwd.hpp"
+
 namespace cube { namespace gl { namespace vector {
 
 	using namespace ::glm;
 
-# define _CUBE_GL_VECTOR_DEF(arity)                                           \
+# define _CUBE_GL_VECTOR_DEF(arity_)                                          \
 	template<typename T>                                                      \
-	struct Vector##arity                                                      \
-		: public detail::tvec##arity<T>                                       \
+	struct Vector##arity_                                                     \
+		: public detail::tvec##arity_<T>                                      \
 	{                                                                         \
+		static const unsigned int arity = arity_;                             \
+		typedef T component_t;                                                \
 		template<typename... K>                                               \
-		Vector##arity(K... values)                                            \
-			: detail::tvec##arity<T>{values...}                               \
+		Vector##arity_(K... values)                                           \
+			: detail::tvec##arity_<T>{values...}                              \
 		{};                                                                   \
 	};                                                                        \
-	typedef Vector##arity<float> Vector##arity##f                             \
+	typedef Vector##arity_<float> Vector##arity_##f                           \
 	/**/
 
 	_CUBE_GL_VECTOR_DEF(2);

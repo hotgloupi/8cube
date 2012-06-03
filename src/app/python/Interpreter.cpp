@@ -66,7 +66,6 @@ namespace app { namespace python {
 	Interpreter& Interpreter::instance()
 	{
 		static bool called = false;
-		extern Interpreter* _interpreter;
 
 		assert(called == false);
 		if (!called)

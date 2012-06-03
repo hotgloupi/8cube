@@ -9,6 +9,7 @@ BOOST_PYTHON_MODULE(vector)
 	namespace py = boost::python;
 
 	py::class_<Vector2f>("Vector2f")
+		.def(py::init<float, float>())
 	;
 
 	py::class_<Vector3f>("Vector3f")

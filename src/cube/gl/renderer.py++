@@ -1,16 +1,103 @@
 #include <string>
 
 #include "renderer.hpp"
+#include "color.hpp"
+
+#include <etc/print.hpp>
 
 #include <wrappers/boost/python.hpp>
-
+#include <boost/python/raw_function.hpp>
 using namespace cube::gl::renderer;
 
-static void with_exit(detail::PainterWithProxy& self,
-                      PyObject*, PyObject*, PyObject*)
+static void
+detail_PainterWithProxy___exit__(detail::PainterWithProxy& self,
+                                 PyObject*, PyObject*, PyObject*)
 {
   self.__exit__();
 }
+
+template<typename T>
+static void
+	_push_static_content(VertexBuffer& self,
+	                     ContentKind kind,
+	                     boost::python::list list,
+	                     size_t len)
+	{
+		std::unique_ptr<T, void(*)(void*)> array{
+			static_cast<T*>(::malloc(len * sizeof (T))),
+			&std::free
+		};
+		for (size_t i = 0; i < len; ++i)
+		{
+			boost::python::object elem = list[i];
+			array.get()[i] = boost::python::extract<T>(elem);
+		}
+		etc::print("Push", len);
+		self.push_static_content(kind, std::move(array), len);
+	}
+
+static void
+	push_static_content(VertexBuffer& self,
+	                    ContentKind kind,
+	                    boost::python::list list)
+	{
+		size_t len = boost::python::len(list);
+		if (len == 0)
+			throw std::runtime_error("empty content");
+
+		boost::python::object first = list[0];
+
+#define _CHECK(type) \
+		if (boost::python::extract<type>(first).check()) \
+			return _push_static_content<type>(self, kind, list, len)
+
+		switch (kind)
+		{
+			case ContentKind::color:
+				_CHECK(cube::gl::color::Color3f);
+				_CHECK(cube::gl::color::Color4f);
+				break;
+			case ContentKind::index:
+				_CHECK(uint8_t);
+				_CHECK(uint16_t);
+				_CHECK(uint32_t);
+				break;
+			default:
+				_CHECK(cube::gl::vector::Vector2f);
+				_CHECK(cube::gl::vector::Vector3f);
+
+		}
+#undef _CHECK
+
+		throw std::runtime_error(
+			"List content has to be a color or a vector, got '" +
+			std::string(
+				boost::python::extract<std::string>(
+					boost::python::str(first)
+				)
+			) + "'."
+		);
+	}
+
+// py::raw_function compatible
+//static boost::python::object
+//Renderer_Painter_draw(boost::python::tuple args,
+//                      boost::python::dict kwargs)
+//{
+//	size_t len = boost::python::len(args);
+//	Renderer::Painter& self = boost::python::extract<Renderer::Painter&>(args[0]);
+//
+//	std::vector<Drawable*> to_draw;
+//
+//	for (size_t i = 1; i < len; ++i)
+//	{
+//		Drawable* drawable = boost::python::extract<Drawable*>(args[i]);
+//		to_draw.push_back(drawable);
+//	}
+//	self.draw(to_draw);
+//	return boost::python::object{};
+//}
+
 
 BOOST_PYTHON_MODULE(renderer)
 {
@@ -25,8 +112,48 @@ BOOST_PYTHON_MODULE(renderer)
 		.value("_3d", Renderer::Mode::_3d)
 	;
 
+	py::enum_<ContentKind>("ContentKind")
+		.value("vertex", ContentKind::vertex)
+		.value("index", ContentKind::index)
+		.value("color", ContentKind::color)
+		.value("normal", ContentKind::normal)
+		.value("tex_coord0", ContentKind::tex_coord0)
+		.value("tex_coord1", ContentKind::tex_coord1)
+		.value("tex_coord2", ContentKind::tex_coord2)
+	;
+
+	py::enum_<DrawMode>("DrawMode")
+		.value("points", DrawMode::points)
+		.value("lines", DrawMode::lines)
+		.value("line_strip", DrawMode::line_strip)
+		.value("line_loop", DrawMode::line_loop)
+		.value("triangles", DrawMode::triangles)
+		.value("triangle_strip", DrawMode::triangle_strip)
+		.value("triangle_fan", DrawMode::triangle_fan)
+		.value("quads", DrawMode::quads)
+		.value("quad_strip", DrawMode::quad_strip)
+		.value("polygon", DrawMode::polygon)
+	;
+
+	py::class_<Drawable, boost::noncopyable>("Drawable", py::no_init);
+
 	py::class_<Renderer::Painter, boost::noncopyable>(
 			"Painter", py::no_init
+		)
+		.def(
+			"bind",
+			&Renderer::Painter::bind,
+			py::args("drawable", "The drawable to bind."),
+			"Bound drawables can be unbound with the `unbind' method but are"
+			" automatically unbound when the painter is deleted."
+		)
+		.def(
+			"unbind",
+			&Renderer::Painter::unbind
+		)
+		.def(
+			"draw_elements",
+			&Renderer::Painter::draw_elements
 		)
 	;
 
@@ -40,7 +167,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"__exit__",
-			&with_exit
+			&detail_PainterWithProxy___exit__
 		)
 	;
 
@@ -64,7 +191,11 @@ BOOST_PYTHON_MODULE(renderer)
 			"begin",
 			&detail::WrapRenderer::begin
 		)
-
+		.def(
+			"new_vertex_buffer",
+			&detail::WrapRenderer::new_vertex_buffer,
+			py::return_value_policy<py::manage_new_object>()
+		)
 	;
 
 	// Export RendererType class
@@ -72,5 +203,19 @@ BOOST_PYTHON_MODULE(renderer)
 		"RendererType"
 		)
 		.def("__str__", &detail::WrapRendererType::__str__)
+	;
+
+	py::class_<VertexBuffer, boost::noncopyable, py::bases<Drawable>>(
+			"VertexBuffer",
+			py::no_init
+		)
+		.def(
+			"refresh",
+			&VertexBuffer::refresh
+		)
+		.def(
+			"push_static_content",
+			&push_static_content
+		)
 	;
 }

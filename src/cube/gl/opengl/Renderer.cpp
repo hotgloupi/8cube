@@ -110,6 +110,27 @@ namespace cube { namespace gl { namespace opengl {
 		return this->Renderer::begin(state);
 	}
 
+	void GLRenderer::draw_elements(cube::gl::renderer::DrawMode mode,
+	                               unsigned int count,
+	                               cube::gl::renderer::ContentType type,
+	                               void* indices)
+	{
+		etc::log::debug(
+			__PRETTY_FUNCTION__,
+			(int) mode,
+			count,
+			(int) type,
+			indices
+		);
+		//gl::DrawElements(
+		//	gl::get_draw_mode(mode),
+		//	count,
+		//	gl::get_content_type(type),
+		//	indices
+		//);
+		etc::log::debug("Done");
+	}
+
 	void GLRenderer::_end()
 	{
 

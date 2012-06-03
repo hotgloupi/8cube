@@ -3,11 +3,8 @@
 
 # include <string>
 
-# include <boost/signal.hpp>
-
-namespace cube { namespace gl { namespace renderer {
-    class Renderer;
-}}}
+# include <cube/gl/fwd.hpp>
+# include <cube/system/fwd.hpp>
 
 namespace cube { namespace system { namespace window {
 
@@ -28,19 +25,7 @@ namespace cube { namespace system { namespace window {
 		uint32_t poll();
 		uint32_t poll(uint32_t max);
 		::cube::gl::renderer::Renderer& renderer();
-
-	public:
-# define EXPOSE_SIGNAL(name, ...)                                             \
-		typedef boost::signal<void(__VA_ARGS__)> on_ ## name ## _t;           \
-		boost::signals::connection                                            \
-		connect_ ## name(on_ ## name ## _t::slot_function_type subscribe_cb)  \
-
-		EXPOSE_SIGNAL(expose, uint32_t, uint32_t);
-		EXPOSE_SIGNAL(resize, uint32_t, uint32_t);
-		EXPOSE_SIGNAL(idle, void);
-		EXPOSE_SIGNAL(quit, void);
-
-# undef EXPOSE_SIGNAL
+		::cube::system::inputs::Inputs& inputs();
 	};
 
 }}} // !cube::system::window

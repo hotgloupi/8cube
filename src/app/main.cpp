@@ -4,6 +4,7 @@
 #include <string>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <wrappers/boost/filesystem.hpp>
 #include <wrappers/opengl.hpp>
 
@@ -22,19 +23,31 @@ int main(int argc, char* argv[])
 	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
 	fs::path lib_dir = exec_dir.parent_path().append("lib", fs::path::codecvt());
 
-  load_libraries(exec_dir);
-  load_libraries(lib_dir);
+	load_libraries(exec_dir);
+	load_libraries(lib_dir);
 
-  auto& interpreter = app::python::Interpreter::instance();
+	auto& interpreter = app::python::Interpreter::instance();
 
 	fs::path python_lib_dir = lib_dir.append("python", fs::path::codecvt());
 	interpreter.setglobal("lib_dir", python_lib_dir.string());
 
+	// XXX This, is ugly and not safe.
+	std::string pyargs = "[";
+	for (int i = 1; i < argc; ++i)
+	{
+		std::string arg = argv[i];
+		algo::replace_all(arg, "\\", "\\\\");
+		algo::replace_all(arg, "\"", "\\\"");
+
+		pyargs += "\"" + arg + "\",";
+	}
+	pyargs += "]";
 
 	std::string init_script =
 		"import sys\nsys.path.insert(0, lib_dir)\n"
 		"from cube.main import main\n"
-		"main()\n"
+		"import cube\n"
+		"main(" + pyargs + ")\n"
 	;
 
 	return !interpreter.exec(init_script);

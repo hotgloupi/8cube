@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+from cube.gl.renderer import Renderer
 from cube import gl
 from cube import system
 from cube.gui.widgets.viewport import Viewport
@@ -10,8 +11,8 @@ class RootWindow(system.Window):
         super(RootWindow, self).__init__(title, width, height)
         self._root_widget = Viewport(0, 0, width, height)
         self._hdlrs = {
-            'expose': self.connect('expose', self._on_expose),
-            'resize': self.connect('resize', self._on_resize),
+            'expose': self.inputs.on_expose.connect(self._on_expose),
+            'resize': self.inputs.on_resize.connect(self._on_resize),
         }
 
     @property
@@ -22,9 +23,6 @@ class RootWindow(system.Window):
     def root_widget(self, w):
         assert isinstance(w, Widget)
         self._root_widget = widget
-
-    def connect(self, event, callback):
-        return getattr(self, 'connect_' + event)(callback)
 
     def render(self):
         if self._root_widget is not None:
