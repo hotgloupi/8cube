@@ -89,35 +89,6 @@ namespace cube { namespace gl { namespace opengl {
 	///////////////////////////////////////////////////////////////////////////
 	// VBO implem
 
-	namespace detail {
-
-		template<ContentKind kind>
-		struct SetKindPointerMethod;
-
-# define CUBE_GL_OPENGL_KIND_POINTER_METHOD(kind, method, ...)                \
-		template<> struct SetKindPointerMethod<kind> {                        \
-			template<typename Self>                                           \
-			static inline void set_pointer(Self const& self) {                \
-				method(__VA_ARGS__);                                          \
-			}                                                                 \
-		};                                                                    \
-	/**/
-		CUBE_GL_OPENGL_KIND_POINTER_METHOD(
-			ContentKind::vertex,
-			gl::VertexPointer,
-			Self::element_t::arity,
-			gl::get_content_type(
-				MakeContentType<typename Self::element_t::component_t>::value
-			),
-			self.stride,
-			(GLvoid*) self.offset
-		)
-
-
-# undef CUBE_GL_OPENGL_KIND_POINTER_METHOD
-
-	} // !detail
-
 	struct gl::SubVBO
 	{
 	private:
@@ -166,7 +137,12 @@ namespace cube { namespace gl { namespace opengl {
 
 		static void vertex_pointer(SubVBO const& self)
 		{
-			etc::log::debug("vertex pointer");
+			etc::log::debug("vertex pointer",
+				self.attr->arity,
+				self.gl_type, (int) self.attr->kind,
+				self.stride,
+				self.offset
+			);
 			gl::VertexPointer(
 				self.attr->arity,
 				self.gl_type,
@@ -182,7 +158,18 @@ namespace cube { namespace gl { namespace opengl {
 
 		static void color_pointer(SubVBO const& self)
 		{
-			etc::log::debug("Color pointer");
+			etc::log::debug("Color pointer",
+				self.attr->arity,
+				self.gl_type, (int) self.attr->kind,
+				self.stride,
+				self.offset
+			);
+			gl::ColorPointer(
+				self.attr->arity,
+				self.gl_type,
+				self.stride,
+				self.offset
+			);
 		}
 
 		static void normal_pointer(SubVBO const& self)
@@ -232,14 +219,14 @@ namespace cube { namespace gl { namespace opengl {
 			, _sub_vbos{}
 		{
 			gl::GenBuffersARB(1, &_id);
-			this->bind();
+			gl::BindBufferARB(_gl_array_type, _id);
 			gl::BufferDataARB(
 				_gl_array_type,
 				total_size,
 				nullptr,
 				get_content_hint(hint)
 			);
-			this->unbind();
+			gl::BindBufferARB(_gl_array_type, 0);
 		}
 
 		//template<typename T, size_t N>
@@ -286,12 +273,14 @@ namespace cube { namespace gl { namespace opengl {
 			assert(offset + attr.size <= _total_size);
 
 			gl::BindBufferARB(_gl_array_type, _id);
+			gl::EnableClientState(gl::get_content_kind(attr.kind));
 			gl::BufferSubDataARB(
 				_gl_array_type,
 				offset,
 				attr.size,
 				attr.ptr
 			);
+			gl::DisableClientState(gl::get_content_kind(attr.kind));
 			gl::BindBufferARB(_gl_array_type, 0);
 
 			// works for interleaved vbo or not

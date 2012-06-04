@@ -122,12 +122,12 @@ namespace cube { namespace gl { namespace opengl {
 			(int) type,
 			indices
 		);
-		//gl::DrawElements(
-		//	gl::get_draw_mode(mode),
-		//	count,
-		//	gl::get_content_type(type),
-		//	indices
-		//);
+		gl::DrawElements(
+			gl::get_draw_mode(mode),
+			count,
+			gl::get_content_type(type),
+			indices
+		);
 		etc::log::debug("Done");
 	}
 

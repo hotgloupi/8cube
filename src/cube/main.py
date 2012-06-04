@@ -57,6 +57,7 @@ def test_vertex_buffer():
     while state['running'] is True:
         win.poll()
         with win.renderer.begin(gl.renderer.mode_2d) as painter:
+            painter.bind(indices)
             painter.bind(vb)
             painter.draw_elements(gl.DrawMode.quads,indices, 0, 4)
 
