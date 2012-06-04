@@ -135,6 +135,12 @@ BOOST_PYTHON_MODULE(renderer)
 		.value("polygon", DrawMode::polygon)
 	;
 
+	py::enum_<BufferBit>("BufferBit")
+		.value("color", BufferBit::color)
+		.value("depth", BufferBit::depth)
+		.value("stencil", BufferBit::stencil)
+	;
+
 	py::class_<Drawable, boost::noncopyable>("Drawable", py::no_init);
 
 	py::class_<Renderer::Painter, boost::noncopyable>(
@@ -195,6 +201,15 @@ BOOST_PYTHON_MODULE(renderer)
 			"new_vertex_buffer",
 			&detail::WrapRenderer::new_vertex_buffer,
 			py::return_value_policy<py::manage_new_object>()
+		)
+		.def(
+			"new_index_buffer",
+			&detail::WrapRenderer::new_index_buffer,
+			py::return_value_policy<py::manage_new_object>()
+		)
+		.def(
+			"clear",
+			&detail::WrapRenderer::clear
 		)
 	;
 

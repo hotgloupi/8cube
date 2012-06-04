@@ -4,18 +4,21 @@
 
 namespace cube { namespace gl { namespace opengl {
 
-	GLVertexBuffer::GLVertexBuffer()
+	template<bool is_indices>
+	_GLVertexBuffer<is_indices>::_GLVertexBuffer()
 		: _vbo{nullptr}
 	{
 	}
 
-	GLVertexBuffer::~GLVertexBuffer()
+	template<bool is_indices>
+	_GLVertexBuffer<is_indices>::~_GLVertexBuffer()
 	{
 		delete _vbo;
 		_vbo = nullptr;
 	}
 
-	void GLVertexBuffer::refresh()
+	template<bool is_indices>
+	void _GLVertexBuffer<is_indices>::refresh()
 	{
 		assert(_attributes.size() != 0 && "Refreshing an empty VBO is an error !");
 
@@ -24,7 +27,7 @@ namespace cube { namespace gl { namespace opengl {
 			size_t total_size = 0;
 			for (auto const& attr: _attributes)
 				total_size += attr.size;
-			_vbo = new gl::VBO<false>{total_size};
+			_vbo = new gl::VBO<is_indices>{total_size};
 			size_t offset = 0;
 			for (VertexBuffer::Attribute const& attr: _attributes)
 			{
@@ -36,19 +39,24 @@ namespace cube { namespace gl { namespace opengl {
 			throw false; // XXX
 	}
 
-	void GLVertexBuffer::_bind()
+	template<bool is_indices>
+	void _GLVertexBuffer<is_indices>::_bind()
 	{
 		assert(_vbo != nullptr && "Cannot bind a non finalized VertexBuffer");
 		this->_vbo->bind(true);
 	}
 
-	void GLVertexBuffer::_unbind()
+	template<bool is_indices>
+	void _GLVertexBuffer<is_indices>::_unbind()
 	{
 		assert(_vbo != nullptr && "Cannot unbind a non finalized VertexBuffer");
 		this->_vbo->unbind(true);
 	}
 
-	//void GLVertexBuffer::attribute(ContentType type,
+	template class _GLVertexBuffer<true>;
+	template class _GLVertexBuffer<false>;
+
+	//void _GLVertexBuffer::attribute(ContentType type,
 	//                               ContentKind kind,
 	//                               uint32_t size)
 	//{
@@ -68,7 +76,7 @@ namespace cube { namespace gl { namespace opengl {
 	//	);
 	//}
 
-	// void GLVertexBuffer::content(void const* data,
+	// void _GLVertexBuffer::content(void const* data,
 	//                              std::size_t size,
 	//                              ContentHint hint)
 	//{
@@ -78,7 +86,7 @@ namespace cube { namespace gl { namespace opengl {
 	//	_unbind();
 	//}
 
-	//void GLVertexBuffer::sub_content(void const* data,
+	//void _GLVertexBuffer::sub_content(void const* data,
 	//                                 std::size_t offset,
 	//                                 std::size_t size)
 	//{
@@ -87,7 +95,7 @@ namespace cube { namespace gl { namespace opengl {
 	//	gl::BindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	//}
 
-	//void GLVertexBuffer::_bind()
+	//void _GLVertexBuffer::_bind()
 	//{
 	//	gl::BindBufferARB(GL_ARRAY_BUFFER_ARB, _id);
 	//	for (auto& attr: _attributes)
@@ -133,7 +141,7 @@ namespace cube { namespace gl { namespace opengl {
 	//	}
 	//}
 
-	//void GLVertexBuffer::_unbind()
+	//void _GLVertexBuffer::_unbind()
 	//{
 	//	gl::BindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	//	for (auto& attr: _attributes)

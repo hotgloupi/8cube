@@ -116,7 +116,6 @@ namespace cube { namespace gl { namespace renderer {
 	                                      unsigned int start,
 	                                      unsigned int count)
 	{
-		this->bind(indices);
 
 		auto const& attr = indices.attributes()[0];
 
@@ -127,13 +126,13 @@ namespace cube { namespace gl { namespace renderer {
 		else if (count > attr.nb_elements - start)
 			throw std::runtime_error("Count is out of range.");
 
+		this->bind(indices);
 		_renderer.draw_elements(
 			mode,
 			count,
 			attr.type,
 			(uint8_t*)0 + (start * get_content_type_size(attr.type))
 		);
-
 		this->unbind(indices);
 	}
 
@@ -226,6 +225,16 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	VertexBuffer* WrapRenderer::new_vertex_buffer()
 	{
 		return _renderer->new_vertex_buffer().release();
+	}
+
+	VertexBuffer* WrapRenderer::new_index_buffer()
+	{
+		return _renderer->new_index_buffer().release();
+	}
+
+	void WrapRenderer::clear(int flags)
+	{
+		return _renderer->clear((BufferBit)flags);
 	}
 
 }}}} // !cube::gl::renderer::detail

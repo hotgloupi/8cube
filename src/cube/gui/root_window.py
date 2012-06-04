@@ -33,7 +33,6 @@ class RootWindow(system.Window):
     def _on_expose(self, w, h):
         print("Expose from window", w, h)
         self.renderer.viewport(0, 0, w, h);
-        self.renderer.swap_buffers()
 
     def _on_resize(self, w, h):
         print("resize from window", w, h)

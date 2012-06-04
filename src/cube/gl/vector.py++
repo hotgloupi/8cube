@@ -13,5 +13,6 @@ BOOST_PYTHON_MODULE(vector)
 	;
 
 	py::class_<Vector3f>("Vector3f")
+		.def(py::init<float, float, float>())
 	;
 }

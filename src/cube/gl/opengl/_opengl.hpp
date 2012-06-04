@@ -1,8 +1,7 @@
 #ifndef  CUBE_GL_OPENGL__OPENGL_HPP
 # define CUBE_GL_OPENGL__OPENGL_HPP
 
-# include <array>
-# include <unordered_map>
+# include <stdexcept>
 
 # include <boost/type_traits.hpp>
 
@@ -40,6 +39,7 @@ namespace cube { namespace gl { namespace opengl {
 		static inline __name__ ## _result_type                                \
 		__name__(T... values)                                                 \
 		{                                                                     \
+			etc::log::debug(__PRETTY_FUNCTION__, values...);                  \
 			return ::gl ## __name__(values...);                               \
 		}                                                                     \
 
@@ -62,6 +62,9 @@ namespace cube { namespace gl { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(TexCoordPointer);
 
 		_CUBE_GL_OPENGL_WRAP(DrawElements);
+		_CUBE_GL_OPENGL_WRAP(Clear);
+		_CUBE_GL_OPENGL_WRAP(ClearColor);
+		_CUBE_GL_OPENGL_WRAP(Viewport);
 
 
 # undef _CUBE_GL_OPENGL_WRAP
@@ -205,9 +208,7 @@ namespace cube { namespace gl { namespace opengl {
 		std::vector<gl::SubVBO> _sub_vbos;
 
 	private:
-		static const GLint  _gl_array_type = (
-			is_indices ? GL_ELEMENT_ARRAY_BUFFER_ARB : GL_ARRAY_BUFFER_ARB
-		);
+		static const GLint  _gl_array_type;
 
 	public:
 		VBO(size_t total_size,
@@ -219,7 +220,16 @@ namespace cube { namespace gl { namespace opengl {
 			, _sub_vbos{}
 		{
 			gl::GenBuffersARB(1, &_id);
+			etc::log::debug("bind", _id);
 			gl::BindBufferARB(_gl_array_type, _id);
+			etc::log::debug("glBufferDataARB(",
+				"is indices:", is_indices,
+				gl::VBO<is_indices>::_gl_array_type,
+				total_size,
+				(void*)0,
+				get_content_hint(hint),
+				")"
+			);
 			gl::BufferDataARB(
 				_gl_array_type,
 				total_size,
@@ -227,6 +237,7 @@ namespace cube { namespace gl { namespace opengl {
 				get_content_hint(hint)
 			);
 			gl::BindBufferARB(_gl_array_type, 0);
+			etc::log::debug("unbind", _id);
 		}
 
 		//template<typename T, size_t N>
@@ -271,9 +282,20 @@ namespace cube { namespace gl { namespace opengl {
 		sub_vbo(VertexBuffer::Attribute const& attr, size_t offset)
 		{
 			assert(offset + attr.size <= _total_size);
+			if (is_indices && attr.kind != ContentKind::index)
+				throw std::runtime_error("an index buffer has to receive only indices");
+			else if (!is_indices && attr.kind == ContentKind::index)
+				throw std::runtime_error("Cannot store indices into a vertex object");
 
 			gl::BindBufferARB(_gl_array_type, _id);
 			gl::EnableClientState(gl::get_content_kind(attr.kind));
+			etc::log::debug("glBufferSubDataARB(",
+				"is indices:", is_indices,
+				"offset:", offset,
+				"size:", attr.size,
+				"ptr", attr.ptr,
+				")"
+			);
 			gl::BufferSubDataARB(
 				_gl_array_type,
 				offset,

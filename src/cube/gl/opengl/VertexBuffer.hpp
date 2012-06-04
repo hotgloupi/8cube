@@ -5,20 +5,25 @@
 
 namespace cube { namespace gl { namespace opengl {
 
-	class GLVertexBuffer
+
+	template<bool is_indices>
+	class _GLVertexBuffer
 		: public VertexBuffer
 	{
 	private:
-		gl::VBO<false>*    _vbo;
+		gl::VBO<is_indices>*    _vbo;
 	public:
-		GLVertexBuffer();
-		virtual ~GLVertexBuffer();
+		_GLVertexBuffer();
+		virtual ~_GLVertexBuffer();
 
 		virtual void refresh();
 	protected:
 		virtual void _bind();
 		virtual void _unbind();
 	};
+
+	typedef _GLVertexBuffer<false> GLVertexBuffer;
+	typedef _GLVertexBuffer<true> GLIndexBuffer;
 
 }}} // !cube::gl::opengl
 

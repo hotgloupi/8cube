@@ -41,4 +41,9 @@ namespace cube { namespace gl { namespace opengl {
 			&gl::SubVBO::tex_coord2_pointer,
 	};
 
+	template<>
+	const GLint  gl::VBO<true>::_gl_array_type = GL_ELEMENT_ARRAY_BUFFER_ARB;
+	template<>
+	const GLint  gl::VBO<false>::_gl_array_type = GL_ARRAY_BUFFER_ARB;
+
 }}} // !cube::gl::opengl

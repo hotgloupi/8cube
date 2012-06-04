@@ -3,6 +3,19 @@
 
 namespace cube { namespace gl { namespace renderer {
 
+	enum class BufferBit : int
+	{
+    none    = 0,
+		color   = 1,
+		depth   = 2,
+		stencil = 4,
+	};
+
+  inline BufferBit operator &(BufferBit a, BufferBit b)
+  {
+    return (BufferBit)((int) a & (int) b);
+  }
+
 	enum class DrawMode
 	{
 		points,

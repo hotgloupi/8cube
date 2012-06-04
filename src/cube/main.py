@@ -29,7 +29,7 @@ def test_vertex_buffer():
 
     vb.push_static_content(
         gl.ContentKind.vertex,
-        list(gl.Vector2f(*v) for v in [(0, 0), (1, 0), (1, 1), (0, 1)])
+        list(gl.Vector2f(*v) for v in [(0.1, .1), (.9, .1), (.9, .9), (.1, .9)])
     )
 
     vb.push_static_content(
@@ -43,24 +43,38 @@ def test_vertex_buffer():
     )
     vb.refresh()
 
-    indices = win.renderer.new_vertex_buffer()
+    indices = win.renderer.new_index_buffer()
     indices.push_static_content(
         gl.ContentKind.index,
-        [ 0, 1, 2, 3]
+        [ 3,2,1,0]
     )
     indices.refresh()
 
     state = {
         'running': True,
     }
+    win.poll()
+    win.renderer.clear(
+        gl.renderer.BufferBit.color |
+        gl.renderer.BufferBit.depth
+    );
     win.inputs.on_quit.connect(lambda: state.update({'running': False}))
+    def f(w, h):
+        print (w, h)
+        win.renderer.viewport(0, 0, w, h)
+    win.inputs.on_expose.connect(f)
+    win.renderer.swap_buffers()
     while state['running'] is True:
         win.poll()
-        with win.renderer.begin(gl.renderer.mode_2d) as painter:
-            painter.bind(indices)
+        win.renderer.clear(
+            gl.renderer.BufferBit.color |
+            gl.renderer.BufferBit.depth
+        );
+        with win.renderer.begin(gl.renderer.mode_3d) as painter:
             painter.bind(vb)
             painter.draw_elements(gl.DrawMode.quads,indices, 0, 4)
 
+        win.renderer.swap_buffers()
         time.sleep(.1)
 
     pass

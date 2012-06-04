@@ -60,7 +60,8 @@ namespace cube { namespace gl { namespace opengl {
 				"Cannot start GLRenderer"
 				//"ARB_vertex_shader and ARB_fragment_shader are required"
 			);
-		_viewport = vp;
+		gl::ClearColor(1.0f,0,0,1.0f);
+		this->viewport(vp);
 	}
 
 	void GLRenderer::swap_buffers()
@@ -99,6 +100,7 @@ namespace cube { namespace gl { namespace opengl {
 				0, _viewport.w - _viewport.x,
 				_viewport.h - _viewport.y, 0
 			);
+      state.mvp = state.projection * state.view * state.model;
 			break;
 		case Mode::_3d:
 			gl::Enable(GL_DEPTH_TEST);
@@ -139,6 +141,27 @@ namespace cube { namespace gl { namespace opengl {
 	GLRenderer::VertexBufferPtr GLRenderer::new_vertex_buffer()
 	{
 		return VertexBufferPtr{new GLVertexBuffer};
+	}
+
+	GLRenderer::VertexBufferPtr GLRenderer::new_index_buffer()
+	{
+		return VertexBufferPtr{new GLIndexBuffer};
+	}
+
+	void GLRenderer::clear(cube::gl::renderer::BufferBit flags)
+	{
+		using namespace cube::gl::renderer;
+		gl::Clear(
+			((flags & BufferBit::color)  != BufferBit::none ? GL_COLOR_BUFFER_BIT : 0) |
+			((flags & BufferBit::depth) != BufferBit::none ? GL_DEPTH_BUFFER_BIT : 0) |
+			((flags & BufferBit::stencil) != BufferBit::none ? GL_STENCIL_BUFFER_BIT : 0)
+		);
+	}
+
+	void GLRenderer::viewport(cube::gl::viewport::Viewport const& vp)
+	{
+		this->Renderer::viewport(vp);
+		gl::Viewport(vp.x, vp.y, vp.w, vp.h);
 	}
 
 }}} // !cube::gl::renderers

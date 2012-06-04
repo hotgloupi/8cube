@@ -18,10 +18,13 @@ namespace cube { namespace gl { namespace opengl {
 		virtual ~GLRenderer();
 		virtual Painter begin(Mode mode);
 		virtual VertexBufferPtr new_vertex_buffer();
+		virtual VertexBufferPtr new_index_buffer();
 		virtual void draw_elements(cube::gl::renderer::DrawMode mode,
 		                           unsigned int count,
 		                           cube::gl::renderer::ContentType type,
 		                           void* indices);
+		virtual void clear(cube::gl::renderer::BufferBit flags);
+		virtual void viewport(cube::gl::viewport::Viewport const& vp);
 	protected:
 		virtual void _end();
 	};

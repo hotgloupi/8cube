@@ -89,17 +89,19 @@ namespace cube { namespace gl { namespace renderer {
 	 *************************************************************************/
 	public:
 		/// default implementation sets _viewport
-		void viewport(cube::gl::viewport::Viewport const& vp);
+		virtual void viewport(cube::gl::viewport::Viewport const& vp);
 		virtual void initialize(cube::gl::viewport::Viewport const& vp) = 0;
 		virtual void shutdown() = 0;
 		virtual void swap_buffers() = 0;
 		virtual RendererType const& description() const = 0;
 		virtual Painter begin(Mode mode) = 0;
 		virtual VertexBufferPtr new_vertex_buffer() = 0;
+		virtual VertexBufferPtr new_index_buffer() = 0;
 		virtual void draw_elements(DrawMode mode,
 		                           unsigned int count,
 		                           ContentType type,
 		                           void* indices) = 0;
+		virtual void clear(BufferBit flags) = 0;
 	protected:
 		virtual void _end() = 0;
 	};
@@ -204,6 +206,8 @@ namespace cube { namespace gl { namespace renderer {
 			void viewport(float x, float y, float w, float h);
 			PainterWithProxy begin(Renderer::Mode mode);
 			VertexBuffer* new_vertex_buffer();
+			VertexBuffer* new_index_buffer();
+      void clear(int);
 		};
 
 	} // !detail
