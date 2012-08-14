@@ -109,6 +109,7 @@ namespace cube { namespace gl { namespace opengl {
 		default:
 			assert(false && "Unknown mode");
 		}
+		gl::LoadIdentity(); // XXX
 		return this->Renderer::begin(state);
 	}
 
@@ -124,12 +125,22 @@ namespace cube { namespace gl { namespace opengl {
 			(int) type,
 			indices
 		);
+		glBegin(GL_QUADS);
+		glColor3f(0,0,1);
+		glVertex2f(.2,.2);
+		glVertex2f(.8,.2);
+		glVertex2f(.8,.8);
+		glVertex2f(.2,.8);
+		glEnd();
+
 		gl::DrawElements(
 			gl::get_draw_mode(mode),
 			count,
 			gl::get_content_type(type),
 			indices
 		);
+		gl::DrawArrays(
+			gl::get_draw_mode(mode), 0, count);
 		etc::log::debug("Done");
 	}
 

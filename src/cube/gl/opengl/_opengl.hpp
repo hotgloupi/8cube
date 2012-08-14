@@ -47,13 +47,13 @@ namespace cube { namespace gl { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(Disable);
 		_CUBE_GL_OPENGL_WRAP(EnableClientState);
 		_CUBE_GL_OPENGL_WRAP(DisableClientState);
-		_CUBE_GL_OPENGL_WRAP(ClientActiveTextureARB);
+		_CUBE_GL_OPENGL_WRAP(ClientActiveTexture);
 
-		_CUBE_GL_OPENGL_WRAP(GenBuffersARB);
-		_CUBE_GL_OPENGL_WRAP(BindBufferARB);
-		_CUBE_GL_OPENGL_WRAP(BufferDataARB);
-		_CUBE_GL_OPENGL_WRAP(BufferSubDataARB);
-		_CUBE_GL_OPENGL_WRAP(DeleteBuffersARB);
+		_CUBE_GL_OPENGL_WRAP(GenBuffers);
+		_CUBE_GL_OPENGL_WRAP(BindBuffer);
+		_CUBE_GL_OPENGL_WRAP(BufferData);
+		_CUBE_GL_OPENGL_WRAP(BufferSubData);
+		_CUBE_GL_OPENGL_WRAP(DeleteBuffers);
 
 
 		_CUBE_GL_OPENGL_WRAP(VertexPointer);
@@ -62,10 +62,12 @@ namespace cube { namespace gl { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(TexCoordPointer);
 
 		_CUBE_GL_OPENGL_WRAP(DrawElements);
+		_CUBE_GL_OPENGL_WRAP(DrawArrays);
 		_CUBE_GL_OPENGL_WRAP(Clear);
 		_CUBE_GL_OPENGL_WRAP(ClearColor);
 		_CUBE_GL_OPENGL_WRAP(Viewport);
 
+        _CUBE_GL_OPENGL_WRAP(LoadIdentity);
 
 # undef _CUBE_GL_OPENGL_WRAP
 
@@ -87,261 +89,6 @@ namespace cube { namespace gl { namespace opengl {
 		static GLenum _content_type_map[(size_t)ContentType::_max_value];
 		static GLenum _content_kind_map[(size_t)ContentKind::_max_value];
 		static GLenum _content_hint_map[(size_t)ContentHint::_max_value];
-	};
-
-	///////////////////////////////////////////////////////////////////////////
-	// VBO implem
-
-	struct gl::SubVBO
-	{
-	private:
-		typedef std::function<void(gl::SubVBO const&)> pointer_method_t;
-
-	public:
-		GLuint                          id;
-		VertexBuffer::Attribute const*  attr;
-		GLenum                          gl_kind;
-		GLenum                          gl_type;
-		GLvoid*                         offset;
-		GLsizei                         stride;
-
-
-	private:
-		static pointer_method_t _pointer_methods[(size_t)ContentKind::_max_value];
-
-	public:
-		SubVBO(GLuint id,
-		       VertexBuffer::Attribute const& attr,
-		       GLvoid* offset,
-		       GLsizei stride)
-			: id{id}
-			, attr{&attr}
-			, gl_kind{gl::get_content_kind(attr.kind)}
-			, gl_type{gl::get_content_type(attr.type)}
-			, offset{offset}
-			, stride{stride}
-		{}
-
-		SubVBO(SubVBO const&) = default;
-		SubVBO& operator =(SubVBO const&) = default;
-
-		void bind()
-		{
-			etc::log::debug("bind SubVBO", id, gl_kind, "at", offset);
-			gl::EnableClientState(this->gl_kind);
-			_pointer_methods[(size_t) this->attr->kind](*this);
-		}
-
-		void unbind()
-		{
-			etc::log::debug("unbind SubVBO", id, gl_kind, "at", offset);
-			gl::DisableClientState(this->gl_kind);
-		}
-
-		static void vertex_pointer(SubVBO const& self)
-		{
-			etc::log::debug("vertex pointer",
-				self.attr->arity,
-				self.gl_type, (int) self.attr->kind,
-				self.stride,
-				self.offset
-			);
-			gl::VertexPointer(
-				self.attr->arity,
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
-		}
-
-		static void index_pointer(SubVBO const& self)
-		{
-			etc::log::debug("ignore index pointer ?");
-		}
-
-		static void color_pointer(SubVBO const& self)
-		{
-			etc::log::debug("Color pointer",
-				self.attr->arity,
-				self.gl_type, (int) self.attr->kind,
-				self.stride,
-				self.offset
-			);
-			gl::ColorPointer(
-				self.attr->arity,
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
-		}
-
-		static void normal_pointer(SubVBO const& self)
-		{
-			throw false;
-		}
-
-		static void tex_coord0_pointer(SubVBO const& self)
-		{
-			throw false;
-		}
-
-		static void tex_coord1_pointer(SubVBO const& self)
-		{
-			throw false;
-		}
-
-		static void tex_coord2_pointer(SubVBO const& self)
-		{
-			throw false;
-		}
-
-	};
-
-	template<bool is_indices>
-	struct gl::VBO
-	{
-	private:
-		GLuint                  _id;
-		size_t                  _current_offset;
-		size_t                  _total_size;
-		GLsizei                 _current_stride;
-		std::vector<gl::SubVBO> _sub_vbos;
-
-	private:
-		static const GLint  _gl_array_type;
-
-	public:
-		VBO(size_t total_size,
-		    ContentHint hint = ContentHint::static_content)
-			: _id{0}
-			, _current_offset{0}
-			, _total_size{total_size}
-			, _current_stride{0}
-			, _sub_vbos{}
-		{
-			gl::GenBuffersARB(1, &_id);
-			etc::log::debug("bind", _id);
-			gl::BindBufferARB(_gl_array_type, _id);
-			etc::log::debug("glBufferDataARB(",
-				"is indices:", is_indices,
-				gl::VBO<is_indices>::_gl_array_type,
-				total_size,
-				(void*)0,
-				get_content_hint(hint),
-				")"
-			);
-			gl::BufferDataARB(
-				_gl_array_type,
-				total_size,
-				nullptr,
-				get_content_hint(hint)
-			);
-			gl::BindBufferARB(_gl_array_type, 0);
-			etc::log::debug("unbind", _id);
-		}
-
-		//template<typename T, size_t N>
-		//VBO(std::array<T, N> data,
-		//    ContentHint hint = ContentHint::static_content)
-		//	: _id{0}
-		//	, _current_offset{0}
-		//	, _total_size{N * sizeof (T)}
-		//	, _current_stride{0}
-		//	, _sub_vbos{}
-		//{
-		//	gl::GenBuffersARB(1, &_id);
-		//	this->bind();
-		//	gl::BufferDataARB(
-		//		_gl_array_type,
-		//		_total_size,
-		//		data,
-		//		get_content_hint(hint)
-		//	);
-		//	this->unbind();
-		//}
-
-		VBO(VBO&& other)
-			: _id{other._id}
-			, _current_offset{other._offset}
-			, _total_size{other._total_size}
-			, _current_stride{0}
-			, _sub_vbos{std::move(other._sub_vbos)}
-		{
-			other._id = 0;
-		}
-
-		VBO operator =(VBO const&) = delete;
-
-		~VBO()
-		{
-			if (_id != 0)
-				gl::DeleteBuffersARB(1, &_id);
-		}
-
-		void
-		sub_vbo(VertexBuffer::Attribute const& attr, size_t offset)
-		{
-			assert(offset + attr.size <= _total_size);
-			if (is_indices && attr.kind != ContentKind::index)
-				throw std::runtime_error("an index buffer has to receive only indices");
-			else if (!is_indices && attr.kind == ContentKind::index)
-				throw std::runtime_error("Cannot store indices into a vertex object");
-
-			gl::BindBufferARB(_gl_array_type, _id);
-			gl::EnableClientState(gl::get_content_kind(attr.kind));
-			etc::log::debug("glBufferSubDataARB(",
-				"is indices:", is_indices,
-				"offset:", offset,
-				"size:", attr.size,
-				"ptr", attr.ptr,
-				")"
-			);
-			gl::BufferSubDataARB(
-				_gl_array_type,
-				offset,
-				attr.size,
-				attr.ptr
-			);
-			gl::DisableClientState(gl::get_content_kind(attr.kind));
-			gl::BindBufferARB(_gl_array_type, 0);
-
-			// works for interleaved vbo or not
-			if (offset != _current_offset)
-				_current_stride += offset - _current_offset;
-
-			_current_offset += offset;
-
-			_sub_vbos.push_back(SubVBO{
-				_id,
-				attr,
-				(void*)offset, // XXX use brain
-				_total_size
-			});
-		}
-
-		void bind(bool all = true)
-		{
-			etc::log::debug("bind VBO", _id);
-			gl::BindBufferARB(_gl_array_type, _id);
-
-			if (!all)
-				return;
-
-			for (SubVBO& vbo: _sub_vbos)
-				vbo.bind();
-		}
-
-		void unbind(bool all = true)
-		{
-			etc::log::debug("unbind VBO", _id);
-			gl::BindBufferARB(_gl_array_type, 0);
-
-			if (!all)
-				return;
-
-			for (SubVBO& vbo: _sub_vbos)
-				vbo.unbind();
-		}
 	};
 
 }}} // !cube::gl::opengl

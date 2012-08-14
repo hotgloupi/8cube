@@ -46,7 +46,7 @@ def test_vertex_buffer():
     indices = win.renderer.new_index_buffer()
     indices.push_static_content(
         gl.ContentKind.index,
-        [ 3,2,1,0]
+        [ 0, 1, 2, 3]
     )
     indices.refresh()
 
@@ -70,9 +70,9 @@ def test_vertex_buffer():
             gl.renderer.BufferBit.color |
             gl.renderer.BufferBit.depth
         );
-        with win.renderer.begin(gl.renderer.mode_3d) as painter:
+        with win.renderer.begin(gl.renderer.mode_2d) as painter:
             painter.bind(vb)
-            painter.draw_elements(gl.DrawMode.quads,indices, 0, 4)
+            painter.draw_elements(gl.DrawMode.quads, indices, 0, 4)
 
         win.renderer.swap_buffers()
         time.sleep(.1)
@@ -80,6 +80,7 @@ def test_vertex_buffer():
     pass
 
 def main(args):
+    return test_vertex_buffer()
     print(args)
     if not args:
         return game()

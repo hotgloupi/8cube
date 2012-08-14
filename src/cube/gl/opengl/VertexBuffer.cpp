@@ -1,6 +1,7 @@
 #include <stdexcept>
 
 #include "VertexBuffer.hpp"
+#include "_VBO.hpp"
 
 namespace cube { namespace gl { namespace opengl {
 
@@ -28,6 +29,7 @@ namespace cube { namespace gl { namespace opengl {
 			for (auto const& attr: _attributes)
 				total_size += attr.size;
 			_vbo = new gl::VBO<is_indices>{total_size};
+
 			size_t offset = 0;
 			for (VertexBuffer::Attribute const& attr: _attributes)
 			{
@@ -43,14 +45,14 @@ namespace cube { namespace gl { namespace opengl {
 	void _GLVertexBuffer<is_indices>::_bind()
 	{
 		assert(_vbo != nullptr && "Cannot bind a non finalized VertexBuffer");
-		this->_vbo->bind(true);
+		_vbo->bind();
 	}
 
 	template<bool is_indices>
 	void _GLVertexBuffer<is_indices>::_unbind()
 	{
 		assert(_vbo != nullptr && "Cannot unbind a non finalized VertexBuffer");
-		this->_vbo->unbind(true);
+		this->_vbo->unbind();
 	}
 
 	template class _GLVertexBuffer<true>;
