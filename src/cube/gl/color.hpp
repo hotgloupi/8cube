@@ -88,6 +88,7 @@ namespace cube { namespace gl { namespace color {
 		Color4() = default;
 		Color4(Color4<T> const&) = default;
 		Color4(Color4<T>&&) = default;
+    Color4& operator =(Color4 const&) = default;
 
 		Color4(T r, T g, T b, T a = traits<T>::max_component_value())
 			: r(r), g(g), b(b), a(a)
