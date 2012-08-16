@@ -19,19 +19,28 @@ find_package(Boost
 	COMPONENTS
 		filesystem
 		python3
+		signals
 		system
 	REQUIRED
 )
-
-find_package(Python3Libs)
+find_package(Python3Libs REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(SDL REQUIRED)
 
 link_libraries(
 	${PYTHON3_LIBRARIES}
 	${Boost_LIBRARIES}
+	${OPENGL_LIBRARIES}
+	${GLEW_LIBRARIES}
+	${SDL_LIBRARY}
 )
 include_directories(
 	${PYTHON3_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIRS}
+	${GLEW_INCLUDE_DIRS}
+	${SDL_INCLUDE_DIR}
 )
 
 add_subdirectory(etc)
