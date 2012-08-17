@@ -23,7 +23,9 @@ namespace cube { namespace gl { namespace opengl {
 
 
 	private:
-		static pointer_method_t _pointer_methods[(size_t)ContentKind::_max_value];
+		static pointer_method_t _pointer_methods[
+			(size_t)ContentKind::_max_value
+		];
 
 	public:
 		SubVBO(GLuint id,

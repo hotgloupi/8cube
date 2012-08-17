@@ -43,17 +43,29 @@ namespace cube { namespace gl { namespace opengl {
 			return ::gl ## __name__(values...);                               \
 		}                                                                     \
 
+# define _CUBE_GL_OPENGL_WRAP_ARB(__name__)                                       \
+		typedef                                                               \
+			boost::function_traits<decltype(glEnable)>::result_type           \
+			__name__ ## _result_type;                                         \
+		template<typename... T>                                               \
+		static inline __name__ ## _result_type                                \
+		__name__(T... values)                                                 \
+		{                                                                     \
+			etc::log::debug(__PRETTY_FUNCTION__, values...);                  \
+			return ::gl ## __name__ ## ARB (values...);                               \
+		}                                                                     \
+
 		_CUBE_GL_OPENGL_WRAP(Enable);
 		_CUBE_GL_OPENGL_WRAP(Disable);
 		_CUBE_GL_OPENGL_WRAP(EnableClientState);
 		_CUBE_GL_OPENGL_WRAP(DisableClientState);
 		_CUBE_GL_OPENGL_WRAP(ClientActiveTexture);
 
-		_CUBE_GL_OPENGL_WRAP(GenBuffers);
-		_CUBE_GL_OPENGL_WRAP(BindBuffer);
-		_CUBE_GL_OPENGL_WRAP(BufferData);
-		_CUBE_GL_OPENGL_WRAP(BufferSubData);
-		_CUBE_GL_OPENGL_WRAP(DeleteBuffers);
+		_CUBE_GL_OPENGL_WRAP_ARB(GenBuffers);
+		_CUBE_GL_OPENGL_WRAP_ARB(BindBuffer);
+		_CUBE_GL_OPENGL_WRAP_ARB(BufferData);
+		_CUBE_GL_OPENGL_WRAP_ARB(BufferSubData);
+		_CUBE_GL_OPENGL_WRAP_ARB(DeleteBuffers);
 
 
 		_CUBE_GL_OPENGL_WRAP(VertexPointer);
