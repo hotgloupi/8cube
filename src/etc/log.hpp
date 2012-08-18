@@ -5,31 +5,31 @@
 
 namespace etc { namespace log {
 
-    extern etc::log::Logger default_logger;
+    etc::log::Logger& default_logger();
 
     template<typename... T> void debug(T const&... values)
     {
-      default_logger.debug(values...);
+      default_logger().debug(values...);
     }
 
     template<typename... T> void info(T const&... values)
     {
-      return default_logger.info(values...);
+      return default_logger().info(values...);
     }
 
     template<typename... T> void warn(T const&... values)
     {
-      return default_logger.warn(values...);
+      return default_logger().warn(values...);
     }
 
     template<typename... T> void error(T const&... values)
     {
-      return default_logger.error(values...);
+      return default_logger().error(values...);
     }
 
     template<typename... T> void fatal(T const&... values)
     {
-      return default_logger.fatal(values...);
+      return default_logger().fatal(values...);
     }
 
 }}

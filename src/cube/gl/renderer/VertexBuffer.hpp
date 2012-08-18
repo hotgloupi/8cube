@@ -69,7 +69,7 @@ namespace cube { namespace gl { namespace renderer {
 		{
 			for (auto const& attr: _attributes)
 			{
-				if (!attr.managed)
+				if (attr.managed)
 				{
 					::free(const_cast<void*>(attr.ptr));
 				}

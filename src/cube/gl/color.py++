@@ -2,6 +2,7 @@
 #include <wrappers/boost/python.hpp>
 
 #include "color.hpp"
+
 using namespace cube::gl::color;
 
 namespace {

@@ -39,11 +39,11 @@ namespace cube { namespace gl { namespace opengl {
 		static inline __name__ ## _result_type                                \
 		__name__(T... values)                                                 \
 		{                                                                     \
-			etc::log::debug(__PRETTY_FUNCTION__, values...);                  \
+			etc::log::debug(#__name__, '(', values..., ')');                  \
 			return ::gl ## __name__(values...);                               \
 		}                                                                     \
 
-# define _CUBE_GL_OPENGL_WRAP_ARB(__name__)                                       \
+# define _CUBE_GL_OPENGL_WRAP_ARB(__name__)                                   \
 		typedef                                                               \
 			boost::function_traits<decltype(glEnable)>::result_type           \
 			__name__ ## _result_type;                                         \
@@ -51,8 +51,8 @@ namespace cube { namespace gl { namespace opengl {
 		static inline __name__ ## _result_type                                \
 		__name__(T... values)                                                 \
 		{                                                                     \
-			etc::log::debug(__PRETTY_FUNCTION__, values...);                  \
-			return ::gl ## __name__ ## ARB (values...);                               \
+			etc::log::debug(#__name__, '(', values..., ')');                  \
+			return ::gl ## __name__ ## ARB (values...);                       \
 		}                                                                     \
 
 		_CUBE_GL_OPENGL_WRAP(Enable);

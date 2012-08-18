@@ -20,7 +20,7 @@ namespace cube { namespace gl { namespace opengl {
 			: public RendererType
 		{
 			std::unique_ptr<Renderer>
-				create(::cube::gl::viewport::Viewport const& vp) const
+			create(::cube::gl::viewport::Viewport const& vp) const
 			{
 				std::unique_ptr<Renderer> renderer(new GLRenderer);
 				renderer->initialize(vp);
@@ -28,7 +28,7 @@ namespace cube { namespace gl { namespace opengl {
 			}
 
 			std::string
-				__str__() const
+			__str__() const
 			{
 				std::string gl_version = (char const*)glGetString(GL_VERSION);
 				std::string glew_version = (char const*)glewGetString(GLEW_VERSION);
@@ -39,12 +39,12 @@ namespace cube { namespace gl { namespace opengl {
 			}
 		};
 
-	}
+	} // !detail
 
 
 	GLRenderer::~GLRenderer()
 	{
-		std::cout << "Destroying opengl renderer\n";
+		std::cerr << "Destroying opengl renderer\n";
 	}
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
@@ -60,7 +60,7 @@ namespace cube { namespace gl { namespace opengl {
 				"Cannot start GLRenderer"
 				//"ARB_vertex_shader and ARB_fragment_shader are required"
 			);
-		gl::ClearColor(1.0f,0,0,1.0f);
+		gl::ClearColor(1.0f, 0, 0, 1.0f);
 		this->viewport(vp);
 	}
 
@@ -82,7 +82,7 @@ namespace cube { namespace gl { namespace opengl {
 
 	GLRenderer::Painter GLRenderer::begin(Mode mode)
 	{
-		static matrix_type translate2d = ::cube::gl::matrix::translate<float>(0, 0, 1);
+		static matrix_type translate2d = matrix::translate<float>(0, 0, 1);
 
 		State state;
 		state.mode = mode;
@@ -97,10 +97,9 @@ namespace cube { namespace gl { namespace opengl {
 			//auto size = rs.target == 0 ? this->_screenSize : rs.target->GetSize();
 			state.view = translate2d,
 			state.projection = ::cube::gl::matrix::ortho<float>(
-				0, _viewport.w - _viewport.x,
-				_viewport.h - _viewport.y, 0
+				0, _viewport.w - _viewport.x, _viewport.h - _viewport.y, 0
 			);
-      state.mvp = state.projection * state.view * state.model;
+			state.mvp = state.projection * state.view * state.model;
 			break;
 		case Mode::_3d:
 			gl::Enable(GL_DEPTH_TEST);
@@ -125,13 +124,6 @@ namespace cube { namespace gl { namespace opengl {
 			(int) type,
 			indices
 		);
-		glBegin(GL_QUADS);
-		glColor3f(0,0,1);
-		glVertex2f(.2,.2);
-		glVertex2f(.8,.2);
-		glVertex2f(.8,.8);
-		glVertex2f(.2,.8);
-		glEnd();
 
 		gl::DrawElements(
 			gl::get_draw_mode(mode),
@@ -139,9 +131,6 @@ namespace cube { namespace gl { namespace opengl {
 			gl::get_content_type(type),
 			indices
 		);
-		gl::DrawArrays(
-			gl::get_draw_mode(mode), 0, count);
-		etc::log::debug("Done");
 	}
 
 	void GLRenderer::_end()
@@ -149,12 +138,14 @@ namespace cube { namespace gl { namespace opengl {
 
 	}
 
-	GLRenderer::VertexBufferPtr GLRenderer::new_vertex_buffer()
+	GLRenderer::VertexBufferPtr
+	GLRenderer::new_vertex_buffer()
 	{
 		return VertexBufferPtr{new GLVertexBuffer};
 	}
 
-	GLRenderer::VertexBufferPtr GLRenderer::new_index_buffer()
+	GLRenderer::VertexBufferPtr
+	GLRenderer::new_index_buffer()
 	{
 		return VertexBufferPtr{new GLIndexBuffer};
 	}
@@ -176,4 +167,3 @@ namespace cube { namespace gl { namespace opengl {
 	}
 
 }}} // !cube::gl::renderers
-

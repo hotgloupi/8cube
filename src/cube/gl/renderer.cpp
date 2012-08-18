@@ -15,7 +15,8 @@ namespace cube { namespace gl { namespace renderer {
 	//////////////////////////////////////////////////////////////////////////
 	// free functions
 
-	std::vector<cube::gl::renderer::Renderer*> const& all_renderers()
+	std::vector<cube::gl::renderer::Renderer*> const&
+  all_renderers()
 	{
 		static ::cube::gl::opengl::GLRenderer opengl_renderer;
 
@@ -28,8 +29,8 @@ namespace cube { namespace gl { namespace renderer {
 	RendererType const& default_renderer_type = all_renderers()[0]->description();
 
 	std::unique_ptr<Renderer>
-		create_renderer(cube::gl::viewport::Viewport const& vp,
-		                RendererType const& description)
+  create_renderer(cube::gl::viewport::Viewport const& vp,
+                  RendererType const& description)
 		{
 			return description.create(vp);
 		}
