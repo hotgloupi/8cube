@@ -97,6 +97,10 @@ namespace cube { namespace gl { namespace renderer {
 		{ return _attributes; }
 
 	public:
+		VertexBuffer()
+			: _finalized{false}
+			, _attributes{}
+		{}
 		virtual ~VertexBuffer()
 		{
 			for (auto const& attr: _attributes)

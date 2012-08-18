@@ -15,24 +15,27 @@
 namespace cube { namespace gl { namespace test {
 
 
-    namespace {
-        struct OnExpose
-        {
-          renderer::Renderer& renderer;
-          void operator ()(float w, float h)
-          {
-            this->renderer.viewport(viewport::Viewport{0, 0, w, h});
-          }
-        };
-        struct OnQuit
-        {
-          bool& running;
-          void operator ()()
-          {
-            this->running = false;
-          }
-        };
-    }
+	namespace {
+
+		struct OnExpose
+		{
+			renderer::Renderer& renderer;
+			void operator ()(float w, float h)
+			{
+				this->renderer.viewport(viewport::Viewport{0, 0, w, h});
+			}
+		};
+
+		struct OnQuit
+		{
+			bool& running;
+			void operator ()()
+			{
+				this->running = false;
+			}
+		};
+
+	} // !anonymous
 
     void test_normal(system::window::Window& window,
                      bool const& running)
