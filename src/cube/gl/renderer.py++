@@ -225,8 +225,8 @@ BOOST_PYTHON_MODULE(renderer)
 			py::no_init
 		)
 		.def(
-			"refresh",
-			&VertexBuffer::refresh
+			"finalize",
+			&VertexBuffer::finalize
 		)
 		.def(
 			"push_static_content",

@@ -21,7 +21,7 @@ namespace cube { namespace gl { namespace opengl {
 	};
 
 	GLenum gl::_content_kind_map[(size_t)ContentKind::_max_value]  = {
-		GL_VERTEX_ARRAY, GL_INDEX_ARRAY, GL_COLOR_ARRAY, GL_NORMAL_ARRAY,
+		GL_VERTEX_ARRAY, -1, GL_COLOR_ARRAY, GL_NORMAL_ARRAY,
 		GL_TEXTURE0_ARB, GL_TEXTURE1_ARB, GL_TEXTURE2_ARB,
 	};
 

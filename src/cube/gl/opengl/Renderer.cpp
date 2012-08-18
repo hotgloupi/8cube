@@ -164,6 +164,7 @@ namespace cube { namespace gl { namespace opengl {
 	{
 		this->Renderer::viewport(vp);
 		gl::Viewport(vp.x, vp.y, vp.w, vp.h);
+		gl::LoadIdentity(); // XXX
 	}
 
 }}} // !cube::gl::renderers

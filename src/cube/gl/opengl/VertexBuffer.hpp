@@ -15,8 +15,8 @@ namespace cube { namespace gl { namespace opengl {
 	public:
 		_GLVertexBuffer();
 		virtual ~_GLVertexBuffer();
-
-		virtual void refresh();
+	protected:
+		virtual void _finalize();
 	protected:
 		virtual void _bind();
 		virtual void _unbind();

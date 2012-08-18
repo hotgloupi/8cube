@@ -39,9 +39,12 @@ namespace cube { namespace gl { namespace opengl {
 		static inline __name__ ## _result_type                                \
 		__name__(T... values)                                                 \
 		{                                                                     \
-			etc::log::debug(#__name__, '(', values..., ')');                  \
+			etc::log::logger("cube.gl.opengl._opengl").debug(                 \
+				"gl" #__name__, '(', values..., ')'                           \
+			);                                                                \
 			return ::gl ## __name__(values...);                               \
 		}                                                                     \
+	/**/
 
 # define _CUBE_GL_OPENGL_WRAP_ARB(__name__)                                   \
 		typedef                                                               \
@@ -51,9 +54,12 @@ namespace cube { namespace gl { namespace opengl {
 		static inline __name__ ## _result_type                                \
 		__name__(T... values)                                                 \
 		{                                                                     \
-			etc::log::debug(#__name__, '(', values..., ')');                  \
+			etc::log::logger("cube.gl.opengl._opengl").debug(                 \
+				"gl" #__name__ "ARB", '(', values..., ')'                     \
+			);                                                                \
 			return ::gl ## __name__ ## ARB (values...);                       \
 		}                                                                     \
+	/**/
 
 		_CUBE_GL_OPENGL_WRAP(Enable);
 		_CUBE_GL_OPENGL_WRAP(Disable);

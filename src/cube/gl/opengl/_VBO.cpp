@@ -14,8 +14,8 @@ namespace cube { namespace gl { namespace opengl {
 	};
 
 	template<>
-	const GLint  gl::VBO<true>::_gl_array_type = GL_ELEMENT_ARRAY_BUFFER_ARB;
+	const GLint  gl::VBO<true>::_gl_array_type = GL_ELEMENT_ARRAY_BUFFER;
 	template<>
-	const GLint  gl::VBO<false>::_gl_array_type = GL_ARRAY_BUFFER_ARB;
+	const GLint  gl::VBO<false>::_gl_array_type = GL_ARRAY_BUFFER;
 
 }}} // !cube::gl::opengl

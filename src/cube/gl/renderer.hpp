@@ -154,12 +154,12 @@ namespace cube { namespace gl { namespace renderer {
 
 	extern RendererType const& default_renderer_type;
 
-	/**
+	/**************************************************************************
 	 * Create a renderer.
 	 */
 	std::unique_ptr<Renderer>
-		create_renderer(cube::gl::viewport::Viewport const& vp,
-		                RendererType const& renderer_type = default_renderer_type);
+	create_renderer(cube::gl::viewport::Viewport const& vp,
+	                RendererType const& renderer_type = default_renderer_type);
 
 	///////////////////////////////////////////////////////////////////////////
 	// Python export these classes. Needed for cube.gl.window.Window.
@@ -207,7 +207,7 @@ namespace cube { namespace gl { namespace renderer {
 			PainterWithProxy begin(Renderer::Mode mode);
 			VertexBuffer* new_vertex_buffer();
 			VertexBuffer* new_index_buffer();
-      void clear(int);
+			void clear(int);
 		};
 
 	} // !detail

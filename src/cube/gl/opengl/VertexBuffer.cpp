@@ -1,7 +1,8 @@
-#include <stdexcept>
-
 #include "VertexBuffer.hpp"
+#include "Exception.hpp"
+
 #include "_VBO.hpp"
+
 
 namespace cube { namespace gl { namespace opengl {
 
@@ -19,39 +20,40 @@ namespace cube { namespace gl { namespace opengl {
 	}
 
 	template<bool is_indices>
-	void _GLVertexBuffer<is_indices>::refresh()
+	void _GLVertexBuffer<is_indices>::_finalize()
 	{
-		assert(_attributes.size() != 0 && "Refreshing an empty VBO is an error !");
+		if (_attributes.size() == 0)
+			throw Exception("Refreshing an empty VBO.");
 
-		if (_vbo == nullptr)
+		if (_vbo != nullptr)
+			throw Exception("Already refreshed VBO.");
+
+		size_t total_size = 0;
+		for (auto const& attr: _attributes)
+			total_size += attr.size;
+		_vbo = new gl::VBO<is_indices>{total_size};
+
+		size_t offset = 0;
+		for (VertexBuffer::Attribute const& attr: _attributes)
 		{
-			size_t total_size = 0;
-			for (auto const& attr: _attributes)
-				total_size += attr.size;
-			_vbo = new gl::VBO<is_indices>{total_size};
-
-			size_t offset = 0;
-			for (VertexBuffer::Attribute const& attr: _attributes)
-			{
-				_vbo->sub_vbo(attr, offset);
-				offset += attr.size;
-			}
+			_vbo->sub_vbo(attr, offset);
+			offset += attr.size;
 		}
-		else
-			throw false; // XXX
 	}
 
 	template<bool is_indices>
 	void _GLVertexBuffer<is_indices>::_bind()
 	{
-		assert(_vbo != nullptr && "Cannot bind a non finalized VertexBuffer");
+		if (_vbo == nullptr)
+			throw Exception("Cannot bind a non finalized VertexBuffer");
 		_vbo->bind();
 	}
 
 	template<bool is_indices>
 	void _GLVertexBuffer<is_indices>::_unbind()
 	{
-		assert(_vbo != nullptr && "Cannot unbind a non finalized VertexBuffer");
+		if (_vbo == nullptr)
+			throw Exception("Cannot unbind a non finalized VertexBuffer");
 		this->_vbo->unbind();
 	}
 

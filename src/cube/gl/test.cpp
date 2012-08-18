@@ -34,17 +34,6 @@ namespace cube { namespace gl { namespace test {
         };
     }
 
-    void test_all()
-    {
-      etc::log::debug("Starting Graphic Library tests");
-
-      cube::system::window::Window window{"test window", 640, 480};
-      window.inputs().on_expose().connect(OnExpose{window.renderer()});
-      bool running = true;
-      window.inputs().on_quit().connect(OnQuit{running});
-      opengl::test::vertex_buffer(window, running);
-    }
-
     void test_normal(system::window::Window& window,
                      bool const& running)
     {
@@ -64,7 +53,7 @@ namespace cube { namespace gl { namespace test {
       );
 
       color::Color3f colors[] = {
-            {"red"}, {"green"}, {"gray"}, {"white"},
+            {"red"}, {"green"}, {"gray"}, {"blue"},
       };
       vb->push_static_content(
           renderer::ContentKind::color,
@@ -79,8 +68,8 @@ namespace cube { namespace gl { namespace test {
           4
       );
 
-      vb->refresh();
-      ib->refresh();
+      vb->finalize();
+      ib->finalize();
 
       while (running)
         {
@@ -101,5 +90,17 @@ namespace cube { namespace gl { namespace test {
         }
     }
 
+
+    void test_all()
+    {
+      etc::log::debug("Starting Graphic Library tests");
+
+      cube::system::window::Window window{"test window", 640, 480};
+      window.inputs().on_expose().connect(OnExpose{window.renderer()});
+      bool running = true;
+      window.inputs().on_quit().connect(OnQuit{running});
+      //opengl::test::vertex_buffer(window, running);
+      test_normal(window, running);
+    }
 }}}
 

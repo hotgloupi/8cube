@@ -5,8 +5,9 @@
 
 namespace etc { namespace log {
 
-	Logger::Logger(Logger::Level level)
-		: _level(level)
+	Logger::Logger(std::string const& name, Logger::Level level)
+		: _name(name)
+		, _level(level)
 		, _streams{
 			{&std::cerr, false},
 			{&std::cerr, false},
@@ -32,7 +33,10 @@ namespace etc { namespace log {
 		assert(idx < max_level_idx);
 		std::ostream* out = this->_streams[idx].out;
 		assert(out != nullptr);
-		(*out) << '[' << level_strings[idx] << "] " << message << std::endl; // XXX
+		std::string msg = "[" + level_strings[idx] + "] ";
+		if (_name.size())
+			msg += _name + ": ";
+		*out << (msg + message + "\n");
 	}
 
 }} // !etc::log

@@ -1,6 +1,7 @@
 #ifndef  CUBE_GL_OPENGL__VBO_HPP
 # define CUBE_GL_OPENGL__VBO_HPP
 
+# include "Exception.hpp"
 # include "_opengl.hpp"
 
 namespace cube { namespace gl { namespace opengl {
@@ -46,14 +47,16 @@ namespace cube { namespace gl { namespace opengl {
 		void bind()
 		{
 			etc::log::debug("bind SubVBO", id, gl_kind, "at", offset);
-			gl::EnableClientState(this->gl_kind);
+			if (this->gl_kind != -1)
+				gl::EnableClientState(this->gl_kind);
 			_pointer_methods[(size_t) this->attr->kind](*this);
 		}
 
 		void unbind()
 		{
 			etc::log::debug("unbind SubVBO", id, gl_kind, "at", offset);
-			gl::DisableClientState(this->gl_kind);
+			if (this->gl_kind != -1)
+				gl::DisableClientState(this->gl_kind);
 		}
 
 		static void vertex_pointer(SubVBO const& self)
@@ -168,20 +171,16 @@ namespace cube { namespace gl { namespace opengl {
 		{
 			assert(offset + attr.size <= _total_size);
 			if (is_indices && attr.kind != ContentKind::index)
-				throw std::runtime_error(
+				throw Exception(
 					"an index buffer has to receive only indices"
 				);
 			else if (!is_indices && attr.kind == ContentKind::index)
-				throw std::runtime_error(
+				throw Exception(
 					"Cannot store indices into a vertex object"
 				);
 
 			this->bind(false);
-			gl::EnableClientState(gl::get_content_kind(attr.kind));
-			gl::BufferSubData(
-				_gl_array_type, offset, attr.size, attr.ptr
-			);
-			gl::DisableClientState(gl::get_content_kind(attr.kind));
+			gl::BufferSubData(_gl_array_type, offset, attr.size, attr.ptr);
 			this->unbind(false);
 
 			// works for interleaved vbo or not
@@ -193,8 +192,8 @@ namespace cube { namespace gl { namespace opengl {
 			_sub_vbos.push_back(SubVBO{
 				_id,
 				attr,
-				(void*)_current_stride, // XXX use brain
-				_total_size
+				(void*)offset,
+				0 // XXX use brain
 			});
 		}
 
