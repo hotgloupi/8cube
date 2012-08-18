@@ -64,16 +64,16 @@ def test_vertex_buffer():
     win.inputs.on_expose.connect(f)
     win.renderer.swap_buffers()
     while state['running'] is True:
-        #win.poll()
-        #win.renderer.clear(
-        #    gl.renderer.BufferBit.color |
-        #    gl.renderer.BufferBit.depth
-        #);
-        #with win.renderer.begin(gl.renderer.mode_2d) as painter:
-        #    painter.bind(vb)
-        #    painter.draw_elements(gl.DrawMode.quads, indices, 0, 4)
+        win.poll()
+        win.renderer.clear(
+            gl.renderer.BufferBit.color |
+            gl.renderer.BufferBit.depth
+        );
+        with win.renderer.begin(gl.renderer.mode_2d) as painter:
+            painter.bind(vb)
+            painter.draw_elements(gl.DrawMode.quads, indices, 0, 4)
 
-        #win.renderer.swap_buffers()
+        win.renderer.swap_buffers()
         time.sleep(.1)
 
     pass
