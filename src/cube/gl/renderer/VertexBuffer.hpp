@@ -51,7 +51,7 @@ namespace cube { namespace gl { namespace renderer {
 		void finalize()
 		{
 			if (_finalized)
-				throw Exception("Cannot call finalized more than once.");
+				throw Exception("Cannot call finalize more than once.");
 			this->_finalize();
 			for (auto& attr: _attributes)
 			{
