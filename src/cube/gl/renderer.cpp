@@ -123,8 +123,6 @@ namespace cube { namespace gl { namespace renderer {
 
 		auto const& attr = indices.attributes()[0];
 
-		etc::print("start =", start, "count =", count,
-		           "attr.nb_elements =", attr.nb_elements);
 		if (count == ((unsigned int) -1))
 			count = attr.nb_elements - start;
 		else if (count > attr.nb_elements - start)

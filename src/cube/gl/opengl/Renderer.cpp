@@ -59,7 +59,6 @@ namespace cube { namespace gl { namespace opengl {
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
 		auto error = ::glewInit();
-		etc::log::debug("pif", GLEW_OK, glewInit());
 		if (error != GLEW_OK)
 			throw std::runtime_error(
 				"Cannot initialize OpenGL renderer: " +

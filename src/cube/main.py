@@ -41,14 +41,14 @@ def test_vertex_buffer():
             gl.Color3f('white'),
         ]
     )
-    vb.refresh()
+    vb.finalize()
 
     indices = win.renderer.new_index_buffer()
     indices.push_static_content(
         gl.ContentKind.index,
         [ 0, 1, 2, 3]
     )
-    indices.refresh()
+    indices.finalize()
 
     state = {
         'running': True,
@@ -80,7 +80,8 @@ def test_vertex_buffer():
 
 import cube.gl.test
 def main(args):
-    return cube.gl.test.test_all()
+    #return cube.gl.test.test_all()
+    return test_vertex_buffer()
     print(args)
     if not args:
         return game()

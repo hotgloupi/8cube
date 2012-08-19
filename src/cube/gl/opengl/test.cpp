@@ -84,7 +84,7 @@ namespace cube { namespace gl { namespace opengl { namespace test {
         gl::BindBuffer(GL_ARRAY_BUFFER, 0);
 
         window.renderer().swap_buffers();
-        ::usleep(30000);
+        ::usleep(3);
       }
       gl::DeleteBuffers(1, &vertex_buffer);
       gl::DeleteBuffers(1, &index_buffer);

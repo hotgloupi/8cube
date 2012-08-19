@@ -78,7 +78,6 @@ namespace cube { namespace system { namespace window {
 	{
 		if (::SDL_Init(SDL_INIT_VIDEO))
 			throw Exception(SDL_GetError());
-		etc::log::debug("biet");
 		_impl = new Impl{
 			title,
 			width,
