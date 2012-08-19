@@ -16,7 +16,7 @@ namespace cube { namespace gl { namespace renderer {
 	// free functions
 
 	std::vector<cube::gl::renderer::Renderer*> const&
-  all_renderers()
+	all_renderers()
 	{
 		static ::cube::gl::opengl::GLRenderer opengl_renderer;
 
@@ -26,14 +26,17 @@ namespace cube { namespace gl { namespace renderer {
 		return renderers;
 	}
 
-	RendererType const& default_renderer_type = all_renderers()[0]->description();
-
 	std::unique_ptr<Renderer>
-  create_renderer(cube::gl::viewport::Viewport const& vp,
-                  RendererType const& description)
+	create_renderer(cube::gl::viewport::Viewport const& vp,
+	                RendererType::Name name)
+	{
+		for (auto const& renderer: all_renderers())
 		{
-			return description.create(vp);
+			if (renderer->description().name() == name)
+				return renderer->description().create(vp);
 		}
+		throw Exception("Cannot find any renderer with that name");
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer class

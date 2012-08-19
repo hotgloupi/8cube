@@ -32,7 +32,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		enum class Mode { none, _2d, _3d };
 		typedef ::cube::gl::matrix::mat44f matrix_type;
-    typedef std::unique_ptr<VertexBuffer> VertexBufferPtr;
+		typedef std::unique_ptr<VertexBuffer> VertexBufferPtr;
 
 	protected:
 		struct State
@@ -143,23 +143,31 @@ namespace cube { namespace gl { namespace renderer {
 	class RendererType
 	{
 	public:
-		virtual std::unique_ptr<Renderer>
-			create(cube::gl::viewport::Viewport const& vp) const = 0;
+		enum Name
+		{
+			OpenGL = 1,
+			DirectX = 2,
+		};
+
+	public:
+		virtual
+		std::unique_ptr<Renderer>
+		create(cube::gl::viewport::Viewport const& vp) const = 0;
+
 		virtual std::string __str__() const = 0;
+		virtual Name name() const = 0;
 		virtual ~RendererType() {}
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// high level functions
 
-	extern RendererType const& default_renderer_type;
-
 	/**************************************************************************
 	 * Create a renderer.
 	 */
 	std::unique_ptr<Renderer>
 	create_renderer(cube::gl::viewport::Viewport const& vp,
-	                RendererType const& renderer_type = default_renderer_type);
+	                RendererType::Name name = RendererType::OpenGL);
 
 	///////////////////////////////////////////////////////////////////////////
 	// Python export these classes. Needed for cube.gl.window.Window.

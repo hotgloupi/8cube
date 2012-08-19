@@ -19,6 +19,7 @@ namespace cube { namespace gl { namespace opengl {
 		struct GLRendererType
 			: public RendererType
 		{
+			virtual
 			std::unique_ptr<Renderer>
 			create(::cube::gl::viewport::Viewport const& vp) const
 			{
@@ -27,16 +28,24 @@ namespace cube { namespace gl { namespace opengl {
 				return renderer;
 			}
 
+			virtual
 			std::string
 			__str__() const
 			{
-				std::string gl_version = (char const*)glGetString(GL_VERSION);
-				std::string glew_version = (char const*)glewGetString(GLEW_VERSION);
+				std::string gl_version{
+					reinterpret_cast<char const*>(::glGetString(GL_VERSION))
+				};
+				std::string glew_version{
+					reinterpret_cast<char const*>(::glewGetString(GLEW_VERSION))
+				};
 				return (
 					"GLRenderer v" + gl_version + "\n"
 					"GLEW v" + glew_version + "\n"
 				);
 			}
+
+			virtual
+			Name name() const { return Name::OpenGL; }
 		};
 
 	} // !detail
@@ -49,10 +58,11 @@ namespace cube { namespace gl { namespace opengl {
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
-		auto error = glewInit();
+		auto error = ::glewInit();
+		etc::log::debug("pif", GLEW_OK, glewInit());
 		if (error != GLEW_OK)
 			throw std::runtime_error(
-				"Cannot initialize GLRenderer renderer: " +
+				"Cannot initialize OpenGL renderer: " +
 				std::string((char const*) glewGetErrorString(error))
 			);
 		if (!(GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader))
