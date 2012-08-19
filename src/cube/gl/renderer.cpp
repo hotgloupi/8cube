@@ -35,7 +35,7 @@ namespace cube { namespace gl { namespace renderer {
 			if (renderer->description().name() == name)
 				return renderer->description().create(vp);
 		}
-		throw Exception("Cannot find any renderer with that name");
+		throw Exception{"Cannot find any renderer with that name"};
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -61,11 +61,6 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Renderer::viewport(cube::gl::viewport::Viewport const& vp)
 	{
-		std::cout << "Setting viewport("
-		          << vp.x << ", "
-		          << vp.y << ", "
-		          << vp.w << ", "
-		          << vp.h << ")\n";
 		_viewport = vp;
 	}
 
@@ -105,10 +100,11 @@ namespace cube { namespace gl { namespace renderer {
 	void Renderer::Painter::bind(Drawable& drawable)
 	{
 		if (_bound_drawables.find(&drawable) != _bound_drawables.end())
-			return;
+			throw Exception{"Already bound drawable"};
 		drawable._bind();
 		_bound_drawables.insert(&drawable);
 	}
+
 	Renderer::Painter Renderer::begin(State const& state)
 	{
 		_states.push_back(state);
@@ -120,13 +116,32 @@ namespace cube { namespace gl { namespace renderer {
 	                                      unsigned int start,
 	                                      unsigned int count)
 	{
+		if (indices.attributes().size() == 0)
+			throw Exception{
+				"No attributes found in indices VertexBuffer."
+			};
+		if (indices.attributes().size() > 1)
+			throw Exception{
+				"Indices VertexBuffer contains more that one attributes."
+			};
 
 		auto const& attr = indices.attributes()[0];
+
+		if (start > attr.nb_elements)
+			throw Exception{
+				"Start index is out of range"
+			};
+		else if (start == attr.nb_elements)
+			throw Exception{
+				"Start index equals the number of elements:"
+				" nothing would has been rendered."
+			};
 
 		if (count == ((unsigned int) -1))
 			count = attr.nb_elements - start;
 		else if (count > attr.nb_elements - start)
-			throw std::runtime_error("Count is out of range.");
+			throw Exception{"Count is out of range."};
+
 
 		this->bind(indices);
 		_renderer.draw_elements(
@@ -143,7 +158,7 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		auto it = _bound_drawables.find(&drawable);
 		if (it == _bound_drawables.end())
-			throw std::runtime_error("Cannot unbind the drawable");
+			throw Exception{"Cannot unbind the drawable (not found)"};
 		drawable._unbind();
 		_bound_drawables.erase(it);
 	}

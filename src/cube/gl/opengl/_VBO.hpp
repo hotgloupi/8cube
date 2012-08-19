@@ -46,16 +46,14 @@ namespace cube { namespace gl { namespace opengl {
 
 		void bind()
 		{
-			etc::log::debug("bind SubVBO", id, gl_kind, "at", offset);
-			if (this->gl_kind != -1)
+			if (this->gl_kind != 0)
 				gl::EnableClientState(this->gl_kind);
 			_pointer_methods[(size_t) this->attr->kind](*this);
 		}
 
 		void unbind()
 		{
-			etc::log::debug("unbind SubVBO", id, gl_kind, "at", offset);
-			if (this->gl_kind != -1)
+			if (this->gl_kind != 0)
 				gl::DisableClientState(this->gl_kind);
 		}
 
@@ -75,9 +73,8 @@ namespace cube { namespace gl { namespace opengl {
 			);
 		}
 
-		static void index_pointer(SubVBO const& self)
+		static void index_pointer(SubVBO const& )
 		{
-			etc::log::debug("ignore index pointer ?");
 		}
 
 		static void color_pointer(SubVBO const& self)
@@ -96,22 +93,22 @@ namespace cube { namespace gl { namespace opengl {
 			);
 		}
 
-		static void normal_pointer(SubVBO const& self)
+		static void normal_pointer(SubVBO const& )
 		{
 			throw false;
 		}
 
-		static void tex_coord0_pointer(SubVBO const& self)
+		static void tex_coord0_pointer(SubVBO const& )
 		{
 			throw false;
 		}
 
-		static void tex_coord1_pointer(SubVBO const& self)
+		static void tex_coord1_pointer(SubVBO const& )
 		{
 			throw false;
 		}
 
-		static void tex_coord2_pointer(SubVBO const& self)
+		static void tex_coord2_pointer(SubVBO const& )
 		{
 			throw false;
 		}

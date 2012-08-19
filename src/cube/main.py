@@ -80,7 +80,7 @@ def test_vertex_buffer():
 
 import cube.gl.test
 def main(args):
-    #return cube.gl.test.test_all()
+    return cube.gl.test.test_all()
     return test_vertex_buffer()
     print(args)
     if not args:

@@ -1,16 +1,44 @@
 
 include_directories(.)
 
+set(CXX_FLAGS)
+set(CXX_FLAGS_DEBUG)
+set(CXX_FLAGS_RELEASE)
 if(CMAKE_COMPILER_IS_GNUCXX)
-	exec_program("${CMAKE_CXX_COMPILER}" ARGS --version OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
+	exec_program("${CMAKE_CXX_COMPILER}"
+		ARGS --version OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION
+	)
 	if(CMAKE_CXX_COMPILER_VERSION MATCHES ".*4\\.6.*")
 		set(CXX_STANDARD "c++0x")
 	else()
 		set(CXX_STANDARD "c++11")
 	endif()
 	message(STATUS "Using ${CXX_STANDARD} standard.")
-    add_definitions("-std=${CXX_STANDARD}")
+	list(APPEND CXX_FLAGS
+		-std=${CXX_STANDARD}
+		-Wall
+		-Wextra
+		-Winvalid-pch
+	)
+	list(APPEND CXX_FLAGS_DEBUG
+		-g3
+		-DDEBUG
+		-UNDEBUG
+	)
+	list(APPEND CXX_FLAGS_RELEASE
+		-O2
+		-UDEBUG
+		-DNDEBUG
+	)
 endif()
+
+foreach(build_type "" "_DEBUG" "_RELEASE")
+	set(CMAKE_CXX_FLAGS${build_type} "")
+	foreach(flag ${CXX_FLAGS${build_type}})
+		set(CMAKE_CXX_FLAGS${build_type} "${CMAKE_CXX_FLAGS${build_type}} ${flag}")
+	endforeach()
+	message(STATUS "CXX_FLAGS${build_type}: ${CMAKE_CXX_FLAGS${build_type}}")
+endforeach()
 
 set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED     ON)

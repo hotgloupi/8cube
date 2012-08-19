@@ -30,35 +30,63 @@ namespace cube { namespace gl { namespace opengl {
 
 	struct gl
 	{
+	private:
+		static void _check_error(char const* function_);
+
 	public:
-# define _CUBE_GL_OPENGL_WRAP(__name__)                                       \
+# define _CUBE_GL_OPENGL_PROTO_RET(name, gl_name)                             \
 		typedef                                                               \
-			boost::function_traits<decltype(glEnable)>::result_type           \
-			__name__ ## _result_type;                                         \
+			boost::function_traits<decltype(&gl_name)>::result_type           \
+			gl_name ## _result_type;                                          \
 		template<typename... T>                                               \
-		static inline __name__ ## _result_type                                \
-		__name__(T... values)                                                 \
-		{                                                                     \
-			etc::log::logger("cube.gl.opengl._opengl").debug(                 \
-				"gl" #__name__, '(', values..., ')'                           \
-			);                                                                \
-			return ::gl ## __name__(values...);                               \
-		}                                                                     \
+		static inline gl_name ## _result_type                                 \
+		name(T... values)                                                     \
 	/**/
 
-# define _CUBE_GL_OPENGL_WRAP_ARB(__name__)                                   \
-		typedef                                                               \
-			boost::function_traits<decltype(glEnable)>::result_type           \
-			__name__ ## _result_type;                                         \
+# define _CUBE_GL_OPENGL_PROTO(name, gl_name)                                 \
 		template<typename... T>                                               \
-		static inline __name__ ## _result_type                                \
-		__name__(T... values)                                                 \
+		static inline void                                                    \
+		name(T... values)                                                     \
+	/**/
+
+// values... is defined in the proto
+# define _CUBE_GL_OPENGL_LOG(gl_name)                                         \
+		etc::log::logger("cube.gl.opengl._opengl").debug(                     \
+			#gl_name, '(', values..., ')'                                     \
+		);                                                                    \
+	/**/
+
+# define _CUBE_GL_OPENGL_CALL(name, gl_name)                                  \
+		_CUBE_GL_OPENGL_PROTO(name, gl_name)                                  \
 		{                                                                     \
-			etc::log::logger("cube.gl.opengl._opengl").debug(                 \
-				"gl" #__name__ "ARB", '(', values..., ')'                     \
-			);                                                                \
-			return ::gl ## __name__ ## ARB (values...);                       \
-		}                                                                     \
+			_CUBE_GL_OPENGL_LOG(gl_name)                                      \
+			::gl_name(values...);                                             \
+			_check_error(#gl_name);                                           \
+		}
+	/**/
+
+# define _CUBE_GL_OPENGL_CALL_RET(name, gl_name)                              \
+		_CUBE_GL_OPENGL_PROTO_RET(name, gl_name)                              \
+		{                                                                     \
+			_CUBE_GL_OPENGL_LOG(gl_name)                                      \
+			gl_name ## _result_type ret = ::gl_name(values...);               \
+			_check_error(#gl_name);                                           \
+			return ret;                                                       \
+		}
+	/**/
+
+# define _CUBE_GL_OPENGL_WRAP(name)                                           \
+		_CUBE_GL_OPENGL_CALL(name, gl ## name)                                \
+	/**/
+# define _CUBE_GL_OPENGL_WRAP_RET(name)                                       \
+		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name)                            \
+	/**/
+
+# define _CUBE_GL_OPENGL_WRAP_ARB(name)                                       \
+		_CUBE_GL_OPENGL_CALL(name, gl ## name ## ARB)                         \
+	/**/
+# define _CUBE_GL_OPENGL_WRAP_ARB_RET(name)                                   \
+		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name ## ARB)                     \
 	/**/
 
 		_CUBE_GL_OPENGL_WRAP(Enable);
@@ -88,6 +116,14 @@ namespace cube { namespace gl { namespace opengl {
         _CUBE_GL_OPENGL_WRAP(LoadIdentity);
 
 # undef _CUBE_GL_OPENGL_WRAP
+# undef _CUBE_GL_OPENGL_WRAP_RET
+# undef _CUBE_GL_OPENGL_WRAP_ARB
+# undef _CUBE_GL_OPENGL_WRAP_RET_ARB
+# undef _CUBE_GL_OPENGL_CALL
+# undef _CUBE_GL_OPENGL_CALL_RET
+# undef _CUBE_GL_OPENGL_LOG
+# undef _CUBE_GL_OPENGL_PROTO
+# undef _CUBE_GL_OPENGL_PROTO_RET
 
 	public:
 		template<bool is_indices> struct VBO;
@@ -107,6 +143,7 @@ namespace cube { namespace gl { namespace opengl {
 		static GLenum _content_type_map[(size_t)ContentType::_max_value];
 		static GLenum _content_kind_map[(size_t)ContentKind::_max_value];
 		static GLenum _content_hint_map[(size_t)ContentHint::_max_value];
+
 	};
 
 }}} // !cube::gl::opengl

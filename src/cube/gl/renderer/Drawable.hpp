@@ -12,7 +12,7 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		virtual void _bind() = 0;
 		virtual void _unbind() = 0;
-    friend class Renderer;
+		friend class Renderer;
 	};
 
 }}}
