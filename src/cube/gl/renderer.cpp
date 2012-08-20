@@ -57,14 +57,12 @@ namespace cube { namespace gl { namespace renderer {
 		: _viewport{0,0,0,0}
 		, _states{}
 	{
-		State default_state{
+		_states.push_back(State(
 			Mode::none,
 			matrix_type{},
 			matrix_type{},
-			matrix_type{},
-			matrix_type{},
-		};
-		_states.push_back(default_state);
+			matrix_type{}
+		));
 	}
 
 	Renderer::~Renderer()
@@ -78,7 +76,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Renderer::push_state(State const& state)
 	{
-		this->_states.push_back(state);
+		_states.push_back(state);
 	}
 
 	void Renderer::pop_state()

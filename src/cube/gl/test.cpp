@@ -5,6 +5,7 @@
 #include <cube/system/inputs.hpp>
 
 #include "opengl/test.hpp"
+#include "opengl/_opengl.hpp"
 
 #include "renderer.hpp"
 #include "renderer/VertexBuffer.hpp"
@@ -26,6 +27,7 @@ namespace cube { namespace gl { namespace test {
 			renderer::Renderer& renderer;
 			void operator ()(float w, float h)
 			{
+				etc::print("resize(", w, ',', h, ')');
 				this->renderer.viewport(viewport::Viewport{0, 0, w, h});
 			}
 		};
@@ -49,10 +51,10 @@ namespace cube { namespace gl { namespace test {
 		auto sp = window.renderer().new_shader_program();
 
 		vector::Vector2f vertices[] = {
-			{.1, .1},
-			{.9, .1},
-			{.9, .9},
-			{.1, .9},
+			{10,     10},
+			{630,    10},
+			{630,    470},
+			{10,     470},
 		};
 		vb->push_static_content(
 			renderer::ContentKind::vertex,
@@ -61,7 +63,7 @@ namespace cube { namespace gl { namespace test {
 		);
 
 		color::Color3f colors[] = {
-			{"red"}, {"green"}, {"gray"}, {"blue"},
+			{"black"}, {"green"}, {"gray"}, {"blue"},
 		};
 		vb->push_static_content(
 			renderer::ContentKind::color,
@@ -108,23 +110,33 @@ namespace cube { namespace gl { namespace test {
 			renderer::Renderer::Mode::_2d
 		);
 		painter.bind(*vb);
-		painter.bind(*sp);
-		auto const& mvp = window.renderer().current_state().mvp;
-		sp->parameter("cube_ModelViewProjectionMatrix") = mvp;
+		//painter.bind(*sp);
+		//sp->parameter("cube_ModelViewProjectionMatrix") = mvp;
+
 
 		size_t frame = 0;
 		while (running)
 		{
-			etc::print("Frame", ++frame);
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			auto proj = cube::gl::matrix::ortho<float>(0, window.renderer().viewport().w, window.renderer().viewport().h, 0);
+			glLoadMatrixf(&proj[0][0]);
+				//(&window.renderer().current_state().mvp[0][0]);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			//glLoadMatrixf(&cube::gl::matrix::scale<float>(640, 480, 0)[0][0]);
+
+			glLoadIdentity();
+
+			etc::print("Frame", ++frame, "w =", window.renderer().viewport().w, "h =", window.renderer().viewport().h);
 			window.poll();
 			window.renderer().clear(
 				renderer::BufferBit::color |
 				renderer::BufferBit::depth
 				);
 
-			{
-				painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
-			}
+			painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
 			window.renderer().swap_buffers();
 
 			::usleep(300);
@@ -141,8 +153,8 @@ namespace cube { namespace gl { namespace test {
 		bool running = true;
 		window.inputs().on_quit().connect(OnQuit{running});
 		//opengl::test::vertex_buffer(window, running);
-    etc::print("-");
-    etc::print(window.renderer().description());
+		etc::print("-");
+		etc::print(window.renderer().description());
 		test_normal(window, running);
 	}
 

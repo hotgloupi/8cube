@@ -33,6 +33,7 @@ namespace cube { namespace system { namespace window {
 			, _screen{nullptr}
 			, _flags{SDL_RESIZABLE}
 		{
+			etc::log::warn("Window::Impl(", title, width, height, ")");
 			::SDL_WM_SetCaption(title.c_str(), 0);
 
 			//SDL_EnableKeyRepeat(130, 35);
@@ -54,6 +55,8 @@ namespace cube { namespace system { namespace window {
 				static_cast<float>(width),
 				static_cast<float>(height),
 			};
+
+			etc::log::warn(vp.w, vp.h);
 			// SDL_SetVideoMode has been called before (with resize()), we can
 			// create the renderer safely.
 			this->renderer = std::move(gl::renderer::create_renderer(vp, name));

@@ -3,6 +3,8 @@
 
 #include "_opengl.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace cube { namespace gl { namespace opengl {
 
 	ShaderProgram::ShaderProgram()
@@ -85,7 +87,7 @@ namespace cube { namespace gl { namespace opengl {
 			ShaderProgram::Parameter&
 			operator =(matrix_type const& value)
 			{
-				gl::UniformMatrix4fv(_location, 1, GL_FALSE, &value[0][0]);
+				gl::UniformMatrix4fv(_location, 1, GL_FALSE, glm::value_ptr(value));
 				return *this;
 			}
 		};

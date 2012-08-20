@@ -41,11 +41,71 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		struct State
 		{
-			Mode mode;
-			matrix_type model;
-			matrix_type view;
-			matrix_type projection;
-			matrix_type mvp;
+		public:
+			Mode const mode;
+		protected:
+			matrix_type _model;
+			matrix_type _view;
+			matrix_type _projection;
+			matrix_type _mvp;
+
+		public:
+			State(Mode const mode,
+			      matrix_type const& model,
+			      matrix_type const& view,
+			      matrix_type const& projection)
+				: mode(mode)
+				, _model(model)
+				, _view(view)
+				, _projection(projection)
+				, _mvp(model * view * projection)
+			{}
+			State(Mode const mode)
+				: mode(mode)
+			{}
+			State(State&& other)
+				: mode(other.mode)
+				, _model(std::move(other._model))
+				, _view(std::move(other._view))
+				, _projection(std::move(other._projection))
+				, _mvp(std::move(other._mvp))
+			{}
+			State(State const& other)
+				: mode(other.mode)
+				, _model(other._model)
+				, _view(other._view)
+				, _projection(other._projection)
+				, _mvp(other._mvp)
+			{}
+			inline
+			State& operator =(State const& other)
+			{
+				if (this != &other)
+				{
+					assert(mode == other.mode);
+					_model = other._model;
+					_view = other._view;
+					_projection = other._projection;
+					_mvp = other._mvp;
+				}
+				return *this;
+			}
+
+			/**
+			 * Getter/setter for matrices
+			 */
+# define _CUBE_GL_RENDERER_RENDERER_STATE_MAT(name)                           \
+			inline matrix_type const& name() const { return _ ## name; }      \
+			inline void name(matrix_type const& other)                        \
+			{ _ ## name = other; _mvp = _model * _view * _projection; }       \
+	/**/
+
+			_CUBE_GL_RENDERER_RENDERER_STATE_MAT(model);
+			_CUBE_GL_RENDERER_RENDERER_STATE_MAT(view);
+			_CUBE_GL_RENDERER_RENDERER_STATE_MAT(projection);
+# undef _CUBE_GL_RENDERER_RENDERER_STATE_MAT
+
+			inline matrix_type const& mvp() { return _mvp; }
 		};
 	public:
 		/*********************************************************************
@@ -66,6 +126,10 @@ namespace cube { namespace gl { namespace renderer {
 		Renderer();
 		/// Calls shutdown() method
 		virtual ~Renderer();
+
+		inline
+		viewport::Viewport const& viewport() const
+		{ return _viewport; }
 
 	/*************************************************************************
 	 * All renderers act as a state machine. States are pushed with the      *

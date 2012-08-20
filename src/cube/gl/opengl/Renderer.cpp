@@ -57,7 +57,8 @@ namespace cube { namespace gl { namespace opengl {
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
-    ::glewExperimental = GL_TRUE;
+		etc::log::debug("GLRenderer::initialize(", vp.x, vp.y, vp.w, vp.h, ")");
+		::glewExperimental = GL_TRUE;
 		auto error = ::glewInit();
 		if (error != GLEW_OK)
 			throw std::runtime_error{
@@ -101,8 +102,7 @@ namespace cube { namespace gl { namespace opengl {
 			width / 2.0f , height / 2.0f, 0.0f
 		);
 
-		State state;
-		state.mode = mode;
+		State state{mode};
 
 		switch (mode)
 		{
@@ -112,13 +112,11 @@ namespace cube { namespace gl { namespace opengl {
 			gl::Disable(GL_CULL_FACE);
 			gl::Disable(GL_DEPTH_TEST);
 			//auto size = rs.target == 0 ? this->_screenSize : rs.target->GetSize();
-			state.view = translate2d,
-			state.projection = ::cube::gl::matrix::ortho<float>(
+			//state.view = translate2d,
+			state.projection(::cube::gl::matrix::ortho<float>(
 				0.0f, width,
-				height, 0.0f,
-				1.0f, -1.0f
-			);
-			state.mvp = state.projection * state.view * state.model;
+				height, 0.0f
+			));
 			break;
 		case Mode::_3d:
 			gl::Enable(GL_DEPTH_TEST);
@@ -127,7 +125,6 @@ namespace cube { namespace gl { namespace opengl {
 		default:
 			assert(false && "Unknown mode");
 		}
-		gl::LoadIdentity(); // XXX
 		return this->Renderer::begin(state);
 	}
 
