@@ -6,6 +6,8 @@
 
 #include "_opengl.hpp"
 
+#include <unistd.h>
+
 namespace cube { namespace gl { namespace opengl { namespace test {
 
     void vertex_buffer(system::window::Window& window,

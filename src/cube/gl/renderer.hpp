@@ -165,6 +165,7 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ~RendererType() {}
 	};
 
+  std::ostream& operator <<(std::ostream& out, RendererType const& descr);
 	///////////////////////////////////////////////////////////////////////////
 	// high level functions
 

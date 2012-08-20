@@ -141,6 +141,8 @@ namespace cube { namespace gl { namespace test {
 		bool running = true;
 		window.inputs().on_quit().connect(OnQuit{running});
 		//opengl::test::vertex_buffer(window, running);
+    etc::print("-");
+    etc::print(window.renderer().description());
 		test_normal(window, running);
 	}
 

@@ -115,7 +115,7 @@ namespace cube { namespace gl { namespace renderer {
 			if (!param)
 				throw Exception{"Shader parameter '" + name + "' not found."};
 
-			auto res = _parameters.insert({name, std::move(param)});
+			auto res = _parameters.insert(std::make_pair(name, std::move(param)));
 			return *(res.first->second);
 		}
 
