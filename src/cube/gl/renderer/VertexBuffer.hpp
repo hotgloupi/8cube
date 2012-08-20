@@ -7,6 +7,7 @@
 # include "Drawable.hpp"
 
 # include <cstdlib>
+# include <memory>
 # include <vector>
 
 namespace cube { namespace gl { namespace renderer {

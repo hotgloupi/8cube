@@ -1,25 +1,38 @@
 #ifndef  CUBE_GL_RENDERER_CONSTANTS_HPP
 # define CUBE_GL_RENDERER_CONSTANTS_HPP
 
+# include <cstdint>
+# include <cstddef>
+
 namespace cube { namespace gl { namespace renderer {
 
 	enum class BufferBit : int
 	{
-    none    = 0,
+		none    = 0,
 		color   = 1,
 		depth   = 2,
 		stencil = 4,
 	};
 
-  inline BufferBit operator &(BufferBit a, BufferBit b)
-  {
-    return (BufferBit)((int) a & (int) b);
-  }
+	inline
+	BufferBit operator &(BufferBit a, BufferBit b)
+	{
+		return static_cast<BufferBit>((int) a & (int) b);
+	}
 
-  inline BufferBit operator |(BufferBit a, BufferBit b)
-  {
-    return (BufferBit)((int) a | (int) b);
-  }
+	inline
+	BufferBit operator |(BufferBit a, BufferBit b)
+	{
+		return static_cast<BufferBit>((int) a | (int) b);
+	}
+
+	enum class ShaderType
+	{
+		fragment = 0,
+		vertex = 1,
+
+		_max_value,
+	};
 
 	enum class DrawMode
 	{

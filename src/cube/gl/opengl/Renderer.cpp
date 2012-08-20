@@ -7,6 +7,8 @@
 
 # include "Renderer.hpp"
 # include "VertexBuffer.hpp"
+# include "Shader.hpp"
+# include "ShaderProgram.hpp"
 
 # include "_opengl.hpp"
 
@@ -60,15 +62,19 @@ namespace cube { namespace gl { namespace opengl {
 	{
 		auto error = ::glewInit();
 		if (error != GLEW_OK)
-			throw std::runtime_error(
+			throw std::runtime_error{
 				"Cannot initialize OpenGL renderer: " +
 				std::string((char const*) glewGetErrorString(error))
-			);
-		if (!(GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader))
-			throw std::runtime_error(
-				"Cannot start GLRenderer"
-				//"ARB_vertex_shader and ARB_fragment_shader are required"
-			);
+			};
+
+		bool has_required_extensions = (
+			   GLEW_ARB_shading_language_100
+			&& GLEW_ARB_shader_objects
+			&& GLEW_ARB_vertex_shader
+			&& GLEW_ARB_fragment_shader
+		);
+		if (!has_required_extensions)
+			throw Exception{"Some required extensions are not available"};
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
 		this->viewport(vp);
 	}
@@ -91,7 +97,11 @@ namespace cube { namespace gl { namespace opengl {
 
 	GLRenderer::Painter GLRenderer::begin(Mode mode)
 	{
-		static matrix_type translate2d = matrix::translate<float>(0, 0, 1);
+		float width = _viewport.w - _viewport.x;
+		float height = _viewport.h - _viewport.y;
+		matrix_type translate2d = matrix::translate<float>(
+			width / 2.0f , height / 2.0f, 0.0f
+		);
 
 		State state;
 		state.mode = mode;
@@ -106,7 +116,9 @@ namespace cube { namespace gl { namespace opengl {
 			//auto size = rs.target == 0 ? this->_screenSize : rs.target->GetSize();
 			state.view = translate2d,
 			state.projection = ::cube::gl::matrix::ortho<float>(
-				0, _viewport.w - _viewport.x, _viewport.h - _viewport.y, 0
+				0.0f, width,
+				height, 0.0f,
+				1.0f, -1.0f
 			);
 			state.mvp = state.projection * state.view * state.model;
 			break;
@@ -142,11 +154,6 @@ namespace cube { namespace gl { namespace opengl {
 		);
 	}
 
-	void GLRenderer::_end()
-	{
-
-	}
-
 	GLRenderer::VertexBufferPtr
 	GLRenderer::new_vertex_buffer()
 	{
@@ -157,6 +164,21 @@ namespace cube { namespace gl { namespace opengl {
 	GLRenderer::new_index_buffer()
 	{
 		return VertexBufferPtr{new GLIndexBuffer};
+	}
+
+	GLRenderer::ShaderPtr GLRenderer::new_vertex_shader()
+	{
+		return ShaderPtr{new Shader{renderer::ShaderType::vertex}};
+	}
+
+	GLRenderer::ShaderPtr GLRenderer::new_fragment_shader()
+	{
+		return ShaderPtr{new Shader{renderer::ShaderType::fragment}};
+	}
+
+	GLRenderer::ShaderProgramPtr GLRenderer::new_shader_program()
+	{
+		return ShaderProgramPtr{new ShaderProgram};
 	}
 
 	void GLRenderer::clear(cube::gl::renderer::BufferBit flags)

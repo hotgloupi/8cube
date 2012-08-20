@@ -1,4 +1,8 @@
 #include "renderer.hpp"
+#include "renderer/Exception.hpp"
+#include "renderer/VertexBuffer.hpp"
+//#include "renderer/Shader.hpp"
+//#include "renderer/ShaderProgram.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -93,7 +97,6 @@ namespace cube { namespace gl { namespace renderer {
 			drawable->_unbind();
 		_bound_drawables.clear();
 
-		_renderer._end();
 		_renderer.pop_state();
 	}
 

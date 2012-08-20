@@ -3,8 +3,6 @@
 
 # include <stdexcept>
 
-# include <boost/type_traits.hpp>
-
 # include <wrappers/sdl.hpp>
 # include <wrappers/opengl.hpp>
 
@@ -34,19 +32,10 @@ namespace cube { namespace gl { namespace opengl {
 		static void _check_error(char const* function_);
 
 	public:
-# define _CUBE_GL_OPENGL_PROTO_RET(name, gl_name)                             \
-		typedef                                                               \
-			boost::function_traits<decltype(&gl_name)>::result_type           \
-			gl_name ## _result_type;                                          \
+# define _CUBE_GL_OPENGL_PROTO(name, type)                                    \
 		template<typename... T>                                               \
-		static inline gl_name ## _result_type                                 \
-		name(T... values)                                                     \
-	/**/
-
-# define _CUBE_GL_OPENGL_PROTO(name, gl_name)                                 \
-		template<typename... T>                                               \
-		static inline void                                                    \
-		name(T... values)                                                     \
+		static inline                                                         \
+		type name(T... values)                                                \
 	/**/
 
 // values... is defined in the proto
@@ -57,7 +46,7 @@ namespace cube { namespace gl { namespace opengl {
 	/**/
 
 # define _CUBE_GL_OPENGL_CALL(name, gl_name)                                  \
-		_CUBE_GL_OPENGL_PROTO(name, gl_name)                                  \
+		_CUBE_GL_OPENGL_PROTO(name, void)                                     \
 		{                                                                     \
 			_CUBE_GL_OPENGL_LOG(gl_name)                                      \
 			::gl_name(values...);                                             \
@@ -65,11 +54,11 @@ namespace cube { namespace gl { namespace opengl {
 		}
 	/**/
 
-# define _CUBE_GL_OPENGL_CALL_RET(name, gl_name)                              \
-		_CUBE_GL_OPENGL_PROTO_RET(name, gl_name)                              \
+# define _CUBE_GL_OPENGL_CALL_RET(name, gl_name, type)                        \
+		_CUBE_GL_OPENGL_PROTO(name, type)                                     \
 		{                                                                     \
 			_CUBE_GL_OPENGL_LOG(gl_name)                                      \
-			gl_name ## _result_type ret = ::gl_name(values...);               \
+			type ret = ::gl_name(values...);                                  \
 			_check_error(#gl_name);                                           \
 			return ret;                                                       \
 		}
@@ -78,15 +67,15 @@ namespace cube { namespace gl { namespace opengl {
 # define _CUBE_GL_OPENGL_WRAP(name)                                           \
 		_CUBE_GL_OPENGL_CALL(name, gl ## name)                                \
 	/**/
-# define _CUBE_GL_OPENGL_WRAP_RET(name)                                       \
-		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name)                            \
+# define _CUBE_GL_OPENGL_WRAP_RET(name, type)                                 \
+		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name, type)                      \
 	/**/
 
 # define _CUBE_GL_OPENGL_WRAP_ARB(name)                                       \
 		_CUBE_GL_OPENGL_CALL(name, gl ## name ## ARB)                         \
 	/**/
-# define _CUBE_GL_OPENGL_WRAP_ARB_RET(name)                                   \
-		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name ## ARB)                     \
+# define _CUBE_GL_OPENGL_WRAP_ARB_RET(name, type)                             \
+		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name ## ARB, type)               \
 	/**/
 
 		_CUBE_GL_OPENGL_WRAP(Enable);
@@ -113,7 +102,27 @@ namespace cube { namespace gl { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(ClearColor);
 		_CUBE_GL_OPENGL_WRAP(Viewport);
 
-        _CUBE_GL_OPENGL_WRAP(LoadIdentity);
+		_CUBE_GL_OPENGL_WRAP(LoadIdentity);
+
+		_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
+		_CUBE_GL_OPENGL_WRAP(DeleteShader);
+		_CUBE_GL_OPENGL_WRAP(ShaderSource);
+		_CUBE_GL_OPENGL_WRAP(CompileShader);
+		_CUBE_GL_OPENGL_WRAP(GetShaderiv);
+		_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
+
+		_CUBE_GL_OPENGL_WRAP_RET(CreateProgram, GLuint);
+		_CUBE_GL_OPENGL_WRAP(DeleteProgram);
+		_CUBE_GL_OPENGL_WRAP(LinkProgram);
+		_CUBE_GL_OPENGL_WRAP(ValidateProgram);
+		_CUBE_GL_OPENGL_WRAP(GetProgramiv);
+		_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
+		_CUBE_GL_OPENGL_WRAP(AttachShader);
+		_CUBE_GL_OPENGL_WRAP(DetachShader);
+		_CUBE_GL_OPENGL_WRAP(UseProgram);
+		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
+		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
+
 
 # undef _CUBE_GL_OPENGL_WRAP
 # undef _CUBE_GL_OPENGL_WRAP_RET
@@ -130,19 +139,32 @@ namespace cube { namespace gl { namespace opengl {
 		struct SubVBO;
 
 	public:
-		static inline int get_draw_mode(DrawMode value)
-			{ return _draw_mode_map[(size_t) value]; }
-		static inline int get_content_type(ContentType value)
-			{ return _content_type_map[(size_t) value]; }
-		static inline int get_content_kind(ContentKind value)
-			{ return _content_kind_map[(size_t) value]; }
-		static inline int get_content_hint(ContentHint value)
-			{ return _content_hint_map[(size_t) value]; }
+		static inline
+		GLenum get_draw_mode(DrawMode value)
+		{ return _draw_mode_map[(size_t) value]; }
+
+		static inline
+		GLenum get_content_type(ContentType value)
+		{ return _content_type_map[(size_t) value]; }
+
+		static inline
+		GLenum get_content_kind(ContentKind value)
+		{ return _content_kind_map[(size_t) value]; }
+
+		static inline
+		GLenum get_content_hint(ContentHint value)
+		{ return _content_hint_map[(size_t) value]; }
+
+		static inline
+		GLenum get_shader_type(ShaderType value)
+		{ return _shader_type_map[(size_t) value]; }
+
 	private:
 		static GLenum _draw_mode_map[(size_t)DrawMode::_max_value];
 		static GLenum _content_type_map[(size_t)ContentType::_max_value];
 		static GLenum _content_kind_map[(size_t)ContentKind::_max_value];
 		static GLenum _content_hint_map[(size_t)ContentHint::_max_value];
+		static GLenum _shader_type_map[(size_t)ShaderType::_max_value];
 
 	};
 

@@ -1,3 +1,4 @@
+#include "Exception.hpp"
 #include "_opengl.hpp"
 
 #include <map>
@@ -29,6 +30,11 @@ namespace cube { namespace gl { namespace opengl {
 
 	GLenum gl::_content_hint_map[(size_t)ContentHint::_max_value] = {
 		GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW,
+	};
+
+	GLenum gl::_shader_type_map[(size_t)ShaderType::_max_value] = {
+		GL_FRAGMENT_SHADER,
+		GL_VERTEX_SHADER,
 	};
 
 	void gl::_check_error(char const* function_)

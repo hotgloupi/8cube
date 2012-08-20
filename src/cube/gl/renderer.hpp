@@ -13,12 +13,14 @@
 # include "viewport.hpp"
 
 # include "renderer/constants.hpp"
-# include "renderer/VertexBuffer.hpp"
 # include "renderer/Drawable.hpp"
 
 namespace cube { namespace gl { namespace renderer {
 
 	class RendererType;
+	class Shader;
+	class ShaderProgram;
+	class VertextShader;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Renderer class
@@ -31,8 +33,10 @@ namespace cube { namespace gl { namespace renderer {
 	{
 	public:
 		enum class Mode { none, _2d, _3d };
-		typedef ::cube::gl::matrix::mat44f matrix_type;
-		typedef std::unique_ptr<VertexBuffer> VertexBufferPtr;
+		typedef ::cube::gl::matrix::mat44f      matrix_type;
+		typedef std::unique_ptr<VertexBuffer>   VertexBufferPtr;
+		typedef std::unique_ptr<Shader>         ShaderPtr;
+		typedef std::unique_ptr<ShaderProgram>  ShaderProgramPtr;
 
 	protected:
 		struct State
@@ -67,12 +71,13 @@ namespace cube { namespace gl { namespace renderer {
 	 * All renderers act as a state machine. States are pushed with the      *
 	 * Renderer::begin(State) method by implementations classes.             *
 	 *************************************************************************/
-	protected:
+	public:
 		/**
 		 * Retreive the current_state.
 		 */
 		State const& current_state() const;
 
+	protected:
 		/**
 		 * This method is meant to be used by the implementation sub class.
 		 * The state is popped when the returned Painter is deleted.
@@ -97,13 +102,14 @@ namespace cube { namespace gl { namespace renderer {
 		virtual Painter begin(Mode mode) = 0;
 		virtual VertexBufferPtr new_vertex_buffer() = 0;
 		virtual VertexBufferPtr new_index_buffer() = 0;
+		virtual ShaderPtr new_vertex_shader() = 0;
+		virtual ShaderPtr new_fragment_shader() = 0;
+		virtual ShaderProgramPtr new_shader_program() = 0;
 		virtual void draw_elements(DrawMode mode,
 		                           unsigned int count,
 		                           ContentType type,
 		                           void* indices) = 0;
 		virtual void clear(BufferBit flags) = 0;
-	protected:
-		virtual void _end() = 0;
 	};
 
 

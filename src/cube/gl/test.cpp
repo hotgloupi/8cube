@@ -7,6 +7,9 @@
 #include "opengl/test.hpp"
 
 #include "renderer.hpp"
+#include "renderer/VertexBuffer.hpp"
+#include "renderer/Shader.hpp"
+#include "renderer/ShaderProgram.hpp"
 #include "vector.hpp"
 #include "color.hpp"
 
@@ -43,6 +46,7 @@ namespace cube { namespace gl { namespace test {
 	{
 		auto vb = window.renderer().new_vertex_buffer();
 		auto ib = window.renderer().new_index_buffer();
+		auto sp = window.renderer().new_shader_program();
 
 		vector::Vector2f vertices[] = {
 			{.1, .1},
@@ -72,8 +76,41 @@ namespace cube { namespace gl { namespace test {
 			4
 		);
 
+		{
+			auto fs = window.renderer().new_fragment_shader();
+			fs->push_source(
+				"void main(void) {\n"
+				"   gl_FragColor = gl_Color;\n"
+				"}\n"
+			);
+			sp->push_shader(std::move(fs));
+		}
+		{
+			auto vs = window.renderer().new_vertex_shader();
+			vs->push_source(
+				"uniform mat4 cube_ModelViewProjectionMatrix;"
+				"void main(void)\n"
+				"{\n"
+				"   gl_FrontColor = gl_Color;\n"
+				"   gl_Position = cube_ModelViewProjectionMatrix * gl_Vertex;\n"
+				"}\n"
+			);
+			sp->push_shader(std::move(vs));
+		}
+		sp->finalize();
+
+
 		vb->finalize();
 		ib->finalize();
+
+
+		auto painter = window.renderer().begin(
+			renderer::Renderer::Mode::_2d
+		);
+		painter.bind(*vb);
+		painter.bind(*sp);
+		auto const& mvp = window.renderer().current_state().mvp;
+		sp->parameter("cube_ModelViewProjectionMatrix") = mvp;
 
 		size_t frame = 0;
 		while (running)
@@ -86,10 +123,6 @@ namespace cube { namespace gl { namespace test {
 				);
 
 			{
-				auto painter = window.renderer().begin(
-					renderer::Renderer::Mode::_2d
-				);
-				painter.bind(*vb);
 				painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
 			}
 			window.renderer().swap_buffers();

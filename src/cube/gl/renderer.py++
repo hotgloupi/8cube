@@ -1,6 +1,7 @@
 #include <string>
 
 #include "renderer.hpp"
+#include "renderer/VertexBuffer.hpp"
 #include "color.hpp"
 
 #include <etc/print.hpp>
