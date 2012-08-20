@@ -1,7 +1,3 @@
-# include <cassert>
-# include <iostream>
-# include <stdexcept>
-# include <string>
 
 # include <cube/gl/matrix.hpp>
 
@@ -11,6 +7,11 @@
 # include "ShaderProgram.hpp"
 
 # include "_opengl.hpp"
+
+# include <cassert>
+# include <iostream>
+# include <stdexcept>
+# include <string>
 
 namespace cube { namespace gl { namespace opengl {
 
@@ -34,15 +35,11 @@ namespace cube { namespace gl { namespace opengl {
 			std::string
 			__str__() const
 			{
-				std::string gl_version{
-					reinterpret_cast<char const*>(::glGetString(GL_VERSION))
-				};
-				std::string glew_version{
-					reinterpret_cast<char const*>(::glewGetString(GLEW_VERSION))
-				};
-				return (
-					"GLRenderer v" + gl_version + "\n"
-					"GLEW v" + glew_version + "\n"
+				return etc::to_string(
+					"GLEW version", glewGetString(GLEW_VERSION), '\n',
+					"OpenGL version", (char*) glGetString(GL_VERSION), '\n',
+					"OpenGL renderer", (char*) glGetString(GL_RENDERER), '\n',
+					"OpenGL vendor", (char*) glGetString(GL_VENDOR), '\n'
 				);
 			}
 
@@ -68,10 +65,10 @@ namespace cube { namespace gl { namespace opengl {
 			};
 
 		bool has_required_extensions = (
-			   GLEW_ARB_shading_language_100
-			&& GLEW_ARB_shader_objects
-			&& GLEW_ARB_vertex_shader
-			&& GLEW_ARB_fragment_shader
+			  GLEW_ARB_shading_language_100
+			& GLEW_ARB_shader_objects
+			& GLEW_ARB_vertex_shader
+			& GLEW_ARB_fragment_shader
 		);
 		if (!has_required_extensions)
 			throw Exception{"Some required extensions are not available"};
