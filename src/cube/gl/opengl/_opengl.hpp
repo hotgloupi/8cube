@@ -106,45 +106,43 @@ namespace cube { namespace gl { namespace opengl {
 
 		_CUBE_GL_OPENGL_WRAP(LoadIdentity);
 
-		_CUBE_GL_OPENGL_CALL_RET(CreateShader, glCreateShaderObjectARB, GLuint);
-		_CUBE_GL_OPENGL_WRAP(DeleteShader);
-		_CUBE_GL_OPENGL_WRAP_ARB(ShaderSource);
-		_CUBE_GL_OPENGL_WRAP_ARB(CompileShader);
-		_CUBE_GL_OPENGL_WRAP(GetShaderiv);
-		_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
-
-		_CUBE_GL_OPENGL_CALL_RET(CreateProgram, glCreateProgramObjectARB, GLuint);
-		_CUBE_GL_OPENGL_WRAP(DeleteProgram);
-		_CUBE_GL_OPENGL_WRAP_ARB(LinkProgram);
-		_CUBE_GL_OPENGL_WRAP_ARB(ValidateProgram);
-		_CUBE_GL_OPENGL_WRAP_ARB(GetProgramiv);
-		_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
-		_CUBE_GL_OPENGL_WRAP(AttachShader);
-		_CUBE_GL_OPENGL_WRAP(DetachShader);
-		_CUBE_GL_OPENGL_CALL(UseProgram, glUseProgramObjectARB);
-		_CUBE_GL_OPENGL_WRAP_ARB_RET(GetUniformLocation, GLint);
-		_CUBE_GL_OPENGL_WRAP_ARB(UniformMatrix4fv);
-
-
-
-		//_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
+		//_CUBE_GL_OPENGL_CALL_RET(CreateShader, glCreateShaderObjectARB, GLuint);
 		//_CUBE_GL_OPENGL_WRAP(DeleteShader);
-		//_CUBE_GL_OPENGL_WRAP(ShaderSource);
-		//_CUBE_GL_OPENGL_WRAP(CompileShader);
+		//_CUBE_GL_OPENGL_WRAP_ARB(ShaderSource);
+		//_CUBE_GL_OPENGL_WRAP_ARB(CompileShader);
 		//_CUBE_GL_OPENGL_WRAP(GetShaderiv);
 		//_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
 
-		//_CUBE_GL_OPENGL_WRAP_RET(CreateProgram, GLuint);
+		//_CUBE_GL_OPENGL_CALL_RET(CreateProgram, glCreateProgramObjectARB, GLuint);
 		//_CUBE_GL_OPENGL_WRAP(DeleteProgram);
-		//_CUBE_GL_OPENGL_WRAP(LinkProgram);
-		//_CUBE_GL_OPENGL_WRAP(ValidateProgram);
-		//_CUBE_GL_OPENGL_WRAP(GetProgramiv);
+		//_CUBE_GL_OPENGL_WRAP_ARB(LinkProgram);
+		//_CUBE_GL_OPENGL_WRAP_ARB(ValidateProgram);
+		//_CUBE_GL_OPENGL_WRAP_ARB(GetProgramiv);
 		//_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
 		//_CUBE_GL_OPENGL_WRAP(AttachShader);
 		//_CUBE_GL_OPENGL_WRAP(DetachShader);
-		//_CUBE_GL_OPENGL_WRAP(UseProgram);
-		//_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
-		//_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
+		//_CUBE_GL_OPENGL_CALL(UseProgram, glUseProgramObjectARB);
+		//_CUBE_GL_OPENGL_WRAP_ARB_RET(GetUniformLocation, GLint);
+		//_CUBE_GL_OPENGL_WRAP_ARB(UniformMatrix4fv);
+
+		_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
+		_CUBE_GL_OPENGL_WRAP(DeleteShader);
+		_CUBE_GL_OPENGL_WRAP(ShaderSource);
+		_CUBE_GL_OPENGL_WRAP(CompileShader);
+		_CUBE_GL_OPENGL_WRAP(GetShaderiv);
+		_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
+
+		_CUBE_GL_OPENGL_WRAP_RET(CreateProgram, GLuint);
+		_CUBE_GL_OPENGL_WRAP(DeleteProgram);
+		_CUBE_GL_OPENGL_WRAP(LinkProgram);
+		_CUBE_GL_OPENGL_WRAP(ValidateProgram);
+		_CUBE_GL_OPENGL_WRAP(GetProgramiv);
+		_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
+		_CUBE_GL_OPENGL_WRAP(AttachShader);
+		_CUBE_GL_OPENGL_WRAP(DetachShader);
+		_CUBE_GL_OPENGL_WRAP(UseProgram);
+		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
+		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
 
 # undef _CUBE_GL_OPENGL_WRAP
 # undef _CUBE_GL_OPENGL_WRAP_RET
