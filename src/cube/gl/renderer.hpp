@@ -14,6 +14,7 @@
 
 # include "renderer/constants.hpp"
 # include "renderer/Drawable.hpp"
+# include "renderer/Exception.hpp"
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -39,74 +40,7 @@ namespace cube { namespace gl { namespace renderer {
 		typedef std::unique_ptr<ShaderProgram>  ShaderProgramPtr;
 
 	protected:
-		struct State
-		{
-		public:
-			Mode const mode;
-		protected:
-			matrix_type _model;
-			matrix_type _view;
-			matrix_type _projection;
-			matrix_type _mvp;
-
-		public:
-			State(Mode const mode,
-			      matrix_type const& model,
-			      matrix_type const& view,
-			      matrix_type const& projection)
-				: mode(mode)
-				, _model(model)
-				, _view(view)
-				, _projection(projection)
-				, _mvp(model * view * projection)
-			{}
-			State(Mode const mode)
-				: mode(mode)
-			{}
-			State(State&& other)
-				: mode(other.mode)
-				, _model(std::move(other._model))
-				, _view(std::move(other._view))
-				, _projection(std::move(other._projection))
-				, _mvp(std::move(other._mvp))
-			{}
-			State(State const& other)
-				: mode(other.mode)
-				, _model(other._model)
-				, _view(other._view)
-				, _projection(other._projection)
-				, _mvp(other._mvp)
-			{}
-			inline
-			State& operator =(State const& other)
-			{
-				if (this != &other)
-				{
-					assert(mode == other.mode);
-					_model = other._model;
-					_view = other._view;
-					_projection = other._projection;
-					_mvp = other._mvp;
-				}
-				return *this;
-			}
-
-			/**
-			 * Getter/setter for matrices
-			 */
-# define _CUBE_GL_RENDERER_RENDERER_STATE_MAT(name)                           \
-			inline matrix_type const& name() const { return _ ## name; }      \
-			inline void name(matrix_type const& other)                        \
-			{ _ ## name = other; _mvp = _model * _view * _projection; }       \
-	/**/
-
-			_CUBE_GL_RENDERER_RENDERER_STATE_MAT(model);
-			_CUBE_GL_RENDERER_RENDERER_STATE_MAT(view);
-			_CUBE_GL_RENDERER_RENDERER_STATE_MAT(projection);
-# undef _CUBE_GL_RENDERER_RENDERER_STATE_MAT
-
-			inline matrix_type const& mvp() { return _mvp; }
-		};
+		struct State;
 	public:
 		/*********************************************************************
 		 * A painter is returned by the Renderer::begin(Mode) method.        *
@@ -139,7 +73,9 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Retreive the current_state.
 		 */
-		State const& current_state() const;
+        inline
+		State& current_state()
+		{ return _states.back(); }
 
 	protected:
 		/**
@@ -159,6 +95,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		/// default implementation sets _viewport
 		virtual void viewport(cube::gl::viewport::Viewport const& vp);
+		virtual void update_projection_matrix();
 		virtual void initialize(cube::gl::viewport::Viewport const& vp) = 0;
 		virtual void shutdown() = 0;
 		virtual void swap_buffers() = 0;
@@ -176,6 +113,107 @@ namespace cube { namespace gl { namespace renderer {
 		virtual void clear(BufferBit flags) = 0;
 	};
 
+	///////////////////////////////////////////////////////////////////////////
+	// State class
+	struct Renderer::State
+	{
+	public:
+		Mode const mode;
+	protected:
+		matrix_type         _model;
+		matrix_type         _view;
+		matrix_type         _projection;
+		matrix_type         _mvp;
+	private:
+		Renderer::Painter*  _painter;
+
+	public:
+		State(Mode const mode,
+		      matrix_type const& model,
+		      matrix_type const& view,
+		      matrix_type const& projection)
+			: mode(mode)
+			, _model(model)
+			, _view(view)
+			, _projection(projection)
+			, _mvp(model * view * projection)
+			, _painter(nullptr)
+		{}
+		State(Mode const mode)
+			: mode(mode)
+		{}
+		State(State&& other)
+			: mode(other.mode)
+			, _model(std::move(other._model))
+			, _view(std::move(other._view))
+			, _projection(std::move(other._projection))
+			, _mvp(std::move(other._mvp))
+			, _painter(other._painter)
+		{}
+		State(State const& other)
+			: mode(other.mode)
+			, _model(other._model)
+			, _view(other._view)
+			, _projection(other._projection)
+			, _mvp(other._mvp)
+			, _painter(other._painter)
+		{}
+		inline
+		State& operator =(State const& other)
+		{
+			if (this != &other)
+			{
+				assert(mode == other.mode);
+				_model = other._model;
+				_view = other._view;
+				_projection = other._projection;
+				_mvp = other._mvp;
+				_painter = other._painter;
+			}
+			return *this;
+		}
+
+		/**
+		 * Getter/setter for matrices
+		 */
+	public:
+# define _CUBE_GL_RENDERER_RENDERER_STATE_MAT(name)                           \
+		inline matrix_type const& name() const { return _ ## name; }      \
+		inline void name(matrix_type const& other)                        \
+		{ _ ## name = other; _mvp = _model * _view * _projection; }       \
+/**/
+
+		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(model);
+		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(view);
+		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(projection);
+# undef _CUBE_GL_RENDERER_RENDERER_STATE_MAT
+
+		inline matrix_type const& mvp() { return _mvp; }
+	private:
+		friend class Renderer::Painter;
+		inline
+		Renderer::Painter* painter() { return _painter; }
+		inline
+		void painter(Renderer::Painter* painter)
+		{
+			if (painter == nullptr)
+				throw Exception{"Cannot set painter to null."};
+			if (_painter != nullptr)
+				throw Exception{"State already bound to a painter"};
+			_painter = painter;
+		}
+		inline
+		void painter_switch(Renderer::Painter* old, Renderer::Painter* new_)
+		{
+			if (_painter != old)
+				throw Exception{
+					"Old painter is different than the bound one."
+				};
+			if (new_ == nullptr)
+				throw Exception{"Cannot set painter to null."};
+			_painter = new_;
+		}
+	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// Painter class
@@ -185,6 +223,7 @@ namespace cube { namespace gl { namespace renderer {
 	{
 	private:
 		Renderer&               _renderer;
+		Renderer::State&        _current_state;
 		std::set<Drawable*>     _bound_drawables;
 
 	public:
@@ -200,10 +239,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		// used by the renderer begin method
 	private:
-		Painter(Renderer& renderer)
-			: _renderer(renderer)
-		{}
-
+		Painter(Renderer& renderer);
 		friend class Renderer;
 	};
 

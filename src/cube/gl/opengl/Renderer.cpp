@@ -96,34 +96,20 @@ namespace cube { namespace gl { namespace opengl {
 
 	GLRenderer::Painter GLRenderer::begin(Mode mode)
 	{
-		float width = _viewport.w - _viewport.x;
-		float height = _viewport.h - _viewport.y;
-		matrix_type translate2d = matrix::translate<float>(
-			width / 2.0f , height / 2.0f, 0.0f
-		);
-
 		State state{mode};
 
 		switch (mode)
 		{
-		case Mode::none:
-			break;
 		case Mode::_2d:
 			gl::Disable(GL_CULL_FACE);
 			gl::Disable(GL_DEPTH_TEST);
-			//auto size = rs.target == 0 ? this->_screenSize : rs.target->GetSize();
-			//state.view = translate2d,
-			state.projection(::cube::gl::matrix::ortho<float>(
-				0.0f, width,
-				height, 0.0f
-			));
 			break;
 		case Mode::_3d:
 			gl::Enable(GL_DEPTH_TEST);
 			gl::Enable(GL_CULL_FACE);
 			break;
 		default:
-			assert(false && "Unknown mode");
+			break;
 		}
 		return this->Renderer::begin(state);
 	}
@@ -133,14 +119,6 @@ namespace cube { namespace gl { namespace opengl {
 	                               cube::gl::renderer::ContentType type,
 	                               void* indices)
 	{
-		etc::log::debug(
-			__PRETTY_FUNCTION__,
-			(int) mode,
-			count,
-			(int) type,
-			indices
-		);
-
 		gl::DrawElements(
 			gl::get_draw_mode(mode),
 			count,

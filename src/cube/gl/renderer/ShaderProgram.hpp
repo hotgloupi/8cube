@@ -119,6 +119,15 @@ namespace cube { namespace gl { namespace renderer {
 			return *(res.first->second);
 		}
 
+		inline
+		Parameter* find_parameter(std::string const& name)
+		{
+			auto it = _parameters.find(name);
+			if (it == _parameters.end())
+				return nullptr;
+			return it->second.get();
+		}
+
 	/**************************************************************************
 	 * Interface to implement.
 	 */

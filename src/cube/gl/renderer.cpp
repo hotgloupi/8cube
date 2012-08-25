@@ -69,9 +69,31 @@ namespace cube { namespace gl { namespace renderer {
 	{
 	}
 
+	void
+	Renderer::update_projection_matrix()
+	{
+		switch (this->current_state().mode)
+		{
+		case Mode::none:
+			break;
+		case Mode::_2d:
+			this->current_state().projection(matrix::ortho<float>(
+				_viewport.x, _viewport.w + _viewport.x,
+				_viewport.y + _viewport.h, _viewport.y
+			));
+			break;
+		case Mode::_3d:
+			throw Exception{"Not implemented."};
+			break;
+		default:
+			throw Exception{"Unknown render mode."};
+		}
+	}
+
 	void Renderer::viewport(cube::gl::viewport::Viewport const& vp)
 	{
 		_viewport = vp;
+		this->update_projection_matrix();
 	}
 
 	void Renderer::push_state(State const& state)
@@ -84,18 +106,22 @@ namespace cube { namespace gl { namespace renderer {
 		_states.pop_back();
 	}
 
-	Renderer::State const& Renderer::current_state() const
-	{
-		return _states.back();
-	}
-
 	//////////////////////////////////////////////////////////////////////////
 	// Painter class
+	Renderer::Painter::Painter(Renderer& renderer)
+		: _renderer(renderer)
+		, _current_state(_renderer.current_state())
+	{
+		_renderer.current_state().painter(this);
+	}
 
 	Renderer::Painter::Painter(Painter&& other)
 		: _renderer(other._renderer)
-		 , _bound_drawables(std::move(other._bound_drawables))
-	{}
+		, _current_state(other._current_state)
+		, _bound_drawables(std::move(other._bound_drawables))
+	{
+		_renderer.current_state().painter_switch(&other, this);
+	}
 
 	Renderer::Painter::~Painter()
 	{
@@ -116,7 +142,18 @@ namespace cube { namespace gl { namespace renderer {
 
 	Renderer::Painter Renderer::begin(State const& state)
 	{
+		switch (state.mode)
+		{
+		case Mode::none:
+			throw Exception{"Cannot begin rendering in Mode::none."};
+		case Mode::_2d:
+		case Mode::_3d:
+			break;
+		default:
+			throw Exception{"Unknown render mode."};
+		}
 		_states.push_back(state);
+		this->update_projection_matrix();
 		return Painter(*this);
 	}
 
