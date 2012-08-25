@@ -27,7 +27,7 @@ namespace cube { namespace gl { namespace renderer {
 		{}
 		virtual
 		~ShaderProgram()
-		{ this->clear(true); }
+		{ _finalized = true; this->clear(true); }
 
 	/**************************************************************************
 	 * Common program behavior.
@@ -36,36 +36,13 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Attach the shader to the program.
 		 */
-		inline
-		void push_shader(std::unique_ptr<Shader>&& shader)
-		{
-			if (_finalized)
-				throw Exception{"Cannot modify a finalized shader"};
-			if (!shader)
-				throw Exception{"Trying to insert a null shader"};
-			shader->finalize();
-			// just ptr.get() in case of insert() throws.
-			_shaders.insert(shader.get());
-			// insertion done, next call releases the pointer first.
-			_push_shader(*shader.release());
-		}
+		void push_shader(std::unique_ptr<Shader>&& shader);
 
 		/**
 		 * Finalize the program, must be called before rendering.
 		 * When the parameter clear is true, shaders are deleted.
 		 */
-		inline
-		void finalize(bool clear = true)
-		{
-			if (_shaders.size() == 0)
-				throw Exception{"Cannot finalize an empty shader program."};
-			if (_finalized)
-				throw Exception{"Already finalized shader program."};
-			_finalize();
-			_finalized = true;
-			if (clear)
-				this->clear();
-		}
+		void finalize(bool clear = true);
 
 		/**
 		 * Delete contained shaders and parameters if parameters_too is true.
@@ -78,9 +55,6 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		class Parameter
 		{
-		public:
-			typedef Renderer::matrix_type matrix_type;
-
 		public:
 			virtual
 			~Parameter() {}
@@ -99,34 +73,12 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Retreive a shader parameter by its name.
 		 */
-		Parameter& parameter(std::string const& name)
-		{
-			if (!_finalized)
-				throw Exception{"Shader is not finalized"};
-			auto it = _parameters.find(name);
-			if (it != _parameters.end())
-			{
-				assert(it->second != nullptr);
-				return *(it->second);
-			}
+		Parameter& parameter(std::string const& name);
 
-			auto param = this->_fetch_parameter(name);
+		Parameter* find_parameter(std::string const& name);
 
-			if (!param)
-				throw Exception{"Shader parameter '" + name + "' not found."};
-
-			auto res = _parameters.insert(std::make_pair(name, std::move(param)));
-			return *(res.first->second);
-		}
-
-		inline
-		Parameter* find_parameter(std::string const& name)
-		{
-			auto it = _parameters.find(name);
-			if (it == _parameters.end())
-				return nullptr;
-			return it->second.get();
-		}
+		virtual
+		void update(MatrixKind kind, matrix_type const& matrix);
 
 	/**************************************************************************
 	 * Interface to implement.

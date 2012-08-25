@@ -107,17 +107,15 @@ namespace cube { namespace gl { namespace test {
 
 
 		auto painter = window.renderer().begin(
-			renderer::Renderer::Mode::_2d
+			renderer::Mode::_2d
 		);
 		painter.bind(*vb);
-
+		painter.bind(*sp);
+		sp->parameter("cube_ModelViewProjectionMatrix");
 
 		size_t frame = 0;
 		while (running)
 		{
-			painter.bind(*sp);
-			sp->parameter("cube_ModelViewProjectionMatrix") =
-				window.renderer().current_state().projection();
 
 			etc::print("Frame", ++frame, "w =", window.renderer().viewport().w, "h =", window.renderer().viewport().h);
 			window.poll();
@@ -127,7 +125,6 @@ namespace cube { namespace gl { namespace test {
 				);
 
 			painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
-			painter.unbind(*sp);
 			window.renderer().swap_buffers();
 
 			::usleep(300);

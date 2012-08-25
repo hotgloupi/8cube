@@ -94,7 +94,7 @@ namespace cube { namespace gl { namespace opengl {
 		return descr;
 	}
 
-	GLRenderer::Painter GLRenderer::begin(Mode mode)
+	renderer::Painter GLRenderer::begin(Mode mode)
 	{
 		State state{mode};
 
@@ -111,7 +111,7 @@ namespace cube { namespace gl { namespace opengl {
 		default:
 			break;
 		}
-		return this->Renderer::begin(state);
+		return this->Renderer::begin(std::move(state));
 	}
 
 	void GLRenderer::draw_elements(cube::gl::renderer::DrawMode mode,

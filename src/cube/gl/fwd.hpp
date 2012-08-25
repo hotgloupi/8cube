@@ -1,15 +1,9 @@
 #ifndef  CUBE_GL_FWD_HH
 # define CUBE_GL_FWD_HH
 
+# include "renderer/fwd.hpp"
+
 namespace cube { namespace gl {
-
-	namespace renderer {
-
-		class Renderer;
-		class VertexBuffer;
-		class IndexBuffer;
-
-	}
 
 	namespace color {
 

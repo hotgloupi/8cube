@@ -15,7 +15,7 @@ namespace etc {
      * Prints space separated values line into the provided out stream. All
      * values are converted to string following this rules:
      *   - If the value support the << operator, uses it
-     *   - If a elle::io::Stringify specialization exists, uses it
+     *   - If a etc::io::Stringify specialization exists, uses it
      *   - Use the default behavior of Stringify class
      */
     template<typename... T>
@@ -28,7 +28,7 @@ namespace etc {
     /**
      * Same as `sprint' but returns a string instead of printing it, and do not
      * terminate the line with a line feed (this can be overriden with
-     * elle::iomanip::newline manipulator).
+     * etc::iomanip::newline manipulator).
      */
     template<typename... T>
         std::string stringify(T const&... values);

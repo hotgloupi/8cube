@@ -17,4 +17,15 @@ int swprintf (wchar_t *, size_t, const wchar_t *, ...);
 
 # include <boost/python.hpp>
 
+namespace boost { namespace python {
+
+	// Register std::unique_ptr as an HelderType
+	template<class T>
+	struct pointee<std::unique_ptr<T>>
+	{
+		typedef T type;
+	};
+
+}}
+
 #endif

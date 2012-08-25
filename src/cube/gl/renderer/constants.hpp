@@ -1,10 +1,39 @@
 #ifndef  CUBE_GL_RENDERER_CONSTANTS_HPP
 # define CUBE_GL_RENDERER_CONSTANTS_HPP
 
+# include <cube/gl/matrix.hpp>
+
 # include <cstdint>
 # include <cstddef>
 
 namespace cube { namespace gl { namespace renderer {
+
+	/**
+	 * The rendering mode.
+	 */
+	enum class Mode
+	{
+		none = 0,
+		_2d,
+		_3d,
+
+		_max_value
+	};
+
+	/**
+	 * Matrix type used for every transformation.
+	 */
+	typedef ::cube::gl::matrix::mat44f      matrix_type;
+
+	enum class MatrixKind
+	{
+		model = 0,
+		view,
+		projection,
+		mvp,
+
+		_max_value
+	};
 
 	enum class BufferBit : int
 	{
@@ -12,6 +41,8 @@ namespace cube { namespace gl { namespace renderer {
 		color   = 1,
 		depth   = 2,
 		stencil = 4,
+
+		_max_value
 	};
 
 	inline
@@ -29,9 +60,9 @@ namespace cube { namespace gl { namespace renderer {
 	enum class ShaderType
 	{
 		fragment = 0,
-		vertex = 1,
+		vertex,
 
-		_max_value,
+		_max_value
 	};
 
 	enum class DrawMode
@@ -47,7 +78,7 @@ namespace cube { namespace gl { namespace renderer {
 		quad_strip,
 		polygon,
 
-		_max_value,
+		_max_value
 	};
 
 	enum class ContentType
@@ -69,7 +100,7 @@ namespace cube { namespace gl { namespace renderer {
 		static_content,
 		dynamic_content,
 
-		_max_value,
+		_max_value
 	};
 
 	enum class ContentKind
@@ -82,7 +113,7 @@ namespace cube { namespace gl { namespace renderer {
 		tex_coord1,
 		tex_coord2,
 
-		_max_value,
+		_max_value
 	};
 
 	template<ContentType type> struct ContentTypeSize;

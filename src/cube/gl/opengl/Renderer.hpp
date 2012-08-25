@@ -6,7 +6,7 @@
 namespace cube { namespace gl { namespace opengl {
 
 	class GLRenderer
-		: public cube::gl::renderer::Renderer
+		: public renderer::Renderer
 	{
 	public:
 
@@ -16,7 +16,7 @@ namespace cube { namespace gl { namespace opengl {
 		virtual void swap_buffers();
 		virtual cube::gl::renderer::RendererType const& description() const;
 		virtual ~GLRenderer();
-		virtual Painter begin(Mode mode);
+		virtual renderer::Painter begin(renderer::Mode mode);
 		virtual VertexBufferPtr new_vertex_buffer();
 		virtual VertexBufferPtr new_index_buffer();
 		virtual ShaderPtr new_vertex_shader();

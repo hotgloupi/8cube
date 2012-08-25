@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_DRAWABLE_HPP
 # define CUBE_GL_RENDERER_DRAWABLE_HPP
 
-# include <cube/gl/fwd.hpp>
+# include "fwd.hpp"
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -10,10 +10,17 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual ~Drawable() {}
 
+		virtual
+		void update(MatrixKind, matrix_type const&) {}
+
 	protected:
-		virtual void _bind() = 0;
-		virtual void _unbind() = 0;
-		friend class Renderer;
+		virtual
+		void _bind() = 0;
+
+		virtual
+		void _unbind() = 0;
+
+		friend class Painter;
 	};
 
 }}}

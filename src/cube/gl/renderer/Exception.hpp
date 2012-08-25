@@ -1,11 +1,11 @@
 #ifndef  CUBE_GL_RENDERER_EXCEPTION_HPP
 # define CUBE_GL_RENDERER_EXCEPTION_HPP
 
-# include <stdexcept>
+# include <cube/gl/exception.hpp>
 
 namespace cube { namespace gl { namespace renderer {
 
-	typedef std::runtime_error Exception;
+	typedef ::cube::gl::exception::Exception Exception;
 
 }}}
 
