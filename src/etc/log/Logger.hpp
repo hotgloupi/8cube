@@ -1,28 +1,51 @@
 #ifndef  ETC_IO_LOGGER_HH
 # define ETC_IO_LOGGER_HH
 
-# include <iosfwd>
-
-# include <boost/noncopyable.hpp>
+# include "Line.hpp"
 
 # include <etc/to_string.hpp>
 
+# include <boost/noncopyable.hpp>
+
+# include <iosfwd>
+
 namespace etc { namespace log {
+
+	enum class Flag : int
+	{
+		none        = 0x00,
+		level       = 0x01,
+		component   = 0x02,
+		location    = 0x04,
+		function    = 0x08,
+	};
+
+	inline
+	Flag operator |(Flag const lhs, Flag const rhs)
+	{
+		return static_cast<Flag>(
+			static_cast<int>(lhs) | static_cast<int>(rhs)
+		);
+	}
+
+	inline
+	bool operator &(Flag const lhs, Flag const rhs)
+	{
+		return static_cast<bool>(
+			static_cast<int>(lhs) & static_cast<int>(rhs)
+		);
+	}
+
+	class Logger;
+	struct Line;
+
+	/// Factory for loggers
+	Logger& logger(std::string const& name = "");
 
 	class Logger
 		: private boost::noncopyable
 	{
 	public:
-		enum class Level
-		{
-			debug = 0,
-			info,
-			warn,
-			error,
-			fatal,
-
-			_maxvalue,
-		};
 
 	private:
 		struct OutStream
@@ -35,43 +58,30 @@ namespace etc { namespace log {
 		std::string     _name;
 		Level           _level;
 		OutStream       _streams[static_cast<size_t>(Level::_maxvalue)];
+		Flag            _flags;
 
-	public:
-		Logger(std::string const& name, Level lvl = Level::debug);
+	private:
+		Logger(std::string const& name,
+		       Level lvl = Level::debug,
+		       Flag const flags = Flag::level | Flag::component);
+		friend Logger& logger(std::string const&);
 
 	public:
 		template<typename... T>
-		void message(Level level, T const&... values)
+		void message(Line const& line, T const&... values)
 		{
-			if (level < this->_level)
+			if (line.level < _level)
 				return;
-			this->_message(level, etc::to_string(values...));
+			this->_message(line, etc::to_string(values...));
 		}
 
-		template<typename... T>
-		void debug(T const&... values)
-		{ return this->message(Logger::Level::debug, values...); }
-
-		template<typename... T>
-		void info(T const&... values)
-		{ return this->message(Logger::Level::info, values...); }
-
-		template<typename... T>
-		void warn(T const&... values)
-		{ return this->message(Logger::Level::warn, values...); }
-
-		template<typename... T>
-		void error(T const&... values)
-		{ return this->message(Logger::Level::error, values...);  }
-
-		template<typename... T>
-		void fatal(T const&... values)
-		{ return this->message(Logger::Level::fatal, values...);  }
-
 	protected:
-		void _message(Level level, std::string const& message);
+		void _message(Line const& line, std::string const& message);
 	};
 
 }} // !etc::log
+
+
+# define _ETC_LOG_FUNCTION __PRETTY_FUNCTION__
 
 #endif

@@ -8,12 +8,14 @@
 
 namespace cube { namespace gl { namespace renderer {
 
+	ETC_LOG_COMPONENT("cube.gl.renderer.State");
+
 	State::State(Mode const mode)
 		: mode(mode)
 		, _matrices{{}, {}, {},}
 		, _mvp{}
 		, _painter(nullptr)
-	{}
+	{ETC_LOG.debug("New state ", mode);}
 
 	State::State(State&& other)
 		: mode(other.mode)
@@ -90,6 +92,7 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	State::matrix(MatrixKind kind, matrix_type const& other)
 	{
+		ETC_LOG.debug("Set matrix");
 		switch (kind)
 		{
 		case MatrixKind::model:
@@ -117,7 +120,7 @@ namespace cube { namespace gl { namespace renderer {
 			_painter->update(MatrixKind::mvp, mvp);
 		}
 		else
-			etc::log::warn("A state without painter is updated");
+			ETC_LOG.warn("A state without painter is updated");
 	}
 
 }}} // !cube::gl::renderer

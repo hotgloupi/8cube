@@ -10,6 +10,8 @@
 
 namespace cube { namespace gl { namespace opengl { namespace test {
 
+	ETC_LOG_COMPONENT("cube.gl.opengl.test");
+
     void vertex_buffer(system::window::Window& window,
                        bool const& running)
     {
@@ -27,7 +29,7 @@ namespace cube { namespace gl { namespace opengl { namespace test {
             {"red"}, {"green"}, {"gray"}, {"blue"},
       };
       unsigned int indices[] = {0,1,2,3};
-      etc::log::debug("vertices array size:", sizeof(vertices),
+      ETC_LOG.debug("vertices array size:", sizeof(vertices),
                       "colors array size:", sizeof(colors),
                       "indices array size:", sizeof(indices));
       gl::BindBuffer(GL_ARRAY_BUFFER, vertex_buffer);

@@ -1,6 +1,8 @@
 #ifndef  ETC_PRINT_HPP
 # define ETC_PRINT_HPP
 
+# include <boost/format.hpp>
+
 # include <iosfwd>
 
 /**
@@ -20,6 +22,11 @@ namespace etc {
      */
     template<typename... T>
     void sprint(std::ostream& out, T const&... values);
+
+    template<typename... T>
+	void sprintf(std::ostream& out,
+	             std::string const& fmt,
+				 T const&... values);
 
     /// Same as `sprint' with standard output stream.
     template<typename... T>

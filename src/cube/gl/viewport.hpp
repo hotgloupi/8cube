@@ -19,6 +19,8 @@ namespace cube { namespace gl { namespace viewport {
 		}
 	};
 
+	std::ostream& operator <<(std::ostream& out, Viewport const& vp);
+
 }}}
 
 #endif /* ! VIEWPORT_HPP */

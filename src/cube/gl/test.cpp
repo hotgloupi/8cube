@@ -19,6 +19,8 @@
 
 namespace cube { namespace gl { namespace test {
 
+	ETC_LOG_COMPONENT("cube.gl.test");
+
 
 	namespace {
 
@@ -134,7 +136,7 @@ namespace cube { namespace gl { namespace test {
 
 	void test_all()
 	{
-		etc::log::debug("Starting Graphic Library tests");
+		ETC_LOG.debug("Starting Graphic Library tests");
 
 		cube::system::window::Window window{"test window", 640, 480};
 		window.inputs().on_expose().connect(OnExpose{window.renderer()});

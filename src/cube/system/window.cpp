@@ -10,6 +10,8 @@
 
 namespace cube { namespace system { namespace window {
 
+	ETC_LOG_COMPONENT("cube.system.window.Window");
+
 	struct Window::Impl
 		: private boost::noncopyable
 	{
@@ -33,7 +35,7 @@ namespace cube { namespace system { namespace window {
 			, _screen{nullptr}
 			, _flags{SDL_RESIZABLE}
 		{
-			etc::log::warn("Window::Impl(", title, width, height, ")");
+			ETC_LOG.debug("Window::Impl(", title, width, height, ")");
 			::SDL_WM_SetCaption(title.c_str(), 0);
 
 			//SDL_EnableKeyRepeat(130, 35);
@@ -56,7 +58,6 @@ namespace cube { namespace system { namespace window {
 				static_cast<float>(height),
 			};
 
-			etc::log::warn(vp.w, vp.h);
 			// SDL_SetVideoMode has been called before (with resize()), we can
 			// create the renderer safely.
 			this->renderer = std::move(gl::renderer::create_renderer(vp, name));
@@ -106,6 +107,7 @@ namespace cube { namespace system { namespace window {
 
 	uint32_t Window::poll(uint32_t max)
 	{
+		ETC_LOG.debug("Polling events");
 		uint32_t count = 0;
 		bool has_expose = false;
 		bool has_resize = false;
@@ -133,11 +135,15 @@ namespace cube { namespace system { namespace window {
 
 		if (has_resize)
 		{
+			ETC_LOG.debug("Got resize event", _width, _height);
 			_impl->inputs.on_resize()(_width, _height);
 			_impl->resize(_width, _height);
 		}
 		if (has_expose)
+		{
+			ETC_LOG.debug("Got expose event");
 			_impl->inputs.on_expose()(_width, _height);
+		}
 
 		if (count == 0)
 			_impl->inputs.on_idle()();

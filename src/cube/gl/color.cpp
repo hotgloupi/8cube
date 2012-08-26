@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <cassert>
 
-
+ETC_LOG_COMPONENT("cube.gl.color.Color");
 
 using namespace ::cube::gl::color;
 
@@ -207,7 +207,7 @@ namespace {
 	{
 		if (len < n || len % n != 0)
 		{
-			etc::log::error(
+			ETC_LOG.error(
 				"Wrong string length", len, "for", n,
 				"colors components in \"" + std::string(str) + "\"."
 			);
@@ -229,7 +229,7 @@ namespace {
 					col = col * 16 + (c - 'A' + 10);
 				else
 				{
-					etc::log::error(
+					ETC_LOG.error(
 						"Wrong char '", c, "' in string \"", str, "\"."
 					);
 					return;
@@ -302,10 +302,10 @@ namespace cube { namespace gl { namespace color {
 				c.a = PERCENT(T, 1.0f);
 			}
 			else
-				etc::log::warn("Wrong hex color:", s);
+				ETC_LOG.warn("Wrong hex color:", s);
 			return c;
 		}
-		etc::log::warn("Color '" + s + "' not found");
+		ETC_LOG.warn("Color '" + s + "' not found");
 		return black;
 	}
 

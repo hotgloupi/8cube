@@ -18,7 +18,7 @@ foreach(src ${cube_python_cxx_srcs})
 	target_link_libraries(${module_name} cube etc)
 	set_target_properties(${module_name}
 		PROPERTIES
-			COMPILE_FLAGS "-x c++ -fPIC"
+			COMPILE_FLAGS "-x c++"
 			OUTPUT_NAME "${module_name}"
 			PREFIX "python/cube/${module_dir}/"
 			SUFFIX ".so"

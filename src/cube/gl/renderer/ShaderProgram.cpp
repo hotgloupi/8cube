@@ -1,12 +1,16 @@
 #include "ShaderProgram.hpp"
 #include "Shader.hpp"
 
+#include <etc/log.hpp>
 #include <etc/to_string.hpp>
 
 namespace cube { namespace gl { namespace renderer {
 
+	ETC_LOG_COMPONENT("cube.gl.renderer");
+
 	void ShaderProgram::push_shader(std::unique_ptr<Shader>&& shader)
 	{
+		ETC_LOG.debug("Attach shader", shader.get());
 		if (_finalized)
 			throw Exception{"Cannot modify a finalized shader"};
 		if (!shader)
@@ -20,6 +24,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void ShaderProgram::finalize(bool clear /* = true */)
 	{
+		ETC_LOG.debug("Finalize the program.");
 		if (_shaders.size() == 0)
 			throw Exception{"Cannot finalize an empty shader program."};
 		if (_finalized)
@@ -50,10 +55,12 @@ namespace cube { namespace gl { namespace renderer {
 		auto it = _parameters.find(name);
 		if (it != _parameters.end())
 		{
+			ETC_LOG.debug("Retreived parameter", name, "in cache !");
 			assert(it->second != nullptr);
 			return *(it->second);
 		}
 
+		ETC_LOG.debug("Fetching parameter", name, "from the program");
 		auto param = this->_fetch_parameter(name);
 
 		if (!param)
@@ -76,6 +83,7 @@ namespace cube { namespace gl { namespace renderer {
 	ShaderProgram::update(MatrixKind kind,
 	                      matrix_type const& matrix)
 	{
+		ETC_LOG.debug("Update matrix.");
 		static std::string const map[] = {
 			"cube_ModelMatrix",
 			"cube_ViewMatrix",

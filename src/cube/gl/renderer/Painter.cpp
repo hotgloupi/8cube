@@ -9,7 +9,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	static auto& log = etc::log::logger("cube.gl.renderer.Painter");
+	ETC_LOG_COMPONENT("cube.gl.renderer.Painter");
 
 	//////////////////////////////////////////////////////////////////////////
 	// Painter class
@@ -17,7 +17,7 @@ namespace cube { namespace gl { namespace renderer {
 		: _renderer(renderer)
 		, _current_state(_renderer.current_state())
 	{
-		log.debug("New painter");
+		ETC_LOG.debug("New painter");
 		_current_state.painter(this);
 	}
 
@@ -26,22 +26,22 @@ namespace cube { namespace gl { namespace renderer {
 		, _current_state(other._current_state)
 		, _bound_drawables(std::move(other._bound_drawables))
 	{
-		log.debug("Move painter");
+		ETC_LOG.debug("Move painter");
 		_current_state.painter_switch(&other, this);
 	}
 
 	Painter::~Painter()
 	{
-		log.debug("Delete painter");
+		ETC_LOG.debug("Delete painter");
 		for (Drawable* drawable: _bound_drawables)
 			drawable->__unbind();
 		_bound_drawables.clear();
-
 		_renderer._pop_state();
 	}
 
 	void Painter::bind(Drawable& drawable)
 	{
+		ETC_LOG.debug("Bind drawable");
 		if (_bound_drawables.find(&drawable) != _bound_drawables.end())
 			throw Exception{"Already bound drawable"};
 		drawable.__bind();
@@ -50,6 +50,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Painter::update(MatrixKind kind, matrix_type const& matrix)
 	{
+		ETC_LOG.debug("update matrix kind");
 		for (auto& drawable : _bound_drawables)
 		{
 			drawable->update(kind, matrix);
@@ -61,6 +62,7 @@ namespace cube { namespace gl { namespace renderer {
 	                            unsigned int start,
 	                            unsigned int count)
 	{
+		ETC_LOG.debug("draw elements");
 		if (indices.attributes().size() == 0)
 			throw Exception{
 				"No attributes found in indices VertexBuffer."
@@ -101,6 +103,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Painter::unbind(Drawable& drawable)
 	{
+		ETC_LOG.debug("Unbind drawable");
 		auto it = _bound_drawables.find(&drawable);
 		if (it == _bound_drawables.end())
 			throw Exception{"Cannot unbind the drawable (not found)"};

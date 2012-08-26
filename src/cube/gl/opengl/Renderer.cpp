@@ -15,6 +15,8 @@
 
 namespace cube { namespace gl { namespace opengl {
 
+	ETC_LOG_COMPONENT("cube.gl.opengl.Renderer");
+
 	using namespace cube::gl::renderer;
 
 	namespace detail {
@@ -57,11 +59,11 @@ namespace cube { namespace gl { namespace opengl {
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
-		etc::log::debug("GLRenderer::initialize(", vp.x, vp.y, vp.w, vp.h, ")");
+		ETC_LOG.debug("GLRenderer::initialize(", vp, ")");
 		::glewExperimental = GL_TRUE;
 		auto error = ::glewInit();
 		if (error != GLEW_OK)
-			throw std::runtime_error{
+			throw Exception{
 				"Cannot initialize OpenGL renderer: " +
 				std::string((char const*) glewGetErrorString(error))
 			};
@@ -96,6 +98,7 @@ namespace cube { namespace gl { namespace opengl {
 
 	renderer::Painter GLRenderer::begin(Mode mode)
 	{
+		ETC_LOG.debug("Begin mode", mode);
 		State state{mode};
 
 		switch (mode)

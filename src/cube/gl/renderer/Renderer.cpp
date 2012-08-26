@@ -11,7 +11,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	static auto& log = etc::log::logger("cube.gl.renderer.Renderer");
+	ETC_LOG_COMPONENT("cube.gl.renderer.Renderer");
 
 	///////////////////////////////////////////////////////////////////////////
 	// RendererType
@@ -40,6 +40,7 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	Renderer::update_projection_matrix()
 	{
+		ETC_LOG.debug("Update projection matrix.");
 		switch (this->current_state().mode)
 		{
 		case Mode::none:
@@ -60,7 +61,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	Painter Renderer::begin(State&& state)
 	{
-		log.debug("Begining new state in mode", state.mode);
+		ETC_LOG.debug("Begining new state in mode", state.mode);
 		switch (state.mode)
 		{
 		case Mode::none:
@@ -79,17 +80,20 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Renderer::viewport(cube::gl::viewport::Viewport const& vp)
 	{
+		ETC_LOG.debug("Update viewport", vp);
 		_viewport = vp;
 		this->update_projection_matrix();
 	}
 
 	void Renderer::_push_state(State&& state)
 	{
+		ETC_LOG.debug("Pushing new state");
 		_states.push_back(std::move(state));
 	}
 
 	void Renderer::_pop_state()
 	{
+		ETC_LOG.debug("pop state");
 		_states.pop_back();
 	}
 
@@ -122,7 +126,7 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	Painter& PainterWithProxy::__enter__()
 	{
 		assert(_painter == nullptr);
-		log.debug("Creating painter");
+		ETC_LOG.debug("Creating painter");
 		_painter = new Painter(_renderer.begin(_mode));
 		return *_painter;
 	}
@@ -132,7 +136,7 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 		assert(_painter != nullptr);
 		delete _painter;
 		_painter = nullptr;
-		log.debug("Painter has been deleted");
+		ETC_LOG.debug("Painter has been deleted");
 	}
 
 	WrapRenderer::WrapRenderer()
