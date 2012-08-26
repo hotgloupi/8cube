@@ -70,11 +70,15 @@ namespace cube { namespace gl { namespace opengl {
 			: public ShaderProgram::Parameter
 		{
 		private:
-			GLint _location;
+			GLint       _location;
+			std::string _name;
 
 		public:
 			Parameter(GLuint program, std::string const& name)
+				: _location(0)
+				, _name(name)
 			{
+				etc::log::debug("Retreive shader parameter", name);
 				_location = gl::GetUniformLocation(program, name.c_str());
 				if (_location == -1)
 					throw Exception{
@@ -87,6 +91,7 @@ namespace cube { namespace gl { namespace opengl {
 			ShaderProgram::Parameter&
 			operator =(matrix_type const& value)
 			{
+				etc::log::debug("Set shader parameter", _name, " to a matrix");
 				gl::UniformMatrix4fv(_location, 1, GL_FALSE, glm::value_ptr(value));
 				return *this;
 			}

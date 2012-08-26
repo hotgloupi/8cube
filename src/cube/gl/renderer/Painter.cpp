@@ -5,7 +5,11 @@
 #include "State.hpp"
 #include "VertexBuffer.hpp"
 
+#include <etc/log.hpp>
+
 namespace cube { namespace gl { namespace renderer {
+
+	static auto& log = etc::log::logger("cube.gl.renderer.Painter");
 
 	//////////////////////////////////////////////////////////////////////////
 	// Painter class
@@ -13,7 +17,8 @@ namespace cube { namespace gl { namespace renderer {
 		: _renderer(renderer)
 		, _current_state(_renderer.current_state())
 	{
-		_renderer.current_state().painter(this);
+		log.debug("New painter");
+		_current_state.painter(this);
 	}
 
 	Painter::Painter(Painter&& other)
@@ -21,13 +26,15 @@ namespace cube { namespace gl { namespace renderer {
 		, _current_state(other._current_state)
 		, _bound_drawables(std::move(other._bound_drawables))
 	{
+		log.debug("Move painter");
 		_current_state.painter_switch(&other, this);
 	}
 
 	Painter::~Painter()
 	{
+		log.debug("Delete painter");
 		for (Drawable* drawable: _bound_drawables)
-			drawable->_unbind();
+			drawable->__unbind();
 		_bound_drawables.clear();
 
 		_renderer._pop_state();
@@ -37,7 +44,7 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		if (_bound_drawables.find(&drawable) != _bound_drawables.end())
 			throw Exception{"Already bound drawable"};
-		drawable._bind();
+		drawable.__bind();
 		_bound_drawables.insert(&drawable);
 	}
 
@@ -97,7 +104,7 @@ namespace cube { namespace gl { namespace renderer {
 		auto it = _bound_drawables.find(&drawable);
 		if (it == _bound_drawables.end())
 			throw Exception{"Cannot unbind the drawable (not found)"};
-		drawable._unbind();
+		drawable.__unbind();
 		_bound_drawables.erase(it);
 	}
 

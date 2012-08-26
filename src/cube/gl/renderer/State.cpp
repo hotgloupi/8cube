@@ -3,6 +3,7 @@
 #include "Exception.hpp"
 #include "Painter.hpp"
 
+#include <etc/log.hpp>
 #include <etc/to_string.hpp>
 
 namespace cube { namespace gl { namespace renderer {
@@ -115,6 +116,8 @@ namespace cube { namespace gl { namespace renderer {
 			_painter->update(kind, other);
 			_painter->update(MatrixKind::mvp, mvp);
 		}
+		else
+			etc::log::warn("A state without painter is updated");
 	}
 
 }}} // !cube::gl::renderer

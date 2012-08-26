@@ -5,6 +5,7 @@
 
 # include <cstdint>
 # include <cstddef>
+# include <iosfwd>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -19,6 +20,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	std::ostream& operator <<(std::ostream& out, Mode mode);
 
 	/**
 	 * Matrix type used for every transformation.

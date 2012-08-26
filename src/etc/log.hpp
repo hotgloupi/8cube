@@ -40,4 +40,5 @@ namespace etc { namespace log {
 
 }}
 
+
 #endif

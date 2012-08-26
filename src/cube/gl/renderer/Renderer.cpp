@@ -7,7 +7,11 @@
 #include "Shader.hpp"
 #include "ShaderProgram.hpp"
 
+#include <etc/log.hpp>
+
 namespace cube { namespace gl { namespace renderer {
+
+	static auto& log = etc::log::logger("cube.gl.renderer.Renderer");
 
 	///////////////////////////////////////////////////////////////////////////
 	// RendererType
@@ -56,6 +60,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	Painter Renderer::begin(State&& state)
 	{
+		log.debug("Begining new state in mode", state.mode);
 		switch (state.mode)
 		{
 		case Mode::none:
@@ -67,8 +72,9 @@ namespace cube { namespace gl { namespace renderer {
 			throw Exception{"Unknown render mode."};
 		}
 		_push_state(std::move(state));
+		Painter p(*this);
 		this->update_projection_matrix();
-		return Painter(*this);
+		return p;//Painter(*this);
 	}
 
 	void Renderer::viewport(cube::gl::viewport::Viewport const& vp)
@@ -116,6 +122,7 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	Painter& PainterWithProxy::__enter__()
 	{
 		assert(_painter == nullptr);
+		log.debug("Creating painter");
 		_painter = new Painter(_renderer.begin(_mode));
 		return *_painter;
 	}
@@ -125,6 +132,7 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 		assert(_painter != nullptr);
 		delete _painter;
 		_painter = nullptr;
+		log.debug("Painter has been deleted");
 	}
 
 	WrapRenderer::WrapRenderer()

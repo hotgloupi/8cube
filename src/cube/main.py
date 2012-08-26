@@ -75,34 +75,39 @@ def test_vertex_buffer():
     with win.renderer.begin(gl.renderer.mode_2d) as painter:
         painter.bind(sp)
         sp.parameter("cube_ModelViewProjectionMatrix")
+        win.renderer.viewport(0,0,640,480)
+    win.renderer.swap_buffers()
+    time.sleep(1)
 
-    with win.renderer.begin(gl.renderer.mode_2d) as painter:
-        painter.bind(sp)
-        painter.bind(vb)
-
-        state = {
-            'running': True,
-        }
-        win.poll()
+    print("Running")
+    state = {
+        'running': True,
+    }
+    win.poll()
+    win.renderer.clear(
+        gl.renderer.BufferBit.color |
+        gl.renderer.BufferBit.depth
+    );
+    win.inputs.on_quit.connect(lambda: state.update({'running': False}))
+    def f(w, h):
+        print("Resize")
+        win.renderer.viewport(0, 0, w, h)
+    win.inputs.on_expose.connect(f)
+    win.renderer.swap_buffers()
+    while state['running'] is True:
         win.renderer.clear(
             gl.renderer.BufferBit.color |
             gl.renderer.BufferBit.depth
         );
-        win.inputs.on_quit.connect(lambda: state.update({'running': False}))
-        def f(w, h):
-            win.renderer.viewport(0, 0, w, h)
-        win.inputs.on_expose.connect(f)
-        win.renderer.swap_buffers()
-        while state['running'] is True:
+
+        with win.renderer.begin(gl.renderer.mode_2d) as painter:
+            painter.bind(sp)
+            painter.bind(vb)
             win.poll()
-            win.renderer.clear(
-                gl.renderer.BufferBit.color |
-                gl.renderer.BufferBit.depth
-            );
             painter.draw_elements(gl.DrawMode.quads, indices, 0, 4)
 
-            win.renderer.swap_buffers()
-            time.sleep(.1)
+        win.renderer.swap_buffers()
+        time.sleep(.5)
 
     pass
 
