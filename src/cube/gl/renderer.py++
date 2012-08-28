@@ -32,7 +32,6 @@ static void
 			boost::python::object elem = list[i];
 			array.get()[i] = boost::python::extract<T>(elem);
 		}
-		etc::print("Push", len);
 		self.push_static_content(kind, std::move(array), len);
 	}
 
@@ -200,12 +199,18 @@ BOOST_PYTHON_MODULE(renderer)
 		.def(
 			"new_vertex_buffer",
 			&detail::WrapRenderer::new_vertex_buffer,
-			py::return_value_policy<py::manage_new_object>()
+			py::return_value_policy<
+				py::manage_new_object,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"new_index_buffer",
 			&detail::WrapRenderer::new_index_buffer,
-			py::return_value_policy<py::manage_new_object>()
+			py::return_value_policy<
+				py::manage_new_object,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"clear",

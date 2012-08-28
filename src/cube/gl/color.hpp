@@ -49,11 +49,16 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
+		Color3(Color3<T> const&) = default;
+		Color3& operator =(Color3<T> const&) = default;
+		Color3(Color3<T>&&) = default;
+		Color3& operator =(Color3<T>&&) = default;
+
 		Color3()
-			: r(), g(), b()
+			: r{}, g{}, b{}
 		{}
 
-        Color3(T r, T g, T b)
+		Color3(T r, T g, T b)
 			: r(r), g(g), b(b)
 		{}
 
@@ -85,9 +90,14 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
-		Color4() = default;
 		Color4(Color4<T> const&) = default;
+		Color4& operator =(Color4<T> const&) = default;
 		Color4(Color4<T>&&) = default;
+		Color4& operator =(Color4<T>&&) = default;
+
+		Color4()
+			: r{}, g{}, b{}, a{}
+		{}
 
 		Color4(T r, T g, T b, T a = traits<T>::max_component_value())
 			: r(r), g(g), b(b), a(a)

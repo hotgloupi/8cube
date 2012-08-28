@@ -74,13 +74,13 @@ namespace cube { namespace gl { namespace opengl {
 		struct SubVBO;
 
 	public:
-		static inline int get_draw_mode(DrawMode value)
+		static inline GLenum get_draw_mode(DrawMode value)
 			{ return _draw_mode_map[(size_t) value]; }
-		static inline int get_content_type(ContentType value)
+		static inline GLenum get_content_type(ContentType value)
 			{ return _content_type_map[(size_t) value]; }
-		static inline int get_content_kind(ContentKind value)
+		static inline GLenum get_content_kind(ContentKind value)
 			{ return _content_kind_map[(size_t) value]; }
-		static inline int get_content_hint(ContentHint value)
+		static inline GLenum get_content_hint(ContentHint value)
 			{ return _content_hint_map[(size_t) value]; }
 	private:
 		static GLenum _draw_mode_map[(size_t)DrawMode::_max_value];
@@ -309,7 +309,7 @@ namespace cube { namespace gl { namespace opengl {
 			if (offset != _current_offset)
 				_current_stride += offset - _current_offset;
 
-			_current_offset += offset;
+			_current_offset += attr.size;
 
 			_sub_vbos.push_back(SubVBO{
 				_id,
