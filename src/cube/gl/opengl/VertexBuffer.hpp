@@ -1,6 +1,8 @@
 #ifndef  CUBE_GL_OPENGL_VERTEXBUFFER_HPP
 # define CUBE_GL_OPENGL_VERTEXBUFFER_HPP
 
+# include <cube/gl/renderer/VertexBuffer.hpp>
+
 # include "_opengl.hpp"
 
 namespace cube { namespace gl { namespace opengl {
@@ -15,8 +17,8 @@ namespace cube { namespace gl { namespace opengl {
 	public:
 		_GLVertexBuffer();
 		virtual ~_GLVertexBuffer();
-
-		virtual void refresh();
+	protected:
+		virtual void _finalize();
 	protected:
 		virtual void _bind();
 		virtual void _unbind();

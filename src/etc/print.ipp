@@ -71,7 +71,24 @@ namespace etc {
 		  sprint(out, flags, is_first, values...);
 		}
 
-	  } // !etc::detail
+		inline
+		void sprintf(std::ostream& out,
+		             boost::format& fmt)
+		{
+			out << fmt.str();
+		}
+
+		template<typename First, typename... Tail>
+		void sprintf(std::ostream& out,
+		             boost::format& fmt,
+		             First const& first,
+		             Tail const&... values)
+		{
+			fmt % first;
+			return sprintf(out, fmt, values...);
+		}
+
+	} // !etc::detail
 
 	template<typename... T>
 	void
@@ -87,6 +104,15 @@ namespace etc {
 	{
 		detail::PrintFlags flags;
 		return detail::sprint(out, flags, true, values...);
+	}
+
+    template<typename... T>
+	void sprintf(std::ostream& out,
+	             std::string const& fmt,
+	             T const&... values)
+	{
+		boost::format format{fmt};
+		detail::sprintf(out, format, values...);
 	}
 
 	template<typename... T>

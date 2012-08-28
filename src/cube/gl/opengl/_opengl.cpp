@@ -1,7 +1,9 @@
+#include "Exception.hpp"
 #include "_opengl.hpp"
 
-namespace cube { namespace gl { namespace opengl {
+#include <map>
 
+namespace cube { namespace gl { namespace opengl {
 
 	GLenum gl::_draw_mode_map[(size_t)DrawMode::_max_value] = {
 		GL_POINTS,
@@ -22,7 +24,7 @@ namespace cube { namespace gl { namespace opengl {
 	};
 
 	GLenum gl::_content_kind_map[(size_t)ContentKind::_max_value]  = {
-		GL_VERTEX_ARRAY, GL_INDEX_ARRAY, GL_COLOR_ARRAY, GL_NORMAL_ARRAY,
+		GL_VERTEX_ARRAY, 0, GL_COLOR_ARRAY, GL_NORMAL_ARRAY,
 		GL_TEXTURE0_ARB, GL_TEXTURE1_ARB, GL_TEXTURE2_ARB,
 	};
 
@@ -30,20 +32,51 @@ namespace cube { namespace gl { namespace opengl {
 		GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW,
 	};
 
-	gl::SubVBO::pointer_method_t
-		gl::SubVBO::_pointer_methods[(size_t)ContentKind::_max_value] = {
-			&gl::SubVBO::vertex_pointer,
-			&gl::SubVBO::index_pointer,
-			&gl::SubVBO::color_pointer,
-			&gl::SubVBO::normal_pointer,
-			&gl::SubVBO::tex_coord0_pointer,
-			&gl::SubVBO::tex_coord1_pointer,
-			&gl::SubVBO::tex_coord2_pointer,
+	GLenum gl::_shader_type_map[(size_t)ShaderType::_max_value] = {
+		GL_FRAGMENT_SHADER,
+		GL_VERTEX_SHADER,
 	};
 
-	template<>
-	const GLint  gl::VBO<true>::_gl_array_type = GL_ELEMENT_ARRAY_BUFFER_ARB;
-	template<>
-	const GLint  gl::VBO<false>::_gl_array_type = GL_ARRAY_BUFFER_ARB;
+	void gl::_check_error(char const* function_)
+	{
+		GLenum code = glGetError();
+
+		if (code == GL_NO_ERROR)
+			return;
+
+		static std::map<GLenum, std::pair<std::string, std::string>> errors{
+#define _ERR(enum, str)                                                       \
+	{enum, {#enum, str "."}}                                                  \
+	/**/
+			_ERR(GL_INVALID_ENUM, "Wrong enum value"),
+			_ERR(GL_INVALID_VALUE, "Wrong value"),
+			_ERR(GL_INVALID_OPERATION, "Wrong operation"),
+			_ERR(GL_STACK_OVERFLOW, "Stack overflow"),
+			_ERR(GL_OUT_OF_MEMORY, "Out of memory"),
+			_ERR(GL_INVALID_FRAMEBUFFER_OPERATION_EXT,
+				 "Wrong operation on a frame buffer"),
+#undef _ERR
+		};
+
+		std::string error, description;
+		auto it = errors.find(code);
+		if (it == errors.end())
+		{
+			error = etc::to_string("Unknown error code", code);
+			description = "Not documented error.";
+		}
+		else
+		{
+			error = it->second.first;
+			description = it->second.second;
+		}
+
+		std::string function = (
+			function_ != nullptr ? function_ : "(anonymous function)"
+		);
+        throw Exception{
+			std::string{function} + ": " + error + ": " + description
+		};
+    }
 
 }}} // !cube::gl::opengl

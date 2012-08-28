@@ -94,7 +94,6 @@ namespace cube { namespace gl { namespace color {
 		Color4& operator =(Color4<T> const&) = default;
 		Color4(Color4<T>&&) = default;
 		Color4& operator =(Color4<T>&&) = default;
-
 		Color4()
 			: r{}, g{}, b{}, a{}
 		{}

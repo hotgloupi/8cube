@@ -1,0 +1,13 @@
+
+
+#include <wrappers/boost/python.hpp>
+
+#include "test.hpp"
+
+BOOST_PYTHON_MODULE(test)
+{
+	namespace py = boost::python;
+
+	py::def("test_all", &cube::gl::test::test_all);
+
+}

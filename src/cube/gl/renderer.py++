@@ -1,12 +1,15 @@
+#include <wrappers/boost/python.hpp>
+#include <boost/python/raw_function.hpp>
 #include <string>
 
 #include "renderer.hpp"
+#include "renderer/Shader.hpp"
+#include "renderer/ShaderProgram.hpp"
+
 #include "color.hpp"
 
 #include <etc/print.hpp>
 
-#include <wrappers/boost/python.hpp>
-#include <boost/python/raw_function.hpp>
 using namespace cube::gl::renderer;
 
 static void
@@ -84,7 +87,7 @@ static void
 //                      boost::python::dict kwargs)
 //{
 //	size_t len = boost::python::len(args);
-//	Renderer::Painter& self = boost::python::extract<Renderer::Painter&>(args[0]);
+//	Painter& self = boost::python::extract<Painter&>(args[0]);
 //
 //	std::vector<Drawable*> to_draw;
 //
@@ -98,17 +101,36 @@ static void
 //}
 
 
+static
+void ShaderProgram_push_shader(ShaderProgram& p,
+                               std::auto_ptr<Shader>& s)
+{
+	p.push_shader(std::unique_ptr<Shader>{s.release()});
+}
+
+static
+void ShaderProgram_finalize(ShaderProgram& p)
+{
+	p.finalize();
+}
+
+static
+void ShaderProgram_finalize_clear(ShaderProgram& p, bool clear)
+{
+	p.finalize(clear);
+}
+
 BOOST_PYTHON_MODULE(renderer)
 {
 	namespace py = boost::python;
 
-	py::enum_<Renderer::Mode>("RendererMode")
-		.value("mode_2d", Renderer::Mode::_2d)
-		.value("mode_3d", Renderer::Mode::_3d)
+	py::enum_<Mode>("RendererMode")
+		.value("mode_2d", Mode::_2d)
+		.value("mode_3d", Mode::_3d)
 		.export_values()
-		.value("none", Renderer::Mode::none)
-		.value("_2d", Renderer::Mode::_2d)
-		.value("_3d", Renderer::Mode::_3d)
+		.value("none", Mode::none)
+		.value("_2d", Mode::_2d)
+		.value("_3d", Mode::_3d)
 	;
 
 	py::enum_<ContentKind>("ContentKind")
@@ -142,23 +164,23 @@ BOOST_PYTHON_MODULE(renderer)
 
 	py::class_<Drawable, boost::noncopyable>("Drawable", py::no_init);
 
-	py::class_<Renderer::Painter, boost::noncopyable>(
+	py::class_<Painter, boost::noncopyable>(
 			"Painter", py::no_init
 		)
 		.def(
 			"bind",
-			&Renderer::Painter::bind,
+			&Painter::bind,
 			py::args("drawable", "The drawable to bind."),
 			"Bound drawables can be unbound with the `unbind' method but are"
 			" automatically unbound when the painter is deleted."
 		)
 		.def(
 			"unbind",
-			&Renderer::Painter::unbind
+			&Painter::unbind
 		)
 		.def(
 			"draw_elements",
-			&Renderer::Painter::draw_elements
+			&Painter::draw_elements
 		)
 	;
 
@@ -213,6 +235,21 @@ BOOST_PYTHON_MODULE(renderer)
 			>()
 		)
 		.def(
+			"new_shader_program",
+			&detail::WrapRenderer::new_shader_program,
+			py::return_value_policy<py::manage_new_object>()
+		)
+		.def(
+			"new_fragment_shader",
+			&detail::WrapRenderer::new_fragment_shader,
+			py::return_value_policy<py::manage_new_object>()
+		)
+		.def(
+			"new_vertex_shader",
+			&detail::WrapRenderer::new_vertex_shader,
+			py::return_value_policy<py::manage_new_object>()
+		)
+		.def(
 			"clear",
 			&detail::WrapRenderer::clear
 		)
@@ -220,22 +257,101 @@ BOOST_PYTHON_MODULE(renderer)
 
 	// Export RendererType class
 	py::class_<detail::WrapRendererType>(
-		"RendererType"
+			"RendererType"
 		)
-		.def("__str__", &detail::WrapRendererType::__str__)
+		.def(
+			"__str__",
+		   	&detail::WrapRendererType::__str__
+		)
 	;
 
-	py::class_<VertexBuffer, boost::noncopyable, py::bases<Drawable>>(
+	py::class_<
+			VertexBuffer,
+			std::auto_ptr<VertexBuffer>,
+			boost::noncopyable,
+			py::bases<Drawable>
+		>(
 			"VertexBuffer",
 			py::no_init
 		)
 		.def(
-			"refresh",
-			&VertexBuffer::refresh
+			"finalize",
+			&VertexBuffer::finalize
 		)
 		.def(
 			"push_static_content",
 			&push_static_content
 		)
 	;
+
+	py::class_<
+			Shader,
+			std::auto_ptr<Shader>,
+			boost::noncopyable
+		>(
+			"Shader",
+			py::no_init
+		)
+		.def(
+			"push_source",
+			static_cast<void (Shader::*)(std::string const&)>(
+				&Shader::push_source
+			)
+		)
+	;
+
+	{
+		py::scope scope(py::class_<
+				ShaderProgram,
+				std::auto_ptr<ShaderProgram>,
+				py::bases<Drawable>,
+				boost::noncopyable
+			>(
+				"ShaderProgram",
+				py::no_init
+			)
+			.def(
+				"push_shader",
+				&ShaderProgram_push_shader
+			)
+			.def(
+				"finalize",
+				&ShaderProgram_finalize
+			)
+			.def(
+				"finalize",
+				&ShaderProgram_finalize_clear
+			)
+			.def(
+				"parameter",
+				&ShaderProgram::parameter,
+				py::return_internal_reference<>()
+			)
+		);
+
+		py::class_<
+				ShaderProgram::Parameter,
+				boost::noncopyable
+			>(
+				"Parameter",
+				py::no_init
+			)
+#define __EQ__(type)                                                          \
+			.def(                                                             \
+				"__eq__",                                                     \
+				py::pure_virtual(                                             \
+					static_cast<                                              \
+						ShaderProgram::Parameter&                             \
+						(ShaderProgram::Parameter::*) (type)                  \
+					>(&ShaderProgram::Parameter::operator =)                  \
+				),                                                            \
+				py::return_value_policy<py::reference_existing_object>()      \
+			)                                                                 \
+	/**/
+			__EQ__(matrix_type const&)
+#undef __EQ__
+		;
+
+	}
+
 }

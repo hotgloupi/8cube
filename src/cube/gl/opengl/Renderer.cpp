@@ -1,16 +1,21 @@
-# include <cassert>
-# include <iostream>
-# include <stdexcept>
-# include <string>
 
 # include <cube/gl/matrix.hpp>
 
 # include "Renderer.hpp"
 # include "VertexBuffer.hpp"
+# include "Shader.hpp"
+# include "ShaderProgram.hpp"
 
 # include "_opengl.hpp"
 
+# include <cassert>
+# include <iostream>
+# include <stdexcept>
+# include <string>
+
 namespace cube { namespace gl { namespace opengl {
+
+	ETC_LOG_COMPONENT("cube.gl.opengl.Renderer");
 
 	using namespace cube::gl::renderer;
 
@@ -19,48 +24,59 @@ namespace cube { namespace gl { namespace opengl {
 		struct GLRendererType
 			: public RendererType
 		{
+			virtual
 			std::unique_ptr<Renderer>
-				create(::cube::gl::viewport::Viewport const& vp) const
+			create(::cube::gl::viewport::Viewport const& vp) const
 			{
 				std::unique_ptr<Renderer> renderer(new GLRenderer);
 				renderer->initialize(vp);
 				return renderer;
 			}
 
+			virtual
 			std::string
-				__str__() const
+			__str__() const
 			{
-				std::string gl_version = (char const*)glGetString(GL_VERSION);
-				std::string glew_version = (char const*)glewGetString(GLEW_VERSION);
-				return (
-					"GLRenderer v" + gl_version + "\n"
-					"GLEW v" + glew_version + "\n"
+				return etc::to_string(
+					"GLEW version", glewGetString(GLEW_VERSION), '\n',
+					"OpenGL version", (char*) glGetString(GL_VERSION), '\n',
+					"OpenGL renderer", (char*) glGetString(GL_RENDERER), '\n',
+					"OpenGL vendor", (char*) glGetString(GL_VENDOR), '\n'
 				);
 			}
+
+			virtual
+			Name name() const { return Name::OpenGL; }
 		};
 
-	}
+	} // !detail
 
 
 	GLRenderer::~GLRenderer()
 	{
-		std::cout << "Destroying opengl renderer\n";
+		std::cerr << "Destroying opengl renderer\n";
 	}
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
-		auto error = glewInit();
+		ETC_LOG.debug("GLRenderer::initialize(", vp, ")");
+		::glewExperimental = GL_TRUE;
+		auto error = ::glewInit();
 		if (error != GLEW_OK)
-			throw std::runtime_error(
-				"Cannot initialize GLRenderer renderer: " +
+			throw Exception{
+				"Cannot initialize OpenGL renderer: " +
 				std::string((char const*) glewGetErrorString(error))
-			);
-		if (!(GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader))
-			throw std::runtime_error(
-				"Cannot start GLRenderer"
-				//"ARB_vertex_shader and ARB_fragment_shader are required"
-			);
-		gl::ClearColor(1.0f,0,0,1.0f);
+			};
+
+		bool has_required_extensions = (
+			  GLEW_ARB_shading_language_100
+			& GLEW_ARB_shader_objects
+			& GLEW_ARB_vertex_shader
+			& GLEW_ARB_fragment_shader
+		);
+		if (!has_required_extensions)
+			throw Exception{"Some required extensions are not available"};
+		gl::ClearColor(1.0f, 0, 0, 1.0f);
 		this->viewport(vp);
 	}
 
@@ -80,36 +96,25 @@ namespace cube { namespace gl { namespace opengl {
 		return descr;
 	}
 
-	GLRenderer::Painter GLRenderer::begin(Mode mode)
+	renderer::Painter GLRenderer::begin(Mode mode)
 	{
-		static matrix_type translate2d = ::cube::gl::matrix::translate<float>(0, 0, 1);
-
-		State state;
-		state.mode = mode;
+		ETC_LOG.debug("Begin mode", mode);
+		State state{mode};
 
 		switch (mode)
 		{
-		case Mode::none:
-			break;
 		case Mode::_2d:
 			gl::Disable(GL_CULL_FACE);
 			gl::Disable(GL_DEPTH_TEST);
-			//auto size = rs.target == 0 ? this->_screenSize : rs.target->GetSize();
-			state.view = translate2d,
-			state.projection = ::cube::gl::matrix::ortho<float>(
-				0, _viewport.w - _viewport.x,
-				_viewport.h - _viewport.y, 0
-			);
-      state.mvp = state.projection * state.view * state.model;
 			break;
 		case Mode::_3d:
 			gl::Enable(GL_DEPTH_TEST);
 			gl::Enable(GL_CULL_FACE);
 			break;
 		default:
-			assert(false && "Unknown mode");
+			break;
 		}
-		return this->Renderer::begin(state);
+		return this->Renderer::begin(std::move(state));
 	}
 
 	void GLRenderer::draw_elements(cube::gl::renderer::DrawMode mode,
@@ -117,35 +122,39 @@ namespace cube { namespace gl { namespace opengl {
 	                               cube::gl::renderer::ContentType type,
 	                               void* indices)
 	{
-		etc::log::debug(
-			__PRETTY_FUNCTION__,
-			(int) mode,
-			count,
-			(int) type,
-			indices
-		);
 		gl::DrawElements(
 			gl::get_draw_mode(mode),
 			count,
 			gl::get_content_type(type),
 			indices
 		);
-		etc::log::debug("Done");
 	}
 
-	void GLRenderer::_end()
-	{
-
-	}
-
-	GLRenderer::VertexBufferPtr GLRenderer::new_vertex_buffer()
+	GLRenderer::VertexBufferPtr
+	GLRenderer::new_vertex_buffer()
 	{
 		return VertexBufferPtr{new GLVertexBuffer};
 	}
 
-	GLRenderer::VertexBufferPtr GLRenderer::new_index_buffer()
+	GLRenderer::VertexBufferPtr
+	GLRenderer::new_index_buffer()
 	{
 		return VertexBufferPtr{new GLIndexBuffer};
+	}
+
+	GLRenderer::ShaderPtr GLRenderer::new_vertex_shader()
+	{
+		return ShaderPtr{new Shader{renderer::ShaderType::vertex}};
+	}
+
+	GLRenderer::ShaderPtr GLRenderer::new_fragment_shader()
+	{
+		return ShaderPtr{new Shader{renderer::ShaderType::fragment}};
+	}
+
+	GLRenderer::ShaderProgramPtr GLRenderer::new_shader_program()
+	{
+		return ShaderProgramPtr{new ShaderProgram};
 	}
 
 	void GLRenderer::clear(cube::gl::renderer::BufferBit flags)
@@ -165,4 +174,3 @@ namespace cube { namespace gl { namespace opengl {
 	}
 
 }}} // !cube::gl::renderers
-

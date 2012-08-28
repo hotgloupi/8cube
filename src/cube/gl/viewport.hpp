@@ -11,15 +11,15 @@ namespace cube { namespace gl { namespace viewport {
 			: cube::gl::rectangle::Rectangle2f{x, y, w, h}
 		{}
 
+		inline
 		Viewport& operator =(Viewport const& other)
 		{
-			if (this != &other)
-			{
-				this->cube::gl::rectangle::Rectangle2f::operator =(other);
-			}
+			this->cube::gl::rectangle::Rectangle2f::operator =(other);
 			return *this;
 		}
 	};
+
+	std::ostream& operator <<(std::ostream& out, Viewport const& vp);
 
 }}}
 

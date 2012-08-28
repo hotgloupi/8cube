@@ -1,11 +1,12 @@
 
-#include <cassert>
-#include <stdexcept>
-
 #include "Interpreter.hpp"
 
 #include <wrappers/boost/filesystem.hpp>
 #include <wrappers/boost/python.hpp>
+
+#include <cassert>
+#include <iostream>
+#include <stdexcept>
 
 namespace py = boost::python;
 namespace fs = boost::filesystem;
@@ -47,7 +48,8 @@ namespace app { namespace python {
 		return false;
 	}
 
-	void Interpreter::setglobal(std::string const& key, std::string const& value)
+	void Interpreter::setglobal(std::string const& key,
+	                            std::string const& value)
 	{
 		py::dict d = py::extract<py::dict>(_impl->main_namespace);
 		d[key] = value;
@@ -57,25 +59,17 @@ namespace app { namespace python {
 	///////////////////////////////////////////////////////////////////////////
 	// Initialization section
 
-	namespace detail {
-
-		static Interpreter* _interpreter = nullptr;
-
-	}
-
 	Interpreter& Interpreter::instance()
 	{
-		static bool called = false;
+		static Interpreter* _interpreter = nullptr;
 
-		assert(called == false);
-		if (!called)
+		if (_interpreter == nullptr)
 		{
-			called = true;
 			::Py_Initialize();
-			detail::_interpreter = new Interpreter;
+			_interpreter = new Interpreter;
 		}
-		assert(detail::_interpreter != nullptr);
-		return *detail::_interpreter;
+		assert(_interpreter != nullptr);
+		return *_interpreter;
 
 	}
 

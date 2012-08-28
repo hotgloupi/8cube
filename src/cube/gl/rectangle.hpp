@@ -11,14 +11,14 @@ namespace cube { namespace gl { namespace rectangle {
 	public:
 		union
 		{
-			cube::gl::vector::Vector2<T> position;
-			T x, y;
+			vector::Vector2<T> position;
+			struct { T x, y; };
 		};
 
 		union
 		{
-			cube::gl::vector::Vector2<T> size;
-			T w, h;
+			vector::Vector2<T> size;
+			struct { T w, h; };
 		};
 
 	public:

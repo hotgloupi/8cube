@@ -49,7 +49,6 @@ int main(int argc, char* argv[])
 		"import cube\n"
 		"main(" + pyargs + ")\n"
 	;
-
 	return !interpreter.exec(init_script);
 }
 

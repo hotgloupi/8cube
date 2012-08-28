@@ -1,20 +1,71 @@
 #ifndef  CUBE_GL_RENDERER_CONSTANTS_HPP
 # define CUBE_GL_RENDERER_CONSTANTS_HPP
 
+# include <cube/gl/matrix.hpp>
+
+# include <cstdint>
+# include <cstddef>
+# include <iosfwd>
+
 namespace cube { namespace gl { namespace renderer {
+
+	/**
+	 * The rendering mode.
+	 */
+	enum class Mode
+	{
+		none = 0,
+		_2d,
+		_3d,
+
+		_max_value
+	};
+	std::ostream& operator <<(std::ostream& out, Mode mode);
+
+	/**
+	 * Matrix type used for every transformation.
+	 */
+	typedef ::cube::gl::matrix::mat44f      matrix_type;
+
+	enum class MatrixKind
+	{
+		model = 0,
+		view,
+		projection,
+		mvp,
+
+		_max_value
+	};
 
 	enum class BufferBit : int
 	{
-    none    = 0,
+		none    = 0,
 		color   = 1,
 		depth   = 2,
 		stencil = 4,
+
+		_max_value
 	};
 
-  inline BufferBit operator &(BufferBit a, BufferBit b)
-  {
-    return (BufferBit)((int) a & (int) b);
-  }
+	inline
+	BufferBit operator &(BufferBit a, BufferBit b)
+	{
+		return static_cast<BufferBit>((int) a & (int) b);
+	}
+
+	inline
+	BufferBit operator |(BufferBit a, BufferBit b)
+	{
+		return static_cast<BufferBit>((int) a | (int) b);
+	}
+
+	enum class ShaderType
+	{
+		fragment = 0,
+		vertex,
+
+		_max_value
+	};
 
 	enum class DrawMode
 	{
@@ -29,7 +80,7 @@ namespace cube { namespace gl { namespace renderer {
 		quad_strip,
 		polygon,
 
-		_max_value,
+		_max_value
 	};
 
 	enum class ContentType
@@ -51,7 +102,7 @@ namespace cube { namespace gl { namespace renderer {
 		static_content,
 		dynamic_content,
 
-		_max_value,
+		_max_value
 	};
 
 	enum class ContentKind
@@ -64,7 +115,7 @@ namespace cube { namespace gl { namespace renderer {
 		tex_coord1,
 		tex_coord2,
 
-		_max_value,
+		_max_value
 	};
 
 	template<ContentType type> struct ContentTypeSize;
