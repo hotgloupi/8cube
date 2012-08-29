@@ -12,12 +12,33 @@ namespace cube { namespace gl { namespace renderer {
 		case Mode::name:                                                      \
 			out << "Mode::" #name;                                            \
 			break                                                             \
-	/**/
+/**/
 			_CASE(none);
 			_CASE(_2d);
 			_CASE(_3d);
+#undef _CASE
 		default:
 			out << "Unknown mode";
+		}
+		return out;
+	}
+
+	std::ostream& operator <<(std::ostream& out, MatrixKind kind)
+	{
+		switch (kind)
+		{
+#define _CASE(name)                                                           \
+		case MatrixKind::name:                                                \
+			out << "MatrixKind::" #name;                                      \
+			break                                                             \
+/**/
+		_CASE(model);
+		_CASE(view);
+		_CASE(projection);
+		_CASE(mvp);
+#undef _CASE
+		default:
+		out << "Unknown MatrixKind value";
 		}
 		return out;
 	}

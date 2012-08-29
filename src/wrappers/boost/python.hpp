@@ -1,6 +1,7 @@
 #ifndef  _PYTHON_BOOST_HPP
 # define _PYTHON_BOOST_HPP
 
+# include <boost/python.hpp>
 # include <cstddef> // std:size_t
 
 // workaround a mingw bug
@@ -14,8 +15,6 @@
 # if (defined(__MINGW32__) || defined(__MINGW64__)) && (__GNUC__ == 4)
 int swprintf (wchar_t *, size_t, const wchar_t *, ...);
 # endif
-
-# include <boost/python.hpp>
 
 namespace boost { namespace python {
 

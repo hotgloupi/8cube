@@ -83,7 +83,7 @@ namespace cube { namespace gl { namespace renderer {
 	ShaderProgram::update(MatrixKind kind,
 	                      matrix_type const& matrix)
 	{
-		ETC_LOG.debug("Update matrix.");
+		ETC_LOG.debug("Update matrix", kind);
 		static std::string const map[] = {
 			"cube_ModelMatrix",
 			"cube_ViewMatrix",

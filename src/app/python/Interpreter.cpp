@@ -1,8 +1,8 @@
+#include <wrappers/boost/python.hpp>
 
 #include "Interpreter.hpp"
 
 #include <wrappers/boost/filesystem.hpp>
-#include <wrappers/boost/python.hpp>
 
 #include <cassert>
 #include <iostream>

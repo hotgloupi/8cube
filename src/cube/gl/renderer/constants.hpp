@@ -37,6 +37,8 @@ namespace cube { namespace gl { namespace renderer {
 		_max_value
 	};
 
+	std::ostream& operator <<(std::ostream& out, MatrixKind kind);
+
 	enum class BufferBit : int
 	{
 		none    = 0,
