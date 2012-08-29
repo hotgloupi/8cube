@@ -15,7 +15,6 @@ foreach(src ${cube_python_cxx_srcs})
 	get_filename_component(module_dir ${module_src} PATH)
 	set_source_files_properties(${src} PROPERTIES LANGUAGE CXX)
 	add_library(${module_name} SHARED ${src})
-	target_link_libraries(${module_name} cube etc)
 	set_target_properties(${module_name}
 		PROPERTIES
 			COMPILE_FLAGS "-x c++"
@@ -23,6 +22,17 @@ foreach(src ${cube_python_cxx_srcs})
 			PREFIX "python/cube/${module_dir}/"
 			SUFFIX ".so"
 	)
+
+
+	target_link_libraries(${module_name}
+		cube etc
+		${PYTHON3_LIBRARIES}
+		${Boost_LIBRARIES}
+		${OPENGL_LIBRARIES}
+		${GLEW_LIBRARIES}
+		${SDL_LIBRARY}
+	)
+
 	file(MAKE_DIRECTORY
 		"${LIBRARY_OUTPUT_PATH}/python/cube/${module_dir}"
 	)

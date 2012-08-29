@@ -26,12 +26,12 @@ namespace cube { namespace gl { namespace renderer {
 		other._painter = nullptr;
 	}
 
-	State::State(State const& other)
-		: mode(other.mode)
-		, _matrices(other._matrices)
-		, _mvp(other._mvp)
-		, _painter(other._painter)
-	{}
+	//State::State(State const& other)
+	//	: mode(other.mode)
+	//	, _matrices(other._matrices)
+	//	, _mvp(other._mvp)
+	//	, _painter(other._painter)
+	//{}
 
 	State& State::operator =(State&& other)
 	{

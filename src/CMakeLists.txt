@@ -41,9 +41,9 @@ foreach(build_type "" "_DEBUG" "_RELEASE")
 	message(STATUS "CXX_FLAGS${build_type}: ${CMAKE_CXX_FLAGS${build_type}}")
 endforeach()
 
-set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
-set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
-set(CMAKE_MODULE_LINKER_FLAGS "-rdynamic")
+#set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
+#set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
+#set(CMAKE_MODULE_LINKER_FLAGS "-rdynamic")
 
 set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED     ON)
@@ -61,13 +61,6 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(SDL REQUIRED)
 
-link_libraries(
-	${PYTHON3_LIBRARIES}
-	${Boost_LIBRARIES}
-	${OPENGL_LIBRARIES}
-	${GLEW_LIBRARIES}
-	${SDL_LIBRARY}
-)
 include_directories(
 	${PYTHON3_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS}

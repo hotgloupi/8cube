@@ -20,8 +20,8 @@ namespace cube { namespace gl { namespace renderer {
 		State(State&& other);
 		State& operator =(State&& other);
 	private:
-		State(State const& other);
-		State& operator =(State const& other);
+		State(State const& other) = delete;
+		State& operator =(State const& other) = delete;
 
 		/**
 		 * Getter/setter for matrices

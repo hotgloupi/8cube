@@ -180,6 +180,9 @@ namespace cube { namespace gl { namespace opengl {
 		static GLenum _content_kind_map[(size_t)renderer::ContentKind::_max_value];
 		static GLenum _content_hint_map[(size_t)renderer::ContentHint::_max_value];
 		static GLenum _shader_type_map[(size_t)renderer::ShaderType::_max_value];
+
+    struct SubVBO;
+    template<bool> struct VBO;
 	};
 
 }}} // !cube::gl::opengl
