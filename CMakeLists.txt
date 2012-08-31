@@ -24,4 +24,8 @@ set(LIBRARY_OUTPUT_PATH
 	"${RELEASE_DIRECTORY}/lib"
 )
 
+set(GAMES_OUTPUT_PATH
+	"${RELEASE_DIRECTORY}/games"
+)
+
 add_subdirectory(src)

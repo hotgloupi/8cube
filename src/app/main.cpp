@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
 
 	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
 	fs::path lib_dir = exec_dir.parent_path().append("lib", fs::path::codecvt());
+	fs::path games_dir = exec_dir.parent_path().append("games", fs::path::codecvt());
 
 	load_libraries(exec_dir);
 	load_libraries(lib_dir);
@@ -30,6 +31,7 @@ int main(int argc, char* argv[])
 
 	fs::path python_lib_dir = lib_dir.append("python", fs::path::codecvt());
 	interpreter.setglobal("lib_dir", python_lib_dir.string());
+	interpreter.setglobal("games_dir", games_dir.string());
 
 	// XXX This, is ugly and not safe.
 	std::string pyargs = "[";
@@ -44,8 +46,10 @@ int main(int argc, char* argv[])
 	pyargs += "]";
 
 	std::string init_script =
-		"import sys\nsys.path.insert(0, lib_dir)\n"
-		"from cube.main import main\n"
+		"import sys\n"
+		"sys.path.insert(0, games_dir)\n"
+		"sys.path.insert(0, lib_dir)\n"
+		"from main import main\n"
 		"import cube\n"
 		"main(" + pyargs + ")\n"
 	;

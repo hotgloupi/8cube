@@ -39,5 +39,5 @@ class Widget:
     def parent(self, parent):
         self._parent = parent
 
-    def render(self, renderer):
+    def render(self, painter):
         pass

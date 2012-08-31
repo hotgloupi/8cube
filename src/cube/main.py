@@ -113,8 +113,8 @@ def test_vertex_buffer():
 
 import cube.gl.test
 def main(args):
-    return test_vertex_buffer()
-    return cube.gl.test.test_all()
+    #return test_vertex_buffer()
+    #return cube.gl.test.test_all()
     print(args)
     if not args:
         return game()

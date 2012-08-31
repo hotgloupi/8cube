@@ -72,3 +72,4 @@ include_directories(
 add_subdirectory(etc)
 add_subdirectory(app)
 add_subdirectory(cube)
+add_subdirectory(games)

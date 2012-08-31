@@ -24,11 +24,10 @@ class RootWindow(system.Window):
         assert isinstance(w, Widget)
         self._root_widget = widget
 
-    def render(self):
+    def render(self, painter):
+        self.renderer.swap_buffers()
         if self._root_widget is not None:
-            self.renderer.swap_buffers()
-            with self.renderer.begin(gl.renderer.mode_2d) as painter:
-                self._root_widget.render(painter)
+            self._root_widget.render(painter)
 
     def _on_expose(self, w, h):
         print("Expose from window", w, h)

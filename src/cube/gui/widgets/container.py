@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from cube.gui.widget import Widget
+from .. import widget
 
-class Container(Widget):
+class Container(widget.Widget):
 
     def __init__(self, tag, id_=None, class_=None):
         super(Container, self).__init__(tag, id_=id_, class_=class_)
@@ -35,6 +35,7 @@ class Container(Widget):
 
     def add_child(self, child):
         child.parent = self
+        self._childs.append(child)
 
     def render(self, painter):
         for child in self._childs:
