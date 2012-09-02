@@ -24,8 +24,13 @@ set(LIBRARY_OUTPUT_PATH
 	"${RELEASE_DIRECTORY}/lib"
 )
 
-set(GAMES_OUTPUT_PATH
-	"${RELEASE_DIRECTORY}/games"
+set(PYTHON_LIBRARY_OUTPUT_PATH
+	"${LIBRARY_OUTPUT_PATH}/python"
+)
+
+set(APP_OUTPUT_PATH
+	"${PYTHON_LIBRARY_OUTPUT_PATH}/cubeapp"
 )
 
 add_subdirectory(src)
+
