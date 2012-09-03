@@ -65,7 +65,8 @@ namespace cube { namespace gl { namespace renderer {
 			this->_bind();
 		ETC_LOG.debug("Fetching parameter", name, "from the program");
 		auto param = this->_fetch_parameter(name);
-		this->_unbind();
+		if (temp_bind)
+			this->_unbind();
 
 		if (!param)
 			throw Exception{"Shader parameter '" + name + "' not found."};

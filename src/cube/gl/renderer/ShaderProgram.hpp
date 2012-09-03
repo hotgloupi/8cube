@@ -62,6 +62,7 @@ namespace cube { namespace gl { namespace renderer {
 			virtual
 			Parameter& operator =(matrix_type const& value) = 0;
 		};
+		friend class Parameter;
 
 		typedef std::unique_ptr<Parameter> ParameterPtr;
 

@@ -9,7 +9,7 @@ namespace {
 
 
 	template<typename T>
-	void export_for(std::string const& suffix)
+	void export_for(std::string const& suffix, std::string const& type_name)
 	{
 		namespace py = boost::python;
 
@@ -42,5 +42,8 @@ namespace {
 
 BOOST_PYTHON_MODULE(color)
 {
-	export_for<float>("f");
+	boost::python::scope().attr("__doc__") =
+		"Color types.\n"
+	;
+	export_for<float>("f", "float");
 }

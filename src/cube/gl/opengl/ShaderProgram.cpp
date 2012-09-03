@@ -69,20 +69,27 @@ namespace cube { namespace gl { namespace opengl {
 
 	namespace { namespace implem {
 
+		template<typename BindGuard>
 		class Parameter
 			: public ShaderProgram::Parameter
 		{
 		private:
-			GLint       _location;
-			std::string _name;
+			ShaderProgram&  _program;
+			GLint           _location;
+			std::string     _name;
 
 		public:
-			Parameter(GLuint program, std::string const& name)
-				: _location(0)
+			// Program is bound by renderer::ShaderProgram::fetch_parameter()
+			Parameter(ShaderProgram& program,
+			          GLuint id,
+			          std::string const& name)
+				: _program(program)
+				, _location(0)
 				, _name(name)
 			{
 				ETC_LOG.debug("Retreive shader parameter", name);
-				_location = gl::GetUniformLocation(program, name.c_str());
+				BindGuard guard(_program);
+				_location = gl::GetUniformLocation(id, name.c_str());
 				if (_location == -1)
 					throw Exception{
 						"Cannot find any active uniform variable called '" +
@@ -95,7 +102,9 @@ namespace cube { namespace gl { namespace opengl {
 			operator =(matrix_type const& value)
 			{
 				ETC_LOG.debug("Set shader parameter", _name, " to a matrix");
-				gl::UniformMatrix4fv(_location, 1, GL_FALSE, glm::value_ptr(value));
+				BindGuard guard(_program);
+				gl::UniformMatrix4fv(_location, 1, GL_FALSE,
+				                     glm::value_ptr(value));
 				return *this;
 			}
 		};
@@ -105,7 +114,7 @@ namespace cube { namespace gl { namespace opengl {
 	ShaderProgram::ParameterPtr
 	ShaderProgram::_fetch_parameter(std::string const& name)
 	{
-		return ParameterPtr{new implem::Parameter{_id, name}};
+		return ParameterPtr{new implem::Parameter<BindGuard>{*this, _id, name}};
 	}
 
 }}}

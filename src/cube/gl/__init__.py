@@ -1,5 +1,29 @@
+"""Graphic Library
 
-from cube.gl.renderer import *
-from cube.gl.color import *
-from cube.gl.vector import *
+cube graphic library consist on a set of objects which abstract the rendering
+process.
 
+Exported classes:
+
+    Color{3,4}f
+    Vector{2,3}f
+    Viewport
+    Drawable, Painter, Renderer, RendererType, Shader, VertexBuffer,
+    ShaderProgram, ShaderProgram.Parameter
+
+
+Exported enumerations:
+
+    RendererMode (_2d, 3d)
+    ContentKind (vertex, index, color, normal, tex_coord0, tex_coord1,
+                 tex_coord2)
+    DrawMode (points, lines, line_strip, line_loop, triangles, triangle_strip,
+              triangle_fan, quads, quad_strip, polygon)
+    BufferBit (color, depth, stencil)
+
+"""
+
+from .renderer import *
+from .color import *
+from .vector import *
+from .viewport import *

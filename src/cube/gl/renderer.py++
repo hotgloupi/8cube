@@ -124,7 +124,10 @@ BOOST_PYTHON_MODULE(renderer)
 {
 	namespace py = boost::python;
 
-	py::enum_<Mode>("RendererMode")
+	py::enum_<Mode>(
+			"RendererMode",
+			"Renderer mode affects default projection matrices"
+		)
 		.value("mode_2d", Mode::_2d)
 		.value("mode_3d", Mode::_3d)
 		.export_values()
