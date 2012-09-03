@@ -4,8 +4,8 @@ from .. import widget
 
 class Container(widget.Widget):
 
-    def __init__(self, tag, id_=None, class_=None):
-        super(Container, self).__init__(tag, id_=id_, class_=class_)
+    def __init__(self, tag, **kwargs):
+        super(Container, self).__init__(tag, **kwargs)
         self._childs = []
 
     @property
@@ -15,7 +15,7 @@ class Container(widget.Widget):
     @parent.setter
     def parent(self, parent):
         old_parent = super(Container, self).parent
-        if old_parent is not None:
+        if old_parent is not None and isinstance(old_parent, Container):
             old_parent._remove_child(self)
         super(Container, self).parent = parent
         if parent is not None:
@@ -28,14 +28,11 @@ class Container(widget.Widget):
         if idx is not None:
             self._childs.pop(idx)
 
-    def _add_child(self, child):
+    def add_child(self, child):
         assert(child is not None)
         assert(child not in self._childs)
         self._childs.append(child)
-
-    def add_child(self, child):
         child.parent = self
-        self._childs.append(child)
 
     def render(self, painter):
         for child in self._childs:

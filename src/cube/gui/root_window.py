@@ -9,11 +9,13 @@ class RootWindow(system.Window):
 
     def __init__(self, title, width, height):
         super(RootWindow, self).__init__(title, width, height)
-        self._root_widget = Viewport(0, 0, width, height)
+        self._root_widget = Viewport(0, 0, width, height,
+                                     renderer=self.renderer)
         self._hdlrs = {
             'expose': self.inputs.on_expose.connect(self._on_expose),
             'resize': self.inputs.on_resize.connect(self._on_resize),
         }
+        self._new_viewport_size = None
 
     @property
     def root_widget(self):
@@ -23,17 +25,28 @@ class RootWindow(system.Window):
     def root_widget(self, w):
         assert isinstance(w, Widget)
         self._root_widget = widget
+        self._root_widget.parent = self
 
     def render(self, painter):
-        self.renderer.swap_buffers()
+        self.renderer.clear(
+            gl.renderer.BufferBit.color |
+            gl.renderer.BufferBit.depth
+        )
+        if self._new_viewport_size is not None:
+            w, h = self._new_viewport_size
+            print("Updating viewport size")
+            self.renderer.viewport(0, 0, w, h);
+            self._new_viewport_size = None
         if self._root_widget is not None:
             self._root_widget.render(painter)
+        self.renderer.swap_buffers()
 
     def _on_expose(self, w, h):
         print("Expose from window", w, h)
-        self.renderer.viewport(0, 0, w, h);
+        self._new_viewport_size = (w, h)
 
     def _on_resize(self, w, h):
         print("resize from window", w, h)
+        self._new_viewport_size = (w, h)
 
 

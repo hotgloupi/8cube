@@ -26,6 +26,7 @@ namespace cube { namespace gl { namespace renderer {
 		virtual
 		void _unbind() = 0;
 
+		bool _bound() const { return __bound; }
 	private:
 		friend class Painter;
 		bool __bound;

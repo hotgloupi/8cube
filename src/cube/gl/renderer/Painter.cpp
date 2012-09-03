@@ -46,11 +46,13 @@ namespace cube { namespace gl { namespace renderer {
 			throw Exception{"Already bound drawable"};
 		drawable.__bind();
 		_bound_drawables.insert(&drawable);
+		drawable.update(MatrixKind::mvp, _current_state.mvp());
+		drawable.update(MatrixKind::projection, _current_state.projection());
 	}
 
 	void Painter::update(MatrixKind kind, matrix_type const& matrix)
 	{
-		ETC_LOG.debug("update matrix kind");
+		ETC_LOG.debug("update matrix", kind);
 		for (auto& drawable : _bound_drawables)
 		{
 			drawable->update(kind, matrix);
