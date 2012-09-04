@@ -35,7 +35,6 @@ namespace cube { namespace system { namespace window {
 			, _screen{nullptr}
 			, _flags{SDL_RESIZABLE}
 		{
-			ETC_TRACE.debug("Window::Impl(", title, width, height, ")");
 			::SDL_WM_SetCaption(title.c_str(), 0);
 
 			//SDL_EnableKeyRepeat(130, 35);
@@ -92,7 +91,6 @@ namespace cube { namespace system { namespace window {
 
 	Window::~Window()
 	{
-		std::cout << "~Window(" << _title << ")\n";
 		if (_impl->renderer)
 			_impl->renderer->shutdown();
 		::SDL_Quit();
@@ -128,6 +126,27 @@ namespace cube { namespace system { namespace window {
 			case SDL_QUIT:
 				_impl->inputs.on_quit()();
 				break;
+			case SDL_KEYDOWN:
+				printf("KEYYYY\n");
+				if (e.key.keysym.sym == SDLK_ESCAPE)
+				{
+					_impl->inputs.on_quit()();
+					break;
+				}
+				inputs::KeyMod mod = static_cast<inputs::KeyMod>(
+					static_cast<int>(e.key.keysym.mod)
+				);
+				char ch;
+				if ((e.key.keysym.unicode & 0xFF80) == 0)
+				{
+					ch = e.key.keysym.unicode & 0x7F;
+					if (ch != 0)
+						_impl->inputs.on_keydown()(mod, ch);
+				}
+				else
+					_impl->inputs.on_keydown()(mod, e.key.keysym.unicode);
+				printf("Key Sent!\n");
+				break;
 			}
 			if (++count >= max)
 				break;
@@ -159,5 +178,23 @@ namespace cube { namespace system { namespace window {
 	{
 		return _impl->inputs;
 	}
+
+	// Check that SDL implem won't change
+	static_assert((int) inputs::KeyMod::none    == KMOD_NONE, "inputs::KeyMod::none    == KMOD_NONE");
+	static_assert((int) inputs::KeyMod::lshift  == KMOD_LSHIFT, "inputs::KeyMod::lshift  == KMOD_LSHIFT");
+	static_assert((int) inputs::KeyMod::rshift  == KMOD_RSHIFT, "inputs::KeyMod::rshift  == KMOD_RSHIFT");
+	static_assert((int) inputs::KeyMod::lctrl   == KMOD_LCTRL, "inputs::KeyMod::lctrl   == KMOD_LCTRL");
+	static_assert((int) inputs::KeyMod::rctrl   == KMOD_RCTRL, "inputs::KeyMod::rctrl   == KMOD_RCTRL");
+	static_assert((int) inputs::KeyMod::lalt    == KMOD_LALT, "inputs::KeyMod::lalt    == KMOD_LALT");
+	static_assert((int) inputs::KeyMod::ralt    == KMOD_RALT, "inputs::KeyMod::ralt    == KMOD_RALT");
+	static_assert((int) inputs::KeyMod::lmeta   == KMOD_LMETA, "inputs::KeyMod::lmeta   == KMOD_LMETA");
+	static_assert((int) inputs::KeyMod::rmeta   == KMOD_RMETA, "inputs::KeyMod::rmeta   == KMOD_RMETA");
+	static_assert((int) inputs::KeyMod::num     == KMOD_NUM, "inputs::KeyMod::num     == KMOD_NUM");
+	static_assert((int) inputs::KeyMod::caps    == KMOD_CAPS, "inputs::KeyMod::caps    == KMOD_CAPS");
+	static_assert((int) inputs::KeyMod::mode    == KMOD_MODE, "inputs::KeyMod::mode    == KMOD_MODE");
+	static_assert((int) inputs::KeyMod::ctrl    == KMOD_CTRL, "inputs::KeyMod::ctrl    == KMOD_CTRL");
+	static_assert((int) inputs::KeyMod::shift   == KMOD_SHIFT, "inputs::KeyMod::shift   == KMOD_SHIFT");
+	static_assert((int) inputs::KeyMod::alt     == KMOD_ALT, "inputs::KeyMod::alt     == KMOD_ALT");
+	static_assert((int) inputs::KeyMod::meta    == KMOD_META, "inputs::KeyMod::meta    == KMOD_META");
 
 }}} // !cube::system::window

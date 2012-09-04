@@ -3,6 +3,8 @@
 
 #include "inputs.hpp"
 
+#include <sstream>
+
 using namespace cube::system::inputs;
 
 namespace {
@@ -27,12 +29,42 @@ namespace {
 
 	template<typename T>
 		bool WrapSignal<T>::exported = false;
+
+	std::string keymod_str(KeyMod const mod)
+	{
+		std::stringstream ss;
+		ss << mod;
+		return ss.str();
+	}
 }
 
 
 BOOST_PYTHON_MODULE(inputs)
 {
 	namespace py = boost::python;
+
+	{
+		py::scope KeyMod_scope = py::enum_<KeyMod>("KeyMod", "Modifiers bitmask")
+			.value("none", KeyMod::none)
+			.value("lshift", KeyMod::lshift)
+			.value("rshift", KeyMod::rshift)
+			.value("lctrl", KeyMod::lctrl)
+			.value("rctrl", KeyMod::rctrl)
+			.value("lalt", KeyMod::lalt)
+			.value("ralt", KeyMod::ralt)
+			.value("lmeta", KeyMod::lmeta)
+			.value("rmeta", KeyMod::rmeta)
+			.value("num", KeyMod::num)
+			.value("caps", KeyMod::caps)
+			.value("mode", KeyMod::mode)
+			.value("ctrl", KeyMod::ctrl)
+			.value("shift", KeyMod::shift)
+			.value("alt", KeyMod::alt)
+			.value("meta", KeyMod::meta)
+		;
+
+		py::def("__str__", &keymod_str);
+	}
 
 	py::class_<boost::signals::connection>(
 			"Connection",
@@ -88,6 +120,7 @@ BOOST_PYTHON_MODULE(inputs)
 	DEF_CONNECT(cls, resize);
 	DEF_CONNECT(cls, idle);
 	DEF_CONNECT(cls, quit);
+	DEF_CONNECT(cls, keydown);
 
 # undef DEF_CONNECT
 

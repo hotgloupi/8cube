@@ -9,12 +9,15 @@ class RootWindow(system.Window):
 
     def __init__(self, title, width, height):
         super(RootWindow, self).__init__(title, width, height)
-        self._root_widget = Viewport(0, 0, width, height,
-                                     renderer=self.renderer)
-        self._hdlrs = {
-            'expose': self.inputs.on_expose.connect(self._on_expose),
-            'resize': self.inputs.on_resize.connect(self._on_resize),
-        }
+        self._root_widget = Viewport(
+            0, 0, width, height,
+            renderer=self.renderer
+        )
+        self._hdlrs = {}
+        for e in ['expose', 'resize', 'keydown']:
+            self._hdlrs[e] = getattr(self.inputs, 'on_' + e).connect(
+                getattr(self, '_on_' + e)
+            )
         self._new_viewport_size = None
 
     @property
@@ -49,4 +52,6 @@ class RootWindow(system.Window):
         print("resize from window", w, h)
         self._new_viewport_size = (w, h)
 
+    def _on_keydown(self, mod, k):
+        print("Key down:", mod, k, chr(k))
 
