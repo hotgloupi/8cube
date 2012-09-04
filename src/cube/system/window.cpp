@@ -35,7 +35,7 @@ namespace cube { namespace system { namespace window {
 			, _screen{nullptr}
 			, _flags{SDL_RESIZABLE}
 		{
-			ETC_LOG.debug("Window::Impl(", title, width, height, ")");
+			ETC_TRACE.debug("Window::Impl(", title, width, height, ")");
 			::SDL_WM_SetCaption(title.c_str(), 0);
 
 			//SDL_EnableKeyRepeat(130, 35);
@@ -107,7 +107,7 @@ namespace cube { namespace system { namespace window {
 
 	uint32_t Window::poll(uint32_t max)
 	{
-		ETC_LOG.debug("Polling events");
+		ETC_TRACE.debug("Polling events");
 		uint32_t count = 0;
 		bool has_expose = false;
 		bool has_resize = false;
@@ -135,13 +135,13 @@ namespace cube { namespace system { namespace window {
 
 		if (has_resize)
 		{
-			ETC_LOG.debug("Got resize event", _width, _height);
+			ETC_TRACE.debug("Got resize event", _width, _height);
 			_impl->inputs.on_resize()(_width, _height);
 			_impl->resize(_width, _height);
 		}
 		if (has_expose)
 		{
-			ETC_LOG.debug("Got expose event");
+			ETC_TRACE.debug("Got expose event");
 			_impl->inputs.on_expose()(_width, _height);
 		}
 

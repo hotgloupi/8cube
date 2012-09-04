@@ -43,7 +43,7 @@ namespace cube { namespace gl { namespace opengl {
 // values... is defined in the proto
 # define _CUBE_GL_OPENGL_LOG(gl_name)                                         \
 		ETC_LOG_COMPONENT("cube.gl.opengl._opengl");                          \
-		ETC_LOG.debug(#gl_name, '(', values..., ')');                         \
+		ETC_TRACE.debug(#gl_name, '(', values..., ')');                         \
 	/**/
 
 # define _CUBE_GL_OPENGL_CALL(name, gl_name)                                  \

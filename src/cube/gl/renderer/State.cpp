@@ -12,35 +12,25 @@ namespace cube { namespace gl { namespace renderer {
 
 	State::State(Mode const mode)
 		: mode(mode)
-		, _matrices{{}, {}, {},}
-		, _mvp{}
+		, _matrices{{}, {}, {}, {}}
 		, _painter(nullptr)
-	{ETC_LOG.debug("New state ", mode);}
+	{ETC_TRACE.debug("New state ", mode);}
 
 	State::State(State&& other)
 		: mode(other.mode)
 		, _matrices(std::move(other._matrices))
-		, _mvp(std::move(other._mvp))
 		, _painter(other._painter)
 	{
 		other._painter = nullptr;
 	}
-
-	//State::State(State const& other)
-	//	: mode(other.mode)
-	//	, _matrices(other._matrices)
-	//	, _mvp(other._mvp)
-	//	, _painter(other._painter)
-	//{}
 
 	State& State::operator =(State&& other)
 	{
 		if (this != &other)
 		{
 			assert(mode == other.mode);
-			for (size_t i = 0; i < (unsigned int) MatrixKind::_max_value; ++i)
+			for (size_t i = 0; i < (size_t) MatrixKind::_max_value; ++i)
 				_matrices[i] = std::move(other._matrices[i]);
-			_mvp = std::move(other._mvp);
 			_painter = other._painter;
 			other._painter = nullptr;
 		}
@@ -86,13 +76,13 @@ namespace cube { namespace gl { namespace renderer {
 				+ "'."
 			};
 		}
-		return _matrices[(unsigned int) kind];
+		return _matrices[(size_t) kind];
 	}
 
 	void
 	State::matrix(MatrixKind kind, matrix_type const& other)
 	{
-		ETC_LOG.debug("Set matrix");
+		ETC_TRACE.debug("Set matrix", kind, "to", other);
 		switch (kind)
 		{
 		case MatrixKind::model:
@@ -104,23 +94,26 @@ namespace cube { namespace gl { namespace renderer {
 		default:
 			throw Exception{
 				"Unknown MatrixKind '" +
-				etc::to_string((int) kind)
+				etc::to_string((int)kind)
 				+ "'."
 			};
 		}
-		_matrices[(unsigned int) kind] = other;
-		matrix_type& mvp = _matrices[(unsigned int) MatrixKind::mvp];
+		_matrices[(size_t) kind] = other;
+		matrix_type& mvp = _matrices[(size_t) MatrixKind::mvp];
 
 		mvp = _matrices[0];
-		for (size_t i = 1; i <= (unsigned int) MatrixKind::projection; ++i)
+		for (size_t i = 1; i <= (size_t) MatrixKind::projection; ++i)
 			mvp *= _matrices[i];
+		ETC_LOG.debug("New mvp is", mvp);
+		ETC_LOG.debug(" ==", _matrices[(size_t) MatrixKind::mvp]);
+		ETC_LOG.debug(" ==", this->mvp());
 		if (_painter != nullptr)
 		{
 			_painter->update(kind, other);
 			_painter->update(MatrixKind::mvp, mvp);
 		}
 		else
-			ETC_LOG.warn("A state without painter is updated");
+			ETC_TRACE.warn("A state without painter is updated");
 	}
 
 }}} // !cube::gl::renderer

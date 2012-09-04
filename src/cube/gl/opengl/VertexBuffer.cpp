@@ -18,7 +18,7 @@ namespace cube { namespace gl { namespace opengl {
 	template<bool is_indices>
 	_GLVertexBuffer<is_indices>::~_GLVertexBuffer()
 	{
-		ETC_LOG.debug("Delete VertexBuffer", this);
+		ETC_TRACE.debug("Delete VertexBuffer", this);
 		delete _vbo;
 		_vbo = nullptr;
 	}
@@ -26,7 +26,7 @@ namespace cube { namespace gl { namespace opengl {
 	template<bool is_indices>
 	void _GLVertexBuffer<is_indices>::_finalize()
 	{
-		ETC_LOG.debug("Finalize the vertex buffer");
+		ETC_TRACE.debug("Finalize the vertex buffer");
 		if (_attributes.size() == 0)
 			throw Exception("Refreshing an empty VBO.");
 
@@ -49,7 +49,7 @@ namespace cube { namespace gl { namespace opengl {
 	template<bool is_indices>
 	void _GLVertexBuffer<is_indices>::_bind()
 	{
-		ETC_LOG.debug("bind vertex buffer");
+		ETC_TRACE.debug("bind vertex buffer");
 		if (_vbo == nullptr)
 			throw Exception("Cannot bind a non finalized VertexBuffer");
 		_vbo->bind();
@@ -58,7 +58,7 @@ namespace cube { namespace gl { namespace opengl {
 	template<bool is_indices>
 	void _GLVertexBuffer<is_indices>::_unbind()
 	{
-		ETC_LOG.debug("Unbind vertex buffer");
+		ETC_TRACE.debug("Unbind vertex buffer");
 		if (_vbo == nullptr)
 			throw Exception("Cannot unbind a non finalized VertexBuffer");
 		this->_vbo->unbind();

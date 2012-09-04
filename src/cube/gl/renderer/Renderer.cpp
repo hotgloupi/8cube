@@ -40,7 +40,8 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	Renderer::update_projection_matrix()
 	{
-		ETC_LOG.debug("Update projection matrix.");
+		ETC_TRACE.debug("Update projection matrix with for ", _viewport,
+				"in mode", this->current_state().mode);
 		switch (this->current_state().mode)
 		{
 		case Mode::none:
@@ -50,6 +51,8 @@ namespace cube { namespace gl { namespace renderer {
 				_viewport.x, _viewport.w + _viewport.x,
 				_viewport.y + _viewport.h, _viewport.y
 			));
+			ETC_LOG.debug("New mvp matrix:",
+			              this->current_state().mvp());
 			break;
 		case Mode::_3d:
 			throw Exception{"Not implemented."};
@@ -61,7 +64,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	Painter Renderer::begin(State&& state)
 	{
-		ETC_LOG.debug("Begining new state in mode", state.mode);
+		ETC_TRACE.debug("Begining new state in mode", state.mode);
 		switch (state.mode)
 		{
 		case Mode::none:
@@ -80,20 +83,20 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Renderer::viewport(cube::gl::viewport::Viewport const& vp)
 	{
-		ETC_LOG.debug("Update viewport", vp);
+		ETC_TRACE.debug("Update viewport", vp);
 		_viewport = vp;
 		this->update_projection_matrix();
 	}
 
 	void Renderer::_push_state(State&& state)
 	{
-		ETC_LOG.debug("Pushing new state");
+		ETC_TRACE.debug("Pushing new state");
 		_states.push_back(std::move(state));
 	}
 
 	void Renderer::_pop_state()
 	{
-		ETC_LOG.debug("pop state");
+		ETC_TRACE.debug("pop state");
 		_states.pop_back();
 	}
 
@@ -126,7 +129,7 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	Painter& PainterWithProxy::__enter__()
 	{
 		assert(_painter == nullptr);
-		ETC_LOG.debug("Creating painter");
+		ETC_TRACE.debug("Creating painter");
 		_painter = new Painter(_renderer.begin(_mode));
 		return *_painter;
 	}
@@ -136,7 +139,7 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 		assert(_painter != nullptr);
 		delete _painter;
 		_painter = nullptr;
-		ETC_LOG.debug("Painter has been deleted");
+		ETC_TRACE.debug("Painter has been deleted");
 	}
 
 	WrapRenderer::WrapRenderer()

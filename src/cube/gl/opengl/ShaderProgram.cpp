@@ -32,7 +32,7 @@ namespace cube { namespace gl { namespace opengl {
 
 	void ShaderProgram::_finalize()
 	{
-		ETC_LOG.debug("Finalize the program");
+		ETC_TRACE.debug("Finalize the program");
 		gl::LinkProgram(_id);
 		GLint success = 0;
 		glGetProgramiv(_id, GL_LINK_STATUS, &success);
@@ -87,7 +87,7 @@ namespace cube { namespace gl { namespace opengl {
 				, _location(0)
 				, _name(name)
 			{
-				ETC_LOG.debug("Retreive shader parameter", name);
+				ETC_TRACE.debug("Retreive shader parameter", name);
 				BindGuard guard(_program);
 				_location = gl::GetUniformLocation(id, name.c_str());
 				if (_location == -1)
@@ -101,7 +101,7 @@ namespace cube { namespace gl { namespace opengl {
 			ShaderProgram::Parameter&
 			operator =(matrix_type const& value)
 			{
-				ETC_LOG.debug("Set shader parameter", _name, " to a matrix");
+				ETC_TRACE.debug("Set shader parameter", _name, "to", value);
 				BindGuard guard(_program);
 				gl::UniformMatrix4fv(_location, 1, GL_FALSE,
 				                     glm::value_ptr(value));

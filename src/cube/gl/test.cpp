@@ -136,7 +136,7 @@ namespace cube { namespace gl { namespace test {
 
 	void test_all()
 	{
-		ETC_LOG.debug("Starting Graphic Library tests");
+		ETC_TRACE.debug("Starting Graphic Library tests");
 
 		cube::system::window::Window window{"test window", 640, 480};
 		window.inputs().on_expose().connect(OnExpose{window.renderer()});

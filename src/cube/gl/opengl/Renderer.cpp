@@ -59,7 +59,7 @@ namespace cube { namespace gl { namespace opengl {
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
-		ETC_LOG.debug("GLRenderer::initialize(", vp, ")");
+		ETC_TRACE.debug("GLRenderer::initialize(", vp, ")");
 		::glewExperimental = GL_TRUE;
 		auto error = ::glewInit();
 		if (error != GLEW_OK)
@@ -98,7 +98,7 @@ namespace cube { namespace gl { namespace opengl {
 
 	renderer::Painter GLRenderer::begin(Mode mode)
 	{
-		ETC_LOG.debug("Begin mode", mode);
+		ETC_TRACE.debug("Begin mode", mode);
 		State state{mode};
 
 		switch (mode)

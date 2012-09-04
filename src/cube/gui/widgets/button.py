@@ -54,16 +54,16 @@ class Button(widget.Widget):
         self.__sp.push_shader(vs)
         del vs
         self.__sp.finalize()
-        with renderer.begin(gl.renderer.mode_2d) as painter:
-            painter.bind(self.__sp)
-            self.__sp.parameter("cube_ModelViewProjectionMatrix")
-            renderer.viewport(0,0,640,480)
+        #with renderer.begin(gl.renderer.mode_2d) as painter:
+        #    painter.bind(self.__sp)
+        self.__sp.parameter("cube_ModelViewProjectionMatrix")
+        #    renderer.viewport(0,0,640,480)
 
     def render(self, painter):
         print("#" * 80, "BEGIN")
         painter.bind(self.__sp)
+        #self.renderer.viewport(0,0,640,480)
         painter.bind(self.__vb)
-        self.renderer.viewport(0,0,640,480)
         painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
         print("#" * 80, "END")
         print("Render button", self.renderer)

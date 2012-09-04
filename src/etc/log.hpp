@@ -11,13 +11,17 @@
 
 
 # define ETC_LOG                                                              \
-	auto BOOST_PP_CAT(log, __LINE__) = ::etc::log::Log{                       \
+	::etc::log::Log{                                                          \
 		::etc::log::Level::info,                                              \
 		__FILE__,                                                             \
 		__LINE__,                                                             \
 		_ETC_LOG_FUNCTION,                                                    \
 		_etc_log_component_name,                                              \
 	}                                                                         \
+/**/
+
+# define ETC_TRACE                                                            \
+	auto BOOST_PP_CAT(log, __LINE__) = ETC_LOG                                \
 /**/
 
 namespace etc { namespace log {

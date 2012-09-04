@@ -6,11 +6,11 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	ETC_LOG_COMPONENT("cube.gl.renderer");
+	ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgram");
 
 	void ShaderProgram::push_shader(std::unique_ptr<Shader>&& shader)
 	{
-		ETC_LOG.debug("Attach shader", shader.get());
+		ETC_TRACE.debug("Attach shader", shader.get());
 		if (_finalized)
 			throw Exception{"Cannot modify a finalized shader"};
 		if (!shader)
@@ -24,7 +24,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void ShaderProgram::finalize(bool clear /* = true */)
 	{
-		ETC_LOG.debug("Finalize the program.");
+		ETC_TRACE.debug("Finalize the program.");
 		if (_shaders.size() == 0)
 			throw Exception{"Cannot finalize an empty shader program."};
 		if (_finalized)
@@ -55,7 +55,7 @@ namespace cube { namespace gl { namespace renderer {
 		auto it = _parameters.find(name);
 		if (it != _parameters.end())
 		{
-			ETC_LOG.debug("Retreived parameter", name, "in cache !");
+			ETC_TRACE.debug("Retreived parameter", name, "in cache !");
 			assert(it->second != nullptr);
 			return *(it->second);
 		}
@@ -63,7 +63,7 @@ namespace cube { namespace gl { namespace renderer {
 		bool temp_bind = !this->_bound();
 		if (temp_bind)
 			this->_bind();
-		ETC_LOG.debug("Fetching parameter", name, "from the program");
+		ETC_TRACE.debug("Fetching parameter", name, "from the program");
 		auto param = this->_fetch_parameter(name);
 		if (temp_bind)
 			this->_unbind();
@@ -88,7 +88,7 @@ namespace cube { namespace gl { namespace renderer {
 	ShaderProgram::update(MatrixKind kind,
 	                      matrix_type const& matrix)
 	{
-		ETC_LOG.debug("Update matrix", kind);
+		ETC_TRACE.debug("Update matrix", kind);
 		static std::string const map[] = {
 			"cube_ModelMatrix",
 			"cube_ViewMatrix",

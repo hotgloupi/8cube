@@ -63,7 +63,7 @@ namespace cube { namespace gl { namespace opengl {
 
 		static void vertex_pointer(SubVBO const& self)
 		{
-			ETC_LOG.debug("Set the vertex pointer",
+			ETC_TRACE.debug("Set the vertex pointer",
 				self.attr->arity,
 				self.gl_type, (int) self.attr->kind,
 				self.stride,
@@ -83,7 +83,7 @@ namespace cube { namespace gl { namespace opengl {
 
 		static void color_pointer(SubVBO const& self)
 		{
-			ETC_LOG.debug("Set the color pointer",
+			ETC_TRACE.debug("Set the color pointer",
 				self.attr->arity,
 				self.gl_type, (int) self.attr->kind,
 				self.stride,
@@ -143,7 +143,7 @@ namespace cube { namespace gl { namespace opengl {
 			, _current_stride{0}
 			, _sub_vbos{}
 		{
-			ETC_LOG.debug("New VBO");
+			ETC_TRACE.debug("New VBO");
 			gl::GenBuffers(1, &_id);
 			this->bind(false);
 			gl::BufferData(
@@ -173,7 +173,7 @@ namespace cube { namespace gl { namespace opengl {
 		void
 		sub_vbo(VertexBuffer::Attribute const& attr, size_t offset)
 		{
-			ETC_LOG.debug("Set a sub VBO");
+			ETC_TRACE.debug("Set a sub VBO");
 			assert(offset + attr.size <= _total_size);
 			if (is_indices && attr.kind != ContentKind::index)
 				throw Exception(
@@ -204,7 +204,7 @@ namespace cube { namespace gl { namespace opengl {
 
 		void bind(bool all = true)
 		{
-			ETC_LOG.debug("Binding the VBO");
+			ETC_TRACE.debug("Binding the VBO");
 			gl::BindBuffer(_gl_array_type, _id);
 
 			if (!all)
@@ -216,7 +216,7 @@ namespace cube { namespace gl { namespace opengl {
 
 		void unbind(bool all = true)
 		{
-			ETC_LOG.debug("Unbinding the VBO");
+			ETC_TRACE.debug("Unbinding the VBO");
 			gl::BindBuffer(_gl_array_type, 0);
 
 			if (!all)

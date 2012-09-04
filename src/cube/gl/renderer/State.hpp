@@ -13,7 +13,6 @@ namespace cube { namespace gl { namespace renderer {
 		Mode const mode;
 	protected:
 		matrix_type         _matrices[(size_t)MatrixKind::_max_value];
-		matrix_type         _mvp;
 
 	public:
 		State(Mode const mode);
@@ -29,7 +28,8 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		matrix_type const& matrix(MatrixKind kind) const;
 		void matrix(MatrixKind kind, matrix_type const& other);
-		inline matrix_type const& mvp() { return _mvp; }
+		inline matrix_type const& mvp() const
+		{ return _matrices[(size_t) MatrixKind::mvp]; }
 
 # define _CUBE_GL_RENDERER_RENDERER_STATE_MAT(name)                           \
 		inline                                                                \
