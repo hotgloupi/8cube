@@ -89,8 +89,8 @@ foreach(_CURRENT_VERSION 3.3 3.2 3.1 3.0)
             )
 			if (PYTHON3_USE_STATIC_LIBS)
 				find_library(PYTHON3_LIBRARY
-					libpython${_CURRENT_VERSION}${_COMPILATION_FLAGS}.a
 					libpython${_CURRENT_VERSION}${_COMPILATION_FLAGS}-pic.a
+					libpython${_CURRENT_VERSION}${_COMPILATION_FLAGS}.a
 					PATH_SUFFIXES
 						python${_CURRENT_VERSION}/config
 						python${_CURRENT_VERSION}/config-${CURRENT_VERSION}

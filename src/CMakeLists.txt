@@ -19,7 +19,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-Wall
 		-Wextra
 		-Winvalid-pch
-		#		-fPIC
+		-fPIC
 	)
 	list(APPEND CXX_FLAGS_DEBUG
 		-g3
@@ -57,7 +57,7 @@ find_package(Boost
 	REQUIRED
 )
 
-set(PYTHON3_USE_STATIC_LIBS ON)
+set(PYTHON3_USE_STATIC_LIBS OFF)
 find_package(Python3Libs REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
