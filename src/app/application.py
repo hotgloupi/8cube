@@ -8,7 +8,6 @@ class Application(cube.gui.Application):
         super(Application, self).__init__(
             name="Infinit-cube",
         )
-
         self.__prepare()
 
     def __prepare(self):

@@ -170,6 +170,7 @@ namespace cube { namespace gl { namespace renderer {
 			ShaderProgram* new_shader_program();
 			Shader* new_vertex_shader();
 			Shader* new_fragment_shader();
+			Texture* new_texture(std::string const& path);
 			void clear(int);
 		};
 

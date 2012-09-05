@@ -6,6 +6,7 @@
 #include "VertexBuffer.hpp"
 #include "Shader.hpp"
 #include "ShaderProgram.hpp"
+#include "Texture.hpp"
 
 #include <etc/log.hpp>
 
@@ -202,6 +203,11 @@ namespace cube { namespace gl { namespace renderer { namespace detail {
 	Shader* WrapRenderer::new_fragment_shader()
 	{
 		return _renderer->new_fragment_shader().release();
+	}
+
+	Texture* WrapRenderer::new_texture(std::string const& path)
+	{
+		return _renderer->new_texture(path).release();
 	}
 
 	void WrapRenderer::clear(int flags)

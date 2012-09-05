@@ -254,6 +254,11 @@ BOOST_PYTHON_MODULE(renderer)
 			py::return_value_policy<py::manage_new_object>()
 		)
 		.def(
+			"new_texture",
+			&detail::WrapRenderer::new_texture,
+			py::return_value_policy<py::manage_new_object>()
+		)
+		.def(
 			"clear",
 			&detail::WrapRenderer::clear
 		)
