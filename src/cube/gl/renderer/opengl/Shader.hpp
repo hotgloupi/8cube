@@ -6,7 +6,7 @@
 
 # include "_opengl.hpp"
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	class Shader
 		: public renderer::Shader
@@ -29,6 +29,6 @@ namespace cube { namespace gl { namespace opengl {
 		void _finalize(std::vector<std::string> const& sources);
 	};
 
-}}}
+}}}}
 
 #endif

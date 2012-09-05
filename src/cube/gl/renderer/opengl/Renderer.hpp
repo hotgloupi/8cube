@@ -3,7 +3,7 @@
 
 # include <cube/gl/renderer.hpp>
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	class GLRenderer
 		: public renderer::Renderer
@@ -30,6 +30,6 @@ namespace cube { namespace gl { namespace opengl {
 		virtual void viewport(cube::gl::viewport::Viewport const& vp);
 	};
 
-}}} // !cube::gl::opengl
+}}}} // !cube::gl::renderer::opengl
 
 #endif

@@ -8,7 +8,7 @@
 
 #include <unistd.h>
 
-namespace cube { namespace gl { namespace opengl { namespace test {
+namespace cube { namespace gl { namespace renderer { namespace opengl { namespace test {
 
 	ETC_LOG_COMPONENT("cube.gl.opengl.test");
 
@@ -94,5 +94,5 @@ namespace cube { namespace gl { namespace opengl { namespace test {
       gl::DeleteBuffers(1, &index_buffer);
     }
 
-}}}}
+}}}}}
 

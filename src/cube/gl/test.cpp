@@ -4,13 +4,13 @@
 #include <cube/system/window.hpp>
 #include <cube/system/inputs.hpp>
 
-#include "opengl/test.hpp"
-#include "opengl/_opengl.hpp"
-
 #include "renderer.hpp"
 #include "renderer/VertexBuffer.hpp"
 #include "renderer/Shader.hpp"
 #include "renderer/ShaderProgram.hpp"
+#include "renderer/opengl/test.hpp"
+#include "renderer/opengl/_opengl.hpp"
+
 #include "vector.hpp"
 #include "color.hpp"
 

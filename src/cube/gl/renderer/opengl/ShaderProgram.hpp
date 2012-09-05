@@ -6,7 +6,7 @@
 
 # include "_opengl.hpp"
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	class Shader;
 
@@ -45,6 +45,6 @@ namespace cube { namespace gl { namespace opengl {
 
 	};
 
-}}}
+}}}}
 
 #endif

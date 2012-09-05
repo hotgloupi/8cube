@@ -5,7 +5,7 @@
 
 #include <etc/log.hpp>
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.opengl.VertexBuffer");
 
@@ -193,4 +193,4 @@ namespace cube { namespace gl { namespace opengl {
 	//	gl::ClientActiveTextureARB(GL_TEXTURE0_ARB);
 	//}
 
-}}} // !cube::gl::opengl
+}}}} // !cube::gl::opengl

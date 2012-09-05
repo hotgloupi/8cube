@@ -1,6 +1,6 @@
 #include "_VBO.hpp"
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	gl::SubVBO::pointer_method_t
 		gl::SubVBO::_pointer_methods[(size_t)ContentKind::_max_value] = {
@@ -18,4 +18,4 @@ namespace cube { namespace gl { namespace opengl {
 	template<>
 	const GLint  gl::VBO<false>::_gl_array_type = GL_ARRAY_BUFFER;
 
-}}} // !cube::gl::opengl
+}}}} // !cube::gl::opengl

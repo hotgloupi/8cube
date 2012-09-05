@@ -6,7 +6,7 @@
 # include "Exception.hpp"
 # include "_opengl.hpp"
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	///////////////////////////////////////////////////////////////////////////
 	// VBO implem
@@ -227,7 +227,7 @@ namespace cube { namespace gl { namespace opengl {
 		}
 	};
 
-}}}
+}}}}
 
 #endif
 

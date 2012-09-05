@@ -13,7 +13,7 @@
 # include <stdexcept>
 # include <string>
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.opengl.Renderer");
 
@@ -173,4 +173,4 @@ namespace cube { namespace gl { namespace opengl {
 		gl::Viewport(vp.x, vp.y, vp.w, vp.h);
 	}
 
-}}} // !cube::gl::renderers
+}}}} // !cube::gl::renderers

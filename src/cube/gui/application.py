@@ -25,7 +25,10 @@ class Application(cube.Application):
 
     def run(self):
         self._running = True
-        frame_time_target = 50 / 1000
+        fps_target = 30
+        frame_time_target = 1.0 / fps_target
+        frame_counter_start_time = time.time()
+        nb_frame = 0
         while self._running is True:
             start = time.time()
             self._window.poll()
@@ -35,6 +38,11 @@ class Application(cube.Application):
             frame_time = time.time() - start
             if frame_time < frame_time_target:
                 time.sleep(frame_time_target - frame_time)
+            nb_frame += 1
+            if time.time() - frame_counter_start_time  > 1:
+                print("FPS:", nb_frame / (time.time() - frame_counter_start_time))
+                frame_counter_start_time = time.time()
+                nb_frame = 0
 
     def render(self):
         with self._window.renderer.begin(cube.gl.renderer.mode_2d) as painter:

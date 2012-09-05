@@ -3,7 +3,7 @@
 
 #include <map>
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	GLenum gl::_draw_mode_map[(size_t)DrawMode::_max_value] = {
 		GL_POINTS,
@@ -79,4 +79,4 @@ namespace cube { namespace gl { namespace opengl {
 		};
     }
 
-}}} // !cube::gl::opengl
+}}}} // !cube::gl::opengl

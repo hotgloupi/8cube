@@ -3,11 +3,11 @@
 
 # include <stdexcept>
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	typedef std::runtime_error Exception;
 
-}}} // !cube::gl::exception
+}}}} // !cube::gl::exception
 
 #endif
 

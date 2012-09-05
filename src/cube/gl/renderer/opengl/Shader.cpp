@@ -3,7 +3,7 @@
 
 #include <etc/log.hpp>
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.opengl.Shader");
 
@@ -45,4 +45,4 @@ namespace cube { namespace gl { namespace opengl {
 		}
 	}
 
-}}}
+}}}}

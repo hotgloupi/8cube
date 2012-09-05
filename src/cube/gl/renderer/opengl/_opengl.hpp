@@ -24,7 +24,7 @@
 
 # undef _CUBE_GL_ENUM_HASHABLE
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	using namespace ::cube::gl::renderer;
 
@@ -185,6 +185,6 @@ namespace cube { namespace gl { namespace opengl {
     template<bool> struct VBO;
 	};
 
-}}} // !cube::gl::opengl
+}}}} // !cube::gl::opengl
 
 #endif

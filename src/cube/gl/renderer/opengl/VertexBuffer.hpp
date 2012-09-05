@@ -5,7 +5,7 @@
 
 # include "_opengl.hpp"
 
-namespace cube { namespace gl { namespace opengl {
+namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 
 	template<bool is_indices>
@@ -27,6 +27,6 @@ namespace cube { namespace gl { namespace opengl {
 	typedef _GLVertexBuffer<false> GLVertexBuffer;
 	typedef _GLVertexBuffer<true> GLIndexBuffer;
 
-}}} // !cube::gl::opengl
+}}}} // !cube::gl::opengl
 
 #endif
