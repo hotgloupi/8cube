@@ -25,12 +25,15 @@ foreach(src ${cube_python_cxx_srcs})
 
 
 	target_link_libraries(${module_name}
-		cube etc
+		cube
+		etc
 		${PYTHON3_LIBRARIES}
 		${Boost_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${GLEW_LIBRARIES}
 		${SDL_LIBRARY}
+		${SDLIMAGE_LIBRARY}
+		${FREETYPE_LIBRARIES}
 	)
 
 	file(MAKE_DIRECTORY

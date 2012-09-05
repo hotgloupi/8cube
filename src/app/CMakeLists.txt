@@ -2,8 +2,14 @@
 file(GLOB_RECURSE app_srcs "*.[ch]pp")
 add_executable(8cube ${app_srcs})
 target_link_libraries(8cube
+	etc
 	${PYTHON3_LIBRARIES}
 	${Boost_LIBRARIES}
+	pthread
+	z
+	ssl
+	expat
+	util
 )
 
 file(GLOB_RECURSE app_python_srcs "*.py")

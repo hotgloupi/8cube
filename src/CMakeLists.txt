@@ -19,7 +19,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-Wall
 		-Wextra
 		-Winvalid-pch
-		-fPIC
+		#		-fPIC
 	)
 	list(APPEND CXX_FLAGS_DEBUG
 		-g3
@@ -45,21 +45,25 @@ endforeach()
 #set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
 #set(CMAKE_MODULE_LINKER_FLAGS "-rdynamic")
 
-set(Boost_USE_STATIC_LIBS       OFF)
-set(Boost_USE_MULTITHREADED     ON)
+set(Boost_USE_STATIC_LIBS       ON)
+set(Boost_USE_MULTITHREADED     OFF)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost
 	COMPONENTS
+		system
 		filesystem
 		python3
 		signals
-		system
 	REQUIRED
 )
+
+set(PYTHON3_USE_STATIC_LIBS ON)
 find_package(Python3Libs REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(SDL REQUIRED)
+find_package(SDL_image REQUIRED)
+find_package(Freetype REQUIRED)
 
 include_directories(
 	${PYTHON3_INCLUDE_DIRS}
@@ -67,6 +71,8 @@ include_directories(
 	${OPENGL_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
 	${SDL_INCLUDE_DIR}
+	${SDLIMAGE_INCLUDE_DIR}
+	${FREETYPE_INCLUDE_DIRS}
 )
 
 add_subdirectory(etc)

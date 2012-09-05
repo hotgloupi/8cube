@@ -143,6 +143,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
 		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
 
+		_CUBE_GL_OPENGL_WRAP(GenTextures);
+		_CUBE_GL_OPENGL_WRAP(DeleteTextures);
+		_CUBE_GL_OPENGL_WRAP(BindTexture);
+		_CUBE_GL_OPENGL_WRAP(TexImage2D);
+		_CUBE_GL_OPENGL_WRAP(TexParameteri);
+
 # undef _CUBE_GL_OPENGL_WRAP
 # undef _CUBE_GL_OPENGL_WRAP_RET
 # undef _CUBE_GL_OPENGL_WRAP_ARB

@@ -28,6 +28,7 @@ include(CMakeFindFrameworks)
 cmake_find_frameworks(Python)
 message(STATUS "Python frameworks: ${Python_FRAMEWORKS}")
 
+unset(PYTHON3_RESET CACHE)
 if(NOT(DEFINED PYTHON3_RESET))
     # We ignore values found from find_framework()
     message(STATUS "Force python3 library search")
@@ -39,12 +40,12 @@ endif()
 foreach(_CURRENT_VERSION 3.3 3.2 3.1 3.0)
 
     if(_CURRENT_VERSION GREATER 3.1)
-        set(_32FLAGS "m" "u" "mu")
+        set(_32FLAGS "mu" "m" "u" "")
     else()
         set(_32FLAGS "")
     endif()
 
-    foreach(_COMPILATION_FLAGS "" ${_32FLAGS})
+    foreach(_COMPILATION_FLAGS ${_32FLAGS})
         string(REPLACE "." "" _CURRENT_VERSION_NO_DOTS ${_CURRENT_VERSION})
 
 
@@ -86,15 +87,25 @@ foreach(_CURRENT_VERSION 3.3 3.2 3.1 3.0)
                     python${_CURRENT_VERSION}${_COMPILATION_FLAGS}
                     python${_CURRENT_VERSION}
             )
-
-            find_library(PYTHON3_LIBRARY
-                NAMES
-                    python${_CURRENT_VERSION_NO_DOTS}${_COMPILATION_FLAGS}
-                    python${_CURRENT_VERSION}${_COMPILATION_FLAGS}
-                # This is where the static library is usually located
-                PATH_SUFFIXES
-                    python${_CURRENT_VERSION}/config
-            )
+			if (PYTHON3_USE_STATIC_LIBS)
+				find_library(PYTHON3_LIBRARY
+					libpython${_CURRENT_VERSION}${_COMPILATION_FLAGS}.a
+					libpython${_CURRENT_VERSION}${_COMPILATION_FLAGS}-pic.a
+					PATH_SUFFIXES
+						python${_CURRENT_VERSION}/config
+						python${_CURRENT_VERSION}/config-${CURRENT_VERSION}
+						python${_CURRENT_VERSION}/config-${CURRENT_VERSION}${_COMPILATION_FLAGS}
+				)
+			else()
+				find_library(PYTHON3_LIBRARY
+					NAMES
+						python${_CURRENT_VERSION_NO_DOTS}${_COMPILATION_FLAGS}
+						python${_CURRENT_VERSION}${_COMPILATION_FLAGS}
+						python${_CURRENT_VERSION}
+					PATH_SUFFIXES
+						python${_CURRENT_VERSION}/config
+				)
+			endif()
 
         endif()
     endforeach(_COMPILATION_FLAGS)
@@ -106,8 +117,10 @@ mark_as_advanced(
     PYTHON3_INCLUDE_DIR
 )
 
-if(NOT PYTHON3_LIBRARY_FOUND)
+if(NOT PYTHON3_LIBRARY)
     unset(PYTHON3_RESET CACHE)
+else()
+	message(STATUS "Found python3 library: ${PYTHON3_LIBRARY}")
 endif()
 
 # We use PYTHON3_INCLUDE_DIR, PYTHON3_LIBRARY and PYTHON3_DEBUG_LIBRARY for the

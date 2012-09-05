@@ -5,6 +5,7 @@
 # include "VertexBuffer.hpp"
 # include "Shader.hpp"
 # include "ShaderProgram.hpp"
+# include "Texture.hpp"
 
 # include "_opengl.hpp"
 
@@ -155,6 +156,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	GLRenderer::ShaderProgramPtr GLRenderer::new_shader_program()
 	{
 		return ShaderProgramPtr{new ShaderProgram};
+	}
+
+	GLRenderer::TexturePtr GLRenderer::new_texture(std::string const& path)
+	{
+		return TexturePtr{new Texture{path}};
 	}
 
 	void GLRenderer::clear(cube::gl::renderer::BufferBit flags)

@@ -73,13 +73,13 @@ static int load_libraries(fs::path lib_dir)
 #ifdef _WIN32
       ::LoadLibrary(p.string().c_str());
 #else
-      //auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
-      //if (!handle)
-      //  {
-      //    std::cerr << "Error while loading " << p.string() << ": " << dlerror() << std::endl;
-      //  }
-      //  if (auto res = dlsym(handle, "__caca0_free_bitmap"))
-      //    std::cout << "found: " << (void const*)res << std::endl;
+      auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
+      if (!handle)
+        {
+          std::cerr << "Error while loading " << p.string() << ": " << dlerror() << std::endl;
+        }
+        if (auto res = dlsym(handle, "__caca0_free_bitmap"))
+          std::cout << "found: " << (void const*)res << std::endl;
 #endif
     }
   }

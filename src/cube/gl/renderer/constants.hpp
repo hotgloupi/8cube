@@ -120,6 +120,7 @@ namespace cube { namespace gl { namespace renderer {
 		_max_value
 	};
 
+
 	template<ContentType type> struct ContentTypeSize;
 	template<> struct ContentTypeSize<ContentType::int8>
 		{ static size_t const value = sizeof(int8_t); };

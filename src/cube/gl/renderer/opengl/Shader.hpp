@@ -1,8 +1,8 @@
 #ifndef  CUBE_GL_OPENGL_SHADER_HPP
 # define CUBE_GL_OPENGL_SHADER_HPP
 
-# include <cube/gl/renderer/constants.hpp>
-# include <cube/gl/renderer/Shader.hpp>
+# include "../constants.hpp"
+# include "../Shader.hpp"
 
 # include "_opengl.hpp"
 

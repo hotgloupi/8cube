@@ -24,6 +24,7 @@ namespace cube { namespace gl { namespace renderer {
 		typedef std::unique_ptr<VertexBuffer>   VertexBufferPtr;
 		typedef std::unique_ptr<Shader>         ShaderPtr;
 		typedef std::unique_ptr<ShaderProgram>  ShaderProgramPtr;
+		typedef std::unique_ptr<Texture>        TexturePtr;
 
 	public:
 		/*********************************************************************
@@ -89,6 +90,7 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ShaderPtr new_vertex_shader() = 0;
 		virtual ShaderPtr new_fragment_shader() = 0;
 		virtual ShaderProgramPtr new_shader_program() = 0;
+		virtual TexturePtr new_texture(std::string const& path) = 0;
 		virtual void draw_elements(DrawMode mode,
 		                           unsigned int count,
 		                           ContentType type,

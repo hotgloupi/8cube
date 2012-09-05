@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_OPENGL_RENDERER_HPP
 # define CUBE_GL_OPENGL_RENDERER_HPP
 
-# include <cube/gl/renderer.hpp>
+# include "../Renderer.hpp"
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
@@ -22,6 +22,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		virtual ShaderPtr new_vertex_shader();
 		virtual ShaderPtr new_fragment_shader();
 		virtual ShaderProgramPtr new_shader_program();
+		virtual TexturePtr new_texture(std::string const& path);
 		virtual void draw_elements(cube::gl::renderer::DrawMode mode,
 		                           unsigned int count,
 		                           cube::gl::renderer::ContentType type,
