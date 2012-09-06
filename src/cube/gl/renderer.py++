@@ -13,74 +13,162 @@
 
 using namespace cube::gl::renderer;
 
-static void
-detail_PainterWithProxy___exit__(detail::PainterWithProxy& self,
-                                 PyObject*, PyObject*, PyObject*)
-{
-  self.__exit__();
-}
+namespace renderer = cube::gl::renderer;
 
-template<typename T>
-static void
-	_push_static_content(VertexBuffer& self,
-	                     ContentKind kind,
-	                     boost::python::list list,
-	                     size_t len)
+namespace {
+
+	struct Wrap
 	{
-		std::unique_ptr<T, void(*)(void*)> array{
-			static_cast<T*>(::malloc(len * sizeof (T))),
-			&std::free
-		};
-		for (size_t i = 0; i < len; ++i)
+		struct Renderer
 		{
-			boost::python::object elem = list[i];
-			array.get()[i] = boost::python::extract<T>(elem);
-		}
-		self.push_static_content(kind, std::move(array), len);
-	}
+			static
+			detail::PainterWithProxy
+			begin(renderer::Renderer& self,
+			      renderer::Mode mode)
+			{
+				return detail::PainterWithProxy(self, mode);
+			}
 
-static void
-	push_static_content(VertexBuffer& self,
-	                    ContentKind kind,
-	                    boost::python::list list)
-	{
-		size_t len = boost::python::len(list);
-		if (len == 0)
-			throw std::runtime_error("empty content");
+			static
+			void
+			clear(renderer::Renderer& self,
+			      int buffer_bit)
+			{
+				self.clear(
+					static_cast<cube::gl::renderer::BufferBit>(buffer_bit)
+				);
+			}
 
-		boost::python::object first = list[0];
+			static
+			void
+			viewport(renderer::Renderer& self,
+			         int x, int y, int w, int h)
+			{
+				self.viewport(
+					cube::gl::viewport::Viewport(x, y, w, h)
+				);
+			}
+		};
+
+		template<typename T>
+		struct UniquePtrConverter
+		{
+			static
+			PyObject* convert(std::unique_ptr<T> const& value)
+			{
+				return boost::python::incref(
+					boost::python::object(
+						std::auto_ptr<T>(
+							const_cast<std::unique_ptr<T>&>(value).release()
+						)
+					).ptr()
+				);
+			}
+		};
+
+		struct PainterWithProxy
+		{
+			static
+			void
+			__exit__(detail::PainterWithProxy& self, PyObject*, PyObject*, PyObject*)
+			{
+				self.__exit__();
+			}
+		};
+
+		struct VertexBuffer
+		{
+			template<typename T>
+			static
+			void
+			_push_static_content(renderer::VertexBuffer& self,
+			                     ContentKind kind,
+			                     boost::python::list list,
+			                     size_t len)
+			{
+				std::unique_ptr<T, void(*)(void*)> array{
+					static_cast<T*>(::malloc(len * sizeof (T))),
+					&std::free
+				};
+				for (size_t i = 0; i < len; ++i)
+				{
+					boost::python::object elem = list[i];
+					array.get()[i] = boost::python::extract<T>(elem);
+				}
+				self.push_static_content(kind, std::move(array), len);
+			}
+
+			static
+			void
+			push_static_content(renderer::VertexBuffer& self,
+			                    ContentKind kind,
+			                    boost::python::list list)
+			{
+				size_t len = boost::python::len(list);
+				if (len == 0)
+					throw std::runtime_error("empty content");
+
+				boost::python::object first = list[0];
 
 #define _CHECK(type) \
-		if (boost::python::extract<type>(first).check()) \
-			return _push_static_content<type>(self, kind, list, len)
+				if (boost::python::extract<type>(first).check()) \
+					return _push_static_content<type>(self, kind, list, len)
 
-		switch (kind)
-		{
-			case ContentKind::color:
-				_CHECK(cube::gl::color::Color3f);
-				_CHECK(cube::gl::color::Color4f);
-				break;
-			case ContentKind::index:
-				_CHECK(uint8_t);
-				_CHECK(uint16_t);
-				_CHECK(uint32_t);
-				break;
-			default:
-				_CHECK(cube::gl::vector::Vector2f);
-				_CHECK(cube::gl::vector::Vector3f);
+				switch (kind)
+				{
+					case ContentKind::color:
+						_CHECK(cube::gl::color::Color3f);
+						_CHECK(cube::gl::color::Color4f);
+						break;
+					case ContentKind::index:
+						_CHECK(uint8_t);
+						_CHECK(uint16_t);
+						_CHECK(uint32_t);
+						break;
+					default:
+						_CHECK(cube::gl::vector::Vector2f);
+						_CHECK(cube::gl::vector::Vector3f);
 
-		}
+				}
 #undef _CHECK
 
-		throw std::runtime_error(
-			"List content has to be a color or a vector, got '" +
-			std::string(
-				boost::python::extract<std::string>(
-					boost::python::str(first)
-				)
-			) + "'."
-		);
-	}
+				throw std::runtime_error(
+					"List content has to be a color or a vector, got '" +
+					std::string(
+						boost::python::extract<std::string>(
+							boost::python::str(first)
+						)
+					) + "'."
+				);
+			}
+		};
+
+
+		struct ShaderProgram
+		{
+			static
+			void push_shader(renderer::ShaderProgram& p,
+			                 std::auto_ptr<renderer::Shader>& s)
+			{
+				p.push_shader(std::unique_ptr<renderer::Shader>(s.release()));
+			}
+
+			static
+			void finalize(renderer::ShaderProgram& p)
+			{
+				p.finalize();
+			}
+
+			static
+			void finalize_clear(renderer::ShaderProgram& p, bool clear)
+			{
+				p.finalize(clear);
+			}
+		};
+	};
+
+} // !anonymous
+
 
 // py::raw_function compatible
 //static boost::python::object
@@ -101,25 +189,6 @@ static void
 //	return boost::python::object{};
 //}
 
-
-static
-void ShaderProgram_push_shader(ShaderProgram& p,
-                               std::auto_ptr<Shader>& s)
-{
-	p.push_shader(std::unique_ptr<Shader>{s.release()});
-}
-
-static
-void ShaderProgram_finalize(ShaderProgram& p)
-{
-	p.finalize();
-}
-
-static
-void ShaderProgram_finalize_clear(ShaderProgram& p, bool clear)
-{
-	p.finalize(clear);
-}
 
 BOOST_PYTHON_MODULE(renderer)
 {
@@ -198,69 +267,87 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"__exit__",
-			&detail_PainterWithProxy___exit__
+			&Wrap::PainterWithProxy::__exit__
 		)
 	;
 
+
 	// Export Renderer class
-	py::class_<detail::WrapRenderer>(
-			"Renderer"
+	py::class_<Renderer, boost::shared_ptr<Renderer>, boost::noncopyable>(
+			"Renderer", py::no_init
 		)
 		.def(
 			"description",
-			&detail::WrapRenderer::description
+			&Renderer::description,
+			py::return_internal_reference<>()
 		)
 		.def(
 			"swap_buffers",
-			&detail::WrapRenderer::swap_buffers
+			&Renderer::swap_buffers
 		)
 		.def(
 			"viewport",
-			&detail::WrapRenderer::viewport
+			&Wrap::Renderer::viewport
 		)
 		.def(
 			"begin",
-			&detail::WrapRenderer::begin
+			&Wrap::Renderer::begin,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"new_vertex_buffer",
-			&detail::WrapRenderer::new_vertex_buffer,
+			&Renderer::new_vertex_buffer,
 			py::return_value_policy<
-				py::manage_new_object,
+				py::return_by_value,
 				py::with_custodian_and_ward_postcall<0,1>
 			>()
 		)
 		.def(
 			"new_index_buffer",
-			&detail::WrapRenderer::new_index_buffer,
+			&Renderer::new_index_buffer,
 			py::return_value_policy<
-				py::manage_new_object,
+				py::return_by_value,
 				py::with_custodian_and_ward_postcall<0,1>
 			>()
 		)
 		.def(
 			"new_shader_program",
-			&detail::WrapRenderer::new_shader_program,
-			py::return_value_policy<py::manage_new_object>()
+			&Renderer::new_shader_program,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"new_fragment_shader",
-			&detail::WrapRenderer::new_fragment_shader,
-			py::return_value_policy<py::manage_new_object>()
+			&Renderer::new_fragment_shader,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"new_vertex_shader",
-			&detail::WrapRenderer::new_vertex_shader,
-			py::return_value_policy<py::manage_new_object>()
+			&Renderer::new_vertex_shader,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"new_texture",
-			&detail::WrapRenderer::new_texture,
-			py::return_value_policy<py::manage_new_object>()
+			&Renderer::new_texture,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<0,1>
+			>()
 		)
 		.def(
 			"clear",
-			&detail::WrapRenderer::clear
+			&Wrap::Renderer::clear
 		)
 	;
 
@@ -273,6 +360,7 @@ BOOST_PYTHON_MODULE(renderer)
 		   	&detail::WrapRendererType::__str__
 		)
 	;
+
 
 	py::class_<
 			VertexBuffer,
@@ -289,7 +377,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"push_static_content",
-			&push_static_content
+			&Wrap::VertexBuffer::push_static_content
 		)
 	;
 
@@ -321,15 +409,15 @@ BOOST_PYTHON_MODULE(renderer)
 			)
 			.def(
 				"push_shader",
-				&ShaderProgram_push_shader
+				&Wrap::ShaderProgram::push_shader
 			)
 			.def(
 				"finalize",
-				&ShaderProgram_finalize
+				&Wrap::ShaderProgram::finalize
 			)
 			.def(
 				"finalize",
-				&ShaderProgram_finalize_clear
+				&Wrap::ShaderProgram::finalize_clear
 			)
 			.def(
 				"parameter",
@@ -373,5 +461,19 @@ BOOST_PYTHON_MODULE(renderer)
 			py::no_init
 		)
 	;
+
+	///////////////////////////////////////////////////////////////////////////
+	// std::unique_ptr<T> to python converters.
+
+#define PTR_TO_PYTHON(__type)                                                 \
+	py::to_python_converter<                                                  \
+		std::unique_ptr<__type>,                                              \
+		Wrap::UniquePtrConverter<__type>                                      \
+	>()                                                                       \
+/**/
+
+	PTR_TO_PYTHON(VertexBuffer);
+	PTR_TO_PYTHON(ShaderProgram);
+	PTR_TO_PYTHON(Shader);
 
 }

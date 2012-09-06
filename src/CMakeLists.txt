@@ -41,9 +41,9 @@ foreach(build_type "" "_DEBUG" "_RELEASE")
 	message(STATUS "CXX_FLAGS${build_type}: ${CMAKE_CXX_FLAGS${build_type}}")
 endforeach()
 
-#set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
-#set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
-#set(CMAKE_MODULE_LINKER_FLAGS "-rdynamic")
+set(CMAKE_SHARED_LINKER_FLAGS "")
+set(CMAKE_EXE_LINKER_FLAGS "")
+set(CMAKE_MODULE_LINKER_FLAGS "")
 
 set(Boost_USE_STATIC_LIBS       ON)
 set(Boost_USE_MULTITHREADED     OFF)

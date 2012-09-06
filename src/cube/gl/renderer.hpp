@@ -6,7 +6,6 @@
 # include "renderer/Exception.hpp"
 # include "renderer/Painter.hpp"
 # include "renderer/Renderer.hpp"
-# include "renderer/State.hpp"
 # include "renderer/VertexBuffer.hpp"
 
 namespace cube { namespace gl { namespace renderer {

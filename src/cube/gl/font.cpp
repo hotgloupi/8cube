@@ -1,11 +1,15 @@
 #include "font.hpp"
 
 #include "exception.hpp"
+#include "renderer/Renderer.hpp"
+#include "renderer/Texture.hpp"
 #include "vector.hpp"
 
 #include <etc/log.hpp>
 
 #include <wrappers/freetype.hpp>
+
+#include <unordered_map>
 
 ETC_LOG_COMPONENT("cube.gl.font.Font");
 
@@ -121,26 +125,55 @@ namespace cube { namespace gl { namespace font {
 			}
 		};
 
+		struct GlyphMap
+		{
+		private:
+			typedef std::unique_ptr<Glyph> GlyphPtr;
+			typedef std::unique_ptr<renderer::Texture> TexturePtr;
+		private:
+			std::unordered_map<uint16_t, GlyphPtr>  _glyphs;
+			bool                                    _full;
+			TexturePtr                              _texture;
+
+		public:
+			GlyphMap(TexturePtr&& texture)
+				: _glyphs{}
+				, _full{false}
+				, _texture{std::move(texture)}
+			{}
+		};
+
 	}} //!anonymous::freetype
 
 	struct Font::Impl
 	{
 	private:
-		static freetype::Library _library;
+		// unique freetype library instance
+		static freetype::Library    _library;
 
 	public:
-		Impl()
+		renderer::Renderer&         renderer;
+	private:
+		freetype::GlyphMap          _glyphs;
+
+	public:
+		Impl(renderer::Renderer& renderer)
+			: renderer(renderer)
+			, _glyphs{renderer.new_texture("")}
 		{
 			if (!_library.initialized)
 				throw Exception{"FreeType library is not initialized"};
 		}
+
+
 	};
 
 	freetype::Library Font::Impl::_library{};
 
-	Font::Font(std::string const& name,
+	Font::Font(renderer::Renderer& renderer,
+	           std::string const& name,
 	           size_t size)
-		: _impl(new Impl)
+		: _impl{new Impl{renderer}}
 	{
 	}
 

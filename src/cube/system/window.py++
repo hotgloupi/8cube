@@ -18,14 +18,6 @@ BOOST_PYTHON_MODULE(window)
 
 	py::import("cube.gl.renderer");
 
-	struct get
-	{
-		static cube::gl::renderer::detail::WrapRenderer
-			renderer(Window * const self)
-			{
-				return self->renderer();
-			}
-	};
 	py::class_<Window, boost::noncopyable>("Window",
 			"Main window",
 			py::init<std::string const&, uint32_t, uint32_t>(
@@ -44,8 +36,8 @@ BOOST_PYTHON_MODULE(window)
 		.add_property(
 			"renderer",
 			py::make_function(
-				&get::renderer,
-				py::return_value_policy<py::return_by_value>()
+				&Window::renderer,
+				py::return_internal_reference<>()
 			)
 		)
 		.add_property(

@@ -2,8 +2,9 @@
 # define CUBE_GL_RENDERER_RENDERER_HPP
 
 # include "fwd.hpp"
+# include "State.hpp"
 
-# include <cube/gl/viewport.hpp>
+# include "../viewport.hpp"
 
 # include <memory>
 # include <string>
