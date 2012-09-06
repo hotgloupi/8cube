@@ -34,6 +34,13 @@ class Container(widget.Widget):
         self._childs.append(child)
         child.parent = self
 
+    def add_childs(self, childs):
+        for c in childs:
+            self.add_child(c)
+
     def render(self, painter):
         for child in self._childs:
             child.render(painter)
+
+    def on_resize(self, w, h):
+        raise Exception("NotImplemented")

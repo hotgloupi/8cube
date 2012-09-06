@@ -9,19 +9,27 @@ class Button(widget.Widget):
 
     def _prepare(self, renderer):
         self.__vb = renderer.new_vertex_buffer()
+        x, y, w, h = (
+            self.position.x, self.position.y,
+            self.size.x, self.size.y
+        )
+        print("BUTTON:",x,y,w,h, self.position, self.size)
         self.__vb.push_static_content(
             gl.ContentKind.vertex,
             list(gl.Vector2f(*v) for v in [
-                (10, 10), (630, 10), (630, 470), (10, 470)
+                (x, y),
+                (x + w, y),
+                (x + w, y + h),
+                (x, y + h)
             ])
         )
         self.__vb.push_static_content(
             gl.ContentKind.color,
             [
-                gl.Color3f('red'),
+                gl.Color3f('orange'),
                 gl.Color3f('green'),
                 gl.Color3f('gray'),
-                gl.Color3f('white'),
+                gl.Color3f('blue'),
             ]
         )
         self.__vb.finalize()

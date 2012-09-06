@@ -51,6 +51,7 @@ class RootWindow(system.Window):
     def _on_resize(self, w, h):
         print("resize from window", w, h)
         self._new_viewport_size = (w, h)
+        self.root_widget.on_resize(w, h)
 
     def _on_keydown(self, mod, k):
         print("Key down:", mod, k, chr(k))

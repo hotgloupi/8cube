@@ -11,5 +11,7 @@ class Application(cube.gui.Application):
         self.__prepare()
 
     def __prepare(self):
-        b = cube.gui.widgets.Button()
-        self.viewport.add_child(b)
+        self.viewport.add_childs(list(
+            cube.gui.widgets.Button(w=300, h=90, x=y/2, y=y)
+            for y in range(0, 600, 100)
+        ))

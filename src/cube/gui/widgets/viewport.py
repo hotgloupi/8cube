@@ -11,3 +11,8 @@ class Viewport(container.Container):
     def render(self, painter):
         print("Render viewport", self._childs)
         super(Viewport, self).render(painter)
+
+    def on_resize(self, w, h):
+        """Forward event to its children."""
+        for child in self._childs:
+            child.on_resize(w, h)

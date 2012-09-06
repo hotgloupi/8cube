@@ -3,34 +3,18 @@
 import cube
 
 class Widget:
+    def __init__(self, tag, id_=None, class_=None, renderer=None,
+                 x=0, y=0, w=0, h=0):
+        self._tag = tag
+        self._id_ = id_
+        self._class_ = class_
+        self._background_color = cube.gl.Color4f("white");
+        self._foreground_color = cube.gl.Color4f("black");
+        self._position = cube.gl.Vector2f(x, y);
+        self._size = cube.gl.Vector2f(w, h)
 
-    def __init__(self, tag, id_=None, class_=None, renderer=None):
-        self.__parent = None
-        self.__tag = tag
-        self.__id_ = id_
-        self.__class_ = class_
         self.__renderer = renderer
-        self.__background_color = cube.gl.Color4f("white");
-        self.__foreground_color = cube.gl.Color4f("black");
-        self.__position = cube.gl.Vector2f();
-        self.__size = cube.gl.Vector2f()
-        attrs = [
-            'tag',
-            'id_',
-            'class_',
-            'background_color',
-            'foreground_color',
-            'position',
-            'size',
-        ]
-        for attr in attrs:
-            setattr(
-                self, attr,
-                property(
-                    lambda s: getattr(s, '__' + attr),
-                    lambda s, v: setattr(s, '__' + attr, v)
-                )
-            )
+        self.__parent = None
         if self.__renderer is not None:
             self._prepare(self.__renderer)
 
@@ -61,4 +45,25 @@ class Widget:
     def render(self, painter):
         raise Exception("render method not implemented for this widget")
 
+    def on_resize(self, w, h):
+        pass
 
+_attrs = [
+    'tag',
+    'id_',
+    'class_',
+    'background_color',
+    'foreground_color',
+    'position',
+    'size',
+]
+def _mkprop(attr):
+    return property(
+        lambda s: getattr(s, '_' + attr),
+        lambda s, v: setattr(s, '_' + attr, v)
+    )
+
+for attr in _attrs:
+    setattr(
+        Widget, attr, _mkprop(attr)
+    )

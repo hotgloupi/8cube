@@ -10,9 +10,14 @@ BOOST_PYTHON_MODULE(vector)
 
 	py::class_<Vector2f>("Vector2f")
 		.def(py::init<float, float>())
+		.def_readonly("x", &Vector2f::x)
+		.def_readonly("y", &Vector2f::y)
 	;
 
 	py::class_<Vector3f>("Vector3f")
 		.def(py::init<float, float, float>())
+		.def_readonly("x", &Vector3f::x)
+		.def_readonly("y", &Vector3f::y)
+		.def_readonly("z", &Vector3f::z)
 	;
 }
