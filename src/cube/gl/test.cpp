@@ -96,6 +96,7 @@ namespace cube { namespace gl { namespace test {
 			auto fs = window.renderer().new_fragment_shader();
 			fs->push_source(
 				"uniform sampler2D sampler0;"
+				"varying vec2 tex_coord;\n"
 				"void main(void) {\n"
 				"   gl_FragColor = texture2D(sampler0, tex_coord);\n"
 				"}\n"

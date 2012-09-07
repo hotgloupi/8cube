@@ -106,7 +106,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::ActiveTexture(GL_TEXTURE0 + texture_unit);
 
 		if (param != nullptr)
-			*param = GL_TEXTURE0 + texture_unit;
+			*param = texture_unit;
 
 		if (!this->_bound())
 			this->_unbind();
