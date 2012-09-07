@@ -98,6 +98,31 @@ namespace cube { namespace gl { namespace renderer {
 		_max_value,
 	};
 
+	enum class ContentPacking
+	{
+		uint8,
+		int8,
+		uint16,
+		int16,
+		uint32,
+		int32,
+		float32,
+		uint8_3_3_2,
+		uint8_2_3_3_rev,
+		uint16_5_6_5,
+		uint16_5_6_5_rev,
+		uint16_4_4_4_4,
+		uint16_4_4_4_4_rev,
+		uint16_5_5_5_1,
+		uint16_1_5_5_5_rev,
+		uint32_8_8_8_8,
+		uint32_8_8_8_8_rev,
+		uint32_10_10_10_2,
+		uint32_2_10_10_10_rev,
+
+		_max_value
+	};
+
 	enum class ContentHint
 	{
 		stream_content = 0,
@@ -120,6 +145,94 @@ namespace cube { namespace gl { namespace renderer {
 		_max_value
 	};
 
+	enum class PixelFormat
+	{
+		depth_component = 0,
+		depth_stencil,
+		red,
+		rg,
+		rgb,
+		rgba,
+
+		r8,
+		r8_snorm,
+		r16,
+		r16_snorm,
+		rg8,
+		rg8_snorm,
+		rg16,
+		rg16_snorm,
+		r3_g3_b2,
+		rgb4,
+		rgb5,
+		rgb8,
+		rgb8_snorm,
+		rgb10,
+		rgb12,
+		rgb16_snorm,
+		rgba2,
+		rgba4,
+		rgb5_a1,
+		rgba8,
+		rgba8_snorm,
+		rgb10_a2,
+		rgb10_a2ui,
+		rgba12,
+		rgba16,
+		srgb8,
+		srgb8_alpha8,
+		r16f,
+		rg16f,
+		rgb16f,
+		rgba16f,
+		r32f,
+		rg32f,
+		rgb32f,
+		rgba32f,
+		r11f_g11f_b10f,
+		rgb9_e5,
+		r8i,
+		r8ui,
+		r16i,
+		r16ui,
+		r32i,
+		r32ui,
+		rg8i,
+		rg8ui,
+		rg16i,
+		rg16ui,
+		rg32i,
+		rg32ui,
+		rgb8i,
+		rgb8ui,
+		rgb16i,
+		rgb16ui,
+		rgb32i,
+		rgb32ui,
+		rgba8i,
+		rgba8ui,
+		rgba16i,
+		rgba16ui,
+		rgba32i,
+		rgba32ui,
+
+		compressed_red,
+		compressed_rg,
+		compressed_rgb,
+		compressed_rgba,
+		compressed_srgb,
+		compressed_srgb_alpha,
+		//compressed_red_rgtc1,
+		//compressed_signed_red_rgtc1,
+		//compressed_rg_rgtc2,
+		//compressed_signed_rg_rgtc2,
+		//compressed_rgba_bptc_unorm,
+		//compressed_srgb_alpha_bptc_unorm,
+		//compressed_rgb_bptc_signed_float,
+		//compressed_rgb_bptc_unsigned_float,
+
+		_max_value
+	};
 
 	template<ContentType type> struct ContentTypeSize;
 	template<> struct ContentTypeSize<ContentType::int8>

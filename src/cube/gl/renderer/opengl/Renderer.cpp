@@ -163,6 +163,26 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		return TexturePtr{new Texture{path}};
 	}
 
+	GLRenderer::TexturePtr
+	GLRenderer::new_texture(renderer::PixelFormat const internal_format,
+	                        unsigned int width,
+	                        unsigned int height,
+	                        renderer::PixelFormat const data_format,
+	                        renderer::ContentPacking const data_packing,
+	                        void const* data)
+	{
+		return TexturePtr{
+			new Texture{
+				internal_format,
+				width,
+				height,
+				data_format,
+				data_packing,
+				data
+			}
+		};
+	}
+
 	void GLRenderer::clear(cube::gl::renderer::BufferBit flags)
 	{
 		using namespace cube::gl::renderer;

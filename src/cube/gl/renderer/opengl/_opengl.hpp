@@ -142,12 +142,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(UseProgram);
 		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
 		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
+		_CUBE_GL_OPENGL_WRAP(Uniform1i);
 
 		_CUBE_GL_OPENGL_WRAP(GenTextures);
 		_CUBE_GL_OPENGL_WRAP(DeleteTextures);
 		_CUBE_GL_OPENGL_WRAP(BindTexture);
 		_CUBE_GL_OPENGL_WRAP(TexImage2D);
 		_CUBE_GL_OPENGL_WRAP(TexParameteri);
+		_CUBE_GL_OPENGL_WRAP(ActiveTexture);
 
 # undef _CUBE_GL_OPENGL_WRAP
 # undef _CUBE_GL_OPENGL_WRAP_RET
@@ -169,6 +171,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		{ return _content_type_map[(size_t) value]; }
 
 		static inline
+		GLenum get_content_packing(renderer::ContentPacking value)
+		{ return _content_packing_map[(size_t) value]; }
+
+		static inline
 		GLenum get_content_kind(renderer::ContentKind value)
 		{ return _content_kind_map[(size_t) value]; }
 
@@ -180,12 +186,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GLenum get_shader_type(renderer::ShaderType value)
 		{ return _shader_type_map[(size_t) value]; }
 
+		static inline
+		GLenum get_pixel_format(renderer::PixelFormat value)
+		{ return _pixel_format_map[(size_t) value]; }
+
 	private:
 		static GLenum _draw_mode_map[(size_t)renderer::DrawMode::_max_value];
 		static GLenum _content_type_map[(size_t)renderer::ContentType::_max_value];
+		static GLenum _content_packing_map[(size_t)renderer::ContentPacking::_max_value];
 		static GLenum _content_kind_map[(size_t)renderer::ContentKind::_max_value];
 		static GLenum _content_hint_map[(size_t)renderer::ContentHint::_max_value];
 		static GLenum _shader_type_map[(size_t)renderer::ShaderType::_max_value];
+		static GLenum _pixel_format_map[(size_t)renderer::PixelFormat::_max_value];
 
     struct SubVBO;
     template<bool> struct VBO;

@@ -11,6 +11,7 @@ namespace cube { namespace gl { namespace renderer {
 	class RendererType;
 	class Shader;
 	class ShaderProgram;
+	class ShaderProgramParameter;
 	struct State;
 	class VertextShader;
 	class VertexBuffer;

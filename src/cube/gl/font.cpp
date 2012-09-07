@@ -133,14 +133,37 @@ namespace cube { namespace gl { namespace font {
 		private:
 			std::unordered_map<uint16_t, GlyphPtr>  _glyphs;
 			bool                                    _full;
+			Face&                                   _face;
 			TexturePtr                              _texture;
 
 		public:
-			GlyphMap(TexturePtr&& texture)
+			GlyphMap(Face& face, TexturePtr&& texture)
 				: _glyphs{}
 				, _full{false}
+				, _face(face)
 				, _texture{std::move(texture)}
 			{}
+
+		private:
+			static inline
+			unsigned int next_p2(unsigned int n)
+			{
+				unsigned int i = 2;
+				while (i < n) i *= 2;
+				return i;
+			}
+
+			Glyph& _gen_char(uint16_t c)
+			{
+				_glyphs[c].reset(new Glyph(_face, c));
+				Glyph& glyph = *_glyphs[c].get();
+
+				std::vector<uint8_t> data(glyph.bitmap.width * glyph.bitmap.rows);
+
+				::memcpy(&data[0], glyph.bitmap.buffer, data.size());
+				return glyph;
+			}
+
 		};
 
 	}} //!anonymous::freetype
@@ -154,12 +177,23 @@ namespace cube { namespace gl { namespace font {
 	public:
 		renderer::Renderer&         renderer;
 	private:
+		freetype::Face              _face;
 		freetype::GlyphMap          _glyphs;
 
 	public:
-		Impl(renderer::Renderer& renderer)
+		Impl(renderer::Renderer& renderer,
+		     std::string const& name,
+		     unsigned int size)
 			: renderer(renderer)
-			, _glyphs{renderer.new_texture("")}
+			, _face{_library, name, size}
+			, _glyphs{_face, renderer.new_texture(
+				renderer::PixelFormat::red,
+				1024,
+				1024,
+				renderer::PixelFormat::red,
+				renderer::ContentPacking::uint8,
+				nullptr
+			)}
 		{
 			if (!_library.initialized)
 				throw Exception{"FreeType library is not initialized"};
@@ -173,7 +207,7 @@ namespace cube { namespace gl { namespace font {
 	Font::Font(renderer::Renderer& renderer,
 	           std::string const& name,
 	           size_t size)
-		: _impl{new Impl{renderer}}
+		: _impl{new Impl{renderer, name, size}}
 	{
 	}
 

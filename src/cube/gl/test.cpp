@@ -8,8 +8,7 @@
 #include "renderer/VertexBuffer.hpp"
 #include "renderer/Shader.hpp"
 #include "renderer/ShaderProgram.hpp"
-#include "renderer/opengl/test.hpp"
-#include "renderer/opengl/_opengl.hpp"
+#include "renderer/Texture.hpp"
 
 #include "vector.hpp"
 #include "color.hpp"
@@ -51,6 +50,7 @@ namespace cube { namespace gl { namespace test {
 		auto vb = window.renderer().new_vertex_buffer();
 		auto ib = window.renderer().new_index_buffer();
 		auto sp = window.renderer().new_shader_program();
+		auto tex0 = window.renderer().new_texture("/home/hotgloupi/pif.png");
 
 		vector::Vector2f vertices[] = {
 			{10,     10},
@@ -61,6 +61,18 @@ namespace cube { namespace gl { namespace test {
 		vb->push_static_content(
 			renderer::ContentKind::vertex,
 			vertices,
+			4
+		);
+
+		vector::Vector2f tex_coords[] = {
+			{0,     0},
+			{1,     0},
+			{1,     1},
+			{0,     1},
+		};
+		vb->push_static_content(
+			renderer::ContentKind::tex_coord0,
+			tex_coords,
 			4
 		);
 
@@ -83,8 +95,9 @@ namespace cube { namespace gl { namespace test {
 		{
 			auto fs = window.renderer().new_fragment_shader();
 			fs->push_source(
+				"uniform sampler2D sampler0;"
 				"void main(void) {\n"
-				"   gl_FragColor = gl_Color;\n"
+				"   gl_FragColor = texture2D(sampler0, tex_coord);\n"
 				"}\n"
 			);
 			sp->push_shader(std::move(fs));
@@ -92,11 +105,13 @@ namespace cube { namespace gl { namespace test {
 		{
 			auto vs = window.renderer().new_vertex_shader();
 			vs->push_source(
-				"uniform mat4 cube_ModelViewProjectionMatrix;"
+				"uniform mat4 cube_ModelViewProjectionMatrix;\n"
+				"varying vec2 tex_coord;\n"
 				"void main(void)\n"
 				"{\n"
-				"   gl_FrontColor = gl_Color;\n"
+				"   //gl_FrontColor = gl_Color;\n"
 				"   gl_Position = cube_ModelViewProjectionMatrix * gl_Vertex;\n"
+				"   tex_coord = vec2(gl_MultiTexCoord0);\n"
 				"}\n"
 			);
 			sp->push_shader(std::move(vs));
@@ -113,13 +128,16 @@ namespace cube { namespace gl { namespace test {
 		);
 		painter.bind(*vb);
 		painter.bind(*sp);
+		painter.bind(*tex0);
 		sp->parameter("cube_ModelViewProjectionMatrix");
+		tex0->bind_unit(0, &sp->parameter("sampler0"));
 
 		size_t frame = 0;
 		while (running)
 		{
 
-			etc::print("Frame", ++frame, "w =", window.renderer().viewport().w, "h =", window.renderer().viewport().h);
+			etc::print("Frame", ++frame, "w =", window.renderer().viewport().w,
+			           "h =", window.renderer().viewport().h);
 			window.poll();
 			window.renderer().clear(
 				renderer::BufferBit::color |
@@ -142,7 +160,6 @@ namespace cube { namespace gl { namespace test {
 		window.inputs().on_expose().connect(OnExpose{window.renderer()});
 		bool running = true;
 		window.inputs().on_quit().connect(OnQuit{running});
-		//opengl::test::vertex_buffer(window, running);
 		etc::print("-");
 		etc::print(window.renderer().description());
 		test_normal(window, running);

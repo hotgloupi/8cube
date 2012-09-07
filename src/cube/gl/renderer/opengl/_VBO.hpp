@@ -102,9 +102,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			throw false;
 		}
 
-		static void tex_coord0_pointer(SubVBO const& )
+		static void tex_coord0_pointer(SubVBO const& self)
 		{
-			throw false;
+			gl::TexCoordPointer(
+				self.attr->arity,
+				self.gl_type,
+				self.stride,
+				self.offset
+			);
 		}
 
 		static void tex_coord1_pointer(SubVBO const& )

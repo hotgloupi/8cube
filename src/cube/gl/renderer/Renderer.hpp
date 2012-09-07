@@ -79,24 +79,88 @@ namespace cube { namespace gl { namespace renderer {
 	 *************************************************************************/
 	public:
 		/// default implementation sets _viewport
-		virtual void viewport(cube::gl::viewport::Viewport const& vp);
-		virtual void update_projection_matrix();
-		virtual void initialize(cube::gl::viewport::Viewport const& vp) = 0;
-		virtual void shutdown() = 0;
-		virtual void swap_buffers() = 0;
-		virtual RendererType const& description() const = 0;
-		virtual Painter begin(Mode mode) = 0;
-		virtual VertexBufferPtr new_vertex_buffer() = 0;
-		virtual VertexBufferPtr new_index_buffer() = 0;
-		virtual ShaderPtr new_vertex_shader() = 0;
-		virtual ShaderPtr new_fragment_shader() = 0;
-		virtual ShaderProgramPtr new_shader_program() = 0;
-		virtual TexturePtr new_texture(std::string const& path) = 0;
-		virtual void draw_elements(DrawMode mode,
-		                           unsigned int count,
-		                           ContentType type,
-		                           void* indices) = 0;
-		virtual void clear(BufferBit flags) = 0;
+		virtual
+		void viewport(cube::gl::viewport::Viewport const& vp);
+
+		///
+		virtual
+		void update_projection_matrix();
+
+		///
+		virtual
+		void initialize(cube::gl::viewport::Viewport const& vp) = 0;
+
+		///
+		virtual
+		void shutdown() = 0;
+
+		///
+		virtual
+		void swap_buffers() = 0;
+
+		///
+		virtual
+		RendererType const& description() const = 0;
+
+		///
+		virtual
+		Painter begin(Mode mode) = 0;
+
+		///
+		virtual
+		VertexBufferPtr new_vertex_buffer() = 0;
+
+		///
+		virtual
+		VertexBufferPtr new_index_buffer() = 0;
+
+		///
+		virtual
+		ShaderPtr new_vertex_shader() = 0;
+
+		///
+		virtual
+		ShaderPtr new_fragment_shader() = 0;
+
+		///
+		virtual
+		ShaderProgramPtr new_shader_program() = 0;
+
+		/// Create a texture from file.
+		virtual
+		TexturePtr new_texture(std::string const& path) = 0;
+
+		/**
+		 * @brief   Create a texture from raw data.
+		 *
+		 * @param   internal_format     New texture internal format.
+		 * @param   width               New texture width.
+		 * @param   height              New texture height.
+		 * @param   data_format         Pixel format of the @a data.
+		 * @param   data_packing        Pixel packing format of the @a data.
+		 * @param   data                Pointer to pixels data.
+		 *
+		 * The pointer @a data might be NULL, in which case the texture is just
+		 * allocated
+		 */
+		virtual
+		TexturePtr new_texture(renderer::PixelFormat const internal_format,
+		                       unsigned int width,
+		                       unsigned int height,
+		                       renderer::PixelFormat const data_format,
+		                       renderer::ContentPacking const data_packing,
+		                       void const* data) = 0;
+
+		///
+		virtual
+		void draw_elements(DrawMode mode,
+		                   unsigned int count,
+		                   ContentType type,
+		                   void* indices) = 0;
+
+
+		virtual
+		void clear(BufferBit flags) = 0;
 	};
   ////////////////////////////////////////////////////////////////////////////
   // RendererType class

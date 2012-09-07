@@ -13,6 +13,22 @@
 
 namespace cube { namespace gl { namespace renderer {
 
+	/**
+	 * Represent a shader parameter.
+	 */
+	class ShaderProgramParameter
+	{
+	public:
+		virtual
+		~ShaderProgramParameter() {}
+
+		virtual
+		ShaderProgramParameter& operator =(matrix_type const& value) = 0;
+
+		virtual
+		ShaderProgramParameter& operator =(int32_t value) = 0;
+	};
+
 	class ShaderProgram
 		: public Drawable
 	{
@@ -50,21 +66,8 @@ namespace cube { namespace gl { namespace renderer {
 		void clear(bool parameters_too = false);
 
 	public:
-		/**
-		 * Represent a shader parameter.
-		 */
-		class Parameter
-		{
-		public:
-			virtual
-			~Parameter() {}
-
-			virtual
-			Parameter& operator =(matrix_type const& value) = 0;
-		};
-		friend class Parameter;
-
-		typedef std::unique_ptr<Parameter> ParameterPtr;
+		friend class ShaderProgramParameter;
+		typedef std::unique_ptr<ShaderProgramParameter> ParameterPtr;
 
 	private:
 		/// Indexes paramaters with their name.
@@ -74,9 +77,9 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Retreive a shader parameter by its name.
 		 */
-		Parameter& parameter(std::string const& name);
+		ShaderProgramParameter& parameter(std::string const& name);
 
-		Parameter* find_parameter(std::string const& name);
+		ShaderProgramParameter* find_parameter(std::string const& name);
 
 		virtual
 		void update(MatrixKind kind, matrix_type const& matrix);

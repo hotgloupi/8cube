@@ -25,10 +25,12 @@ namespace etc { namespace backtrace {
 		: public std::vector<StackFrame>
 	{
 	public:
-		Backtrace();
-		void strip_base(Backtrace const& base);
 		typedef std::vector<StackFrame> SuperType;
 		typedef StackFrame Frame;
+
+	public:
+		Backtrace();
+		void strip_base(Backtrace const& base);
 	};
 
 	std::ostream& operator <<(std::ostream& output, StackFrame const& frame);

@@ -23,6 +23,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		virtual ShaderPtr new_fragment_shader();
 		virtual ShaderProgramPtr new_shader_program();
 		virtual TexturePtr new_texture(std::string const& path);
+		virtual
+		TexturePtr new_texture(renderer::PixelFormat const internal_format,
+		                       unsigned int width,
+		                       unsigned int height,
+		                       renderer::PixelFormat const data_format,
+		                       renderer::ContentPacking const data_packing,
+		                       void const* data);
 		virtual void draw_elements(cube::gl::renderer::DrawMode mode,
 		                           unsigned int count,
 		                           cube::gl::renderer::ContentType type,

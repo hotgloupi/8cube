@@ -2,6 +2,8 @@
 
 #include "exception.hpp"
 
+#include <etc/backtrace.hpp>
+
 #include <sstream>
 
 PyObject* ExceptionType = nullptr;
@@ -13,21 +15,33 @@ namespace {
 	create_exception_type(const char* name,
 	                      PyObject* baseTypeObj = PyExc_Exception)
 	{
-		namespace bp = boost::python;
+		namespace py = boost::python;
 
-		std::string scopeName = bp::extract<std::string>(bp::scope().attr("__name__"));
+		std::string scopeName = py::extract<std::string>(py::scope().attr("__name__"));
 		std::string qualifiedName0 = scopeName + "." + name;
 		char* qualifiedName1 = const_cast<char*>(qualifiedName0.c_str());
 
 		PyObject* typeObj = PyErr_NewException(qualifiedName1, baseTypeObj, 0);
-		if(!typeObj) bp::throw_error_already_set();
-		bp::scope().attr(name) = bp::handle<>(bp::borrowed(typeObj));
+		if(!typeObj) py::throw_error_already_set();
+		py::scope().attr(name) = py::handle<>(py::borrowed(typeObj));
 		return typeObj;
 	}
 
 
 	void translator(cube::exception::Exception const& e)
 	{
+		namespace py = boost::python;
+		py::list backtrace;
+		if (auto bt = e.backtrace())
+		{
+			for (auto frame : *bt)
+				backtrace.append(
+					static_cast<std::string>(frame)
+				);
+		}
+		py::object exception_type(py::handle<>(py::borrowed(ExceptionType)));
+		exception_type.attr("backtrace") = backtrace;
+
 		//PyErr_SetObject(ExceptionType, boost::python::object(e).ptr());
 		std::stringstream bt;
 		bt << e;
@@ -37,10 +51,19 @@ namespace {
 
 } // !anonymous
 
-void test()
-{
-	throw cube::exception::Exception("Coucou !");
-}
+namespace cube { namespace exception {
+
+	void testlast()
+	{
+		throw Exception("Coucou !");
+	}
+
+	void test()
+	{
+		testlast();
+	}
+
+}}
 
 BOOST_PYTHON_MODULE(exception)
 {
@@ -49,5 +72,5 @@ BOOST_PYTHON_MODULE(exception)
 	//py::class_<cube::exception::Exception>("_Exception", py::no_init);
 	ExceptionType = create_exception_type("Exception");
 	py::register_exception_translator<cube::exception::Exception>(&translator);
-	py::def("test", &test);
+	py::def("test", &cube::exception::test);
 }

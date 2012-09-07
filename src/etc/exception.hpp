@@ -17,8 +17,13 @@ namespace etc { namespace exception {
 
 	public:
 		Exception(std::string const& message);
+
 		virtual
 		~Exception() throw ();
+
+		backtrace::Backtrace const*
+		backtrace() const { return _backtrace; }
+
 		friend std::ostream& operator <<(std::ostream& out, Exception const& e);
 	};
 

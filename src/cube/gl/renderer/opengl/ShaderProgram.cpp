@@ -71,7 +71,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		template<typename BindGuard>
 		class Parameter
-			: public ShaderProgram::Parameter
+			: public ShaderProgramParameter
 		{
 		private:
 			ShaderProgram&  _program;
@@ -98,13 +98,22 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			}
 
 			virtual
-			ShaderProgram::Parameter&
+			ShaderProgramParameter&
 			operator =(matrix_type const& value)
 			{
 				ETC_TRACE.debug("Set shader parameter", _name, "to", value);
 				BindGuard guard(_program);
 				gl::UniformMatrix4fv(_location, 1, GL_FALSE,
 				                     glm::value_ptr(value));
+				return *this;
+			}
+
+			virtual
+			ShaderProgramParameter& operator =(int32_t value)
+			{
+				ETC_TRACE.debug("Set shader parameter", _name, "to", value);
+				BindGuard guard(_program);
+				gl::Uniform1i(_location, value);
 				return *this;
 			}
 		};

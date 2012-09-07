@@ -1,4 +1,4 @@
 # -*- encoding: utf-8 -*-
 
-from cube.gui.widgets.viewport import Viewport
-from cube.gui.widgets.button import Button
+from .viewport import Viewport
+from .button import Button

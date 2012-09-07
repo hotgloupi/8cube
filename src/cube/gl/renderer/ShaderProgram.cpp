@@ -47,7 +47,7 @@ namespace cube { namespace gl { namespace renderer {
 			_parameters.clear();
 	}
 
-	ShaderProgram::Parameter&
+	ShaderProgramParameter&
 	ShaderProgram::parameter(std::string const& name)
 	{
 		if (!_finalized)
@@ -75,7 +75,7 @@ namespace cube { namespace gl { namespace renderer {
 		return *(res.first->second);
 	}
 
-	ShaderProgram::Parameter*
+	ShaderProgramParameter*
 	ShaderProgram::find_parameter(std::string const& name)
 	{
 		auto it = _parameters.find(name);
@@ -108,7 +108,7 @@ namespace cube { namespace gl { namespace renderer {
 		case MatrixKind::mvp:
 			name = map[(unsigned int) kind];
 			assert(name.size() > 0 && "Name not registered ?");
-			if (Parameter* parameter = this->find_parameter(name))
+			if (auto parameter = this->find_parameter(name))
 				*parameter = matrix;
 			break;
 		default:

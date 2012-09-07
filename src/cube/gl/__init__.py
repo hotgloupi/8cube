@@ -27,3 +27,5 @@ from .renderer import *
 from .color import *
 from .vector import *
 from .viewport import *
+
+from .test import test_all

@@ -20,7 +20,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	public:
 		Texture(std::string const& path);
+		Texture(renderer::PixelFormat const internal_format,
+		        unsigned int width,
+		        unsigned int height,
+		        renderer::PixelFormat const data_format,
+		        renderer::ContentPacking const data_packing,
+		        void const* data);
 		~Texture();
+
+	public:
+		void
+		bind_unit(unsigned int texture_unit,
+		          renderer::ShaderProgramParameter* param = nullptr);
 
 	protected:
 		void _bind();
