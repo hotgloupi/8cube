@@ -33,6 +33,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		bind_unit(unsigned int texture_unit,
 		          renderer::ShaderProgramParameter* param = nullptr);
 
+		void
+		set_data(unsigned int x,
+		         unsigned int y,
+		         unsigned int width,
+		         unsigned int height,
+		         renderer::PixelFormat const data_format,
+		         renderer::ContentPacking const data_packing,
+		         void const* data);
 	protected:
 		void _bind();
 		void _unbind();

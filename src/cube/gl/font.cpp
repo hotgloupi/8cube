@@ -161,6 +161,11 @@ namespace cube { namespace gl { namespace font {
 				std::vector<uint8_t> data(glyph.bitmap.width * glyph.bitmap.rows);
 
 				::memcpy(&data[0], glyph.bitmap.buffer, data.size());
+				_texture->set_data(0, 0,
+				                   glyph.bitmap.width, glyph.bitmap.rows,
+				                   renderer::PixelFormat::red,
+				                   renderer::ContentPacking::uint8,
+				                   &data[0]);
 				return glyph;
 			}
 
@@ -206,7 +211,7 @@ namespace cube { namespace gl { namespace font {
 
 	Font::Font(renderer::Renderer& renderer,
 	           std::string const& name,
-	           size_t size)
+	           unsigned int size)
 		: _impl{new Impl{renderer, name, size}}
 	{
 	}

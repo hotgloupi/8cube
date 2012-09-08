@@ -101,17 +101,28 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	Texture::bind_unit(unsigned int texture_unit,
 		               renderer::ShaderProgramParameter* param /* = nullptr */)
 	{
-		if (!this->_bound())
-			this->_bind();
+		BindGuard(*this);
 		gl::ActiveTexture(GL_TEXTURE0 + texture_unit);
-
 		if (param != nullptr)
 			*param = texture_unit;
-
-		if (!this->_bound())
-			this->_unbind();
 	}
 
+	void
+	Texture::set_data(unsigned int x,
+	                  unsigned int y,
+	                  unsigned int width,
+	                  unsigned int height,
+	                  renderer::PixelFormat const data_format,
+	                  renderer::ContentPacking const data_packing,
+	                  void const* data)
+	{
+		BindGuard(*this);
+		gl::TexSubImage2D(GL_TEXTURE_2D, 0,
+		                  x, y, width, height,
+		                  gl::get_pixel_format(data_format),
+		                  gl::get_content_packing(data_packing),
+		                  data);
+	}
 	void Texture::_unbind()
 	{
 		gl::BindTexture(GL_TEXTURE_2D, 0);

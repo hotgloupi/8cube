@@ -21,7 +21,7 @@ namespace cube { namespace gl { namespace font {
 		explicit
 		Font(renderer::Renderer& renderer,
 		     std::string const& name = CUBE_GL_FONT_DEFAULT_NAME,
-		     size_t size = CUBE_GL_FONT_DEFAULT_SIZE);
+		     unsigned int size = CUBE_GL_FONT_DEFAULT_SIZE);
 		~Font();
 	};
 

@@ -14,6 +14,16 @@ namespace cube { namespace gl { namespace renderer {
 		void
 		bind_unit(unsigned int texture_unit,
 		          ShaderProgramParameter* shader = nullptr) = 0;
+
+		virtual
+		void
+		set_data(unsigned int x,
+		         unsigned int y,
+		         unsigned int width,
+		         unsigned int height,
+		         renderer::PixelFormat const data_format,
+		         renderer::ContentPacking const data_packing,
+		         void const* data) = 0;
 	};
 
 }}}
