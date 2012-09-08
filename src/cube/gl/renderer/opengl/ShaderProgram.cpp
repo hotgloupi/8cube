@@ -7,7 +7,7 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	ETC_LOG_COMPONENT("cube.gl.opengl.ShaderProgram");
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgram");
 
 	ShaderProgram::ShaderProgram()
 		: _id{0}

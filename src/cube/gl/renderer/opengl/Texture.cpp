@@ -8,10 +8,13 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Texture");
+
 	Texture::Texture(std::string const& path)
 		: _surface(nullptr)
 		, _id(0)
 	{
+		ETC_TRACE.debug("New texture from:", path);
 		_surface = ::IMG_Load(path.c_str());
 		if (_surface == nullptr)
 			throw Exception{etc::to_string(
@@ -68,6 +71,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		: _surface(nullptr)
 		, _id(0)
 	{
+		ETC_TRACE.debug("New texture from data");
 		gl::GenTextures(1, &_id);
 		gl::BindTexture(GL_TEXTURE_2D, _id);
 		gl::TexImage2D(
@@ -79,7 +83,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			0,                  // border
 			gl::get_pixel_format(data_format),
 			gl::get_content_packing(data_packing),
-			_surface->pixels
+			nullptr
 		);
 	}
 
@@ -93,6 +97,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	void Texture::_bind()
 	{
+		ETC_TRACE.debug("Bind texture", _id);
 		gl::Enable(GL_TEXTURE_2D);
 		gl::BindTexture(GL_TEXTURE_2D, _id);
 	}
@@ -101,6 +106,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	Texture::bind_unit(unsigned int texture_unit,
 		               renderer::ShaderProgramParameter* param /* = nullptr */)
 	{
+		ETC_TRACE.debug("Bind texture unit", texture_unit, "of texture", _id);
 		BindGuard(*this);
 		gl::ActiveTexture(GL_TEXTURE0 + texture_unit);
 		if (param != nullptr)
@@ -116,7 +122,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	                  renderer::ContentPacking const data_packing,
 	                  void const* data)
 	{
-		BindGuard(*this);
+		ETC_TRACE.debug("Set data of texture", _id);
+		BindGuard guard(*this);
 		gl::TexSubImage2D(GL_TEXTURE_2D, 0,
 		                  x, y, width, height,
 		                  gl::get_pixel_format(data_format),

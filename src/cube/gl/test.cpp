@@ -10,8 +10,10 @@
 #include "renderer/ShaderProgram.hpp"
 #include "renderer/Texture.hpp"
 
-#include "vector.hpp"
 #include "color.hpp"
+#include "font.hpp"
+#include "vector.hpp"
+#include "text.hpp"
 
 #include "test.hpp"
 
@@ -28,7 +30,6 @@ namespace cube { namespace gl { namespace test {
 			renderer::Renderer& renderer;
 			void operator ()(float w, float h)
 			{
-				etc::print("resize(", w, ',', h, ')');
 				this->renderer.viewport(viewport::Viewport{0, 0, w, h});
 			}
 		};
@@ -55,6 +56,9 @@ namespace cube { namespace gl { namespace test {
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/pif.png"));
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg"));
 		} catch(cube::exception::Exception const&) {}
+
+		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf");
+		text::Text text(f, "Salut Les couillons");
 
 		vector::Vector2f vertices[] = {
 			{10,     10},
@@ -128,12 +132,8 @@ namespace cube { namespace gl { namespace test {
 		sp->parameter("cube_ModelViewProjectionMatrix");
 		tex0->bind_unit(0, &sp->parameter("sampler0"));
 
-		size_t frame = 0;
 		while (running)
 		{
-
-			etc::print("Frame", ++frame, "w =", window.renderer().viewport().w,
-			           "h =", window.renderer().viewport().h);
 			window.renderer().clear(
 				renderer::BufferBit::color |
 				renderer::BufferBit::depth
@@ -144,12 +144,13 @@ namespace cube { namespace gl { namespace test {
 					painter.bind(*vb);
 					painter.bind(*sp);
 					painter.bind(*tex0);
+					text.render(painter);
 					painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
 				}
 
 			window.renderer().swap_buffers();
 
-			::usleep(300);
+			::usleep(30);
 		}
 	}
 
@@ -162,7 +163,6 @@ namespace cube { namespace gl { namespace test {
 		window.inputs().on_expose().connect(OnExpose{window.renderer()});
 		bool running = true;
 		window.inputs().on_quit().connect(OnQuit{running});
-		etc::print("-");
 		etc::print(window.renderer().description());
 		test_normal(window, running);
 	}

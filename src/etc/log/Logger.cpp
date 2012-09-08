@@ -1,19 +1,85 @@
 #include "Logger.hpp"
 
 #include <etc/meta/enum.hpp>
+#include <etc/sys/getenv.hpp>
+
+#include <boost/algorithm/string.hpp>
 
 #include <cassert>
+#include <vector>
 #include <unordered_map>
+
+#include <fnmatch.h>
 
 namespace etc { namespace log {
 
-    Logger& logger(std::string const& name)
+	namespace {
+
+		struct Pattern
+		{
+			enum Operation
+			{
+				add_match,
+				remove_match,
+			} op;
+			std::string str;
+		};
+
+		std::vector<Pattern> get_patterns()
+		{
+			std::string envvar = etc::sys::getenv("ETC_LOG_COMPONENTS", "");
+			std::vector<std::string> patterns;
+			boost::algorithm::split(
+				patterns,
+				envvar,
+				boost::algorithm::is_any_of(","),
+				boost::algorithm::token_compress_on
+			);
+			std::vector<Pattern> res;
+			for (auto& pattern: patterns)
+			{
+				boost::algorithm::trim(pattern);
+				if (pattern.size() == 0 ||
+						(pattern.size() == 1 && (
+							pattern[0] == '+' ||
+							pattern[0] == '-')))
+					continue;
+				if (pattern[0] == '+')
+					res.push_back(Pattern{Pattern::add_match, pattern.substr(1)});
+				else if (pattern[0] == '-')
+					res.push_back(Pattern{Pattern::remove_match, pattern.substr(1)});
+				else
+					res.push_back(Pattern{Pattern::add_match, pattern});
+			}
+			return res;
+		}
+
+		bool component_enabled(std::string const& name)
+		{
+			if (name.size() == 0)
+				return true;
+			static std::unordered_map<std::string, bool> components;
+			auto it = components.find(name);
+			if (it != components.end())
+				return it->second;
+			static std::vector<Pattern> patterns = get_patterns();
+			bool enabled = false;
+			for (auto const& pattern: patterns)
+				if (::fnmatch(pattern.str.c_str(), name.c_str(), 0) == 0)
+				{
+					enabled = (pattern.op == Pattern::add_match);
+				}
+			return components[name] = enabled;
+		}
+	}
+
+	Logger& logger(std::string const& name)
 	{
 		static std::unordered_map<std::string, Logger*> loggers;
 		auto it = loggers.find(name);
 		if (it != loggers.end())
 			return *it->second;
-		return *((loggers[name] = new Logger{name, Level::info}));
+		return *((loggers[name] = new Logger{name, Level::debug}));
 	}
 
 	Logger::Logger(std::string const& name,
@@ -31,6 +97,9 @@ namespace etc { namespace log {
 	void Logger::_message(Line const& line,
 	                      std::string const& message)
 	{
+		if (!component_enabled(line.component))
+			return;
+
 		// every fields are strings.
 		struct {
 			std::string const   level;
@@ -74,6 +143,15 @@ namespace etc { namespace log {
 		std::ostream* out = _streams[idx].out;
 		assert(out != nullptr);
 
+		switch (line.level)
+		{
+		case Level::warn:
+			break;
+			*out << "[33;01;33m";
+		case Level::error:
+			*out << "[33;03;31m";
+			break;
+		}
 		// Print each part
 #define _PRINT_PART(__name, __flag) \
 		if (_flags & Flag::__flag) \
@@ -95,7 +173,8 @@ namespace etc { namespace log {
 		_PRINT_PART(component, component);
 #undef _PRINT_PART
 
-		*out <<  std::string(line.indent * 2, ' ') << message << std::endl;
+		*out <<  std::string(line.indent * 2, ' ') << message
+		     << "[0m" << std::endl;
 	}
 
 }} // !etc::log

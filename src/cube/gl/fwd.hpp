@@ -15,10 +15,22 @@ namespace cube { namespace gl {
 
 	}
 
+	namespace font {
+
+		class Font;
+
+	}
+
 	namespace rectangle {
 
 		template<typename T> struct Rectangle2;
 		typedef Rectangle2<float> Rectangle2f;
+
+	}
+
+	namespace text {
+
+		class Text;
 
 	}
 

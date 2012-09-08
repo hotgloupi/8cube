@@ -16,7 +16,7 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	ETC_LOG_COMPONENT("cube.gl.opengl.Renderer");
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Renderer");
 
 	using namespace cube::gl::renderer;
 

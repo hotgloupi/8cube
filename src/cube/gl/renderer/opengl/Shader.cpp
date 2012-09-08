@@ -5,7 +5,7 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	ETC_LOG_COMPONENT("cube.gl.opengl.Shader");
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Shader");
 
 	Shader::Shader(renderer::ShaderType const type)
 		: type(type)

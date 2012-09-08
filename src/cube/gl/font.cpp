@@ -1,8 +1,10 @@
 #include "font.hpp"
 
 #include "exception.hpp"
+#include "renderer/Painter.hpp"
 #include "renderer/Renderer.hpp"
 #include "renderer/Texture.hpp"
+#include "renderer/VertexBuffer.hpp"
 #include "vector.hpp"
 
 #include <etc/log.hpp>
@@ -17,6 +19,7 @@ namespace cube { namespace gl { namespace font {
 
 	typedef exception::Exception Exception;
 
+	// FreeType related objects
 	namespace { namespace freetype {
 
 		struct Library
@@ -28,6 +31,7 @@ namespace cube { namespace gl { namespace font {
 				: handle(nullptr)
 				, initialized{false}
 			{
+				ETC_TRACE.debug("New FreeType library");
 				if (auto error = ::FT_Init_FreeType(&this->handle))
 					ETC_LOG.warn("FT_Init_FreeType error:", error);
 				else
@@ -68,6 +72,8 @@ namespace cube { namespace gl { namespace font {
 			     unsigned int size)
 				: handle(nullptr)
 			{
+
+				ETC_TRACE.debug("New FreeType Face", name);
 				FT_CALL(
 					New_Face,
 					library.handle,
@@ -96,13 +102,18 @@ namespace cube { namespace gl { namespace font {
 
 		struct Glyph
 		{
-			::FT_Glyph handle;
-			::FT_Bitmap bitmap;
+			::FT_Glyph          handle;
+			::FT_Bitmap         bitmap;
+			uint32_t            id;
+			vector::Vector2f    position;
+			vector::Vector2f    size;
 
-			Glyph(Face& face, uint16_t charcode)
+			Glyph(Face& face, uint32_t charcode, uint32_t id)
 				: handle(nullptr)
 				, bitmap()
+				, id(id)
 			{
+				ETC_TRACE.debug("New FreeType Glyph of", charcode);
 				auto index = ::FT_Get_Char_Index(face.handle, charcode);
 				if (index == 0)
 					throw Exception{
@@ -118,6 +129,8 @@ namespace cube { namespace gl { namespace font {
 					1                           // destroy original == true
 				);
 				this->bitmap = ((::FT_BitmapGlyph) this->handle)->bitmap;
+				FT_BBox bbox;
+				::FT_Glyph_Get_CBox(this->handle, FT_GLYPH_BBOX_PIXELS, &bbox);
 			}
 			~Glyph()
 			{
@@ -128,22 +141,66 @@ namespace cube { namespace gl { namespace font {
 		struct GlyphMap
 		{
 		private:
-			typedef std::unique_ptr<Glyph> GlyphPtr;
-			typedef std::unique_ptr<renderer::Texture> TexturePtr;
+			typedef std::unique_ptr<Glyph>                  GlyphPtr;
+			typedef std::unique_ptr<renderer::Texture>      TexturePtr;
+			typedef std::unique_ptr<renderer::VertexBuffer> VertexBufferPtr;
 		private:
-			std::unordered_map<uint16_t, GlyphPtr>  _glyphs;
+			renderer::Renderer&                     _renderer;
+			std::unordered_map<uint32_t, GlyphPtr>  _glyphs;
 			bool                                    _full;
 			Face&                                   _face;
 			TexturePtr                              _texture;
-
+			std::vector<vector::Vector2f>           _tex_coords;
+			VertexBufferPtr                         _tex_coords_buffer;
+			uint32_t                                _next_id;
+			vector::Vector2f                        _pen;
+			etc::size_type                          _max_line_height;
 		public:
-			GlyphMap(Face& face, TexturePtr&& texture)
-				: _glyphs{}
+			GlyphMap(Face& face, renderer::Renderer& renderer)
+				: _renderer(renderer)
+				, _glyphs{}
 				, _full{false}
 				, _face(face)
-				, _texture{std::move(texture)}
-			{}
+				, _texture{renderer.new_texture(
+					renderer::PixelFormat::red,
+					1024,
+					1024,
+					renderer::PixelFormat::red,
+					renderer::ContentPacking::uint8,
+					nullptr
+				)}
+				, _tex_coords{}
+				, _tex_coords_buffer{}
+				, _next_id{0}
+				, _pen{0, 0}
+				, _max_line_height{0}
+			{
+				ETC_TRACE.debug("New GlyphMap");
+			}
 
+			renderer::Texture& texture() { return *_texture.get(); }
+			renderer::VertexBuffer& tex_coords()
+			{
+				if (_tex_coords_buffer == nullptr)
+				{
+					_tex_coords_buffer = _renderer.new_vertex_buffer();
+					_tex_coords_buffer->push_static_content(
+						renderer::ContentKind::tex_coord0,
+						&_tex_coords[0],
+						_tex_coords.size()
+					);
+					_tex_coords_buffer->finalize();
+				}
+				return *_tex_coords_buffer.get();
+			}
+			Glyph& get_glyph(uint32_t c)
+			{
+				auto it = _glyphs.find(c);
+				if (it != _glyphs.end())
+					return *it->second.get();
+				else
+					return _gen_glyph(c);
+			}
 		private:
 			static inline
 			unsigned int next_p2(unsigned int n)
@@ -153,25 +210,35 @@ namespace cube { namespace gl { namespace font {
 				return i;
 			}
 
-			Glyph& _gen_char(uint16_t c)
+			Glyph& _gen_glyph(uint32_t c)
 			{
-				_glyphs[c].reset(new Glyph(_face, c));
+				ETC_TRACE.debug("Generate glyph", c);
+				_tex_coords_buffer.reset(); // tex coord buffer needs to be regenerated
+				_tex_coords.push_back(_pen); // add the new start coord
+
+				_glyphs[c].reset(new Glyph(_face, c, _next_id++));
 				Glyph& glyph = *_glyphs[c].get();
 
-				std::vector<uint8_t> data(glyph.bitmap.width * glyph.bitmap.rows);
+				glyph.position = _pen;
 
-				::memcpy(&data[0], glyph.bitmap.buffer, data.size());
-				_texture->set_data(0, 0,
+				if (glyph.size.y > _max_line_height)
+					_max_line_height = glyph.size.y;
+
+				_texture->set_data(_pen.x, _pen.y,
 				                   glyph.bitmap.width, glyph.bitmap.rows,
 				                   renderer::PixelFormat::red,
 				                   renderer::ContentPacking::uint8,
-				                   &data[0]);
+				                   glyph.bitmap.buffer);
+				_pen.x += glyph.bitmap.width;
+				_pen.y += glyph.bitmap.rows;
 				return glyph;
 			}
-
 		};
 
 	}} //!anonymous::freetype
+
+	///////////////////////////////////////////////////////////////////////////
+	// Font implem class
 
 	struct Font::Impl
 	{
@@ -191,34 +258,78 @@ namespace cube { namespace gl { namespace font {
 		     unsigned int size)
 			: renderer(renderer)
 			, _face{_library, name, size}
-			, _glyphs{_face, renderer.new_texture(
-				renderer::PixelFormat::red,
-				1024,
-				1024,
-				renderer::PixelFormat::red,
-				renderer::ContentPacking::uint8,
-				nullptr
-			)}
+			, _glyphs{_face, renderer}
 		{
 			if (!_library.initialized)
 				throw Exception{"FreeType library is not initialized"};
 		}
 
+		template<typename CharType>
+		uint32_t get_index(CharType c)
+		{
+			return _glyphs.get_glyph(c).id;
+		}
 
+		void bind(renderer::Painter& painter)
+		{
+			painter.bind(_glyphs.texture());
+			painter.bind(_glyphs.tex_coords());
+		}
+
+		void unbind(renderer::Painter& painter)
+		{
+			painter.unbind(_glyphs.texture());
+			painter.unbind(_glyphs.tex_coords());
+		}
 	};
 
 	freetype::Library Font::Impl::_library{};
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// Font class
 
 	Font::Font(renderer::Renderer& renderer,
 	           std::string const& name,
 	           unsigned int size)
 		: _impl{new Impl{renderer, name, size}}
-	{
-	}
+	{}
 
 	Font::~Font()
-	{
+	{}
 
+	template<typename CharType>
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text(std::basic_string<CharType> const& str)
+	{
+		std::vector<uint32_t> indices(str.size());
+		for (CharType c : str)
+			indices.push_back(_impl->get_index(c));
+		auto ib = _impl->renderer.new_index_buffer();
+		ib->push_static_content(
+			renderer::ContentKind::index,
+			&indices[0],
+			indices.size()
+		);
+		ib->finalize();
+		return ib;
 	}
 
+	template
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text<char>(std::basic_string<char> const& str);
+
+	template
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str);
+
+	void Font::bind(renderer::Painter& painter)
+	{
+		_impl->bind(painter);
+	}
+
+	void Font::unbind(renderer::Painter& painter)
+	{
+		_impl->unbind(painter);
+	}
 }}}

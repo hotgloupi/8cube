@@ -10,7 +10,7 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl { namespace test {
 
-	ETC_LOG_COMPONENT("cube.gl.opengl.test");
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.test");
 
     void vertex_buffer(system::window::Window& window,
                        bool const& running)

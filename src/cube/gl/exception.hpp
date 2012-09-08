@@ -9,9 +9,7 @@ namespace cube { namespace gl { namespace exception {
 		: public ::cube::exception::Exception
 	{
 	public:
-		Exception(std::string const& msg)
-			: ::cube::exception::Exception{msg}
-		{}
+		Exception(std::string const& msg);
 	};
 
 }}}
