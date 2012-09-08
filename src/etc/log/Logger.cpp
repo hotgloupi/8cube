@@ -13,7 +13,7 @@ namespace etc { namespace log {
 		auto it = loggers.find(name);
 		if (it != loggers.end())
 			return *it->second;
-		return *((loggers[name] = new Logger{name, Level::debug}));
+		return *((loggers[name] = new Logger{name, Level::info}));
 	}
 
 	Logger::Logger(std::string const& name,

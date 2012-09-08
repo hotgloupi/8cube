@@ -19,8 +19,6 @@ namespace etc { namespace backtrace {
 		operator std::string() const;
 	};
 
-	std::string demangle(const std::string& sym);
-
 	class Backtrace
 		: public std::vector<StackFrame>
 	{

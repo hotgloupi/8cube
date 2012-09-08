@@ -26,7 +26,8 @@ def main(args):
         bt = e.backtrace[2:]
         index = -1
         for i, frame in enumerate(bt):
-            if 'boost::python::detail::caller' in frame:
+            if 'boost::python::detail::caller' in frame or \
+               'boost::python::detail::invoke' in frame:
                 index = i
                 break
         if index > 0:
@@ -40,4 +41,5 @@ def main(args):
         err("c++ traceback: (most recent call last)")
         for i, frame in enumerate(bt):
             err('  %i: %s' % (i + 1, frame))
+        err(e)
 

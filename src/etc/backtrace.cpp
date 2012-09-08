@@ -1,12 +1,12 @@
 #include "backtrace.hpp"
 
-#include <etc/to_string.hpp>
+#include "to_string.hpp"
+#include "types.hpp"
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 
-#include <cxxabi.h>
 #include <execinfo.h>
 #include <iomanip>
 #include <iostream>
@@ -40,48 +40,7 @@ namespace etc { namespace backtrace {
 			return extract(str, ignored, until);
 		}
 
-		bool
-		demangle(const std::string& sym, std::string& res, std::string& error)
-		{
-			size_t size;
-			int status;
-			char* demangled = abi::__cxa_demangle(sym.c_str(), 0, &size, &status);
-
-			switch (status)
-			{
-			case 0:
-				{
-					res = demangled;
-					free(demangled);
-					return true;
-				}
-			case -1:
-				error = "memory allocation failure";
-				return false;
-			case -2:
-				error = "not a valid name under the C++ ABI mangling rules";
-				return false;
-			case -3:
-				error = "invalid argument";
-				return false;
-			default:
-				std::abort();
-			}
-		}
 	} // !anonymous
-
-	std::string demangle(const std::string& sym)
-	{
-		std::string error;
-		std::string res;
-		if (!demangle(sym, res, error))
-		{
-			static boost::format model("%s: demangling failure: %s");
-			boost::format fmt(model);
-			throw std::runtime_error(str(fmt % sym % error));
-		}
-		return res;
-	}
 
 	Backtrace::Backtrace()
 		: SuperType()

@@ -54,9 +54,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 
 	GLRenderer::~GLRenderer()
-	{
-		std::cerr << "Destroying opengl renderer\n";
-	}
+	{}
 
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
@@ -88,7 +86,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	void GLRenderer::shutdown()
 	{
-		std::cout << "Shutting down GLRenderer renderer\n";
+		ETC_TRACE.debug("Shutting down GLRenderer renderer");
 	}
 
 	RendererType const& GLRenderer::description() const

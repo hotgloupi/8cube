@@ -5,7 +5,14 @@
 
 namespace cube { namespace gl { namespace exception {
 
-	typedef ::cube::exception::Exception Exception;
+	class Exception
+		: public ::cube::exception::Exception
+	{
+	public:
+		Exception(std::string const& msg)
+			: ::cube::exception::Exception{msg}
+		{}
+	};
 
 }}}
 

@@ -9,21 +9,21 @@ namespace etc { namespace log {
 		struct Indent
 		{
 			private:
-				static unsigned int _indent;
+				static size_type _indent;
 			public:
-				static inline unsigned int increment() { return ++_indent; }
-				static inline unsigned int decrement() { return --_indent; }
-				static inline unsigned int get() { return _indent; }
+				static inline size_type increment() { return ++_indent; }
+				static inline size_type decrement() { return --_indent; }
+				static inline size_type get() { return _indent; }
 		} indent;
 
 
-		unsigned int Indent::_indent = 0;
+		size_type Indent::_indent = 0;
 
 	} // !anonymous
 
 	Log::Log(Level level,
 	         std::string const& file,
-	         unsigned int line,
+	         size_type line,
 	         std::string const& function,
 	         std::string const& component)
 		: _line{

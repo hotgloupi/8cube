@@ -3,8 +3,8 @@
 #include "exception.hpp"
 
 #include <etc/backtrace.hpp>
-
-#include <sstream>
+#include <etc/to_string.hpp>
+#include <etc/types.hpp>
 
 PyObject* ExceptionType = nullptr;
 
@@ -43,10 +43,10 @@ namespace {
 		exception_type.attr("backtrace") = backtrace;
 
 		//PyErr_SetObject(ExceptionType, boost::python::object(e).ptr());
-		std::stringstream bt;
-		bt << e;
-		std::string str = std::string{e.what()} + "\nC++ Traceback:\n" + bt.str();
-		PyErr_SetString(ExceptionType, str.c_str());
+		PyErr_SetString(
+			ExceptionType,
+			etc::to_string(ETC_TYPE_STRING(e), ':', e.what()).c_str()
+		);
 	}
 
 } // !anonymous

@@ -6,11 +6,27 @@ set(CMAKE_MODULE_PATH
 	"${CMAKE_SOURCE_DIR}/cmake/Modules"
 )
 
-set(CMAKE_BUILD_TYPE Debug
-	CACHE STRING "Build type can be Release or Debug"
-)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE DEBUG CACHE STRING "Build type" FORCE)
+	set(BUILD_TYPE DEBUG)
+endif()
 
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+if(BUILD_TYPE)
+	string(TOUPPER "${BUILD_TYPE}" BUILD_TYPE)
+endif()
+string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE)
+
+if(BUILD_TYPE AND NOT(BUILD_TYPE STREQUAL CMAKE_BUILD_TYPE))
+	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE BOOL "Build type" FORCE)
+	message(STATUS "Force build type: ${CMAKE_BUILD_TYPE}")
+	set(BUILD_TYPE_CHANGED TRUE)
+else()
+	set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
+	set(BUILD_TYPE_CHANGED FALSE)
+endif()
+
+message(STATUS "Build type: ${BUILD_TYPE}")
+
 
 set(RELEASE_DIRECTORY
 	"${CMAKE_CURRENT_BINARY_DIR}/release"

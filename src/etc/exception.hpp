@@ -31,4 +31,35 @@ namespace etc { namespace exception {
 
 }} // !etc::exception
 
+# include <boost/preprocessor/control/if.hpp>
+# include <boost/preprocessor/arithmetic/dec.hpp>
+# include <boost/preprocessor/variadic/size.hpp>
+
+/**
+ * @brief Defines an exception class Name.
+ *
+ * @param Name  The class name
+ * @param ...   Parent exception class (defaults to etc::exception::Exception)
+ *
+ * Note: You have to add a trailing semicolon (;).
+ */
+# define ETC_EXCEPTION_CLASS(Name, ...)                                       \
+	class Name                                                                \
+		: public BOOST_PP_IF(                                                 \
+					BOOST_PP_DEC(BOOST_PP_VARIADIC_SIZE(Name, ##__VA_ARGS__)),\
+					__VA_ARGS__,                                              \
+					::etc::exception::Exception                               \
+				)                                                             \
+	{                                                                         \
+	public:                                                                   \
+		Name(std::string const& msg)                                          \
+			: BOOST_PP_IF(                                                    \
+					BOOST_PP_DEC(BOOST_PP_VARIADIC_SIZE(Name, ##__VA_ARGS__)),\
+					__VA_ARGS__,                                              \
+					::etc::exception::Exception                               \
+				)(msg)                                                        \
+		{}                                                                    \
+	}                                                                         \
+/**/
+
 #endif

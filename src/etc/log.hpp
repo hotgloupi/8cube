@@ -1,7 +1,8 @@
 #ifndef  ETC_LOG_HPP
 # define ETC_LOG_HPP
 
-# include <etc/log/Logger.hpp>
+# include "log/Logger.hpp"
+# include "types.hpp"
 
 # include <boost/preprocessor/cat.hpp>
 
@@ -40,7 +41,7 @@ namespace etc { namespace log {
 		 */
 		Log(Level level,
 			 std::string const& file,
-			 unsigned int line,
+			 size_type line,
 			 std::string const& function,
 			 std::string const& component);
 		Log(Log const& o);
@@ -66,6 +67,10 @@ namespace etc { namespace log {
 		template<typename... T>
 		Log& send(T const&... strs)
 		{
+# ifdef NDEBUG
+			// No debug if NDEBUG is specified.
+			if (_line.level > Level::debug)
+#endif
 			_logger.message(_line, strs...);
 			return *this;
 		}
@@ -81,18 +86,29 @@ namespace etc { namespace log {
 		template<typename... T>                                               \
 		Log lvl(T const&... strs)                                             \
 		{                                                                     \
-			Log res{ \
-				Level::lvl, \
-				_line.file, _line.line, \
-				_line.function, _line.component \
-			};                                                   \
+			Log res{                                                          \
+				Level::lvl,                                                   \
+				_line.file, _line.line,                                       \
+				_line.function, _line.component                               \
+			};                                                                \
 			res.send(                                                         \
 				strs...                                                       \
 			);                                                                \
 			return res;                                                       \
 		}                                                                     \
 	/**/
+# ifdef NDEBUG
+		template<typename... T> inline Log debug(T const&...)
+		{
+			return Log{
+				Level::debug,
+				_line.file, _line.line,
+				_line.function, _line.component
+			};
+		}
+# else
 		_ETC_LOG_LEVEL_PRINTER(debug)
+# endif
 		_ETC_LOG_LEVEL_PRINTER(info)
 		_ETC_LOG_LEVEL_PRINTER(warn)
 		_ETC_LOG_LEVEL_PRINTER(error)

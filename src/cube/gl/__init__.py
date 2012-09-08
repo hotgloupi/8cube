@@ -23,8 +23,8 @@ Exported enumerations:
 
 """
 
-from .renderer import *
 from .color import *
+from .renderer import *
 from .vector import *
 from .viewport import *
 

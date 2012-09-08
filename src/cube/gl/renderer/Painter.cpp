@@ -41,7 +41,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Painter::bind(Drawable& drawable)
 	{
-		auto debug = ETC_LOG.debug("bind drawable", &drawable,"to a painter");
+		auto debug = ETC_LOG.debug("bind drawable", &drawable, "to a painter");
 		if (_bound_drawables.find(&drawable) != _bound_drawables.end())
 			throw Exception{"Already bound drawable"};
 		drawable.__bind();

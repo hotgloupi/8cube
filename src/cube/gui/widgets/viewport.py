@@ -9,7 +9,6 @@ class Viewport(container.Container):
         super(Viewport, self).__init__("viewport", **kwargs)
 
     def render(self, painter):
-        print("Render viewport", self._childs)
         super(Viewport, self).render(painter)
 
     def on_resize(self, w, h):

@@ -30,6 +30,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-O3
 		-UDEBUG
 		-DNDEBUG
+		-fvisibility=hidden
 	)
 endif()
 
@@ -41,11 +42,40 @@ foreach(build_type "" "_DEBUG" "_RELEASE")
 	message(STATUS "CXX_FLAGS${build_type}: ${CMAKE_CXX_FLAGS${build_type}}")
 endforeach()
 
-set(CMAKE_SHARED_LINKER_FLAGS "")
-set(CMAKE_EXE_LINKER_FLAGS "")
-set(CMAKE_MODULE_LINKER_FLAGS "")
+#set(CMAKE_SHARED_LINKER_FLAGS "")
+#set(CMAKE_EXE_LINKER_FLAGS "")
+#set(CMAKE_MODULE_LINKER_FLAGS "")
 
-set(Boost_USE_STATIC_LIBS       ON)
+# Workaround to remove '-rdynamic' flag
+# fix scheduled for 2.8.1
+# http://www.itk.org/Bug/view.php?id=9985
+# http://www.itk.org/Bug/view.php?id=5833
+#set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+#set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+
+if(${CMAKE_BUILD_TYPE} MATCHES "[rR]elease|RELEASE")
+	set(USE_STATIC_LIBS ON)
+else()
+	set(USE_STATIC_LIBS OFF)# CACHE BOOL "use static libraries for linking")
+endif()
+
+
+if(BUILD_TYPE_CHANGED)
+	if(USE_STATIC_LIBS)
+		message(STATUS "Linking against static libraries.")
+	else()
+		message(STATUS "Linking against dynamic libraries.")
+	endif()
+	set(Boost_FOUND FALSE)
+	set(Boost_system_FOUND FALSE)
+	set(Boost_filesystem_FOUND FALSE)
+	set(Boost_python3_FOUND FALSE)
+	set(Boost_signals_FOUND FALSE)
+	unset(Boost_INCLUDE_DIR CACHE)
+	unset(Boost_LIBRARY_DIRS CACHE)
+endif()
+
+set(Boost_USE_STATIC_LIBS       ${USE_STATIC_LIBS})
 set(Boost_USE_MULTITHREADED     OFF)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost
@@ -57,7 +87,11 @@ find_package(Boost
 	REQUIRED
 )
 
-set(PYTHON3_USE_STATIC_LIBS OFF)
+foreach(boost_lib ${Boost_LIBRARIES})
+	message(STATUS "Found boost library: ${boost_lib}")
+endforeach()
+
+set(PYTHON3_USE_STATIC_LIBS ${USE_STATIC_LIBS})
 find_package(Python3Libs REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)

@@ -50,7 +50,11 @@ namespace cube { namespace gl { namespace test {
 		auto vb = window.renderer().new_vertex_buffer();
 		auto ib = window.renderer().new_index_buffer();
 		auto sp = window.renderer().new_shader_program();
-		auto tex0 = window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg");
+		renderer::Renderer::TexturePtr tex0;
+		try {
+			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/pif.png"));
+			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg"));
+		} catch(cube::exception::Exception const&) {}
 
 		vector::Vector2f vertices[] = {
 			{10,     10},
@@ -115,9 +119,8 @@ namespace cube { namespace gl { namespace test {
 			);
 			sp->push_shader(std::move(fs));
 		}
+
 		sp->finalize();
-
-
 		vb->finalize();
 		ib->finalize();
 
