@@ -6,6 +6,8 @@
 
 # include "../viewport.hpp"
 
+# include <etc/types.hpp>
+
 # include <memory>
 # include <string>
 # include <vector>
@@ -158,6 +160,10 @@ namespace cube { namespace gl { namespace renderer {
 		                   ContentType type,
 		                   void* indices) = 0;
 
+		virtual
+		void draw_arrays(DrawMode mode,
+		                 etc::size_type start,
+		                 etc::size_type count) = 0;
 
 		virtual
 		void clear(BufferBit flags) = 0;

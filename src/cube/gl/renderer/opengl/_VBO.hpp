@@ -16,7 +16,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	private:
 		typedef std::function<void(gl::SubVBO const&)> pointer_method_t;
 	private:
-		constexpr ETC_LOG_COMPONENT("cube.gl.opengl._VBO");
+		ETC_LOG_COMPONENT("cube.gl.renderer.opengl._VBO");
 
 	public:
 		GLuint                          id;
@@ -137,7 +137,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	private:
 		static const GLint  _gl_array_type;
 	private:
-		constexpr ETC_LOG_COMPONENT("cube.gl.opengl._VBO");
+		ETC_LOG_COMPONENT("cube.gl.renderer.opengl._VBO");
 
 	public:
 		VBO(size_t total_size,

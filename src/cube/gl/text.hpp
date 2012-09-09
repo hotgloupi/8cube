@@ -6,16 +6,18 @@
 
 # include <etc/types.hpp>
 
+# include <boost/noncopyable.hpp>
+
 # include <string>
 
 namespace cube { namespace gl { namespace text {
 
 	class Text
+		: private boost::noncopyable
 	{
 	private:
 		font::Font&             _font;
 		etc::size_type          _size;
-		renderer::VertexBuffer* _indices;
 		renderer::VertexBuffer* _vertices;
 
 	public:

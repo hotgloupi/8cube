@@ -129,6 +129,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		);
 	}
 
+
+	void GLRenderer::draw_arrays(DrawMode mode,
+	                             etc::size_type start,
+	                             etc::size_type count)
+	{
+		gl::DrawArrays(gl::get_draw_mode(mode), start, count);
+	}
+
 	GLRenderer::VertexBufferPtr
 	GLRenderer::new_vertex_buffer()
 	{

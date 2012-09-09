@@ -165,10 +165,10 @@ namespace cube { namespace gl { namespace font {
 				, _face(face)
 				, _texture_size{1024, 1024}
 				, _texture{renderer.new_texture(
-					renderer::PixelFormat::rgba,
+					renderer::PixelFormat::red,
 					_texture_size.x,
 					_texture_size.y,
-					renderer::PixelFormat::rgba,
+					renderer::PixelFormat::red,
 					renderer::ContentPacking::uint8,
 					nullptr
 				)}
@@ -238,22 +238,24 @@ namespace cube { namespace gl { namespace font {
 					_pen.x / _texture_size.x,
 					(_pen.y + glyph.bitmap.rows) / _texture_size.y
 				);
-				char buffer[glyph.bitmap.width * glyph.bitmap.rows * 4];
+				uint8_t buffer[glyph.bitmap.width * glyph.bitmap.rows * 4];
 				for (int i = 0; i < glyph.bitmap.width; ++i)
 					for (int j = 0; j < glyph.bitmap.rows; ++j)
 					{
-						char col = glyph.bitmap.buffer[i + j * glyph.bitmap.width];
-						buffer[(i + j * glyph.bitmap.width) * 4 + 0] = col;
-						buffer[(i + j * glyph.bitmap.width) * 4 + 1] = col;
-						buffer[(i + j * glyph.bitmap.width) * 4 + 2] = col;
-						buffer[(i + j * glyph.bitmap.width) * 4 + 3] = 1;
+						etc::size_type idx = i + j * glyph.bitmap.width;
+						uint8_t col = glyph.bitmap.buffer[idx];
+
+						buffer[idx * 4 + 0] = col;
+						buffer[idx * 4 + 1] = col;
+						buffer[idx * 4 + 2] = col;
+						buffer[idx * 4 + 3] = 255;
 					}
 				_texture->set_data(_pen.x, _pen.y,
 				                   glyph.bitmap.width, glyph.bitmap.rows,
 				                   renderer::PixelFormat::rgba,
 				                   renderer::ContentPacking::uint8,
 				                   buffer);
-				_pen.x += glyph.bitmap.width + 2;
+				_pen.x += glyph.bitmap.width;
 				_pen.y += 0; //glyph.bitmap.rows;
 				return glyph;
 			}
@@ -329,18 +331,10 @@ namespace cube { namespace gl { namespace font {
 	Font::~Font()
 	{}
 
-	renderer::Renderer& Font::renderer()
-	{
-		return _impl->renderer;
-	}
-
 	template<typename CharType>
-	void
-	Font::generate_text(std::basic_string<CharType> const& str,
-	                    renderer::VertexBuffer& indices_buffer,
-	                    renderer::VertexBuffer& vertices_buffer)
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text(std::basic_string<CharType> const& str)
 	{
-		std::vector<etc::size_type>     indices(str.size() * 4);
 		std::vector<vector::Vector2f>   vertices(str.size() * 4);
 		std::vector<vector::Vector2f>   tex_coords(str.size() * 4);
 
@@ -354,11 +348,6 @@ namespace cube { namespace gl { namespace font {
 			etc::size_type idx1 = idx0 + 1;
 			etc::size_type idx2 = idx0 + 2;
 			etc::size_type idx3 = idx0 + 3;
-
-			indices[idx0] = idx0;
-			indices[idx1] = idx1;
-			indices[idx2] = idx2;
-			indices[idx3] = idx3;
 
 			vertices[idx0] = pos;
 			vertices[idx1] = vector::Vector2f(pos.x + glyph.bitmap.width, pos.y);
@@ -375,37 +364,28 @@ namespace cube { namespace gl { namespace font {
 			pos.x += glyph.bitmap.width + 2;
 		}
 
-		indices_buffer.push_static_content(
-			renderer::ContentKind::index,
-			&indices[0],
-			indices.size()
-		);
-		indices_buffer.finalize();
-
-		vertices_buffer.push_static_content(
+		auto vb = _impl->renderer.new_vertex_buffer();
+		vb->push_static_content(
 			renderer::ContentKind::vertex,
 			&vertices[0],
 			vertices.size()
 		);
-		vertices_buffer.push_static_content(
-			renderer::ContentKind::tex_coord0,
+		vb->push_static_content(
+			renderer::ContentKind::tex_coord0, // XXX should be configurable
 			&tex_coords[0],
 			tex_coords.size()
 		);
-		vertices_buffer.finalize();
+		vb->finalize();
+		return vb;
 	}
 
 	template
-	void
-	Font::generate_text<char>(std::basic_string<char> const& str,
-	                          renderer::VertexBuffer& indices_buffer,
-	                          renderer::VertexBuffer& vertices_buffer);
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text<char>(std::basic_string<char> const& str);
 
 	template
-	void
-	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str,
-	                             renderer::VertexBuffer& indices_buffer,
-	                             renderer::VertexBuffer& vertices_buffer);
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str);
 
 	void Font::bind(renderer::Painter& painter,
 	                renderer::ShaderProgramParameter& param)

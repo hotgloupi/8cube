@@ -25,13 +25,15 @@ namespace cube { namespace gl { namespace font {
 		     unsigned int size = CUBE_GL_FONT_DEFAULT_SIZE);
 		~Font();
 
-		renderer::Renderer& renderer();
-
+		/**
+		 * Generate a vertex buffer corresponding to a string.
+		 *
+		 * The vertex buffer returned is filled with vertices and font texture
+		 * coordinates, and finalized.
+		 */
 		template<typename CharType>
-		void
-		generate_text(std::basic_string<CharType> const& str,
-		              renderer::VertexBuffer& indices_buffer,
-		              renderer::VertexBuffer& vertices_buffer);
+		std::unique_ptr<renderer::VertexBuffer>
+		generate_text(std::basic_string<CharType> const& str);
 
 		void bind(renderer::Painter& painter,
 		          renderer::ShaderProgramParameter& param);

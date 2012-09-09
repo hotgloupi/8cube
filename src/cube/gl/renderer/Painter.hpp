@@ -2,10 +2,15 @@
 # define CUBE_GL_RENDERER_PAINTER_HPP
 
 # include "fwd.hpp"
+# include "Drawable.hpp"
+
+# include <etc/types.hpp>
+# include <etc/log.hpp>
 
 # include <boost/noncopyable.hpp>
 
 # include <set>
+# include <vector>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -31,13 +36,69 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		void bind(Drawable& drawable);
 
+		struct PainterProxy
+		{
+			ETC_LOG_COMPONENT("cube.gl.renderer.Painter.PainterProxy");
+		private:
+			Painter&                            _self;
+			std::vector<Drawable::BindGuard>    _guards;
+
+			void _init() {}
+			template<typename... T>
+			void _init(Drawable& first, T&... tail)
+			{
+				_guards.emplace_back(first);
+				_init(tail...);
+			}
+		public:
+			template<typename... T>
+			PainterProxy(Painter& self, T&... drawables)
+				: _self(self)
+			{
+				_init(drawables...);
+				ETC_TRACE.debug("Painter proxy initialized");
+			}
+			PainterProxy(PainterProxy&& other)
+				: _self(other._self)
+				, _guards(std::move(other._guards))
+			{}
+			Painter* operator ->()
+			{
+				return &_self;
+			}
+		};
+
+		template<typename... T>
+		PainterProxy with(T&... drawables)
+		{
+			return PainterProxy(*this, drawables...);
+		}
+
 		/**
 		 * @brief Send indices to the rendering system.
+		 *
+		 * @param mode      Primitive kind to be drawn
+		 * @param indices   indices array
+		 * @param start     indice offset
+		 * @param count     the number of indice to draw.
+		 *
+		 * The index buffer is bound by this function.
+		 * Parameters @a start and @a count are optional, their default value
+		 * will conviniently draw all contained indices.
 		 */
 		void draw_elements(DrawMode mode,
 		                   VertexBuffer& indices,
 		                   unsigned int start = 0,
 		                   unsigned int count = -1);
+
+		/**
+		 * @brief Draw arrays.
+		 */
+		void draw_arrays(DrawMode mode,
+		                 VertexBuffer& vertices,
+		                 etc::size_type start = 0,
+		                 etc::size_type count = -1);
+
 		/**
 		 * @brief Manually unbind any drawable.
 		 *

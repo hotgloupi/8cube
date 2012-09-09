@@ -57,8 +57,8 @@ namespace cube { namespace gl { namespace test {
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg"));
 		} catch(cube::exception::Exception const&) {}
 
-		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 24);
-		text::Text text(f, "Salut Les couillons");
+		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 48);
+		text::Text text(f, "cabcd abcd");
 
 		vector::Vector2f vertices[] = {
 			{10,     10},
@@ -118,7 +118,8 @@ namespace cube { namespace gl { namespace test {
 			fs->push_source(
 				"uniform sampler2D sampler0;"
 				"void main(void) {\n"
-				"   gl_FragColor = texture2D(sampler0, vec2(gl_TexCoord[0]));\n"
+				"   float r = texture2D(sampler0, vec2(gl_TexCoord[0]));\n"
+				"   gl_FragColor = r*vec4(0,0,1,1);\n"
 				"}\n"
 			);
 			sp->push_shader(std::move(fs));
@@ -141,11 +142,11 @@ namespace cube { namespace gl { namespace test {
 			window.poll();
 			if (auto painter = window.renderer().begin(renderer::Mode::_2d))
 				{
-					///painter.bind(*vb);
 					painter.bind(*sp);
-					///painter.bind(*tex0);
+					painter.with(*vb, *tex0)->draw_elements(
+						renderer::DrawMode::quads, *ib
+					);
 					text.render(painter, sp->parameter("sampler0"));
-					//painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
 				}
 
 			window.renderer().swap_buffers();

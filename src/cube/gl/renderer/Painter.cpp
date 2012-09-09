@@ -77,32 +77,54 @@ namespace cube { namespace gl { namespace renderer {
 
 		auto const& attr = indices.attributes()[0];
 
-		if (start > attr.nb_elements)
-			throw Exception{
-				"Start index is out of range"
-			};
-		else if (start == attr.nb_elements)
-			throw Exception{
-				"Start index equals the number of elements:"
-				" nothing would has been rendered."
-			};
 
 		if (count == ((unsigned int) -1))
 			count = attr.nb_elements - start;
 		else if (count > attr.nb_elements - start)
 			throw Exception{"Count is out of range."};
 
-
-		this->bind(indices);
+		Drawable::BindGuard guard(indices);
 		_renderer.draw_elements(
 			mode,
 			count,
 			attr.type,
 			(uint8_t*)0 + (start * get_content_type_size(attr.type))
 		);
-		this->unbind(indices);
 	}
 
+	void Painter::draw_arrays(DrawMode mode,
+	                          VertexBuffer& vertices,
+	                          etc::size_type start,
+	                          etc::size_type count)
+	{
+		ETC_TRACE.debug("draw arrays");
+		VertexBuffer::Attribute const* vertex_attr = nullptr;
+		for (auto const& attr : vertices.attributes())
+			if (attr.kind == ContentKind::vertex)
+			{
+				vertex_attr = &attr;
+				break;
+			}
+		if (vertex_attr == nullptr)
+			throw Exception{"Couldn't find vertex kind in the vertex buffer"};
+		if (start > vertex_attr->nb_elements)
+			throw Exception{
+				"Start index is out of range"
+			};
+		else if (start == vertex_attr->nb_elements)
+			throw Exception{
+				"Start index equals the number of elements:"
+				" nothing would have been rendered."
+			};
+
+		if (count == ((unsigned int) -1))
+			count = vertex_attr->nb_elements - start;
+		else if (count > vertex_attr->nb_elements - start)
+			throw Exception{"Count is out of range."};
+
+		Drawable::BindGuard guard(vertices);
+		_renderer.draw_arrays(mode, start, count);
+	}
 
 	void Painter::unbind(Drawable& drawable)
 	{
