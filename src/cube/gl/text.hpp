@@ -25,7 +25,7 @@ namespace cube { namespace gl { namespace text {
 			: Text(font, std::string{str})
 		{}
 		void render(renderer::Painter& painter,
-		            renderer::ShaderProgramParameter* param = nullptr);
+		            renderer::ShaderProgramParameter& param);
 		~Text();
 	};
 

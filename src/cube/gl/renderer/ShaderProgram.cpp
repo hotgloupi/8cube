@@ -1,5 +1,8 @@
 #include "ShaderProgram.hpp"
+
+#include "Exception.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
@@ -7,6 +10,19 @@
 namespace cube { namespace gl { namespace renderer {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgram");
+
+	///////////////////////////////////////////////////////////////////////////
+	// ShaderProgramParameter
+
+	void ShaderProgramParameter::operator =(Texture& texture)
+	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgramParameter");
+		ETC_TRACE.debug("Bind a texture to a shader program parameter");
+		_program.bind_texture_unit(texture, *this);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// ShaderProgram
 
 	void ShaderProgram::push_shader(std::unique_ptr<Shader>&& shader)
 	{
@@ -33,6 +49,23 @@ namespace cube { namespace gl { namespace renderer {
 		_finalized = true;
 		if (clear)
 			this->clear();
+	}
+
+	void ShaderProgram::bind_texture_unit(Texture& tex,
+	                                      ShaderProgramParameter& param)
+	{
+		etc::size_type texture_unit;
+
+		{
+			auto it = _bound_textures.find(&tex);
+			if (it == _bound_textures.end())
+				texture_unit = _bound_textures[&tex] = _bound_textures.size();
+			else
+				texture_unit = _bound_textures[&tex];
+		}
+
+		tex.bind_unit(texture_unit, param);
+
 	}
 
 	void ShaderProgram::clear(bool parameters_too)

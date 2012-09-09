@@ -8,6 +8,8 @@
 
 # include "fwd.hpp"
 
+# include <iosfwd>
+
 namespace cube { namespace gl { namespace vector {
 
 	using namespace ::glm;
@@ -24,7 +26,9 @@ namespace cube { namespace gl { namespace vector {
 			: detail::tvec##arity_<T>{values...}                              \
 		{};                                                                   \
 	};                                                                        \
-	typedef Vector##arity_<float> Vector##arity_##f                           \
+	typedef Vector##arity_<float> Vector##arity_##f;                          \
+	std::ostream& operator <<(std::ostream& out,                              \
+	                          Vector##arity_<float> const& value);            \
 	/**/
 
 	_CUBE_GL_VECTOR_DEF(2);

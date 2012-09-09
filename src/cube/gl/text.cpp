@@ -29,14 +29,12 @@ namespace cube { namespace gl { namespace text {
 	}
 
 	void Text::render(renderer::Painter& painter,
-	                  renderer::ShaderProgramParameter* param)
+	                  renderer::ShaderProgramParameter& param)
 	{
-		_font.bind(painter);
+		_font.bind(painter, param);
 		painter.draw_elements(
-			renderer::DrawMode::triangle_strip,
-			*_indices,
-			0,
-			_size * 4
+			renderer::DrawMode::quads,
+			*_indices
 		);
 	}
 

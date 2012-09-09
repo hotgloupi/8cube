@@ -29,7 +29,8 @@ namespace cube { namespace gl { namespace font {
 		std::unique_ptr<renderer::VertexBuffer>
 		generate_text(std::basic_string<CharType> const& str);
 
-		void bind(renderer::Painter& painter);
+		void bind(renderer::Painter& painter,
+		          renderer::ShaderProgramParameter& param);
 		void unbind(renderer::Painter& painter);
 	};
 

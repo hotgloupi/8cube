@@ -17,6 +17,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	private:
 		SDL_Surface*    _surface;
 		GLuint          _id;
+		etc::size_type  _unit;
 
 	public:
 		Texture(std::string const& path);
@@ -30,8 +31,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	public:
 		void
-		bind_unit(unsigned int texture_unit,
-		          renderer::ShaderProgramParameter* param = nullptr);
+		bind_unit(etc::size_type unit,
+		          renderer::ShaderProgramParameter& param);
 
 		void
 		set_data(unsigned int x,

@@ -57,7 +57,7 @@ namespace cube { namespace gl { namespace test {
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg"));
 		} catch(cube::exception::Exception const&) {}
 
-		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf");
+		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 24);
 		text::Text text(f, "Salut Les couillons");
 
 		vector::Vector2f vertices[] = {
@@ -130,7 +130,122 @@ namespace cube { namespace gl { namespace test {
 
 
 		sp->parameter("cube_ModelViewProjectionMatrix");
-		tex0->bind_unit(0, &sp->parameter("sampler0"));
+		//sp->parameter("sampler0") = *tex0;
+
+		while (running)
+		{
+			window.renderer().clear(
+				renderer::BufferBit::color |
+				renderer::BufferBit::depth
+			);
+			window.poll();
+			if (auto painter = window.renderer().begin(renderer::Mode::_2d))
+				{
+					///painter.bind(*vb);
+					painter.bind(*sp);
+					///painter.bind(*tex0);
+					text.render(painter, sp->parameter("sampler0"));
+					//painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
+				}
+
+			window.renderer().swap_buffers();
+
+			::usleep(30);
+		}
+	}
+
+	void test_texture(system::window::Window& window, bool& running)
+	{
+		auto sp = window.renderer().new_shader_program();
+		{
+			auto vs = window.renderer().new_vertex_shader();
+			vs->push_source(
+				"uniform mat4 cube_ModelViewProjectionMatrix;\n"
+				"void main(void)\n"
+				"{\n"
+				"   //gl_FrontColor = gl_Color;\n"
+				"   gl_Position = cube_ModelViewProjectionMatrix * gl_Vertex;\n"
+				"   gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+				"}\n"
+			);
+			sp->push_shader(std::move(vs));
+		}
+		{
+			auto fs = window.renderer().new_fragment_shader();
+			fs->push_source(
+				"uniform sampler2D sampler0;"
+				"void main(void) {\n"
+				"   float c = texture2D(sampler0, vec2(gl_TexCoord[0])).r;\n"
+				"   gl_FragColor = vec4(c,c,c,1);\n"
+				"}\n"
+			);
+			sp->push_shader(std::move(fs));
+		}
+		sp->finalize();
+		sp->parameter("cube_ModelViewProjectionMatrix");
+
+		auto tex = window.renderer().new_texture(
+			renderer::PixelFormat::red,
+			24,
+			24,
+			renderer::PixelFormat::red,
+			renderer::ContentPacking::uint8,
+			nullptr
+		);
+
+		{
+			char buf[24*24];
+			for (int x = 0; x < 24; ++x)
+				for (int y = 0; y < 24; ++y)
+				{
+					buf[x + y * 24] = (x > 4 && x < 19 ? 255 : 64);
+				}
+			tex->set_data(0, 0, 24, 24,
+			              renderer::PixelFormat::red,
+			              renderer::ContentPacking::uint8,
+			              buf);
+		}
+
+		sp->parameter("sampler0") = *tex;
+
+		auto vb = window.renderer().new_vertex_buffer();
+		{
+			vector::Vector2f vertices[] = {
+				{10,     10},
+				{630,    10},
+				{630,    470},
+				{10,     470},
+			};
+			vb->push_static_content(
+				renderer::ContentKind::vertex,
+				vertices,
+				4
+			);
+
+			vector::Vector2f tex_coords[] = {
+				{0,     0},
+				{1,     0},
+				{1,     1},
+				{0,     1},
+			};
+			vb->push_static_content(
+				renderer::ContentKind::tex_coord0,
+				tex_coords,
+				4
+			);
+		}
+		vb->finalize();
+
+		auto ib = window.renderer().new_index_buffer();
+		{
+			unsigned int indices[] = {0,1,2,3};
+			ib->push_static_content(
+				renderer::ContentKind::index,
+				indices,
+				4
+			);
+		}
+		ib->finalize();
 
 		while (running)
 		{
@@ -143,8 +258,7 @@ namespace cube { namespace gl { namespace test {
 				{
 					painter.bind(*vb);
 					painter.bind(*sp);
-					painter.bind(*tex0);
-					text.render(painter);
+					painter.bind(*tex);
 					painter.draw_elements(renderer::DrawMode::quads, *ib, 0, 4);
 				}
 
@@ -153,7 +267,6 @@ namespace cube { namespace gl { namespace test {
 			::usleep(30);
 		}
 	}
-
 
 	void test_all()
 	{

@@ -4,6 +4,8 @@
 # include "Drawable.hpp"
 # include "fwd.hpp"
 
+# include <etc/types.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	class Texture
@@ -12,8 +14,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual
 		void
-		bind_unit(unsigned int texture_unit,
-		          ShaderProgramParameter* shader = nullptr) = 0;
+		bind_unit(etc::size_type unit, ShaderProgramParameter& param) = 0;
 
 		virtual
 		void

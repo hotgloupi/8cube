@@ -1,21 +1,18 @@
 #ifndef  CUBE_GL_OPENGL_SHADERPROGRAM_HPP
 # define CUBE_GL_OPENGL_SHADERPROGRAM_HPP
 
-# include "../Shader.hpp"
 # include "../ShaderProgram.hpp"
 
 # include "_opengl.hpp"
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	class Shader;
-
 	class ShaderProgram
 		: public renderer::ShaderProgram
 	{
 	private:
-		GLuint  _id;
-		bool    _finalized;
+		GLuint          _id;
+		bool            _finalized;
 
 	public:
 		ShaderProgram();

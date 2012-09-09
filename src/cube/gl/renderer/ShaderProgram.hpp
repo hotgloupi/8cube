@@ -1,11 +1,9 @@
 #ifndef  CUBE_GL_RENDERER_SHADERPROGRAM_HPP
 # define CUBE_GL_RENDERER_SHADERPROGRAM_HPP
 
-# include <cube/gl/renderer.hpp>
-
 # include "Drawable.hpp"
-# include "Exception.hpp"
-# include "Shader.hpp"
+
+# include <etc/types.hpp>
 
 # include <memory>
 # include <set>
@@ -13,20 +11,39 @@
 
 namespace cube { namespace gl { namespace renderer {
 
+	class ShaderProgram;
+
 	/**
 	 * Represent a shader parameter.
 	 */
 	class ShaderProgramParameter
 	{
+	protected:
+		ShaderProgram& _program;
+
 	public:
+		ShaderProgramParameter(ShaderProgram& program)
+			: _program(program)
+		{}
+
 		virtual
 		~ShaderProgramParameter() {}
 
+		ShaderProgram& program() { return _program; }
+
+	public:
 		virtual
-		ShaderProgramParameter& operator =(matrix_type const& value) = 0;
+		void operator =(matrix_type const& value) = 0;
 
 		virtual
-		ShaderProgramParameter& operator =(int32_t value) = 0;
+		void operator =(int32_t value) = 0;
+
+		/**
+		 * Forward to ShaderProgram::bind_texture_unit.
+		 * Should not be overridden.
+		 */
+		virtual
+		void operator =(Texture& texture);
 	};
 
 	class ShaderProgram
@@ -71,7 +88,8 @@ namespace cube { namespace gl { namespace renderer {
 
 	private:
 		/// Indexes paramaters with their name.
-		std::unordered_map<std::string, ParameterPtr> _parameters;
+		std::unordered_map<std::string, ParameterPtr>   _parameters;
+		std::unordered_map<Texture*, etc::size_type>    _bound_textures;
 
 	public:
 		/**
@@ -79,10 +97,22 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		ShaderProgramParameter& parameter(std::string const& name);
 
+		/**
+		 * Find an already loaded parameter.
+		 */
 		ShaderProgramParameter* find_parameter(std::string const& name);
 
+		/**
+		 * Update matrix parameters for the given matrix kind.
+		 */
 		virtual
 		void update(MatrixKind kind, matrix_type const& matrix);
+
+		/**
+		 * Bind a texture unit to a named shader program parameter.
+		 */
+		virtual
+		void bind_texture_unit(Texture& tex, ShaderProgramParameter& param);
 
 	/**************************************************************************
 	 * Interface to implement.
