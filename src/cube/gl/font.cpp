@@ -152,7 +152,6 @@ namespace cube { namespace gl { namespace font {
 			Face&                                   _face;
 			vector::Vector2f                        _texture_size;
 			TexturePtr                              _texture;
-			std::vector<vector::Vector2f>           _coords;
 			std::vector<vector::Vector2f>           _tex_coords;
 			VertexBufferPtr                         _vertex_buffer;
 			uint32_t                                _next_id;
@@ -173,7 +172,6 @@ namespace cube { namespace gl { namespace font {
 					renderer::ContentPacking::uint8,
 					nullptr
 				)}
-				, _coords{}
 				, _tex_coords{}
 				, _vertex_buffer{}
 				, _next_id{0}
@@ -183,26 +181,14 @@ namespace cube { namespace gl { namespace font {
 				ETC_TRACE.debug("New GlyphMap");
 			}
 
-			renderer::Texture& texture() { return *_texture.get(); }
-			renderer::VertexBuffer& vertex_buffer()
+			vector::Vector2f const&
+			tex_coord(etc::size_type index) const
 			{
-				if (_vertex_buffer == nullptr)
-				{
-					_vertex_buffer = _renderer.new_vertex_buffer();
-					_vertex_buffer->push_static_content(
-						renderer::ContentKind::tex_coord0,
-						&_tex_coords[0],
-						_tex_coords.size()
-					);
-					_vertex_buffer->push_static_content(
-						renderer::ContentKind::vertex,
-						&_coords[0],
-						_coords.size()
-					);
-					_vertex_buffer->finalize();
-				}
-				return *_vertex_buffer.get();
+				return _tex_coords[index];
 			}
+
+			renderer::Texture& texture() { return *_texture.get(); }
+
 			Glyph& get_glyph(uint32_t c)
 			{
 				auto it = _glyphs.find(c);
@@ -235,10 +221,6 @@ namespace cube { namespace gl { namespace font {
 					_max_line_height = glyph.size.y;
 
 				dbg("glyph size:", glyph.bitmap.width, ',', glyph.bitmap.rows);
-				_coords.push_back(_pen);
-				_coords.emplace_back(_pen.x + glyph.bitmap.width, _pen.y);
-				_coords.emplace_back(_pen.x + glyph.bitmap.width, _pen.y + glyph.bitmap.rows);
-				_coords.emplace_back(_pen.x, _pen.y + glyph.bitmap.rows);
 
 				_tex_coords.emplace_back(
 					_pen.x / _texture_size.x,
@@ -257,16 +239,15 @@ namespace cube { namespace gl { namespace font {
 					(_pen.y + glyph.bitmap.rows) / _texture_size.y
 				);
 				char buffer[glyph.bitmap.width * glyph.bitmap.rows * 4];
-				memset(buffer, 12, glyph.bitmap.width* glyph.bitmap.rows * 4);
 				for (int i = 0; i < glyph.bitmap.width; ++i)
 					for (int j = 0; j < glyph.bitmap.rows; ++j)
-				{
-					char col = glyph.bitmap.buffer[i + j * glyph.bitmap.width];
-					buffer[(i + j * glyph.bitmap.width) * 4 + 0] = col;
-					buffer[(i + j * glyph.bitmap.width) * 4 + 1] = col;
-					buffer[(i + j * glyph.bitmap.width) * 4 + 2] = col;
-					buffer[(i + j * glyph.bitmap.width) * 4 + 3] = 1;
-				}
+					{
+						char col = glyph.bitmap.buffer[i + j * glyph.bitmap.width];
+						buffer[(i + j * glyph.bitmap.width) * 4 + 0] = col;
+						buffer[(i + j * glyph.bitmap.width) * 4 + 1] = col;
+						buffer[(i + j * glyph.bitmap.width) * 4 + 2] = col;
+						buffer[(i + j * glyph.bitmap.width) * 4 + 3] = 1;
+					}
 				_texture->set_data(_pen.x, _pen.y,
 				                   glyph.bitmap.width, glyph.bitmap.rows,
 				                   renderer::PixelFormat::rgba,
@@ -307,10 +288,17 @@ namespace cube { namespace gl { namespace font {
 				throw Exception{"FreeType library is not initialized"};
 		}
 
-		template<typename CharType>
-		uint32_t get_index(CharType c)
+		vector::Vector2f const&
+		tex_coord(etc::size_type idx) const
 		{
-			return _glyphs.get_glyph(c).id;
+			return _glyphs.tex_coord(idx);
+		}
+
+
+		template<typename CharType>
+		freetype::Glyph& get_glyph(CharType c)
+		{
+			return _glyphs.get_glyph(c);
 		}
 
 		void bind(renderer::Painter& painter,
@@ -318,13 +306,11 @@ namespace cube { namespace gl { namespace font {
 		{
 			param = _glyphs.texture();
 			painter.bind(_glyphs.texture());
-			painter.bind(_glyphs.vertex_buffer());
 		}
 
 		void unbind(renderer::Painter& painter)
 		{
 			painter.unbind(_glyphs.texture());
-			painter.unbind(_glyphs.vertex_buffer());
 		}
 	};
 
@@ -343,35 +329,83 @@ namespace cube { namespace gl { namespace font {
 	Font::~Font()
 	{}
 
-	template<typename CharType>
-	std::unique_ptr<renderer::VertexBuffer>
-	Font::generate_text(std::basic_string<CharType> const& str)
+	renderer::Renderer& Font::renderer()
 	{
-		std::vector<uint32_t> indices;//(str.size());
-		for (CharType c : str)
+		return _impl->renderer;
+	}
+
+	template<typename CharType>
+	void
+	Font::generate_text(std::basic_string<CharType> const& str,
+	                    renderer::VertexBuffer& indices_buffer,
+	                    renderer::VertexBuffer& vertices_buffer)
+	{
+		std::vector<etc::size_type>     indices(str.size() * 4);
+		std::vector<vector::Vector2f>   vertices(str.size() * 4);
+		std::vector<vector::Vector2f>   tex_coords(str.size() * 4);
+
+		vector::Vector2f pos{0,0};
+
+		for (etc::size_type i = 0; i < str.size(); ++i)
 		{
-			indices.push_back(_impl->get_index(c) * 4 + 0);
-			indices.push_back(_impl->get_index(c) * 4 + 1);
-			indices.push_back(_impl->get_index(c) * 4 + 2);
-			indices.push_back(_impl->get_index(c) * 4 + 3);
+			freetype::Glyph& glyph = _impl->get_glyph(str[i]);
+
+			etc::size_type idx0 = i * 4 + 0;
+			etc::size_type idx1 = idx0 + 1;
+			etc::size_type idx2 = idx0 + 2;
+			etc::size_type idx3 = idx0 + 3;
+
+			indices[idx0] = idx0;
+			indices[idx1] = idx1;
+			indices[idx2] = idx2;
+			indices[idx3] = idx3;
+
+			vertices[idx0] = pos;
+			vertices[idx1] = vector::Vector2f(pos.x + glyph.bitmap.width, pos.y);
+			vertices[idx2] = vector::Vector2f(pos.x + glyph.bitmap.width, pos.y + glyph.bitmap.rows);
+			vertices[idx3] = vector::Vector2f(pos.x, pos.y + glyph.bitmap.rows);
+
+			{
+				etc::size_type tex_index = glyph.id * 4;
+				tex_coords[idx0] = _impl->tex_coord(tex_index++);
+				tex_coords[idx1] = _impl->tex_coord(tex_index++);
+				tex_coords[idx2] = _impl->tex_coord(tex_index++);
+				tex_coords[idx3] = _impl->tex_coord(tex_index++);
+			}
+			pos.x += glyph.bitmap.width + 2;
 		}
-		auto ib = _impl->renderer.new_index_buffer();
-		ib->push_static_content(
+
+		indices_buffer.push_static_content(
 			renderer::ContentKind::index,
 			&indices[0],
 			indices.size()
 		);
-		ib->finalize();
-		return ib;
+		indices_buffer.finalize();
+
+		vertices_buffer.push_static_content(
+			renderer::ContentKind::vertex,
+			&vertices[0],
+			vertices.size()
+		);
+		vertices_buffer.push_static_content(
+			renderer::ContentKind::tex_coord0,
+			&tex_coords[0],
+			tex_coords.size()
+		);
+		vertices_buffer.finalize();
 	}
 
 	template
-	std::unique_ptr<renderer::VertexBuffer>
-	Font::generate_text<char>(std::basic_string<char> const& str);
+	void
+	Font::generate_text<char>(std::basic_string<char> const& str,
+	                          renderer::VertexBuffer& indices_buffer,
+	                          renderer::VertexBuffer& vertices_buffer);
 
 	template
-	std::unique_ptr<renderer::VertexBuffer>
-	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str);
+	void
+	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str,
+	                             renderer::VertexBuffer& indices_buffer,
+	                             renderer::VertexBuffer& vertices_buffer);
 
 	void Font::bind(renderer::Painter& painter,
 	                renderer::ShaderProgramParameter& param)

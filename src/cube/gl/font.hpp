@@ -25,9 +25,13 @@ namespace cube { namespace gl { namespace font {
 		     unsigned int size = CUBE_GL_FONT_DEFAULT_SIZE);
 		~Font();
 
+		renderer::Renderer& renderer();
+
 		template<typename CharType>
-		std::unique_ptr<renderer::VertexBuffer>
-		generate_text(std::basic_string<CharType> const& str);
+		void
+		generate_text(std::basic_string<CharType> const& str,
+		              renderer::VertexBuffer& indices_buffer,
+		              renderer::VertexBuffer& vertices_buffer);
 
 		void bind(renderer::Painter& painter,
 		          renderer::ShaderProgramParameter& param);

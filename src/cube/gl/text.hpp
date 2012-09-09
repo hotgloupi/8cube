@@ -16,6 +16,7 @@ namespace cube { namespace gl { namespace text {
 		font::Font&             _font;
 		etc::size_type          _size;
 		renderer::VertexBuffer* _indices;
+		renderer::VertexBuffer* _vertices;
 
 	public:
 		template<typename CharType>

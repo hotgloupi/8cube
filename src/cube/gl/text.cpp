@@ -13,8 +13,11 @@ namespace cube { namespace gl { namespace text {
 		: _font(font)
 		, _size(str.size())
 		, _indices{nullptr}
+		, _vertices{nullptr}
 	{
-		_indices = _font.generate_text(str).release();
+		_indices = _font.renderer().new_index_buffer().release();
+		_vertices = _font.renderer().new_vertex_buffer().release();
+		_font.generate_text(str, *_indices, *_vertices);
 	}
 
 	template
@@ -26,12 +29,15 @@ namespace cube { namespace gl { namespace text {
 	{
 		delete _indices;
 		_indices = nullptr;
+		delete _vertices;
+		_vertices = nullptr;
 	}
 
 	void Text::render(renderer::Painter& painter,
 	                  renderer::ShaderProgramParameter& param)
 	{
 		_font.bind(painter, param);
+		painter.bind(*_vertices);
 		painter.draw_elements(
 			renderer::DrawMode::quads,
 			*_indices
