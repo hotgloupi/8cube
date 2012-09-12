@@ -47,21 +47,25 @@ namespace cube { namespace gl { namespace renderer {
 			template<typename... T>
 			void _init(Drawable& first, T&... tail)
 			{
+				ETC_TRACE.debug("Insert guard of", &first);
 				_guards.emplace_back(first);
 				_init(tail...);
 			}
 		public:
 			template<typename... T>
+			explicit
 			PainterProxy(Painter& self, T&... drawables)
 				: _self(self)
 			{
 				_init(drawables...);
 				ETC_TRACE.debug("Painter proxy initialized");
 			}
+
 			PainterProxy(PainterProxy&& other)
 				: _self(other._self)
 				, _guards(std::move(other._guards))
-			{}
+			{ ETC_TRACE.debug("Moving painter proxy"); }
+
 			Painter* operator ->()
 			{
 				return &_self;
@@ -88,8 +92,8 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		void draw_elements(DrawMode mode,
 		                   VertexBuffer& indices,
-		                   unsigned int start = 0,
-		                   unsigned int count = -1);
+		                   etc::size_type start = 0,
+		                   etc::size_type count = -1);
 
 		/**
 		 * @brief Draw arrays.

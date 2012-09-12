@@ -6,6 +6,9 @@
 #include "VertexBuffer.hpp"
 
 #include <etc/log.hpp>
+#include <etc/to_string.hpp>
+
+#include <limits>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -62,8 +65,8 @@ namespace cube { namespace gl { namespace renderer {
 
 	void Painter::draw_elements(DrawMode mode,
 	                            VertexBuffer& indices,
-	                            unsigned int start,
-	                            unsigned int count)
+	                            etc::size_type start,
+	                            etc::size_type count)
 	{
 		ETC_TRACE.debug("draw elements");
 		if (indices.attributes().size() == 0)
@@ -78,7 +81,7 @@ namespace cube { namespace gl { namespace renderer {
 		auto const& attr = indices.attributes()[0];
 
 
-		if (count == ((unsigned int) -1))
+		if (count == ((etc::size_type) -1))
 			count = attr.nb_elements - start;
 		else if (count > attr.nb_elements - start)
 			throw Exception{"Count is out of range."};
@@ -106,7 +109,9 @@ namespace cube { namespace gl { namespace renderer {
 				break;
 			}
 		if (vertex_attr == nullptr)
-			throw Exception{"Couldn't find vertex kind in the vertex buffer"};
+			throw Exception{
+				"Couldn't find vertex kind in the vertex buffer"
+			};
 		if (start > vertex_attr->nb_elements)
 			throw Exception{
 				"Start index is out of range"
@@ -117,10 +122,14 @@ namespace cube { namespace gl { namespace renderer {
 				" nothing would have been rendered."
 			};
 
-		if (count == ((unsigned int) -1))
+		if (count == std::numeric_limits<etc::size_type>::max())
 			count = vertex_attr->nb_elements - start;
 		else if (count > vertex_attr->nb_elements - start)
-			throw Exception{"Count is out of range."};
+			throw Exception{etc::to_string(
+					"Count is out of range:",
+					count, '>',
+					vertex_attr->nb_elements - start
+			)};
 
 		Drawable::BindGuard guard(vertices);
 		_renderer.draw_arrays(mode, start, count);

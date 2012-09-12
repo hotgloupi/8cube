@@ -54,8 +54,9 @@ namespace cube { namespace gl { namespace test {
 		renderer::Renderer::TexturePtr tex0;
 		try {
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/pif.png"));
+		} catch(cube::exception::Exception const&) {
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg"));
-		} catch(cube::exception::Exception const&) {}
+		}
 
 		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 48);
 		text::Text text(f, "cabcd abcd");
@@ -118,7 +119,7 @@ namespace cube { namespace gl { namespace test {
 			fs->push_source(
 				"uniform sampler2D sampler0;"
 				"void main(void) {\n"
-				"   float r = texture2D(sampler0, vec2(gl_TexCoord[0]));\n"
+				"   float r = texture2D(sampler0, vec2(gl_TexCoord[0])).r;\n"
 				"   gl_FragColor = r*vec4(0,0,1,1);\n"
 				"}\n"
 			);
@@ -131,7 +132,10 @@ namespace cube { namespace gl { namespace test {
 
 
 		sp->parameter("cube_ModelViewProjectionMatrix");
-		//sp->parameter("sampler0") = *tex0;
+		sp->parameter("sampler0") = *tex0;
+
+		if (!tex0)
+			throw "pif";
 
 		while (running)
 		{
@@ -147,6 +151,7 @@ namespace cube { namespace gl { namespace test {
 						renderer::DrawMode::quads, *ib
 					);
 					text.render(painter, sp->parameter("sampler0"));
+
 				}
 
 			window.renderer().swap_buffers();

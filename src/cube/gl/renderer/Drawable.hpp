@@ -21,13 +21,20 @@ namespace cube { namespace gl { namespace renderer {
 
 	protected:
 		struct BindGuard
+      : private boost::noncopyable
 		{
 		private:
 			Drawable* _drawable;
 		public:
-			explicit BindGuard(Drawable& drawable)
+			explicit
+			BindGuard(Drawable& drawable)
 				: _drawable(!drawable._bound() ? &drawable : nullptr)
 			{ if (_drawable != nullptr) _drawable->__bind(); }
+
+			BindGuard(BindGuard&& other)
+				: _drawable(other._drawable)
+			{ other._drawable = nullptr; }
+
 			~BindGuard()
 			{ if (_drawable != nullptr) _drawable->__unbind(); }
 		};
