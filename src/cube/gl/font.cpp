@@ -104,23 +104,28 @@ namespace cube { namespace gl { namespace font {
 		struct Glyph
 		{
 			::FT_Glyph          handle;
+			::FT_BitmapGlyph    bitmap_glyph;
 			::FT_Bitmap         bitmap;
 			uint32_t            id;
 			vector::Vector2f    position;
 			vector::Vector2f    size;
+			vector::Vector2f    offset;
+			vector::Vector2f    advance;
 
 			Glyph(Face& face, uint32_t charcode, uint32_t id)
 				: handle(nullptr)
 				, bitmap()
 				, id(id)
 			{
+				::FT_GlyphSlot slot = face.handle->glyph;
 				ETC_TRACE.debug("New FreeType Glyph of", charcode);
 				auto index = ::FT_Get_Char_Index(face.handle, charcode);
 				if (index == 0)
 					throw Exception{
 						"Couldn't find glyph for charcode " + etc::to_string(charcode)
 					};
-				FT_CALL(Load_Glyph, face.handle, index, FT_LOAD_RENDER);
+				FT_CALL(Load_Glyph, face.handle, index, FT_LOAD_DEFAULT);
+				FT_CALL(Render_Glyph, face.handle->glyph, FT_RENDER_MODE_NORMAL);
 				FT_CALL(Get_Glyph, face.handle->glyph, &this->handle);
 				FT_CALL(
 					Glyph_To_Bitmap,
@@ -129,9 +134,16 @@ namespace cube { namespace gl { namespace font {
 					nullptr,                    // origin == (0, 0)
 					1                           // destroy original == true
 				);
-				this->bitmap = ((::FT_BitmapGlyph) this->handle)->bitmap;
-				FT_BBox bbox;
-				::FT_Glyph_Get_CBox(this->handle, FT_GLYPH_BBOX_PIXELS, &bbox);
+				this->bitmap_glyph = (::FT_BitmapGlyph) this->handle;
+				this->bitmap = this->bitmap_glyph->bitmap;
+
+				offset.x = slot->metrics.horiBearingX / 64;
+				offset.y = slot->metrics.horiBearingY / 64;
+				advance.x = slot->advance.x / 64;
+				advance.y = slot->advance.y / 65535.0f;
+
+				//FT_BBox bbox;
+				//::FT_Glyph_Get_CBox(this->handle, FT_GLYPH_BBOX_PIXELS, &bbox);
 			}
 			~Glyph()
 			{
@@ -257,6 +269,7 @@ namespace cube { namespace gl { namespace font {
 				                   buffer);
 				_pen.x += glyph.bitmap.width;
 				_pen.y += 0; //glyph.bitmap.rows;
+
 				return glyph;
 			}
 		};
@@ -340,6 +353,15 @@ namespace cube { namespace gl { namespace font {
 
 		vector::Vector2f pos{0,0};
 
+		vector::Vector2f max_offset{0, 0};
+		for (auto c: str)
+		{
+			freetype::Glyph& glyph = _impl->get_glyph(c);
+			if (glyph.offset.x > max_offset.y)
+				max_offset.x = glyph.offset.y;
+			if (glyph.offset.y > max_offset.y)
+				max_offset.y = glyph.offset.y;
+		}
 		for (etc::size_type i = 0; i < str.size(); ++i)
 		{
 			freetype::Glyph& glyph = _impl->get_glyph(str[i]);
@@ -349,11 +371,16 @@ namespace cube { namespace gl { namespace font {
 			etc::size_type idx2 = idx0 + 2;
 			etc::size_type idx3 = idx0 + 3;
 
-			vertices[idx0] = pos;
-			vertices[idx1] = vector::Vector2f(pos.x + glyph.bitmap.width, pos.y);
-			vertices[idx2] = vector::Vector2f(pos.x + glyph.bitmap.width, pos.y + glyph.bitmap.rows);
-			vertices[idx3] = vector::Vector2f(pos.x, pos.y + glyph.bitmap.rows);
 
+			{
+				vector::Vector2f orig(pos.x + glyph.offset.x, pos.y + (max_offset.y - glyph.offset.y));
+				vertices[idx0] = orig;
+				vertices[idx1] = vector::Vector2f(orig.x + glyph.bitmap.width, orig.y);
+				vertices[idx2] = vector::Vector2f(orig.x + glyph.bitmap.width, orig.y + glyph.bitmap.rows);
+				vertices[idx3] = vector::Vector2f(orig.x, orig.y + glyph.bitmap.rows);
+			}
+
+			pos.x += glyph.advance.x;
 			{
 				etc::size_type tex_index = glyph.id * 4;
 				tex_coords[idx0] = _impl->tex_coord(tex_index++);
@@ -361,7 +388,6 @@ namespace cube { namespace gl { namespace font {
 				tex_coords[idx2] = _impl->tex_coord(tex_index++);
 				tex_coords[idx3] = _impl->tex_coord(tex_index++);
 			}
-			pos.x += glyph.bitmap.width + 2;
 		}
 
 		auto vb = _impl->renderer.new_vertex_buffer();
