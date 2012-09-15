@@ -124,8 +124,7 @@ namespace cube { namespace gl { namespace font {
 					throw Exception{
 						"Couldn't find glyph for charcode " + etc::to_string(charcode)
 					};
-				FT_CALL(Load_Glyph, face.handle, index, FT_LOAD_DEFAULT);
-				FT_CALL(Render_Glyph, face.handle->glyph, FT_RENDER_MODE_NORMAL);
+				FT_CALL(Load_Glyph, face.handle, index, FT_LOAD_RENDER);
 				FT_CALL(Get_Glyph, face.handle->glyph, &this->handle);
 				FT_CALL(
 					Glyph_To_Bitmap,
@@ -137,13 +136,15 @@ namespace cube { namespace gl { namespace font {
 				this->bitmap_glyph = (::FT_BitmapGlyph) this->handle;
 				this->bitmap = this->bitmap_glyph->bitmap;
 
-				offset.x = slot->metrics.horiBearingX / 64;
-				offset.y = slot->metrics.horiBearingY / 64;
-				advance.x = slot->advance.x / 64;
-				advance.y = slot->advance.y / 65535.0f;
+				this->offset.x = slot->metrics.horiBearingX / 64;
+				this->offset.y = slot->metrics.horiBearingY / 64;
+				this->advance.x = slot->advance.x / 64;
+				this->advance.y = slot->advance.y / 65535.0f;
+				FT_BBox bbox;
+				::FT_Glyph_Get_CBox(this->handle, FT_GLYPH_BBOX_PIXELS, &bbox);
 
-				//FT_BBox bbox;
-				//::FT_Glyph_Get_CBox(this->handle, FT_GLYPH_BBOX_PIXELS, &bbox);
+				this->size.x = bbox.xMax - bbox.xMin;
+				this->size.y = bbox.yMax - bbox.yMin;
 			}
 			~Glyph()
 			{
@@ -375,9 +376,9 @@ namespace cube { namespace gl { namespace font {
 			{
 				vector::Vector2f orig(pos.x + glyph.offset.x, pos.y + (max_offset.y - glyph.offset.y));
 				vertices[idx0] = orig;
-				vertices[idx1] = vector::Vector2f(orig.x + glyph.bitmap.width, orig.y);
-				vertices[idx2] = vector::Vector2f(orig.x + glyph.bitmap.width, orig.y + glyph.bitmap.rows);
-				vertices[idx3] = vector::Vector2f(orig.x, orig.y + glyph.bitmap.rows);
+				vertices[idx1] = vector::Vector2f(orig.x + glyph.size.x, orig.y);
+				vertices[idx2] = vector::Vector2f(orig.x + glyph.size.x, orig.y + glyph.size.y);
+				vertices[idx3] = vector::Vector2f(orig.x, orig.y + glyph.size.y);
 			}
 
 			pos.x += glyph.advance.x;
