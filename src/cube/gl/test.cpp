@@ -58,8 +58,8 @@ namespace cube { namespace gl { namespace test {
 			tex0 = std::move(window.renderer().new_texture("/home/hotgloupi/Downloads/Water_snail_Rex_2.jpg"));
 		}
 
-		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf", 48);
-		text::Text text(f, "####kabcd abcd");
+		font::Font f(window.renderer(), "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf", 14);
+		text::Text text(f, "Ceci est un test, et ca aussi !");
 
 		vector::Vector2f vertices[] = {
 			{10,     10},
