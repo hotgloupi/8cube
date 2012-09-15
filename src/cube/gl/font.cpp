@@ -119,13 +119,12 @@ namespace cube { namespace gl { namespace font {
 			{
 				::FT_GlyphSlot slot = face.handle->glyph;
 				ETC_TRACE.debug("New FreeType Glyph of", charcode);
-				auto index = ::FT_Get_Char_Index(face.handle, charcode);
-				if (index == 0)
-					throw Exception{
-						"Couldn't find glyph for charcode " + etc::to_string(charcode)
-					};
-				FT_CALL(Load_Glyph, face.handle, index, FT_LOAD_DEFAULT);
-				FT_CALL(Render_Glyph, face.handle->glyph, FT_RENDER_MODE_NORMAL);
+				//auto index = ::FT_Get_Char_Index(face.handle, charcode);
+				//if (index == 0)
+				//	throw Exception{
+				//		"Couldn't find glyph for charcode " + etc::to_string(charcode)
+				//	};
+				FT_CALL(Load_Char, face.handle, charcode, FT_LOAD_RENDER);
 				FT_CALL(Get_Glyph, face.handle->glyph, &this->handle);
 				FT_CALL(
 					Glyph_To_Bitmap,
