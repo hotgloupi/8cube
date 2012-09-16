@@ -3,6 +3,8 @@
 #include <string>
 
 #include "renderer.hpp"
+#include "renderer/Bindable.hpp"
+#include "renderer/Drawable.hpp"
 #include "renderer/Shader.hpp"
 #include "renderer/ShaderProgram.hpp"
 #include "renderer/Texture.hpp"
@@ -63,6 +65,15 @@ namespace {
 						)
 					).ptr()
 				);
+			}
+		};
+
+		struct Painter
+		{
+			static
+			void bind(renderer::Painter& self, renderer::Bindable<>& o)
+			{
+				self.bind(o);
 			}
 		};
 
@@ -178,11 +189,11 @@ namespace {
 //	size_t len = boost::python::len(args);
 //	Painter& self = boost::python::extract<Painter&>(args[0]);
 //
-//	std::vector<Drawable*> to_draw;
+//	std::vector<Bindable*> to_draw;
 //
 //	for (size_t i = 1; i < len; ++i)
 //	{
-//		Drawable* drawable = boost::python::extract<Drawable*>(args[i]);
+//		Bindable* drawable = boost::python::extract<Drawable*>(args[i]);
 //		to_draw.push_back(drawable);
 //	}
 //	self.draw(to_draw);
@@ -343,14 +354,20 @@ BOOST_PYTHON_MODULE(renderer)
 		.value("stencil", BufferBit::stencil)
 	;
 
-	py::class_<Drawable, boost::noncopyable>("Drawable", py::no_init);
+	py::class_<BindableBase, boost::noncopyable>("BindableBase", py::no_init);
+	py::class_<Bindable<>, boost::noncopyable, py::bases<BindableBase>>("Bindable", py::no_init);
+	py::class_<Drawable<>, boost::noncopyable>("Drawable", py::no_init);
+	py::class_<Drawable<ShaderProgramParameter>, boost::noncopyable>("Drawable", py::no_init);
+
+#define PAINTER_DRAW1(_P1) \
+	static_cast<void(Painter::*)(Drawable<_P1>&, _P1&)>(&Painter::draw)
 
 	py::class_<Painter, boost::noncopyable>(
 			"Painter", py::no_init
 		)
 		.def(
 			"bind",
-			&Painter::bind,
+			&Wrap::Painter::bind,
 			py::args("drawable", "The drawable to bind."),
 			"Bound drawables can be unbound with the `unbind' method but are"
 			" automatically unbound when the painter is deleted."
@@ -362,6 +379,14 @@ BOOST_PYTHON_MODULE(renderer)
 		.def(
 			"draw_elements",
 			&Painter::draw_elements
+		)
+		.def(
+			"draw",
+			(void(Painter::*)(Drawable<>&)) &Painter::draw
+		)
+		.def(
+			"draw",
+			PAINTER_DRAW1(ShaderProgramParameter)
 		)
 	;
 
@@ -496,7 +521,7 @@ BOOST_PYTHON_MODULE(renderer)
 			VertexBuffer,
 			std::auto_ptr<VertexBuffer>,
 			boost::noncopyable,
-			py::bases<Drawable>
+			py::bases<BindableBase>
 		>(
 			"VertexBuffer",
 			py::no_init
@@ -531,7 +556,7 @@ BOOST_PYTHON_MODULE(renderer)
 		py::scope scope(py::class_<
 				ShaderProgram,
 				std::auto_ptr<ShaderProgram>,
-				py::bases<Drawable>,
+				py::bases<BindableBase>,
 				boost::noncopyable
 			>(
 				"ShaderProgram",
@@ -586,7 +611,7 @@ BOOST_PYTHON_MODULE(renderer)
 			Texture,
 			std::auto_ptr<Texture>,
 			boost::noncopyable,
-			py::bases<Drawable>
+			py::bases<BindableBase>
 		>(
 			"Texture",
 			py::no_init

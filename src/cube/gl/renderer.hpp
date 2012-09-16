@@ -2,7 +2,7 @@
 # define CUBE_GL_RENDERER_HPP
 
 # include "renderer/constants.hpp"
-# include "renderer/Drawable.hpp"
+# include "renderer/Bindable.hpp"
 # include "renderer/Exception.hpp"
 # include "renderer/Painter.hpp"
 # include "renderer/Renderer.hpp"

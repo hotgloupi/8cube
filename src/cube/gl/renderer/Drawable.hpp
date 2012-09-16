@@ -3,70 +3,30 @@
 
 # include "fwd.hpp"
 
-# include "Exception.hpp"
-
-# include <boost/noncopyable.hpp>
-
 namespace cube { namespace gl { namespace renderer {
 
+	/**
+	 * @brief Represent a drawable object.
+	 */
+	template<typename... Args>
 	class Drawable
-		: private boost::noncopyable
 	{
-	public:
-		Drawable() : __bound{false} {}
-		virtual ~Drawable() {}
-
-		virtual
-		void update(MatrixKind, matrix_type const&) {}
-
 	protected:
-		struct BindGuard
-      : private boost::noncopyable
-		{
-		private:
-			Drawable* _drawable;
-		public:
-			explicit
-			BindGuard(Drawable& drawable)
-				: _drawable(!drawable._bound() ? &drawable : nullptr)
-			{ if (_drawable != nullptr) _drawable->__bind(); }
-
-			BindGuard(BindGuard&& other)
-				: _drawable(other._drawable)
-			{ other._drawable = nullptr; }
-
-			~BindGuard()
-			{ if (_drawable != nullptr) _drawable->__unbind(); }
-		};
-		friend struct BindGuard;
-
+		/**
+		 * Draw the object.
+		 */
 		virtual
-		void _bind() = 0;
+		void _draw(Painter& painter, Args&... args) = 0;
 
+
+		// Only a painter can call _draw(...)
+		friend Painter;
+
+	public:
 		virtual
-		void _unbind() = 0;
-
-		bool _bound() const { return __bound; }
-	private:
-		friend class Painter;
-		bool __bound;
-		void __bind()
-		{
-			if (this->__bound)
-				throw Exception{"Already bound drawable."};
-			_bind();
-			__bound = true;
-		}
-		void __unbind()
-		{
-			if (!this->__bound)
-				throw Exception{"Not bound drawable."};
-			_unbind();
-			__bound = false;
-		}
+		~Drawable() {}
 	};
 
 }}}
 
 #endif
-

@@ -111,7 +111,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	                   renderer::ShaderProgramParameter& param)
 	{
 		ETC_TRACE.debug("Bind texture unit", unit, "of texture", _id);
-		BindGuard(*this);
+		Guard guard(*this);
 		gl::ActiveTexture(GL_TEXTURE0 + unit);
 		param = unit;
 	}
@@ -126,7 +126,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	                  void const* data)
 	{
 		ETC_TRACE.debug("Set data of texture", _id);
-		BindGuard guard(*this);
+		Guard guard(*this);
 		gl::TexSubImage2D(GL_TEXTURE_2D, 0,
 		                  x, y, width, height,
 		                  gl::get_pixel_format(data_format),

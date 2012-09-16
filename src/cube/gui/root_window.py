@@ -10,8 +10,8 @@ class RootWindow(system.Window):
     def __init__(self, title, width, height):
         super(RootWindow, self).__init__(title, width, height)
         self._root_widget = Viewport(
-            0, 0, width, height,
-            renderer=self.renderer
+            renderer=self.renderer,
+            x=0, y=0, w=width, h=height,
         )
         self._hdlrs = {}
         for e in ['expose', 'resize', 'keydown']:

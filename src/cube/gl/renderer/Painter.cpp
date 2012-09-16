@@ -1,6 +1,6 @@
 #include "Painter.hpp"
 
-#include "Drawable.hpp"
+#include "Bindable.hpp"
 #include "Renderer.hpp"
 #include "State.hpp"
 #include "VertexBuffer.hpp"
@@ -36,29 +36,26 @@ namespace cube { namespace gl { namespace renderer {
 	Painter::~Painter()
 	{
 		ETC_TRACE.debug("Delete painter");
-		for (Drawable* drawable: _bound_drawables)
+		for (BindableBase* drawable: _bound_drawables)
 			drawable->__unbind();
 		_bound_drawables.clear();
 		_renderer._pop_state();
 	}
 
-	void Painter::bind(Drawable& drawable)
+	void Painter::_update_parameters(BindableBase& bindable)
 	{
-		auto debug = ETC_LOG.debug("bind drawable", &drawable, "to a painter");
-		if (_bound_drawables.find(&drawable) != _bound_drawables.end())
-			throw Exception{"Already bound drawable"};
-		drawable.__bind();
-		_bound_drawables.insert(&drawable);
+		auto debug = ETC_LOG.debug("Update all parameters of", &bindable);
 
 		debug("Projection matrix is", _current_state.projection());
 		debug("mvp matrix is", _current_state.mvp());
-		drawable.update(MatrixKind::mvp, _current_state.mvp());
-		drawable.update(MatrixKind::projection, _current_state.projection());
+		bindable.update(MatrixKind::mvp, _current_state.mvp());
+		bindable.update(MatrixKind::projection, _current_state.projection());
 	}
 
 	void Painter::update(MatrixKind kind, matrix_type const& matrix)
 	{
-		ETC_TRACE.debug("update all drawable matrix", kind);
+		ETC_TRACE.debug("update", _bound_drawables.size(),
+		                "bindable(s) with matrix", kind, matrix);
 		for (auto& drawable : _bound_drawables)
 			drawable->update(kind, matrix);
 	}
@@ -86,7 +83,7 @@ namespace cube { namespace gl { namespace renderer {
 		else if (count > attr.nb_elements - start)
 			throw Exception{"Count is out of range."};
 
-		Drawable::BindGuard guard(indices);
+		Bindable<>::Guard guard(indices);
 		_renderer.draw_elements(
 			mode,
 			count,
@@ -131,18 +128,62 @@ namespace cube { namespace gl { namespace renderer {
 					vertex_attr->nb_elements - start
 			)};
 
-		Drawable::BindGuard guard(vertices);
+		Bindable<>::Guard guard(vertices);
 		_renderer.draw_arrays(mode, start, count);
 	}
 
-	void Painter::unbind(Drawable& drawable)
+	void Painter::unbind(BindableBase& bindable)
 	{
-		ETC_TRACE.debug("Unbind drawable");
-		auto it = _bound_drawables.find(&drawable);
+		ETC_TRACE.debug("Unbind bindable");
+		auto it = _bound_drawables.find(&bindable);
 		if (it == _bound_drawables.end())
-			throw Exception{"Cannot unbind the drawable (not found)"};
-		drawable.__unbind();
+			throw Exception{"Cannot unbind the drawable: not bound by this painter"};
+		bindable.__unbind();
 		_bound_drawables.erase(it);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// Painter::Proxy
+
+
+	Painter::Proxy::Proxy(Proxy&& other)
+		: _self(other._self)
+		, _guards_size{other._guards_size}
+		, _guards{other._guards}
+	{
+		ETC_TRACE.debug("Moving painter proxy");
+		other._guards_size = 0;
+		other._guards = nullptr;
+	}
+
+	void Painter::Proxy::_init()
+	{
+		ETC_TRACE.debug("Painter proxy initialized");
+	}
+
+	BindableBase::GuardBase*
+	Painter::Proxy::_new_guard_mem()
+	{
+		assert((_guards != nullptr) == (_guards_size > 0));
+		auto new_tab = (BindableBase::GuardBase*) ::realloc(
+			_guards,
+			(_guards_size + 1) * sizeof(BindableBase::GuardBase)
+		);
+
+		if (new_tab == nullptr)
+			throw std::bad_alloc();
+
+		_guards = new_tab;
+		return &_guards[_guards_size++];
+	}
+
+	Painter::Proxy::~Proxy()
+	{
+		assert((_guards != nullptr) == (_guards_size > 0));
+		for (etc::size_type i = 0; i < _guards_size; ++i)
+			_guards[i].~GuardBase();
+		free(_guards);
+		_guards = nullptr;
 	}
 
 }}} //!cube::gl::renderer

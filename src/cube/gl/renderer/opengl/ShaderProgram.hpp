@@ -32,7 +32,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		ParameterPtr _fetch_parameter(std::string const& name);
 
 	/**************************************************************************
-	 * renderer::Drawable interface.
+	 * renderer::Bindable interface.
 	 */
 	protected:
 		virtual

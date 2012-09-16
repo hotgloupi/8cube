@@ -2,7 +2,7 @@
 # define CUBE_GL_RENDERER_PAINTER_HPP
 
 # include "fwd.hpp"
-# include "Drawable.hpp"
+# include "Bindable.hpp"
 
 # include <etc/types.hpp>
 # include <etc/log.hpp>
@@ -25,7 +25,7 @@ namespace cube { namespace gl { namespace renderer {
 	private:
 		Renderer&               _renderer;
 		State&                  _current_state;
-		std::set<Drawable*>     _bound_drawables;
+		std::set<BindableBase*> _bound_drawables;
 
 	public:
 		Painter(Painter&& other);
@@ -34,49 +34,25 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * @brief Bind a drawable to the painter.
 		 */
-		void bind(Drawable& drawable);
-
-		struct PainterProxy
+		template<typename... Args>
+		void bind(Bindable<Args...>& bindable, Args&... args)
 		{
-			ETC_LOG_COMPONENT("cube.gl.renderer.Painter.PainterProxy");
-		private:
-			Painter&                            _self;
-			std::vector<Drawable::BindGuard>    _guards;
-
-			void _init() {}
-			template<typename... T>
-			void _init(Drawable& first, T&... tail)
-			{
-				ETC_TRACE.debug("Insert guard of", &first);
-				_guards.emplace_back(first);
-				_init(tail...);
-			}
-		public:
-			template<typename... T>
-			explicit
-			PainterProxy(Painter& self, T&... drawables)
-				: _self(self)
-			{
-				_init(drawables...);
-				ETC_TRACE.debug("Painter proxy initialized");
-			}
-
-			PainterProxy(PainterProxy&& other)
-				: _self(other._self)
-				, _guards(std::move(other._guards))
-			{ ETC_TRACE.debug("Moving painter proxy"); }
-
-			Painter* operator ->()
-			{
-				return &_self;
-			}
-		};
-
-		template<typename... T>
-		PainterProxy with(T&... drawables)
-		{
-			return PainterProxy(*this, drawables...);
+			bindable.__bind(args...);
+			_bound_drawables.insert(&bindable);
+			_update_parameters(bindable);
 		}
+
+		/**
+		 * @brief Proxy of a painter.
+		 *
+		 */
+		struct Proxy;
+
+		/**
+		 * @brief Bind all bindable and return a painter proxy.
+		 */
+		template<typename... T>
+		Proxy with(T&... bindables);
 
 		/**
 		 * @brief Send indices to the rendering system.
@@ -104,12 +80,22 @@ namespace cube { namespace gl { namespace renderer {
 		                 etc::size_type count = -1);
 
 		/**
-		 * @brief Manually unbind any drawable.
+		 * @brief Draw a drawable.
+		 */
+		template<typename... Args>
+		void draw(Drawable<Args...>& drawable,
+		          Args&... args)
+		{
+			drawable._draw(*this, args...);
+		}
+
+		/**
+		 * @brief Manually unbind any bindable.
 		 *
 		 * This is usually done automatically when the painter goes out of
 		 * scope.
 		 */
-		void unbind(Drawable& drawable);
+		void unbind(BindableBase& bindable);
 
 		/**
 		 * Send to bound drawable (of this painter) a new matrix.
@@ -130,12 +116,73 @@ namespace cube { namespace gl { namespace renderer {
 		operator bool() const
 		{ return true; }
 
+	private:
+		// used internally to set all parameters
+		void _update_parameters(BindableBase& bindable);
+
 		// used by the renderer begin method
 	private:
 		Painter(Renderer& renderer);
 		friend class Renderer;
 	};
 
+	struct Painter::Proxy
+	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.Painter.Proxy");
+	private:
+		Painter&                    _self;
+		etc::size_type              _guards_size;
+		BindableBase::GuardBase*    _guards;
+
+	private:
+		BindableBase::GuardBase*
+		_new_guard_mem();
+
+		template<typename... Args, typename... Tail>
+		void _init(Bindable<Args...>& first,
+		           Args&... args,
+		           Tail&... tail)
+		{
+			static_assert(
+				sizeof(BindableBase::GuardBase) == sizeof(Bindable<Args...>::Guard),
+				"Derived guard has to have the same size."
+			);
+			ETC_TRACE.debug("Insert guard of", &first);
+			typedef typename Bindable<Args...>::Guard Guard;
+			new (_new_guard_mem()) Guard(first, args...);
+			_init(tail...);
+		}
+
+		// termination
+		void _init();
+
+	public:
+		template<typename... T>
+		explicit
+		Proxy(Painter& self, T&... drawables)
+			: _self(self)
+			, _guards_size{0}
+			, _guards{nullptr}
+		{
+			_init(drawables...);
+		}
+
+		Proxy(Proxy&& other);
+		~Proxy();
+
+		inline
+		Painter* operator ->()
+		{
+			return &_self;
+		}
+	};
+
+	template<typename... T>
+	Painter::Proxy
+	Painter::with(T&... drawables)
+	{
+		return Proxy(*this, drawables...);
+	}
 
 }}}
 

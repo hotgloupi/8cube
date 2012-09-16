@@ -1,13 +1,15 @@
 # -*- encoding: utf-8 -*-
 
-from cube.gui import widget
 from cube import gl
+from .label import Label
 
-class Button(widget.Widget):
-    def __init__(self, **kwargs):
-        super(Button, self).__init__("button", **kwargs)
+class Button(Label):
+    def __init__(self, text, **kwargs):
+        kwargs.setdefault('tag', 'button')
+        super(Button, self).__init__(text, **kwargs)
 
     def _prepare(self, renderer):
+        super(Button, self)._prepare(renderer)
         self.__vb = renderer.new_vertex_buffer()
         x, y, w, h = (
             self.position.x, self.position.y,
@@ -71,3 +73,4 @@ class Button(widget.Widget):
         #self.renderer.viewport(0,0,640,480)
         painter.bind(self.__vb)
         painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
+        super(Button, self).render(painter)

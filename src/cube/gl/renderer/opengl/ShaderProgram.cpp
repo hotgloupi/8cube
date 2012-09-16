@@ -116,7 +116,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ShaderProgram::ParameterPtr
 	ShaderProgram::_fetch_parameter(std::string const& name)
 	{
-		return ParameterPtr{new ShaderProgramParameter<BindGuard>{*this, _id, name}};
+		return ParameterPtr{new ShaderProgramParameter<Guard>{*this, _id, name}};
 	}
 
 }}}}

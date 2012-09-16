@@ -21,6 +21,10 @@ namespace cube { namespace gl { namespace text {
 	Text::Text<char>(font::Font&, std::basic_string<char> const&);
 	template
 	Text::Text<wchar_t>(font::Font&, std::basic_string<wchar_t> const&);
+	template
+	Text::Text<char16_t>(font::Font&, std::basic_string<char16_t> const&);
+	template
+	Text::Text<char32_t>(font::Font&, std::basic_string<char32_t> const&);
 
 	Text::~Text()
 	{
@@ -28,10 +32,10 @@ namespace cube { namespace gl { namespace text {
 		_vertices = nullptr;
 	}
 
-	void Text::render(renderer::Painter& painter,
-	                  renderer::ShaderProgramParameter& param)
+	void Text::_draw(renderer::Painter& painter,
+	                 renderer::ShaderProgramParameter& sampler)
 	{
-		_font.bind(painter, param);
+		_font.bind(painter, sampler);
 		painter.draw_arrays(renderer::DrawMode::quads, *_vertices);
 	}
 

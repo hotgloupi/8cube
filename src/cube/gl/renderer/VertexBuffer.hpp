@@ -4,7 +4,7 @@
 # include "Exception.hpp"
 
 # include "constants.hpp"
-# include "Drawable.hpp"
+# include "Bindable.hpp"
 
 # include <cstdlib>
 # include <memory>
@@ -37,7 +37,7 @@ namespace cube { namespace gl { namespace renderer {
 	} // !detail
 
 	class VertexBuffer
-		: public Drawable
+		: public Bindable<>
 	{
 	private:
 		bool _finalized;

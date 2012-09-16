@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_SHADERPROGRAM_HPP
 # define CUBE_GL_RENDERER_SHADERPROGRAM_HPP
 
-# include "Drawable.hpp"
+# include "Bindable.hpp"
 
 # include <etc/types.hpp>
 
@@ -47,7 +47,7 @@ namespace cube { namespace gl { namespace renderer {
 	};
 
 	class ShaderProgram
-		: public Drawable
+		: public Bindable<>
 	{
 	private:
 		std::set<Shader*> _shaders;

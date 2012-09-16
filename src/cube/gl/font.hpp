@@ -2,7 +2,9 @@
 # define CUBE_GL_FONT_HPP
 
 # include "renderer/fwd.hpp"
-# include "renderer/Drawable.hpp"
+# include "renderer/Bindable.hpp"
+
+# include <etc/types.hpp>
 
 # include <memory>
 # include <string>
@@ -22,7 +24,7 @@ namespace cube { namespace gl { namespace font {
 		explicit
 		Font(renderer::Renderer& renderer,
 		     std::string const& name = CUBE_GL_FONT_DEFAULT_NAME,
-		     unsigned int size = CUBE_GL_FONT_DEFAULT_SIZE);
+		     etc::size_type size = CUBE_GL_FONT_DEFAULT_SIZE);
 		~Font();
 
 		/**
@@ -36,7 +38,7 @@ namespace cube { namespace gl { namespace font {
 		generate_text(std::basic_string<CharType> const& str);
 
 		void bind(renderer::Painter& painter,
-		          renderer::ShaderProgramParameter& param);
+		          renderer::ShaderProgramParameter& sampler);
 		void unbind(renderer::Painter& painter);
 	};
 

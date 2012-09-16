@@ -4,8 +4,8 @@ from .. import widget
 
 class Container(widget.Widget):
 
-    def __init__(self, tag, **kwargs):
-        super(Container, self).__init__(tag, **kwargs)
+    def __init__(self, **kwargs):
+        super(Container, self).__init__(**kwargs)
         self._childs = []
 
     @property

@@ -1,0 +1,46 @@
+#include <wrappers/boost/python.hpp>
+
+#include "font.hpp"
+#include "renderer/Renderer.hpp"
+#include "renderer/VertexBuffer.hpp"
+
+namespace py = boost::python;
+using namespace cube::gl;
+
+namespace {
+
+	struct Proxy
+	{
+		struct Font
+		{
+			static inline
+			renderer::VertexBuffer*
+			generate_text(font::Font& self, char16_t const* str)
+			{
+				assert(str != nullptr && "Null string !");
+				return self.generate_text(
+					std::basic_string<char16_t>(str)
+				).release();
+			}
+		};
+	};
+
+} // !anonymous
+
+BOOST_PYTHON_MODULE(font)
+{
+	py::class_<font::Font, boost::noncopyable>(
+			"Font",
+			py::init<
+				  renderer::Renderer&
+				, std::string const&
+				, etc::size_type
+			>()
+		)
+		.def(
+			"generate_text",
+			&Proxy::Font::generate_text,
+			py::return_internal_reference<>()
+		)
+	;
+}

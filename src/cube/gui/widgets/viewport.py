@@ -5,8 +5,9 @@ from . import container
 
 class Viewport(container.Container):
 
-    def __init__(self, x, y, w, h, **kwargs):
-        super(Viewport, self).__init__("viewport", **kwargs)
+    def __init__(self, **kwargs):
+        kwargs.setdefault('tag', 'viewport')
+        super(Viewport, self).__init__(**kwargs)
 
     def render(self, painter):
         super(Viewport, self).render(painter)

@@ -2,7 +2,7 @@
 # define CUBE_GL_TEXT_HPP
 
 # include "fwd.hpp"
-# include "renderer/fwd.hpp"
+# include "renderer/Drawable.hpp"
 
 # include <etc/types.hpp>
 
@@ -13,7 +13,8 @@
 namespace cube { namespace gl { namespace text {
 
 	class Text
-		: private boost::noncopyable
+		: public renderer::Drawable<renderer::ShaderProgramParameter>
+		, private boost::noncopyable
 	{
 	private:
 		font::Font&             _font;
@@ -24,15 +25,16 @@ namespace cube { namespace gl { namespace text {
 		template<typename CharType>
 		Text(font::Font& font,
 		     std::basic_string<CharType> const& str);
-		Text(font::Font& font, char const* str)
-			: Text(font, std::string{str})
+		template<typename CharType>
+		Text(font::Font& font, CharType const* str)
+			: Text{font, std::basic_string<CharType>{str}}
 		{}
-		void render(renderer::Painter& painter,
-		            renderer::ShaderProgramParameter& param);
 		~Text();
+	private:
+		void _draw(renderer::Painter& painter,
+		           renderer::ShaderProgramParameter& sampler);
 	};
 
 }}}
 
 #endif
-

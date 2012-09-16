@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_SHADER_HPP
 # define CUBE_GL_RENDERER_SHADER_HPP
 
-# include "Drawable.hpp"
+# include "Bindable.hpp"
 # include "Exception.hpp"
 
 # include <string>

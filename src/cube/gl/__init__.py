@@ -6,6 +6,7 @@ process.
 Exported classes:
 
     Color{3,4}f
+    Font
     Vector{2,3}f
     Viewport
     Drawable, Painter, Renderer, RendererType, Shader, VertexBuffer,
@@ -25,6 +26,8 @@ Exported enumerations:
 
 from .color import *
 from .renderer import *
+from .text import *
+from .font import *
 from .vector import *
 from .viewport import *
 

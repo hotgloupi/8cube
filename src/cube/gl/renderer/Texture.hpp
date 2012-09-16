@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_TEXTURE_HPP
 # define CUBE_GL_RENDERER_TEXTURE_HPP
 
-# include "Drawable.hpp"
+# include "Bindable.hpp"
 # include "fwd.hpp"
 
 # include <etc/types.hpp>
@@ -9,7 +9,7 @@
 namespace cube { namespace gl { namespace renderer {
 
 	class Texture
-		: public Drawable
+		: public Bindable<>
 	{
 	public:
 		virtual

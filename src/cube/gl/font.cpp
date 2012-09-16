@@ -338,7 +338,7 @@ namespace cube { namespace gl { namespace font {
 
 	Font::Font(renderer::Renderer& renderer,
 	           std::string const& name,
-	           unsigned int size)
+	           etc::size_type size)
 		: _impl{new Impl{renderer, name, size}}
 	{}
 
@@ -413,6 +413,14 @@ namespace cube { namespace gl { namespace font {
 	template
 	std::unique_ptr<renderer::VertexBuffer>
 	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str);
+
+	template
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text<char16_t>(std::basic_string<char16_t> const& str);
+
+	template
+	std::unique_ptr<renderer::VertexBuffer>
+	Font::generate_text<char32_t>(std::basic_string<char32_t> const& str);
 
 	void Font::bind(renderer::Painter& painter,
 	                renderer::ShaderProgramParameter& param)
