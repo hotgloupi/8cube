@@ -41,8 +41,8 @@ foreach(build_type "" "_DEBUG" "_RELEASE")
 	message(STATUS "CXX_FLAGS${build_type}: ${CMAKE_CXX_FLAGS${build_type}}")
 endforeach()
 
-set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
-set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
+#set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
+#set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
 #set(CMAKE_MODULE_LINKER_FLAGS "")
 
 # Workaround to remove '-rdynamic' flag

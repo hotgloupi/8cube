@@ -37,9 +37,9 @@ foreach(src ${cube_python_cxx_srcs})
 	)
 
 	file(MAKE_DIRECTORY
-		"${LIBRARY_OUTPUT_PATH}/python/cube/${module_dir}"
+		"${CUBE_OUTPUT_PATH}/${module_dir}"
 	)
-	message(STATUS "Found python module ${module_dir}.${module_name}")
+	message(STATUS "Found python module cube.${module_dir}.${module_name}")
 endforeach()
 
 file(GLOB_RECURSE cube_python_srcs "*.py")
@@ -48,10 +48,10 @@ foreach(src ${cube_python_srcs})
 	get_filename_component(filename ${relpath} NAME)
 	get_filename_component(module_dir ${relpath} PATH)
 	file(MAKE_DIRECTORY
-		"${LIBRARY_OUTPUT_PATH}/python/cube/${module_dir}"
+		"${CUBE_OUTPUT_PATH}/${module_dir}"
 	)
 	set(dst
-		"${LIBRARY_OUTPUT_PATH}/python/cube/${module_dir}/${filename}"
+		"${CUBE_OUTPUT_PATH}/${module_dir}/${filename}"
 	)
 	configure_file("${src}" "${dst}" COPYONLY)
 endforeach()
