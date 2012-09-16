@@ -221,30 +221,6 @@ namespace cube { namespace gl { namespace renderer {
 			void __exit__();
 		};
 
-		///////////////////////////////////////////////////////////////////////
-		// Wrap renderer class
-		struct WrapRenderer
-		{
-		private:
-			Renderer* _renderer;
-
-		public:
-			WrapRenderer();
-			WrapRenderer(Renderer& r);
-			WrapRenderer(WrapRenderer const& other);
-			WrapRendererType description() const;
-			void swap_buffers();
-			void viewport(float x, float y, float w, float h);
-			PainterWithProxy begin(Mode mode);
-			VertexBuffer* new_vertex_buffer();
-			VertexBuffer* new_index_buffer();
-			ShaderProgram* new_shader_program();
-			Shader* new_vertex_shader();
-			Shader* new_fragment_shader();
-			Texture* new_texture(std::string const& path);
-			void clear(int);
-		};
-
 	} // !detail
 
 }}} // !cube::gl::renderer

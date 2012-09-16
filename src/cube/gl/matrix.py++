@@ -1,0 +1,11 @@
+#include <wrappers/boost/python.hpp>
+
+#include "matrix.hpp"
+
+using namespace cube::gl;
+namespace py = boost::python;
+
+BOOST_PYTHON_MODULE(matrix)
+{
+	py::class_<matrix::mat44f>("mat44f");
+}

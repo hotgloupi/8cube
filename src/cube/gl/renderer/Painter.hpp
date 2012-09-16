@@ -31,6 +31,10 @@ namespace cube { namespace gl { namespace renderer {
 		Painter(Painter&& other);
 		~Painter();
 
+		inline
+		State& state()
+		{ return _current_state; }
+
 		/**
 		 * @brief Bind a drawable to the painter.
 		 */

@@ -2,9 +2,6 @@
 
 #include <ostream>
 
-//namespace cube { namespace gl { namespace matrix {
-//}}}
-
 using namespace cube::gl::matrix;
 
 std::ostream&

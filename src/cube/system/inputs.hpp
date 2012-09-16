@@ -27,6 +27,139 @@ namespace cube { namespace system { namespace inputs {
 		meta    = lmeta | rmeta,
 	};
 
+	enum class KeySym : int
+	{
+		unknown = 0,
+		first = 0,
+		backspace = 8,
+		tab = 9,
+		clear = 12,
+		return_ = 13, enter = return_,
+		pause = 19,
+		escape = 27,
+		space = 32,
+		exclaim = 33,
+		quotedbl = 34,
+		hash = 35,
+		dollar = 36,
+		ampersand = 38,
+		quote = 39,
+		leftparen = 40,
+		rightparen = 41,
+		asterisk = 42,
+		plus = 43,
+		comma = 44,
+		minus = 45,
+		period = 46,
+		slash = 47,
+		k0 = 48,
+		k1 = 49,
+		k2 = 50,
+		k3 = 51,
+		k4 = 52,
+		k5 = 53,
+		k6 = 54,
+		k7 = 55,
+		k8 = 56,
+		k9 = 57,
+		colon = 58,
+		semicolon = 59,
+		less = 60,
+		equals = 61,
+		greater = 62,
+		question = 63,
+		at = 64,
+		leftbracket = 91,
+		backslash = 92,
+		rightbracket = 93,
+		caret = 94,
+		underscore = 95,
+		backquote = 96,
+		a = 97,
+		b = 98,
+		c = 99,
+		d = 100,
+		e = 101,
+		f = 102,
+		g = 103,
+		h = 104,
+		i = 105,
+		j = 106,
+		k = 107,
+		l = 108,
+		m = 109,
+		n = 110,
+		o = 111,
+		p = 112,
+		q = 113,
+		r = 114,
+		s = 115,
+		t = 116,
+		u = 117,
+		v = 118,
+		w = 119,
+		x = 120,
+		y = 121,
+		z = 122,
+		delete_ = 127, del = delete_,
+		kp0 = 256,
+		kp1 = 257,
+		kp2 = 258,
+		kp3 = 259,
+		kp4 = 260,
+		kp5 = 261,
+		kp6 = 262,
+		kp7 = 263,
+		kp8 = 264,
+		kp9 = 265,
+		kp_period = 266,
+		kp_divide = 267,
+		kp_multiply = 268,
+		kp_minus = 269,
+		kp_plus = 270,
+		kp_enter = 271,
+		kp_equals = 272,
+		up = 273,
+		down = 274,
+		right = 275,
+		left = 276,
+		insert = 277,
+		home = 278,
+		end = 279,
+		pageup = 280,
+		pagedown = 281,
+		f1 = 282,
+		f2 = 283,
+		f3 = 284,
+		f4 = 285,
+		f5 = 286,
+		f6 = 287,
+		f7 = 288,
+		f8 = 289,
+		f9 = 290,
+		f10 = 291,
+		f11 = 292,
+		f12 = 293,
+		f13 = 294,
+		f14 = 295,
+		f15 = 296,
+		numlock = 300,
+		capslock = 301,
+		scrollock = 302,
+		rshift = 303,
+		lshift = 304,
+		rctrl = 305,
+		lctrl = 306,
+		ralt = 307,
+		lalt = 308,
+		rmeta = 309,
+		lmeta = 310,
+		lsuper = 311,       /**< Left "Windows" key */
+		rsuper = 312,       /**< Right "Windows" key */
+		mode = 313,         /**< "Alt Gr" key */
+		compose = 314,      /**< Multi-key compose key */
+	};
+
 	inline
 	bool
 	operator &(KeyMod const l, KeyMod const r)
@@ -51,7 +184,7 @@ namespace cube { namespace system { namespace inputs {
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(resize, uint32_t, uint32_t);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(idle, void);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(quit, void);
-		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keydown, KeyMod mod, uint16_t unicode);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keydown, KeyMod, KeySym, uint16_t);
 # undef CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL
 	};
 
@@ -60,6 +193,10 @@ namespace cube { namespace system { namespace inputs {
 std::ostream&
 operator <<(std::ostream& out,
             cube::system::inputs::KeyMod const mod);
+
+std::ostream&
+operator <<(std::ostream& out,
+            cube::system::inputs::KeySym const mod);
 
 #endif
 

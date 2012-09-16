@@ -4,6 +4,18 @@
 #include "vector.hpp"
 using namespace ::cube::gl::vector;
 
+namespace {
+
+	template<typename T>
+	std::string print_obj(T const& obj)
+	{
+		std::stringstream ss;
+		ss << obj;
+		return ss.str();
+	}
+
+}
+
 BOOST_PYTHON_MODULE(vector)
 {
 	namespace py = boost::python;
@@ -12,6 +24,10 @@ BOOST_PYTHON_MODULE(vector)
 		.def(py::init<float, float>())
 		.def_readonly("x", &Vector2f::x)
 		.def_readonly("y", &Vector2f::y)
+		.def(
+			"__str__",
+			&print_obj<Vector2f>
+		)
 	;
 
 	py::class_<Vector3f>("Vector3f")
@@ -19,5 +35,9 @@ BOOST_PYTHON_MODULE(vector)
 		.def_readonly("x", &Vector3f::x)
 		.def_readonly("y", &Vector3f::y)
 		.def_readonly("z", &Vector3f::z)
+		.def(
+			"__str__",
+			&print_obj<Vector3f>
+		)
 	;
 }

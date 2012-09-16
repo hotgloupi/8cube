@@ -99,14 +99,14 @@ namespace cube { namespace gl { namespace renderer {
 			};
 		}
 		_matrices[(size_t) kind] = other;
+
 		matrix_type& mvp = _matrices[(size_t) MatrixKind::mvp];
 
-		mvp = _matrices[0];
-		for (size_t i = 1; i <= (size_t) MatrixKind::projection; ++i)
-			mvp *= _matrices[i];
+		mvp = _matrices[(size_t) MatrixKind::projection] *
+		      _matrices[(size_t) MatrixKind::view] *
+		      _matrices[(size_t) MatrixKind::model];
+
 		ETC_LOG.debug("New mvp is", mvp);
-		ETC_LOG.debug(" ==", _matrices[(size_t) MatrixKind::mvp]);
-		ETC_LOG.debug(" ==", this->mvp());
 		if (_painter != nullptr)
 		{
 			_painter->update(kind, other);
@@ -114,6 +114,13 @@ namespace cube { namespace gl { namespace renderer {
 		}
 		else
 			ETC_TRACE.warn("A state without painter is updated");
+	}
+
+	void State::translate(matrix_type::value_type x,
+	                      matrix_type::value_type y,
+	                      matrix_type::value_type z)
+	{
+		this->view(matrix::translate(this->view(), x, y, z));
 	}
 
 }}} // !cube::gl::renderer

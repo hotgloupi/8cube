@@ -9,8 +9,8 @@ Exported classes:
     Font
     Vector{2,3}f
     Viewport
-    Drawable, Painter, Renderer, RendererType, Shader, VertexBuffer,
-    ShaderProgram, ShaderProgram.Parameter
+    Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
+    ShaderProgram, ShaderProgramParameter
 
 
 Exported enumerations:

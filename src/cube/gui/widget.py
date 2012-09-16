@@ -20,18 +20,6 @@ class Widget:
     _registered_ids = set()
     _widget_count = {}
 
-    @classmethod
-    def _gen_id(cls, tag, id_):
-        cls._widget_count.setdefault(tag, 0)
-        cls._widget_count[tag] += 1
-        if id_:
-            if id_ in cls._registered_ids:
-                raise Exception("The widget id '" + id + "' is already used")
-        else:
-            id_ = tag + str(cls._widget_count[tag])
-        cls._registered_ids.add(id_);
-        return id_
-
     def __init__(self, tag=None, id_=None, class_=None, renderer=None,
                  x=0, y=0, w=0, h=0):
         if not tag:
@@ -49,6 +37,18 @@ class Widget:
         self.__parent = None
         if self.__renderer is not None:
             self._prepare(self.__renderer)
+
+    @classmethod
+    def _gen_id(cls, tag, id_):
+        cls._widget_count.setdefault(tag, 0)
+        cls._widget_count[tag] += 1
+        if id_:
+            if id_ in cls._registered_ids:
+                raise Exception("The widget id '" + id + "' is already used")
+        else:
+            id_ = tag + str(cls._widget_count[tag])
+        cls._registered_ids.add(id_);
+        return id_
 
     def _prepare(self, renderer):
         """Prepare the widget for future rendering, should be overridden."""

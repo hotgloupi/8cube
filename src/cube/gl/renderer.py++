@@ -19,8 +19,15 @@ namespace renderer = cube::gl::renderer;
 
 namespace {
 
+	///////////////////////////////////////////////////////////////////////////
+	// Wrap some class method here
+
 	struct Wrap
 	{
+
+		///////////////////////////////////////////////////////////////////////
+		// Renderer
+
 		struct Renderer
 		{
 			static
@@ -52,6 +59,17 @@ namespace {
 			}
 		};
 
+		///////////////////////////////////////////////////////////////////////
+		// Convert unique_ptr
+
+		// This is involved when returning by value, and as copying is not
+		// allowed for a unique_ptr, we can safely remove de const qualifiers.
+		// This is meant to happen when returning unique_ptr<T>, for the
+		// caller, the variable is moved.
+		//
+		// When boost python handle properly to move operation, this could go
+		// away.
+
 		template<typename T>
 		struct UniquePtrConverter
 		{
@@ -68,6 +86,9 @@ namespace {
 			}
 		};
 
+		///////////////////////////////////////////////////////////////////////
+		// Painter
+
 		struct Painter
 		{
 			static
@@ -76,6 +97,9 @@ namespace {
 				self.bind(o);
 			}
 		};
+
+		///////////////////////////////////////////////////////////////////////
+		// PainterWithProxy
 
 		struct PainterWithProxy
 		{
@@ -86,6 +110,9 @@ namespace {
 				self.__exit__();
 			}
 		};
+
+		///////////////////////////////////////////////////////////////////////
+		// VertexBuffer
 
 		struct VertexBuffer
 		{
@@ -154,6 +181,8 @@ namespace {
 			}
 		};
 
+		///////////////////////////////////////////////////////////////////////
+		// ShaderProgram
 
 		struct ShaderProgram
 		{
@@ -176,7 +205,9 @@ namespace {
 				p.finalize(clear);
 			}
 		};
-	};
+
+
+	}; // !struct Wrap
 
 } // !anonymous
 
@@ -354,10 +385,71 @@ BOOST_PYTHON_MODULE(renderer)
 		.value("stencil", BufferBit::stencil)
 	;
 
+	///////////////////////////////////////////////////////////////////////////
+	// Bindable
+
+#define EXPORT_BINDABLE()                                                     \
+	py::class_<                                                               \
+		Bindable<>,                                                           \
+		boost::noncopyable,                                                   \
+		py::bases<BindableBase>                                               \
+	>("Bindable", py::no_init)                                                \
+/**/
+
 	py::class_<BindableBase, boost::noncopyable>("BindableBase", py::no_init);
-	py::class_<Bindable<>, boost::noncopyable, py::bases<BindableBase>>("Bindable", py::no_init);
-	py::class_<Drawable<>, boost::noncopyable>("Drawable", py::no_init);
-	py::class_<Drawable<ShaderProgramParameter>, boost::noncopyable>("Drawable", py::no_init);
+	EXPORT_BINDABLE();
+
+	///////////////////////////////////////////////////////////////////////////
+	// Drawable
+
+#define EXPORT_DRAWABLE(...)                                                  \
+	py::class_<                                                               \
+		Drawable<__VA_ARGS__>,                                                \
+		boost::noncopyable                                                    \
+	>("Drawable", py::no_init)                                                \
+/**/
+
+	EXPORT_DRAWABLE();
+	EXPORT_DRAWABLE(ShaderProgramParameter);
+
+	///////////////////////////////////////////////////////////////////////////
+	// State
+
+	py::class_<State, boost::noncopyable>("State", py::no_init)
+# define EXPORT_STATE_MATRIX(__name)                                          \
+		.add_property(                                                        \
+			#__name,                                                          \
+			py::make_function(                                                \
+				static_cast<                                                  \
+					matrix_type const&(State::*)() const                      \
+				>(&State::__name),                                            \
+				py::return_internal_reference<>()                             \
+			),                                                                \
+			static_cast<void(State::*)(matrix_type const&)>(&State::__name)   \
+		)                                                                     \
+/**/
+		EXPORT_STATE_MATRIX(model)
+		EXPORT_STATE_MATRIX(view)
+		EXPORT_STATE_MATRIX(projection)
+		.add_property(
+			"mvp",
+			py::make_function(
+				static_cast<
+					matrix_type const&(State::*)() const
+				>(&State::mvp),
+				py::return_internal_reference<>()
+			)
+		)
+		.def(
+			"translate",
+			&State::translate
+		)
+	;
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// Painter
 
 #define PAINTER_DRAW1(_P1) \
 	static_cast<void(Painter::*)(Drawable<_P1>&, _P1&)>(&Painter::draw)
@@ -388,7 +480,17 @@ BOOST_PYTHON_MODULE(renderer)
 			"draw",
 			PAINTER_DRAW1(ShaderProgramParameter)
 		)
+		.add_property(
+			"state",
+			py::make_function(
+				&Painter::state,
+				py::return_internal_reference<>()
+			)
+		)
 	;
+
+	///////////////////////////////////////////////////////////////////////////
+	// PainterWithProxy
 
 	py::class_<detail::PainterWithProxy>(
 			"PainterWithProxy", py::no_init
@@ -404,6 +506,8 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 	;
 
+	///////////////////////////////////////////////////////////////////////////
+	// Renderer
 
 	typedef Renderer::TexturePtr
 		(Renderer::*new_texture_cb_t)(std::string const&);
@@ -415,7 +519,7 @@ BOOST_PYTHON_MODULE(renderer)
 		                                  renderer::PixelFormat const,
 		                                  renderer::ContentPacking const,
 		                                  void const*);
-	// Export Renderer class
+
 	py::class_<Renderer, boost::shared_ptr<Renderer>, boost::noncopyable>(
 			"Renderer", py::no_init
 		)
@@ -437,15 +541,22 @@ BOOST_PYTHON_MODULE(renderer)
 			&Wrap::Renderer::begin,
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
+		)
+		.add_property(
+			"state",
+			py::make_function(
+				&Renderer::current_state,
+				py::return_internal_reference<>()
+			)
 		)
 		.def(
 			"new_vertex_buffer",
 			&Renderer::new_vertex_buffer,
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -453,7 +564,7 @@ BOOST_PYTHON_MODULE(renderer)
 			&Renderer::new_index_buffer,
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -461,7 +572,7 @@ BOOST_PYTHON_MODULE(renderer)
 			&Renderer::new_shader_program,
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -469,7 +580,7 @@ BOOST_PYTHON_MODULE(renderer)
 			&Renderer::new_fragment_shader,
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -477,7 +588,7 @@ BOOST_PYTHON_MODULE(renderer)
 			&Renderer::new_vertex_shader,
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -487,7 +598,7 @@ BOOST_PYTHON_MODULE(renderer)
 			),
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -497,7 +608,7 @@ BOOST_PYTHON_MODULE(renderer)
 			),
 			py::return_value_policy<
 				py::return_by_value,
-				py::with_custodian_and_ward_postcall<0,1>
+				py::with_custodian_and_ward_postcall<1,0>
 			>()
 		)
 		.def(
@@ -506,16 +617,21 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 	;
 
-	// Export RendererType class
-	py::class_<detail::WrapRendererType>(
-			"RendererType"
+	///////////////////////////////////////////////////////////////////////////
+	// RendererType
+
+	py::class_<RendererType, boost::noncopyable>(
+			"RendererType",
+			py::no_init
 		)
 		.def(
 			"__str__",
-		   	&detail::WrapRendererType::__str__
+			&RendererType::__str__
 		)
 	;
 
+	///////////////////////////////////////////////////////////////////////////
+	// VertexBuffer
 
 	py::class_<
 			VertexBuffer,
@@ -536,6 +652,9 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 	;
 
+	///////////////////////////////////////////////////////////////////////////
+	// Shader
+
 	py::class_<
 			Shader,
 			std::auto_ptr<Shader>,
@@ -551,6 +670,9 @@ BOOST_PYTHON_MODULE(renderer)
 			)
 		)
 	;
+
+	///////////////////////////////////////////////////////////////////////////
+	// ShaderProgram
 
 	{
 		py::scope scope(py::class_<
@@ -582,6 +704,10 @@ BOOST_PYTHON_MODULE(renderer)
 		);
 
 	} // end of ShaderProgram scope
+
+	///////////////////////////////////////////////////////////////////////////
+	// ShaderProgramParameter
+
 		py::class_<
 				ShaderProgramParameter,
 				boost::noncopyable
@@ -597,7 +723,7 @@ BOOST_PYTHON_MODULE(renderer)
 						void                                                  \
 						(ShaderProgramParameter::*) (type)                    \
 					>(&ShaderProgramParameter::operator =)                    \
-				)                                                            \
+				)                                                             \
 			)                                                                 \
 	/**/
 			__EQ__(matrix_type const&)
@@ -606,6 +732,8 @@ BOOST_PYTHON_MODULE(renderer)
 #undef __EQ__
 		;
 
+	///////////////////////////////////////////////////////////////////////////
+	// Texture
 
 	py::class_<
 			Texture,

@@ -45,6 +45,10 @@ namespace cube { namespace gl { namespace renderer {
 		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(projection);
 # undef _CUBE_GL_RENDERER_RENDERER_STATE_MAT
 
+		void translate(matrix_type::value_type x,
+		               matrix_type::value_type y,
+		               matrix_type::value_type z);
+
 		/**
 		 * Painter internally register to a state, so states can update their
 		 * bound painter when something changed.

@@ -20,6 +20,10 @@ class Application(cube.Application):
     def viewport(self):
         return self._window.root_widget
 
+    @property
+    def window(self):
+        return self._window
+
     def __del__(self):
         self.shutdown()
 

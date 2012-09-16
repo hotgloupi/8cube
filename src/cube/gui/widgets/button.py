@@ -12,7 +12,7 @@ class Button(Label):
         super(Button, self)._prepare(renderer)
         self.__vb = renderer.new_vertex_buffer()
         x, y, w, h = (
-            self.position.x, self.position.y,
+            0, 0,
             self.size.x, self.size.y
         )
         self.__vb.push_static_content(
@@ -68,9 +68,11 @@ class Button(Label):
         self.__sp.parameter("cube_ModelViewProjectionMatrix")
         #    renderer.viewport(0,0,640,480)
 
-    def render(self, painter):
-        painter.bind(self.__sp)
-        #self.renderer.viewport(0,0,640,480)
-        painter.bind(self.__vb)
-        painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
-        super(Button, self).render(painter)
+    def render(self, _):
+        with self.renderer.begin(gl.renderer.mode_2d) as painter:
+            painter.state.translate(self.position.x, self.position.y,0)
+            painter.bind(self.__sp)
+            #self.renderer.viewport(0,0,640,480)
+            painter.bind(self.__vb)
+            painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
+            super(Button, self).render(painter)
