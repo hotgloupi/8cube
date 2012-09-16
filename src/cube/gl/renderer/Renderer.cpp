@@ -56,7 +56,6 @@ namespace cube { namespace gl { namespace renderer {
 			              this->current_state().mvp());
 			break;
 		case Mode::_3d:
-			throw Exception{"Not implemented."};
 			break;
 		default:
 			throw Exception{"Unknown render mode."};
@@ -108,11 +107,6 @@ namespace cube { namespace gl { namespace renderer {
 // Python wrappers
 
 namespace cube { namespace gl { namespace renderer { namespace detail {
-
-	std::string WrapRendererType::__str__() const
-	{
-		return this->renderer_type->__str__();
-	}
 
 	PainterWithProxy::PainterWithProxy(PainterWithProxy const& other)
 		: _renderer(other._renderer)

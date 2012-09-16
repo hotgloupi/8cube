@@ -198,14 +198,6 @@ namespace cube { namespace gl { namespace renderer {
 	namespace detail {
 
 		///////////////////////////////////////////////////////////////////////
-		// Wrap RendererType class.
-		struct WrapRendererType
-		{
-			RendererType const* renderer_type;
-			std::string __str__() const;
-		};
-
-		///////////////////////////////////////////////////////////////////////
 		// Painter proxy class.
 		struct PainterWithProxy
 		{

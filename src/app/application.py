@@ -2,6 +2,9 @@
 
 import cube
 
+from . import gui
+from . import core
+
 class Application(cube.gui.Application):
 
     def __init__(self):
@@ -17,12 +20,15 @@ class Application(cube.gui.Application):
         ).add_child(
             cube.gui.widgets.Button("New game", x=10, y=100, w=400, h=90)
         )
-
-        self._game_menu = cube.gui.widgets.VerticalLayout(
-            renderer=self.window.renderer
-        ).add_child(
-            cube.gui.widgets.Button("Game menu", x=10, y=100, w=400, h=90)
+        self._game_menu = gui.Game(
+            renderer=self.window.renderer,
         )
+
+        self._game_menu.game = core.Game(
+            self.window,
+            core.Client(),
+        )
+
         self.viewport.add_child(
             self._main_menu
         )
@@ -38,4 +44,7 @@ class Application(cube.gui.Application):
                 self._game_menu
             )
         print(s)
+
+    def _on_quit(self):
+        self.stop()
 

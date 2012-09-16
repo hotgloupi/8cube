@@ -20,7 +20,8 @@ BOOST_PYTHON_MODULE(vector)
 {
 	namespace py = boost::python;
 
-	py::class_<Vector2f>("Vector2f")
+	py::class_<detail::tvec2<float>>("_tvec2f");
+	py::class_<Vector2f, py::bases<detail::tvec2<float>>>("Vector2f")
 		.def(py::init<float, float>())
 		.def_readonly("x", &Vector2f::x)
 		.def_readonly("y", &Vector2f::y)
@@ -30,7 +31,8 @@ BOOST_PYTHON_MODULE(vector)
 		)
 	;
 
-	py::class_<Vector3f>("Vector3f")
+	py::class_<detail::tvec3<float>>("_tvec3f");
+	py::class_<Vector3f, py::bases<detail::tvec3<float>>>("Vector3f")
 		.def(py::init<float, float, float>())
 		.def_readonly("x", &Vector3f::x)
 		.def_readonly("y", &Vector3f::y)

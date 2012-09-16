@@ -52,6 +52,9 @@ class Application(cube.Application):
         with self._window.renderer.begin(cube.gl.renderer.mode_2d) as painter:
             self._window.render(painter)
 
+    def stop(self):
+        self._running = False
+
     def shutdown(self):
         print("shutting down")
         for ev, hdlr in self._handlers.items():
@@ -64,4 +67,4 @@ class Application(cube.Application):
         pass
 
     def _on_quit(self):
-        self._running = False
+        pass

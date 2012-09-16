@@ -5,7 +5,23 @@
 using namespace cube::gl;
 namespace py = boost::python;
 
+namespace {
+
+	template<typename T>
+	std::string print_obj(T const& obj)
+	{
+		std::stringstream ss;
+		ss << obj;
+		return ss.str();
+	}
+
+}
+
 BOOST_PYTHON_MODULE(matrix)
 {
-	py::class_<matrix::mat44f>("mat44f");
+	py::class_<matrix::mat44f>("Matrix44f")
+		.def("__str__", &print_obj<matrix::mat44f>)
+	;
+	py::def("perspective", &matrix::perspective<float>);
+	py::def("look_at", &matrix::lookAt<float>);
 }

@@ -3,10 +3,15 @@
 cube graphic library consist on a set of objects which abstract the rendering
 process.
 
+Exported modules:
+    matrix
+
 Exported classes:
 
+    Camera
     Color{3,4}f
     Font
+    Matrix44f
     Vector{2,3}f
     Viewport
     Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
@@ -24,10 +29,14 @@ Exported enumerations:
 
 """
 
+from . import matrix
+
+from .camera import *
 from .color import *
 from .renderer import *
 from .text import *
 from .font import *
+from .matrix import Matrix44f
 from .vector import *
 from .viewport import *
 

@@ -21,6 +21,10 @@ class RootWindow(system.Window):
         self._new_viewport_size = None
 
     @property
+    def size(self):
+        return self._root_widget.size
+
+    @property
     def root_widget(self):
         return self._root_widget
 
@@ -39,6 +43,8 @@ class RootWindow(system.Window):
             w, h = self._new_viewport_size
             print("Updating viewport size")
             self.renderer.viewport(0, 0, w, h);
+            if self._root_widget:
+                self._root_widget.on_resize(w, h)
             self._new_viewport_size = None
         if self._root_widget is not None:
             self._root_widget.render(painter)
@@ -51,7 +57,6 @@ class RootWindow(system.Window):
     def _on_resize(self, w, h):
         print("resize from window", w, h)
         self._new_viewport_size = (w, h)
-        self.root_widget.on_resize(w, h)
 
     def _on_keydown(self, mod, sym, k):
         print("Key down:", mod, sym, k, chr(k))
