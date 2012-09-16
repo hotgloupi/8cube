@@ -69,7 +69,8 @@ namespace etc { namespace log {
 		{
 # ifdef NDEBUG
 			// No debug if NDEBUG is specified.
-			if (_line.level > Level::debug)
+			if (_line.level <= Level::debug)
+				return *this;
 #endif
 			_logger.message(_line, strs...);
 			return *this;
@@ -116,8 +117,24 @@ namespace etc { namespace log {
 # undef _ETC_LOG_LEVEL_PRINTER
 
 		operator bool() const {return false;}
+
+	private:
+		static
+		etc::size_type _current_indent();
 	};
 
+#define DLL_PUBLIC __attribute__((__visibility__("default")))
+		struct DLL_PUBLIC Indent
+		{
+			private:DLL_PUBLIC
+				DLL_PUBLIC static size_type _indent;
+			public:
+				static inline size_type increment() { return ++_indent; }
+				static inline size_type decrement() { return --_indent; }
+				static inline size_type get() { return _indent; }
+		};
+
+		DLL_PUBLIC extern Indent indent;
 
 }}
 

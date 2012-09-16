@@ -3,6 +3,8 @@
 
 # include "Level.hpp"
 
+# include <etc/types.hpp>
+
 # include <string>
 
 namespace etc { namespace log {
@@ -12,18 +14,18 @@ namespace etc { namespace log {
 	public:
 		Level           level;
 		std::string     file;
-		unsigned int    line;
+		etc::size_type  line;
 		std::string     function;
 		std::string     component;
-		unsigned int    indent;
+		etc::size_type  indent;
 
 	public:
 		Line(Level level,
 		     std::string const& file,
-		     unsigned int line,
+		     etc::size_type line,
 		     std::string const& function,
 		     std::string const& component,
-			 unsigned int indent)
+			 etc::size_type indent)
 			: level{level}
 			, file{file}
 			, line{line}

@@ -151,6 +151,8 @@ namespace etc { namespace log {
 		case Level::error:
 			*out << "[33;03;31m";
 			break;
+		default:
+			break;
 		}
 		// Print each part
 #define _PRINT_PART(__name, __flag) \

@@ -19,7 +19,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-Wall
 		-Wextra
 		-Winvalid-pch
-		-fPIC
 	)
 	list(APPEND CXX_FLAGS_DEBUG
 		-g3
@@ -42,8 +41,8 @@ foreach(build_type "" "_DEBUG" "_RELEASE")
 	message(STATUS "CXX_FLAGS${build_type}: ${CMAKE_CXX_FLAGS${build_type}}")
 endforeach()
 
-#set(CMAKE_SHARED_LINKER_FLAGS "")
-#set(CMAKE_EXE_LINKER_FLAGS "")
+set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
+set(CMAKE_EXE_LINKER_FLAGS "-rdynamic")
 #set(CMAKE_MODULE_LINKER_FLAGS "")
 
 # Workaround to remove '-rdynamic' flag
@@ -55,8 +54,10 @@ endforeach()
 
 if(${CMAKE_BUILD_TYPE} MATCHES "[rR]elease|RELEASE")
 	set(USE_STATIC_LIBS ON)
+	set(LINK_TYPE STATIC)
 else()
 	set(USE_STATIC_LIBS OFF)# CACHE BOOL "use static libraries for linking")
+	set(LINK_TYPE SHARED)
 endif()
 
 

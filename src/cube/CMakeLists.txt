@@ -1,7 +1,7 @@
 
 file(GLOB_RECURSE cube_srcs "*.[ch]pp")
 
-add_library(cube ${cube_srcs})
+add_library(cube ${LINK_TYPE} ${cube_srcs})
 #set_target_properties(cube
 #	PROPERTIES
 #	COMPILE_FLAGS "-x c++ -fPIC"

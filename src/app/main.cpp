@@ -69,17 +69,17 @@ static int load_libraries(fs::path lib_dir)
     if (algo::ends_with(p.string(), ".dll") ||
         algo::ends_with(p.string(), ".so"))
     {
-      std::cout << "-- Load library: " << p.string() << std::endl;
 #ifdef _WIN32
+      std::cout << "-- Load library: " << p.string() << std::endl;
       ::LoadLibrary(p.string().c_str());
 #else
-      auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
-      if (!handle)
-        {
-          std::cerr << "Error while loading " << p.string() << ": " << dlerror() << std::endl;
-        }
-        if (auto res = dlsym(handle, "__caca0_free_bitmap"))
-          std::cout << "found: " << (void const*)res << std::endl;
+      //auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
+      //if (!handle)
+      //  {
+      //    std::cerr << "Error while loading " << p.string() << ": " << dlerror() << std::endl;
+      //  }
+      //  if (auto res = dlsym(handle, "__caca0_free_bitmap"))
+      //    std::cout << "found: " << (void const*)res << std::endl;
 #endif
     }
   }

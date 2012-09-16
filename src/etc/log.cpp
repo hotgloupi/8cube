@@ -4,22 +4,12 @@ namespace etc { namespace log {
 
 
 	// static variable indent
-	namespace {
+	//namespace {
 
-		struct Indent
-		{
-			private:
-				static size_type _indent;
-			public:
-				static inline size_type increment() { return ++_indent; }
-				static inline size_type decrement() { return --_indent; }
-				static inline size_type get() { return _indent; }
-		} indent;
-
-
+		DLL_PUBLIC Indent indent;
 		size_type Indent::_indent = 0;
 
-	} // !anonymous
+	//} // !anonymous
 
 	Log::Log(Level level,
 	         std::string const& file,
@@ -59,5 +49,10 @@ namespace etc { namespace log {
 	{
 		if (_dtor_indent)
 			indent.decrement();
+	}
+
+	etc::size_type Log::_current_indent()
+	{
+		return indent.get();
 	}
 }}
