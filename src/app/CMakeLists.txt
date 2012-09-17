@@ -9,6 +9,11 @@ target_link_libraries(8cube
 	etc
 	${PYTHON3_LIBRARIES}
 	${Boost_LIBRARIES}
+	${OPENGL_LIBRARIES}
+	${GLEW_LIBRARIES}
+	${SDL_LIBRARY}
+	${SDLIMAGE_LIBRARY}
+	${FREETYPE_LIBRARIES}
 	pthread
 	z
 	ssl
