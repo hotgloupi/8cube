@@ -178,10 +178,10 @@ namespace cube { namespace gl { namespace font {
 				, _face(face)
 				, _texture_size{1024, 1024}
 				, _texture{renderer.new_texture(
-					renderer::PixelFormat::red,
+					renderer::PixelFormat::rgba,
 					_texture_size.x,
 					_texture_size.y,
-					renderer::PixelFormat::red,
+					renderer::PixelFormat::rgba,
 					renderer::ContentPacking::uint8,
 					nullptr
 				)}
