@@ -23,13 +23,11 @@ class Application(cube.gui.Application):
         self._game_menu = gui.Game(
             renderer=self.window.renderer,
         )
-
         self._game_menu.game = core.Game(
             path,
             self.window,
             core.Client(),
         )
-
         self.viewport.add_child(
             self._main_menu
         )
