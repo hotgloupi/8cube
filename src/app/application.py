@@ -29,7 +29,7 @@ class Application(cube.gui.Application):
             core.Client(),
         )
         self.viewport.add_child(
-            self._main_menu
+            self._game_menu
         )
 
     def _on_keydown(self, mod, sym, char):

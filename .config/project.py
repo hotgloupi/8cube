@@ -47,8 +47,14 @@ class LinkCommand(Command):
         self.flags = flags
         self.linker_flags = []
         from os.path import dirname, abspath
+        closure = set()
         def add_rpath(lib, **kw):
-            return '-Wl,-rpath=' + dirname(abspath(lib.path(**kw)))
+            p = '-Wl,-rpath=\\$ORIGIN/' + dirname(lib.relpath(kw['target'], **kw))
+            if p in closure:
+                return ''
+            else:
+                closure.add(p)
+                return p
 
         for lib in link_libraries:
             if isinstance(lib, Target):
