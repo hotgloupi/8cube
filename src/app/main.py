@@ -17,11 +17,8 @@ def console():
 def main(args):
     import cube
     try:
-        if not args:
-            app = application.Application()
-            return app.run()
-        else:
-            eval(args[0] + "()")
+        app = application.Application(args)
+        return app.run()
     except cube.Exception as e:
         bt = e.backtrace[2:]
         index = -1
