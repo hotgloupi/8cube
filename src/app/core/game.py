@@ -4,11 +4,23 @@ from cube import gl
 
 class Game():
 
-    def __init__(self, window, client):
+    def __init__(self, path, window, client):
+        self.path = path
         self.window = window
         self.renderer = window.renderer
         self.client = client
         self._prepare()
+        self._bindings = self._get_bindings()
+
+    def _get_bindings(self):
+        import sys
+        old = sys.path
+        sys.path = [self.path] + old
+        bindings = __import__('bindings').BINDINGS
+        sys.path = old
+        return bindings
+
+
 
     @property
     def player(self):
@@ -18,8 +30,8 @@ class Game():
         assert self.renderer is not None
         r = self.renderer
         self.__vb = r.new_vertex_buffer()
-        w = 100
-        h = 100
+        w = 10
+        h = 10
         self.__vb.push_static_content(
             gl.ContentKind.vertex,
             list(
