@@ -56,5 +56,11 @@ class Container(widget.Widget):
         for child in self._childs:
             child.render(painter)
 
+    def _get_children_size(self, size_hint):
+        size = cube.gl.Vector2f()
+        for child in self._childs:
+            size += child.size_hints[size_hint]
+        return size
+
     def on_resize(self, w, h):
         raise Exception("NotImplemented")
