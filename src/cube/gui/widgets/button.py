@@ -63,10 +63,7 @@ class Button(Label):
         self.__sp.push_shader(vs)
         del vs
         self.__sp.finalize()
-        #with renderer.begin(gl.renderer.mode_2d) as painter:
-        #    painter.bind(self.__sp)
         self.__sp.parameter("cube_ModelViewProjectionMatrix")
-        #    renderer.viewport(0,0,640,480)
 
     def render(self, _):
         with self.renderer.begin(gl.renderer.mode_2d) as painter:
