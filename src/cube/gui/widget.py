@@ -3,12 +3,40 @@
 import cube
 from .stylesheet import Stylesheet
 
+class SizeHint:
+
+    preferred = 0
+    max_ = 1
+    min_ = 2
+
+
+class ComputedStyles:
+    """Compute styles"""
+
+    def __init__(self, widget):
+        self.__widget = widget
+
+    def reload(self):
+        for prop in ['color', 'background-color', 'border-color']:
+            setattr(
+                self,
+                prop.replace('-', '_'),
+                cube.gl.Color4f(self.__widget.style(prop))
+            )
+
+        for prop in ['margin', 'padding', 'border-size']:
+            setattr(
+                self,
+                prop.replace('-', '_'),
+                Stylesheet.to_pixel(self.__widget.style(prop))
+            )
+
 def _make_default_stylesheet():
     stylesheet = Stylesheet()
     stylesheet.set_styles([
         ("font-size", "48px"),
         ("font-file", "/usr/share/fonts/truetype/freefont/FreeMono.ttf"),
-        ("font-color", "black"),
+        ("color", "black"),
         ("background-color", "transparent"),
     ])
     return stylesheet
@@ -21,22 +49,40 @@ class Widget:
     _widget_count = {}
 
     def __init__(self, tag=None, id_=None, class_=None, renderer=None,
-                 x=0, y=0, w=0, h=0):
+                 x=0, y=0, w=0, h=0,
+                 min_size=None, max_size=None, prefered_size=None):
         if not tag:
             raise Exception("Invalid tag name")
         self._tag = tag
         self._id = self._gen_id(tag, id_)
         self._class = class_
-        self._background_color = cube.gl.Color4f("white");
-        self._foreground_color = cube.gl.Color4f("black");
         self._position = cube.gl.Vector2f(x, y);
         self._size = cube.gl.Vector2f(w, h)
         self._stylesheet = DEFAULT_STYLESHEET
-
+        self.__computed_styles = ComputedStyles(self)
         self.__renderer = renderer
         self.__parent = None
+        if prefered_size is None:
+            prefered_size = self._size
+        self.__size_hints = self._compute_size_hints(
+            prefered_size,
+            max_size,
+            min_size,
+        )
         if self.__renderer is not None:
             self._prepare(self.__renderer)
+
+    def _compute_size_hints(self, prefered, max_, min_):
+        assert prefered is not None
+        if max_ is None:
+            max_ = prefered
+        if min_ is None:
+            min_ = prefered
+        return {
+            SizeHint.prefered: prefered,
+            SizeHint.min_: min_,
+            SizeHint.max_: max_,
+        }
 
     @classmethod
     def _gen_id(cls, tag, id_):
@@ -53,6 +99,10 @@ class Widget:
     def _prepare(self, renderer):
         """Prepare the widget for future rendering, should be overridden."""
         pass
+
+    @property
+    def size_hints(self):
+        return self.__size_hints
 
     @property
     def parent(self):
@@ -85,18 +135,28 @@ class Widget:
             self._class
         )
 
+    def style(self, name):
+        return self._stylesheet.get_style(
+            name, self._id, self._class, self._tag
+        )
+
+    def styles(self):
+        return self.__computed_styles
+
+    def reload_styles(self):
+        self.__computed_styles
+
     def render(self, painter):
         raise Exception("render method not implemented for this widget")
 
     def on_resize(self, w, h):
         pass
 
+
 _attrs = [
     'tag',
     'id',
     'class',
-    'background_color',
-    'foreground_color',
     'position',
     'size',
     'stylesheet',

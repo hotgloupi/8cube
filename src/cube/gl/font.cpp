@@ -69,20 +69,23 @@ namespace cube { namespace gl { namespace font {
 			::FT_Face handle;
 
 			Face(freetype::Library& library,
-			     std::string const& name,
+			     std::string const& path,
 			     unsigned int size)
 				: handle(nullptr)
 			{
 
-				ETC_TRACE.debug("New FreeType Face", name);
+				ETC_TRACE.debug("New FreeType Face", path);
 				FT_CALL(
 					New_Face,
 					library.handle,
-					name.c_str(),
+					path.c_str(),
 					0,
 					&this->handle
 				);
 
+				ETC_LOG.debug("Loaded font face",
+				              this->handle->family_name,
+				              this->handle->style_name);
 				FT_CALL(
 					Set_Char_Size,
 					this->handle,
@@ -178,10 +181,10 @@ namespace cube { namespace gl { namespace font {
 				, _face(face)
 				, _texture_size{1024, 1024}
 				, _texture{renderer.new_texture(
-					renderer::PixelFormat::red,
+					renderer::PixelFormat::rgba,
 					_texture_size.x,
 					_texture_size.y,
-					renderer::PixelFormat::red,
+					renderer::PixelFormat::rgba,
 					renderer::ContentPacking::uint8,
 					nullptr
 				)}

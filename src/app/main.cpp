@@ -32,14 +32,13 @@ int main(int argc, char* argv[])
 	interpreter.setglobal("lib_dir", python_lib_dir.string());
 
 	// XXX This, is ugly and not safe.
-	std::string pyargs = "[";
+	std::string pyargs = "[\n";
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg = argv[i];
-		algo::replace_all(arg, "\\", "\\\\");
-		algo::replace_all(arg, "\"", "\\\"");
+		algo::replace_all(arg, "'''", "\\'\\'\\'");
 
-		pyargs += "\"" + arg + "\",";
+		pyargs += "\t'''" + arg + "''',\n";
 	}
 	pyargs += "]";
 

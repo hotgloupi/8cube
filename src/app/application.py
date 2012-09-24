@@ -7,14 +7,14 @@ from . import core
 
 class Application(cube.gui.Application):
 
-    def __init__(self):
+    def __init__(self, argv):
         super(Application, self).__init__(
             name="Infinit-cube",
         )
-        self.__prepare()
+        self.__prepare(argv[0])
         self.window.inputs.on_keydown.connect(self._on_keydown)
 
-    def __prepare(self):
+    def __prepare(self, path):
         self._main_menu = cube.gui.widgets.VerticalLayout(
             renderer=self.window.renderer
         ).add_child(
@@ -23,14 +23,13 @@ class Application(cube.gui.Application):
         self._game_menu = gui.Game(
             renderer=self.window.renderer,
         )
-
         self._game_menu.game = core.Game(
+            path,
             self.window,
             core.Client(),
         )
-
         self.viewport.add_child(
-            self._main_menu
+            self._game_menu
         )
 
     def _on_keydown(self, mod, sym, char):
