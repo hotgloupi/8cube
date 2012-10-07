@@ -2,43 +2,37 @@
 
 from cube import gl
 
-def _get_handlers(path):
-    from os.path import join
-    globals_ = {}
-    with open(join(path, 'handlers.py')) as f:
-        exec(f.read(), globals_)
-    return dict(
-        (k, v) for k, v in globals_.items()
-        if k.startswith('on_') and callable(v)
-    )
-
-def _get_bindings(path):
-    from os.path import join
-    globals_ = {}
-    with open(join(path, 'bindings.py')) as f:
-        exec(f.read(), globals_)
-    return globals_['BINDINGS']
-
-def load_game(path, window, client):
-    handlers = _get_handlers(path)
-    bindings = _get_bindings(path)
-    return handlers['new_game'](window, client, bindings, handlers)
+def load_game(games_path, name, window, client):
+    import sys
+    old_python_path = sys.path
+    sys.path = [games_path] + sys.path
+    try:
+        game_module = __import__(name + '.game', fromlist=['game'])
+    finally:
+        sys.path = old_python_path
+    return game_module.Game(window, client)
 
 
 class Game():
+    """Base class for every games
+    """
 
-    def __init__(self, window, client, bindings, handlers):
-        self.path = path
+    def __init__(self, window, client, bindings):
+        print("core.Game(", window, client, bindings,")")
         self.window = window
         self.renderer = window.renderer
         self.client = client
         self._prepare()
         self._bindings = bindings
-        self._handlers = handlers
 
     @property
     def player(self):
         return self.client.player
+
+    @property
+    def gui(self):
+        """Game menu GUI"""
+        raise Exception("Not implemented")
 
     def _prepare(self):
         assert self.renderer is not None
@@ -107,7 +101,6 @@ class Game():
     def render(self):
         with self.renderer.begin(gl.mode_3d) as painter:
             painter.state.projection = self.__projection_matrix
-            self._handlers['on_frame'](self, painter)
             painter.bind(self.__sp)
             painter.bind(self.__vb)
             painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)

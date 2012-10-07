@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from . import application
 import sys
+
+from . import application
 
 def console():
     import cube
@@ -14,11 +15,43 @@ def console():
         banner="Type 'help(cube)' to get started."
     )
 
+def parse_args(args):
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Launch a cube game",
+        prog="8cube",
+    )
+    parser.add_argument(
+        'game', help="Specify a game's name",
+        nargs='?',
+    )
+    parser.add_argument(
+        '--games-dir', '-G', action="append",
+        help="Specify additional search directories for games",
+    )
+    parser.add_argument(
+        '--console', '-c', action="store_true",
+        help="Start a python console instead of launching a game",
+    )
+    return parser, parser.parse_args(args=args)
+
 def main(args):
     import cube
     try:
-        app = application.Application(args)
+        parser, args = parse_args(args)
+        if (args.console):
+            console()
+            return
+
+        if not args.game:
+            print("No game specified on the command line", file=sys.stderr)
+            parser.print_usage()
+            sys.exit(1)
+
+        app = application.Application(game_directories=args.games_dir, game=args.game)
         return app.run()
+    except KeyboardInterrupt:
+        return
     except cube.Exception as e:
         bt = e.backtrace[2:]
         index = -1
