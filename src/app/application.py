@@ -15,6 +15,11 @@ class Application(cube.gui.Application):
         self.window.inputs.on_keydown.connect(self._on_keydown)
 
     def __prepare(self, path):
+        self._client = core.Client()
+        self._game = core.load_game(path,
+                                    self.window,
+                                    self._client)
+
         self._main_menu = cube.gui.widgets.VerticalLayout(
             renderer=self.window.renderer
         ).add_child(

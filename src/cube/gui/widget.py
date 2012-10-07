@@ -59,7 +59,7 @@ class Widget:
         self._position = cube.gl.Vector2f(x, y);
         self._size = cube.gl.Vector2f(w, h)
         self._stylesheet = DEFAULT_STYLESHEET
-        self.__computed_styles = ComputedStyles(self)
+        self.reload_styles()
         self.__renderer = renderer
         self.__parent = None
         if prefered_size is None:
@@ -72,14 +72,14 @@ class Widget:
         if self.__renderer is not None:
             self._prepare(self.__renderer)
 
-    def _compute_size_hints(self, prefered, max_, min_):
-        assert prefered is not None
+    def _compute_size_hints(self, preferred, max_, min_):
+        assert preferred is not None
         if max_ is None:
-            max_ = prefered
+            max_ = preferred
         if min_ is None:
-            min_ = prefered
+            min_ = preferred
         return {
-            SizeHint.prefered: prefered,
+            SizeHint.preferred: preferred,
             SizeHint.min_: min_,
             SizeHint.max_: max_,
         }
@@ -144,7 +144,7 @@ class Widget:
         return self.__computed_styles
 
     def reload_styles(self):
-        self.__computed_styles
+        self.__computed_styles = ComputedStyles(self)
 
     def render(self, painter):
         raise Exception("render method not implemented for this widget")

@@ -2,25 +2,39 @@
 
 from cube import gl
 
+def _get_handlers(path):
+    from os.path import join
+    globals_ = {}
+    with open(join(path, 'handlers.py')) as f:
+        exec(f.read(), globals_)
+    return dict(
+        (k, v) for k, v in globals_.items()
+        if k.startswith('on_') and callable(v)
+    )
+
+def _get_bindings(path):
+    from os.path import join
+    globals_ = {}
+    with open(join(path, 'bindings.py')) as f:
+        exec(f.read(), globals_)
+    return globals_['BINDINGS']
+
+def load_game(path, window, client):
+    handlers = _get_handlers(path)
+    bindings = _get_bindings(path)
+    return handlers['new_game'](window, client, bindings, handlers)
+
+
 class Game():
 
-    def __init__(self, path, window, client):
+    def __init__(self, window, client, bindings, handlers):
         self.path = path
         self.window = window
         self.renderer = window.renderer
         self.client = client
         self._prepare()
-        self._bindings = self._get_bindings()
-
-    def _get_bindings(self):
-        import sys
-        old = sys.path
-        sys.path = [self.path] + old
-        bindings = __import__('bindings').BINDINGS
-        sys.path = old
-        return bindings
-
-
+        self._bindings = bindings
+        self._handlers = handlers
 
     @property
     def player(self):
@@ -32,7 +46,6 @@ class Game():
         self.__vb = r.new_vertex_buffer()
         w = 5
         h = 5
-        h = 10
         self.__vb.push_static_content(
             gl.ContentKind.vertex,
             list(
@@ -84,9 +97,7 @@ class Game():
         del vs
         self.__sp.finalize()
         self.__sp.parameter("cube_ModelViewProjectionMatrix")
-        self.__projection_matrix = gl.matrix.perspective(
-            90, self.window.size.x / self.window.size.y, 0.05, 300.0
-        )
+        self.on_resize(self.window.size.x, self.window.size.y)
 
     def on_resize(self, w, h):
         self.__projection_matrix = gl.matrix.perspective(
@@ -94,13 +105,10 @@ class Game():
         )
 
     def render(self):
-        with self.renderer.begin(gl.mode_2d) as painter:
+        with self.renderer.begin(gl.mode_3d) as painter:
             painter.state.projection = self.__projection_matrix
-            painter.state.view = gl.matrix.look_at(
-                self.client.camera.eye,
-                self.client.camera.look,
-                self.client.camera.up
-            )
+            self._handlers['on_frame'](self, painter)
             painter.bind(self.__sp)
             painter.bind(self.__vb)
             painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
+

@@ -1,0 +1,6 @@
+ -std=c++11
+-I.
+-I/usr/include/python3.2mu
+-I/home/hotgloupi/local/include
+-I/usr/include/SDL
+-I/usr/include/freetype2
