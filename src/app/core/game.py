@@ -26,10 +26,6 @@ class Game():
         self._bindings = bindings
 
     @property
-    def player(self):
-        return self.client.player
-
-    @property
     def gui(self):
         """Game menu GUI"""
         raise Exception("Not implemented")
