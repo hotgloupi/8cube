@@ -19,7 +19,6 @@ class Game(core.Game):
         return self._menu
 
     def on_frame(self, painter):
-        print("BIET")
         painter.state.view = gl.matrix.look_at(
             self.player.camera.eye,
             self.player.camera.look,

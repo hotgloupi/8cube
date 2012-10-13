@@ -4,7 +4,10 @@ from cube.system.inputs import KeySym as sym
 
 BINDINGS = {
 
-    'move_forward': (0, 0, 0),
+    'move_forward': sym.up,
+    'move_backward': sym.down,
+    'strife_left': sym.left,
+    'strife_right': sym.right,
 
 }
 

@@ -26,7 +26,7 @@ def parse_args(args):
         nargs='?',
     )
     parser.add_argument(
-        '--games-dir', '-G', action="append",
+        '--games-dir', '-G', action="append", default=[],
         help="Specify additional search directories for games",
     )
     parser.add_argument(

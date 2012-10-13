@@ -3,7 +3,6 @@
 import os
 import cube
 
-from . import gui
 from . import core
 
 class Application(cube.gui.Application):
