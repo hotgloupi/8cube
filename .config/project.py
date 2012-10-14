@@ -31,7 +31,7 @@ from tupcfg import tools
 
 def configure(project, build):
     from tupcfg.tools import glob, status
-    from tupcfg.path import absolute, join
+    from tupcfg import path
     status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % project.env.BUILD_TYPE)
     from tupcfg.lang.cxx import gcc
 
@@ -40,15 +40,15 @@ def configure(project, build):
         prefixes = prefixes.split(':')
     project.env.project_set('PREFIXES', prefixes)
 
-    lib_dirs = list(join(p, 'lib') for p in prefixes)
-    include_dirs = list(join(p, 'include') for p in prefixes)
+    lib_dirs = list(path.join(p, 'lib') for p in prefixes)
+    include_dirs = list(path.join(p, 'include') for p in prefixes)
 
     compiler = gcc.Compiler(
         project, build,
         position_independent_code = True,
         standard = 'c++11',
         library_directories = lib_dirs,
-        include_directories = include_dirs + [absolute(project.root_dir, 'src')],
+        include_directories = include_dirs + [path.absolute(project.root_dir, 'src')],
     )
     status("CXX compiler is", compiler.binary)
 
@@ -72,24 +72,26 @@ def configure(project, build):
     ]
 
     libetc = compiler.link_library(
-        'release/lib/libetc.so',
+        'libetc',
         glob("src/etc/*.cpp", recursive=True),
+        directory  = 'release/lib',
     )
 
     libcube = compiler.link_library(
-        'release/lib/libcube.so',
+        'libcube',
         glob("src/cube/*.cpp", recursive=True),
+        directory  = 'release/lib',
         libraries=[libetc] + graphic_libraries + python_libraries,
     )
 
 
-    libcube_bindings = []
     for binding in glob("src/cube/*.py++", recursive=True):
-        libcube_bindings.append(compiler.link_library(
-            join("release/lib/python/cube", binding[9:-5] + '.so'),
+        compiler.link_library(
+            path.splitext(path.basename(binding))[0],
             [binding],
+            directory = path.dirname("release/lib/python/cube", binding[9:]),
             libraries=[libetc, libcube] + boost_libraries + python_libraries,
-        ))
+        )
 
     build.add_targets(
         Target(
@@ -107,14 +109,15 @@ def configure(project, build):
 
     build.add_targets(
         Target(
-            join('release/', src),
+            path.join('release/', src),
             CopyFile(Source(src))
         ) for src in glob("share/games/*.py", recursive=True)
     )
 
     infinit_cube = compiler.link_executable(
-        "release/bin/8cube",
+        "8cube",
         glob("src/app/*.cpp", recursive=True),
+        directory = "release/bin",
         libraries=[libetc, libcube] + boost_libraries + python_libraries,
     )
 
