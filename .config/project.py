@@ -30,8 +30,8 @@ class Library:
 from tupcfg import tools
 
 def configure(project, build):
-    from tupcfg.tools import glob, status, cleanabspath
-    from os.path import join
+    from tupcfg.tools import glob, status
+    from tupcfg.path import absolute, join
     status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % project.env.BUILD_TYPE)
     from tupcfg.lang.cxx import gcc
 
@@ -48,7 +48,7 @@ def configure(project, build):
         position_independent_code = True,
         standard = 'c++11',
         library_directories = lib_dirs,
-        include_directories = include_dirs + [cleanabspath(join(project.root_dir, 'src'))],
+        include_directories = include_dirs + [absolute(project.root_dir, 'src')],
     )
     status("CXX compiler is", compiler.binary)
 
