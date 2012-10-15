@@ -17,6 +17,10 @@
 
 #include "test.hpp"
 
+#ifdef _WIN32
+# include <Windows.h>
+# define usleep(t) Sleep(t / 1000.0)
+#endif
 
 namespace cube { namespace gl { namespace test {
 

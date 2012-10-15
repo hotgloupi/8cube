@@ -9,7 +9,12 @@
 #include <vector>
 #include <unordered_map>
 
-#include <fnmatch.h>
+#ifdef _WIN32
+# include <Shlwapi.h>
+# pragma comment(lib, "shlwapi.lib");
+#else
+# include <fnmatch.h>
+#endif
 
 namespace etc { namespace log {
 
@@ -65,10 +70,14 @@ namespace etc { namespace log {
 			static std::vector<Pattern> patterns = get_patterns();
 			bool enabled = false;
 			for (auto const& pattern: patterns)
+			{
+#ifdef _WIN32
+				if (::PathMatchSpec(name.c_str(), pattern.str.c_str()) == TRUE)
+#else
 				if (::fnmatch(pattern.str.c_str(), name.c_str(), 0) == 0)
-				{
+#endif
 					enabled = (pattern.op == Pattern::add_match);
-				}
+			}
 			return components[name] = enabled;
 		}
 	}
