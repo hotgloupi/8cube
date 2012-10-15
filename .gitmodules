@@ -1,3 +1,6 @@
 [submodule "src/greenlet"]
 	path = src/greenlet
 	url = https://github.com/python-greenlet/greenlet.git
+[submodule "src/glew"]
+	path = src/glew
+	url = git://glew.git.sourceforge.net/gitroot/glew/glew
