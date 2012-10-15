@@ -5,6 +5,7 @@ NAME = "8cube"
 # The version name (could be "alpha" for example)
 VERSION_NAME = "prototype"
 
+from tupcfg import tools, path
 from tupcfg import Source
 from tupcfg import Target
 from tupcfg import Command
@@ -27,9 +28,28 @@ class Library:
         self.include_directories = include_directories
 
 
-from tupcfg import tools
+class PythonLibrary(Library):
+    def __init__(self):
+        from sysconfig import get_config_var as var
+        include_dir = var('INCLUDEPY')
+        assert include_dir is not None
+        prefix = var('prefix')
+        assert prefix is not None
+        version = var('py_version_nodot')
+        self.ext = var('SO').replace('.', '')
+        lib_dirs = []
+        for d in ['lib', 'Libs', 'DLLs']:
+            if path.exists(prefix, d, 'libpython' + version + '.a') or \
+               path.exists(prefix, d, 'python' + version + '.lib') or \
+               path.exists(prefix, d, 'python' + version[0] + '.dll') or \
+               path.exists(prefix, d, 'libpython' + version + '.so'):
+                lib_dirs.append(path.join(prefix, d))
+        Library.__init__(self, 'python' + version, [include_dir], lib_dirs)
+
+
 
 def configure(project, build):
+    import sys
     from tupcfg.tools import glob, status
     from tupcfg import path
     status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % project.env.BUILD_TYPE)
@@ -48,40 +68,55 @@ def configure(project, build):
         position_independent_code = True,
         standard = 'c++11',
         library_directories = lib_dirs,
-        include_directories = include_dirs + [path.absolute(project.root_dir, 'src')],
+        include_directories = include_dirs + [
+            path.absolute(project.root_dir, 'src'),
+            path.absolute(project.root_dir, 'src/glew'),
+        ],
     )
     status("CXX compiler is", compiler.binary)
-
-    #compiler = Compiler("g++-4.7", project, build,
-    #                    flags=['-fPIC', '-std=c++11', '-x', 'c++',],
-    #                    linker_flags=['-L/home/hotgloupi/local/lib'],
-    #                    include_directories=[
-    #                        '/home/hotgloupi/local/include',
-    #                        '/usr/include/python3.2mu',
-    #                        '/usr/include/freetype2/',
-    #                    ])
 
     boost_libraries = list(
         Library('boost_' + s) for s in ['python', 'filesystem', 'signals', 'system']
     )
-    python_libraries = [
-        Library('python3.2mu', include_directories=['/usr/include/python3.2mu'])
+    python_library = PythonLibrary()
+    python_libraries = [python_library]
+    graphic_libraries = list(Library(s) for s in ['SDL', 'SDL_image']) + [
+        Library('freetype', include_directories=['/usr/include/freetype2']),
+        Library('z'),
     ]
-    graphic_libraries = list(Library(s) for s in ['SDL', 'SDL_image', 'GL', 'GLU', 'GLEW']) + [
-        Library('freetype', include_directories=['/usr/include/freetype2'])
-    ]
+    if sys.platform == 'win32':
+        print("IS WINDOWS")
+        graphic_libraries += [
+            Library(s) for s in ['opengl32', 'glu32']
+        ]
+    else:
+        print("NOT WINDOWS")
+        graphic_libraries += [
+            Library(s) for s in ['GL', 'GLU']
+        ]
 
     libetc = compiler.link_library(
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
+        libraries = (sys.platform == 'win32' and [Library('Shlwapi')] or []),
     )
 
-    libcube = compiler.link_library(
+    libglew = compiler.link_static_library(
+        'libglew',
+        ['src/glew/glew.c'],
+        directory = 'release/lib',
+        libraries = graphic_libraries,
+        defines = ['GLEW_NO_GLU', 'GLEW_BUILD'],
+    )
+
+    graphic_libraries.insert(0, libglew)
+
+    libcube = compiler.link_static_library(
         'libcube',
         glob("src/cube/*.cpp", recursive=True),
         directory  = 'release/lib',
-        libraries=[libetc] + graphic_libraries + python_libraries,
+        libraries=[libetc] + graphic_libraries + boost_libraries + python_libraries,
     )
 
 
@@ -89,8 +124,9 @@ def configure(project, build):
         compiler.link_library(
             path.splitext(path.basename(binding))[0],
             [binding],
+            ext = python_library.ext,
             directory = path.dirname("release/lib/python/cube", binding[9:]),
-            libraries=[libetc, libcube] + boost_libraries + python_libraries,
+            libraries=[libetc, libcube] + graphic_libraries + boost_libraries + python_libraries,
         )
 
     build.add_targets(
