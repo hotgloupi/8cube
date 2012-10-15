@@ -7,13 +7,19 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 
-#include <execinfo.h>
-#include <iomanip>
-#include <iostream>
 
 #include <cstdlib>
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <sstream>
+
+#ifdef _WIN32
+# include <Windows.h>
+#else
+# include <execinfo.h>
+#endif
+
 
 namespace etc { namespace backtrace {
 
@@ -47,12 +53,46 @@ namespace etc { namespace backtrace {
 	{
 		static const size_t size = 128;
 		void* callstack[size];
+
+#ifdef _WIN32
+		size_t frames = 0;
+//		HANDLE process = ::GetCurrentProcess();
+//		static bool sym_initialized = false;
+//		if (!sym_initialized)
+//		{
+//			if (SymInitialize(process, nullptr, TRUE) == FALSE)
+//				return;
+//			sym_initialized = true;
+//		}
+//		size_t frames = ::CaptureStackBackTrace(0, size, callstack, nullptr);
+//		SYMBOL_INFO* symbol = (SYMBOL_INFO*) ::calloc(sizeof(SYMBOL_INFO) + 256, 1);
+//		symbol->MaxNameLen = 255;
+//		symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+#else
 		size_t frames = ::backtrace(callstack, size);
-		char** strs = backtrace_symbols(callstack, frames);
+		char** strs = ::backtrace_symbols(callstack, frames);
+#endif
+
 
 		for (unsigned i = 0; i < frames; ++i)
 		{
 			StackFrame frame;
+#ifdef _WIN32
+//			if (::SymFromAddr(process, ((DWORD64) stack[i]), 0, symbol) == TRUE)
+//			{
+//				frame.symbol_mangled = symbol->Name;
+//				std::string error;
+//				if (!demangle(frame.symbol_mangled, frame.symbol, error))
+//					frame.symbol = frame.symbol_mangled;
+//				frame.offset = 0;
+//				frame.address = symbol->Address;
+//			}
+//			else
+			{
+				frame.symbol = frame.symbol_mangled = "???";
+				frame.offset = frame.address = 0;
+			}
+#else
 			std::string sym(strs[i]);
 			discard(sym, '(');
 			if (extract(sym, frame.symbol_mangled, '+'))
@@ -77,10 +117,12 @@ namespace etc { namespace backtrace {
 				std::stringstream stream(addr);
 				stream >> std::hex >> frame.address;
 			}
+#endif
 			this->push_back(frame);
 		}
-
-		free(strs);
+#ifndef _WIN32
+		::free(strs);
+#endif
 	}
 
 	void Backtrace::strip_base(Backtrace const& base)
