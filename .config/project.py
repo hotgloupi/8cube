@@ -20,16 +20,17 @@ class CopyFile(Command):
         return ['cp', self.dependencies, kw['target']]
 
 class Library:
-    def __init__(self, names, include_directories=[], directories=[]):
+    def __init__(self, names, include_directories=[], directories=[], shared=False):
         if not isinstance(names, list):
             names = [names]
         self.names = names
         self.directories = directories
         self.include_directories = include_directories
+        self.shared = shared
 
 
 class PythonLibrary(Library):
-    def __init__(self):
+    def __init__(self, **kw):
         from sysconfig import get_config_var as var
         include_dir = var('INCLUDEPY')
         assert include_dir is not None
@@ -44,7 +45,7 @@ class PythonLibrary(Library):
                path.exists(prefix, d, 'python' + version[0] + '.dll') or \
                path.exists(prefix, d, 'libpython' + version + '.so'):
                 lib_dirs.append(path.join(prefix, d))
-        Library.__init__(self, 'python' + version, [include_dir], lib_dirs)
+        Library.__init__(self, 'python' + version, [include_dir], lib_dirs, **kw)
 
 
 
@@ -75,12 +76,12 @@ def configure(project, build):
     )
     status("CXX compiler is", compiler.binary)
 
-    boost_libraries = list(
-        Library('boost_' + s) for s in ['python', 'filesystem', 'signals', 'system']
+    boost_libraries = [Library('boost_python', shared=True)] + list(
+        Library('boost_' + s) for s in ['filesystem', 'signals', 'system']
     )
-    python_library = PythonLibrary()
+    python_library = PythonLibrary(shared=True)
     python_libraries = [python_library]
-    graphic_libraries = list(Library(s) for s in ['SDL', 'SDL_image']) + [
+    graphic_libraries = list(Library(s, shared=False) for s in ['SDL_image', 'SDL.dll', 'png', 'jpeg']) + [
         Library('freetype', include_directories=['/usr/include/freetype2']),
         Library('z'),
     ]
@@ -95,11 +96,14 @@ def configure(project, build):
             Library(s) for s in ['GL', 'GLU']
         ]
 
-    libetc = compiler.link_library(
+    base_libraries = []
+    if sys.platform == 'win32':
+        base_libraries += list(Library(name) for name in ['Shlwapi', 'mingw32',])# 'msvcr90'])
+
+    libetc = compiler.link_static_library(
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
-        libraries = (sys.platform == 'win32' and [Library('Shlwapi')] or []),
     )
 
     libglew = compiler.link_static_library(
@@ -126,7 +130,7 @@ def configure(project, build):
             [binding],
             ext = python_library.ext,
             directory = path.dirname("release/lib/python/cube", binding[9:]),
-            libraries=[libetc, libcube] + graphic_libraries + boost_libraries + python_libraries,
+            libraries=[libcube, libetc] + graphic_libraries + boost_libraries + python_libraries + base_libraries,
         )
 
     build.add_targets(
@@ -154,7 +158,7 @@ def configure(project, build):
         "8cube",
         glob("src/app/*.cpp", recursive=True),
         directory = "release/bin",
-        libraries=[libetc, libcube] + boost_libraries + python_libraries,
+        libraries=[libcube, libetc] + boost_libraries + python_libraries,
     )
 
     #build.dump(project)

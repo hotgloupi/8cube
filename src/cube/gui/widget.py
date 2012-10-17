@@ -31,11 +31,17 @@ class ComputedStyles:
                 Stylesheet.to_pixel(self.__widget.style(prop))
             )
 
+
 def _make_default_stylesheet():
+    import sys
+    if sys.platform == 'win32':
+        default_font = 'c:/windows/fonts/dejavusans.ttf'
+    else:
+        default_font = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
     stylesheet = Stylesheet()
     stylesheet.set_styles([
         ("font-size", "48px"),
-        ("font-file", "/usr/share/fonts/truetype/freefont/FreeMono.ttf"),
+        ("font-file", default_font),
         ("color", "black"),
         ("background-color", "transparent"),
     ])

@@ -4,6 +4,7 @@ from cube.gl.renderer import Renderer
 from cube import gl
 from cube import system
 from cube.gui.widgets.viewport import Viewport
+print(Renderer)
 
 class RootWindow(system.Window):
 

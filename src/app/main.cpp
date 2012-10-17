@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
 	fs::path lib_dir = exec_dir.parent_path().append("lib", fs::path::codecvt());
 
-	load_libraries(exec_dir);
+	//load_libraries(exec_dir);
 	load_libraries(lib_dir);
 
 	auto& interpreter = app::python::Interpreter::instance();
@@ -49,7 +49,15 @@ int main(int argc, char* argv[])
 		"import cube\n"
 		"main(" + pyargs + ")\n"
 	;
-	return !interpreter.exec(init_script);
+	try {
+		return !interpreter.exec(init_script);
+	} catch (std::exception const& err) {
+		std::cerr << "Fatal error:" << err.what() << std::endl;
+	} catch (...) {
+		std::cerr << "Fatal error: exiting badly...\n";
+	}
+	std::cerr << "The 'impossible' happened, you should report this to contact@8cube.io\n";
+	return 1;
 }
 
 #ifdef _WIN32
@@ -60,17 +68,18 @@ int main(int argc, char* argv[])
 
 static int load_libraries(fs::path lib_dir)
 {
-  fs::directory_iterator dir(lib_dir), end;
-  for (; dir != end; ++dir)
-  {
-    fs::path p(*dir);
-    //std::cout << "-- file: " << p.string() << std::endl;
-    if (algo::ends_with(p.string(), ".dll") ||
-        algo::ends_with(p.string(), ".so"))
-    {
+	fs::directory_iterator dir(lib_dir), end;
+	for (; dir != end; ++dir)
+	{
+		fs::path p(*dir);
+		//std::cout << "-- file: " << p.string() << std::endl;
+		if (algo::ends_with(p.string(), ".dll") ||
+		    algo::ends_with(p.string(), ".pyd") ||
+		    algo::ends_with(p.string(), ".so"))
+		{
 #ifdef _WIN32
-      std::cout << "-- Load library: " << p.string() << std::endl;
-      ::LoadLibrary(p.string().c_str());
+			std::cout << "-- Load library: " << p.string() << std::endl;
+			::LoadLibrary(p.string().c_str());
 #else
       //auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
       //if (!handle)
@@ -80,7 +89,7 @@ static int load_libraries(fs::path lib_dir)
       //  if (auto res = dlsym(handle, "__caca0_free_bitmap"))
       //    std::cout << "found: " << (void const*)res << std::endl;
 #endif
-    }
-  }
-  return 0;
+		}
+	}
+	return 0;
 }

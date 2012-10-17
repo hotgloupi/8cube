@@ -2,7 +2,6 @@
 
 import sys
 
-from . import application
 
 def console():
     import cube
@@ -10,7 +9,14 @@ def console():
         'cube': cube,
     }
     import code
-    import readline
+    readline = None
+    for m in ['readline', 'pyreadline']:
+        try:
+            readline = __import__(m)
+        except:
+            pass
+    if readline is None:
+        print("Warning: couldn't import any readline module")
     code.InteractiveConsole(locals_).interact(
         banner="Type 'help(cube)' to get started."
     )
@@ -48,6 +54,7 @@ def main(args):
             parser.print_usage()
             sys.exit(1)
 
+        from . import application
         app = application.Application(game_directories=args.games_dir, game=args.game)
         return app.run()
     except KeyboardInterrupt:

@@ -40,4 +40,4 @@ from .matrix import Matrix44f
 from .vector import *
 from .viewport import *
 
-from .test import test_all
+#from .test import test_all

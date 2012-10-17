@@ -1,7 +1,13 @@
 #ifndef  _PYTHON_BOOST_HPP
 # define _PYTHON_BOOST_HPP
 
-#define BOOST_PYTHON_STATIC_LIB 1
+/**
+ * This Macro can be used to link statically with python. Unfortunatly,
+ * it's not working because boost::python defines a global registry
+ * that has to be shared between all python modules ...
+ * Tested on windows 7.
+ */
+//#define BOOST_PYTHON_STATIC_LIB 1
 
 # if (defined(__MINGW32__) || defined(mingw32) || defined(__MINGW64__) || defined(mingw64)) && (__GNUC__ == 4)
 
