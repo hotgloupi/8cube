@@ -2,6 +2,7 @@
 
 #include "font.hpp"
 #include "renderer/Renderer.hpp"
+#include "renderer.hpp"
 #include "renderer/VertexBuffer.hpp"
 
 namespace py = boost::python;
@@ -13,7 +14,7 @@ namespace {
 	{
 		struct Font
 		{
-			static inline
+			static
 			renderer::VertexBuffer*
 			generate_text(font::Font& self, char16_t const* str)
 			{
