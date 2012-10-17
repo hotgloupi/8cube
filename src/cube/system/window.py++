@@ -1,5 +1,5 @@
 #include <wrappers/boost/python.hpp>
-#
+
 #include <iostream>
 #include <stdexcept>
 
@@ -13,10 +13,6 @@ BOOST_PYTHON_MODULE(window)
 	namespace py = boost::python;
 
 	using namespace cube::system::window;
-
-	// py::import("cube.system.inputs");
-
-	py::import("cube.gl.renderer");
 
 	py::class_<Window, boost::noncopyable>("Window",
 			"Main window",
