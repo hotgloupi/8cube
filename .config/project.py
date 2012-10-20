@@ -37,7 +37,7 @@ class PythonLibrary(Library):
         prefix = var('prefix')
         assert prefix is not None
         version = var('py_version_nodot')
-        self.ext = var('SO').replace('.', '')
+        self.ext = var('SO')[1:]
         lib_dirs = []
         for d in ['lib', 'Libs', 'DLLs']:
             if path.exists(prefix, d, 'libpython' + version + '.a') or \
@@ -45,9 +45,19 @@ class PythonLibrary(Library):
                path.exists(prefix, d, 'python' + version[0] + '.dll') or \
                path.exists(prefix, d, 'libpython' + version + '.so'):
                 lib_dirs.append(path.join(prefix, d))
-        Library.__init__(self, 'python' + version, [include_dir], lib_dirs, **kw)
+        name = 'python' + (var('LDVERSION') or version)
+        Library.__init__(self, name, [include_dir], lib_dirs, **kw)
 
-
+class SDLLibrary(Library):
+    def __init__(self, components=[], **kw):
+        import sys
+        if sys.platform == 'win32':
+            names = ['SDL.dll']
+        else:
+            names = ['SDL']
+        for c in components:
+            names.append('SDL_' + c)
+        Library.__init__(self, names, **kw)
 
 def configure(project, build):
     import sys
@@ -81,10 +91,12 @@ def configure(project, build):
     )
     python_library = PythonLibrary(shared=True)
     python_libraries = [python_library]
-    graphic_libraries = list(Library(s, shared=False) for s in ['SDL_image', 'SDL.dll', 'png', 'jpeg']) + [
+
+    graphic_libraries = [
+        SDLLibrary(components=['image'], shared=True),
         Library('freetype', include_directories=['/usr/include/freetype2']),
         Library('z'),
-    ]
+    ] +  list(Library(s, shared=False) for s in ['png', 'jpeg'])
     if sys.platform == 'win32':
         print("IS WINDOWS")
         graphic_libraries += [
@@ -93,7 +105,7 @@ def configure(project, build):
     else:
         print("NOT WINDOWS")
         graphic_libraries += [
-            Library(s) for s in ['GL', 'GLU']
+            Library(s, shared=True) for s in ['GL', 'GLU']
         ]
 
     base_libraries = []
