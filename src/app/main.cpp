@@ -21,14 +21,15 @@ int main(int argc, char* argv[])
 		throw std::runtime_error("Wrong program inputs");
 
 	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
-	fs::path lib_dir = exec_dir.parent_path().append("lib", fs::path::codecvt());
+	fs::path games_dir = exec_dir.parent_path() / "share" / "8cube" / "games";
+	fs::path lib_dir = exec_dir.parent_path() / "lib";
 
 	//load_libraries(exec_dir);
 	load_libraries(lib_dir);
 
 	auto& interpreter = app::python::Interpreter::instance();
 
-	fs::path python_lib_dir = lib_dir.append("python", fs::path::codecvt());
+	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", python_lib_dir.string());
 
 	// XXX This, is ugly and not safe.
@@ -40,6 +41,8 @@ int main(int argc, char* argv[])
 
 		pyargs += "\t'''" + arg + "''',\n";
 	}
+	pyargs += "\t'-G',\n";
+	pyargs += "\t'''" + games_dir.string() + "''',\n";
 	pyargs += "]";
 
 	std::string init_script =
