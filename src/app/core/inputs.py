@@ -5,10 +5,13 @@ from cube.system.inputs import KeyMod, KeySym
 class KeyboardInput:
     def __init__(self, name):
         self.name = name
+        self.held = False
 
     def keydown(self):
-        print("KEYDOWN", self.name)
+        self.held = True
 
+    def keyup(self):
+        self.held = False
 
 class Inputs:
     """Provide signals and state for given bindings.
@@ -47,14 +50,21 @@ class Inputs:
 
 
         window.inputs.on_keydown.connect(self.__on_keydown)
+        window.inputs.on_keyup.connect(self.__on_keyup)
 
-    def __on_keydown(self, keymod, keysym, keycode):
+    def __get_keyboard_input(self, keymod, keysym, keycode):
         keymod = KeyMod(keymod & ~KeyMod.num)
         i = self.__map.get((keymod, keysym))
         if i is None:
             i = self.__map.get((keymod, keycode))
+        return i
+
+    def __on_keydown(self, keymod, keysym, keycode):
+        i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
             i.keydown()
 
-        print("PIF", KeyMod(keymod), keysym, chr(keycode))
-
+    def __on_keyup(self, keymod, keysym, keycode):
+        i = self.__get_keyboard_input(keymod, keysym, keycode)
+        if i is not None:
+            i.keyup()

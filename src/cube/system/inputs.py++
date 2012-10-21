@@ -260,6 +260,7 @@ BOOST_PYTHON_MODULE(inputs)
 	DEF_CONNECT(cls, idle);
 	DEF_CONNECT(cls, quit);
 	DEF_CONNECT(cls, keydown);
+	DEF_CONNECT(cls, keyup);
 
 # undef DEF_CONNECT
 

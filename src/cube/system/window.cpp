@@ -127,12 +127,12 @@ namespace cube { namespace system { namespace window {
 				_impl->inputs.on_quit()();
 				break;
 			case SDL_KEYDOWN:
-				printf("KEYYYY\n");
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 				{
 					_impl->inputs.on_quit()();
 					break;
 				}
+			case SDL_KEYUP:
 				inputs::KeyMod mod = static_cast<inputs::KeyMod>(
 					static_cast<int>(e.key.keysym.mod)
 				);
@@ -143,11 +143,18 @@ namespace cube { namespace system { namespace window {
 				if ((e.key.keysym.unicode & 0xFF80) == 0)
 				{
 					ch = e.key.keysym.unicode & 0x7F;
-					_impl->inputs.on_keydown()(mod, sym, ch);
+					if (e.type == SDL_KEYDOWN)
+						_impl->inputs.on_keydown()(mod, sym, ch);
+					else
+						_impl->inputs.on_keyup()(mod, sym, ch);
 				}
 				else
-					_impl->inputs.on_keydown()(mod, sym, e.key.keysym.unicode);
-				printf("Key Sent!\n");
+				{
+					if (e.type == SDL_KEYDOWN)
+						_impl->inputs.on_keydown()(mod, sym, e.key.keysym.unicode);
+					else
+						_impl->inputs.on_keyup()(mod, sym, e.key.keysym.unicode);
+				}
 				break;
 			}
 			if (++count >= max)

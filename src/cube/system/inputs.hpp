@@ -191,6 +191,7 @@ namespace cube { namespace system { namespace inputs {
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(idle, void);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(quit, void);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keydown, KeyMod, KeySym, uint16_t);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keyup, KeyMod, KeySym, uint16_t);
 # undef CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL
 	};
 
