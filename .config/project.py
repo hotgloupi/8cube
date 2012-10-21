@@ -98,19 +98,17 @@ def configure(project, build):
         Library('z'),
     ] +  list(Library(s, shared=False) for s in ['png', 'jpeg'])
     if sys.platform == 'win32':
-        print("IS WINDOWS")
         graphic_libraries += [
             Library(s) for s in ['opengl32', 'glu32']
         ]
     else:
-        print("NOT WINDOWS")
         graphic_libraries += [
             Library(s, shared=True) for s in ['GL', 'GLU']
         ]
 
     base_libraries = []
     if sys.platform == 'win32':
-        base_libraries += list(Library(name) for name in ['Shlwapi', 'mingw32',])# 'msvcr90'])
+        base_libraries += list(Library(name) for name in ['Shlwapi', 'mingw32',])
 
     libetc = compiler.link_static_library(
         'libetc',
@@ -137,13 +135,21 @@ def configure(project, build):
 
 
     for binding in glob("src/cube/*.py++", recursive=True):
-        compiler.link_library(
+        compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
             ext = python_library.ext,
             directory = path.dirname("release/lib/python/cube", binding[9:]),
             libraries=[libcube, libetc] + graphic_libraries + boost_libraries + python_libraries + base_libraries,
         )
+
+    compiler.link_dynamic_library(
+        "greenlet",
+        ['src/greenlet/greenlet.c'],
+        directory = 'release/lib/python',
+        ext = python_library.ext,
+        libraries = python_libraries,
+    )
 
     build.add_targets(
         Target(
@@ -161,7 +167,7 @@ def configure(project, build):
 
     build.add_targets(
         Target(
-            path.join('release/', src),
+            path.join('release/share/8cube', src[6:]),
             CopyFile(Source(src))
         ) for src in glob("share/games/*.py", recursive=True)
     )
