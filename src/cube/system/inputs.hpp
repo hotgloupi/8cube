@@ -27,6 +27,19 @@ namespace cube { namespace system { namespace inputs {
 		meta    = lmeta | rmeta,
 	};
 
+	inline
+	bool
+	operator &(KeyMod const l, KeyMod const r)
+	{
+		return (int) l & (int) r;
+	}
+
+	inline
+	KeyMod operator ~(KeyMod const m)
+	{
+		return ((KeyMod) ~((int) m));
+	}
+
 	enum class KeySym : int
 	{
 		unknown = 0,
@@ -159,13 +172,6 @@ namespace cube { namespace system { namespace inputs {
 		mode = 313,         /**< "Alt Gr" key */
 		compose = 314,      /**< Multi-key compose key */
 	};
-
-	inline
-	bool
-	operator &(KeyMod const l, KeyMod const r)
-	{
-		return (int) l & (int) r;
-	}
 
 
     struct Inputs

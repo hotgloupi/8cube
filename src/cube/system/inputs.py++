@@ -10,25 +10,26 @@ using namespace cube::system::inputs;
 namespace {
 
 	template<typename T>
-		struct WrapSignal
+	struct WrapSignal
+	{
+		T& signal;
+
+		WrapSignal(T& signal) : signal(signal) {}
+		WrapSignal(WrapSignal const&) = default;
+		WrapSignal(WrapSignal&&) = default;
+		WrapSignal& operator =(WrapSignal const&) = delete;
+
+		boost::signals::connection
+		connect(boost::python::object o)
 		{
-			T& signal;
+			return this->signal.connect(o);
+		}
 
-			WrapSignal(T& signal) : signal(signal) {}
-			WrapSignal(WrapSignal const&) = default;
-			WrapSignal(WrapSignal&&) = default;
-			WrapSignal& operator =(WrapSignal const&) = delete;
-
-			boost::signals::connection
-				connect(boost::python::object o)
-				{
-					return this->signal.connect(o);
-				}
-			static bool exported; // see ugly macro below
-		};
+		static bool exported; // see ugly macro below
+	};
 
 	template<typename T>
-		bool WrapSignal<T>::exported = false;
+	bool WrapSignal<T>::exported = false;
 
 	template<typename T>
 	std::string enum_str(T const mod)
@@ -37,6 +38,7 @@ namespace {
 		ss << mod;
 		return ss.str();
 	}
+
 }
 
 
@@ -65,6 +67,8 @@ BOOST_PYTHON_MODULE(inputs)
 		;
 
 		py::def("__str__", &enum_str<KeyMod>);
+		//py::def("__invert__", &op_invert_keymod);
+		//py::def("__and__", &op_and_keymod)
 	}
 
 	{

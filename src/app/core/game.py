@@ -2,6 +2,8 @@
 
 from cube import gl
 
+from .inputs import Inputs
+
 def load_game(games_path, name, window, client):
     import sys
     old_python_path = sys.path
@@ -23,7 +25,7 @@ class Game():
         self.renderer = window.renderer
         self.client = client
         self._prepare()
-        self._bindings = bindings
+        self.inputs = Inputs(window, bindings)
 
     @property
     def gui(self):
