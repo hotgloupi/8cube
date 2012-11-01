@@ -25,3 +25,5 @@ class MainMenu(Viewport):
         if self.game:
             self.game.on_resize(w, h)
 
+    def on_keydown(self):
+        pass

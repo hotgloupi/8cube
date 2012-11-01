@@ -11,13 +11,29 @@ namespace {
 
 	template<typename T>
 	struct WrapSignal
+		: private boost::noncopyable
 	{
+		std::shared_ptr<T> _storage;
 		T& signal;
 
-		WrapSignal(T& signal) : signal(signal) {}
-		WrapSignal(WrapSignal const&) = default;
-		WrapSignal(WrapSignal&&) = default;
-		WrapSignal& operator =(WrapSignal const&) = delete;
+		WrapSignal()
+			: _storage(new T)
+			, signal(*_storage)
+		{}
+
+		WrapSignal(T& signal)
+			: signal(signal)
+		{}
+
+		WrapSignal(WrapSignal const& other)
+			: _storage(other._storage)
+			, signal(other.signal)
+		{}
+
+		WrapSignal(WrapSignal&& other)
+			: _storage(std::move(other._storage))
+			, signal(other.signal)
+		{}
 
 		boost::signals::connection
 		connect(boost::python::object o)
@@ -231,7 +247,7 @@ BOOST_PYTHON_MODULE(inputs)
 		"on_" #name,                                                          \
 		py::make_function(                                                    \
 			&get::name,                                                       \
-			py::return_value_policy<py::return_by_value>()                    \
+			py::return_value_policy<py::return_by_value, py::return_internal_reference<>>()                    \
 		),                                                                    \
 		"connector for the " MKSTR(name) " signal"                            \
 	);                                                                        \
@@ -241,7 +257,7 @@ BOOST_PYTHON_MODULE(inputs)
 		py::class_<Wrapper>(                                                  \
 				MKSTR(on_ ## name ## _t),                                     \
 				MKSTR(name) " signal type",                                   \
-				py::no_init                                                   \
+				py::init<>()                                                  \
 			)                                                                 \
 			.def(                                                             \
 				"connect",                                                    \

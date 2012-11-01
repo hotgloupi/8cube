@@ -87,15 +87,15 @@ def configure(project, build):
     status("CXX compiler is", compiler.binary)
 
     boost_libraries = [Library('boost_python', shared=True)] + list(
-        Library('boost_' + s) for s in ['filesystem', 'signals', 'system']
+        Library('boost_' + s, shared=True) for s in ['filesystem', 'signals', 'system']
     )
     python_library = PythonLibrary(shared=True)
     python_libraries = [python_library]
 
     graphic_libraries = [
         SDLLibrary(components=['image'], shared=True),
-        Library('freetype', include_directories=['/usr/include/freetype2']),
-        Library('z'),
+        Library('freetype', include_directories=['/usr/include/freetype2'], shared=True),
+        Library('z', shared=True),
     ] +  list(Library(s, shared=False) for s in ['png', 'jpeg'])
     if sys.platform == 'win32':
         graphic_libraries += [

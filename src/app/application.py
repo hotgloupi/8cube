@@ -49,7 +49,6 @@ class Application(cube.gui.Application):
             self.viewport.set_child(
                 self._game_menu
             )
-        print(s)
 
     def _on_quit(self):
         self.stop()
