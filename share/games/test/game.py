@@ -18,9 +18,19 @@ class Game(core.Game):
     def gui(self):
         return self._menu
 
-    def on_frame(self, painter):
-        painter.state.view = gl.matrix.look_at(
-            self.player.camera.eye,
-            self.player.camera.look,
-            self.player.camera.up
-        )
+    @property
+    def player(self):
+        return self._player
+
+    def render(self):
+        print("BIET")
+        with self.renderer.begin(gl.mode_3d) as painter:
+            painter.state.projection = self.__projection_matrix
+            painter.state.view = gl.matrix.look_at(
+                self.player.camera.eye,
+                self.player.camera.look,
+                self.player.camera.up
+            )
+            painter.bind(self.__sp)
+            painter.bind(self.__vb)
+            painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)

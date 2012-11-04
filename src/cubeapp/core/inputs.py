@@ -31,7 +31,7 @@ class Connector:
         self.__callbacks.pop(idx)
 
     def __call__(self):
-        for _, cb in __callbacks:
+        for _, cb in self.__callbacks:
             cb(self.__input)
 
 class KeyboardInput:

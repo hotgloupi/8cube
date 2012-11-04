@@ -14,13 +14,37 @@ namespace {
 		return ss.str();
 	}
 
+	template<typename T>
+	struct tvec2_to_python
+	{
+		static PyObject*
+		convert(detail::tvec2<T> const& val)
+		{
+			return boost::python::incref(
+				boost::python::object(Vector2<T>(val)).ptr()
+			);
+		}
+	};
+
+	template<typename T>
+	struct tvec3_to_python
+	{
+		static PyObject*
+		convert(detail::tvec3<T> const& val)
+		{
+			return boost::python::incref(
+				boost::python::object(Vector3<T>(val)).ptr()
+			);
+		}
+	};
 }
 
 BOOST_PYTHON_MODULE(vector)
 {
 	namespace py = boost::python;
 
-	py::class_<detail::tvec2<float>>("_tvec2f");
+	py::class_<detail::tvec2<float>>("detail_tvec2f");
+	py::to_python_converter<detail::tvec2<float>, tvec2_to_python<float>>();
 	py::class_<Vector2f, py::bases<detail::tvec2<float>>>("Vector2f")
 		.def(py::init<float, float>())
 		.def_readonly("x", &Vector2f::x)
@@ -31,7 +55,8 @@ BOOST_PYTHON_MODULE(vector)
 		)
 	;
 
-	py::class_<detail::tvec3<float>>("_tvec3f");
+	py::class_<detail::tvec3<float>>("detail_tvec3f");
+	py::to_python_converter<detail::tvec3<float>, tvec3_to_python<float>>();
 	py::class_<Vector3f, py::bases<detail::tvec3<float>>>("Vector3f")
 		.def(py::init<float, float, float>())
 		.def_readonly("x", &Vector3f::x)
@@ -41,5 +66,11 @@ BOOST_PYTHON_MODULE(vector)
 			"__str__",
 			&print_obj<Vector3f>
 		)
+		.def(py::self * float())
+		.def(float() * py::self)
+		.def(py::self + py::self)
+		.def(py::self / float())
+		.def(float() / py::self)
+		.def(py::self - py::self)
 	;
 }

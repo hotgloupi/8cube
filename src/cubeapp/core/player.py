@@ -8,3 +8,12 @@ class Player:
         self.client = client
         self.inputs = inputs
 
+
+    def update(self, delta):
+        """
+        @brief Update the player state according to the elapsed time since last
+               update.
+
+        @note Should be overridden.
+        """
+        pass

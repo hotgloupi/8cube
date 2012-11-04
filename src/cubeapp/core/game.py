@@ -32,6 +32,10 @@ class Game():
         """Game menu GUI"""
         raise Exception("Not implemented")
 
+    @property
+    def player(self):
+        raise Exception("Not implemented")
+
     def _prepare(self):
         assert self.renderer is not None
         r = self.renderer
@@ -100,7 +104,7 @@ class Game():
         """Update the game state according to the delta (in seconds).
         should be overridden
         """
-        pass
+        self.player.update(delta)
 
     def render(self):
         with self.renderer.begin(gl.mode_3d) as painter:

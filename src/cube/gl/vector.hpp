@@ -25,6 +25,10 @@ namespace cube { namespace gl { namespace vector {
 		Vector##arity_(K... values)                                           \
 			: detail::tvec##arity_<T>{values...}                              \
 		{};                                                                   \
+		explicit                                                              \
+		Vector##arity_(detail::tvec##arity_<T> const& val)                    \
+			: detail::tvec##arity_<T>{val}                                    \
+		{};                                                                   \
 	};                                                                        \
 	typedef Vector##arity_<float> Vector##arity_##f;                          \
 	std::ostream& operator <<(std::ostream& out,                              \
