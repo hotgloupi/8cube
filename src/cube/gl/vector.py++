@@ -57,5 +57,7 @@ BOOST_PYTHON_MODULE(vector)
 		.def_readonly("y", &Vector3f::y)
 		.def_readonly("z", &Vector3f::z)
 	;
+
 	py::def("cross", &cross<float>);
+	py::def("normalize", static_cast<Vector3f (*)(Vector3f const&)>(&normalize));
 }

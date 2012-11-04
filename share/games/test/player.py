@@ -1,18 +1,21 @@
 # -*- encoding: utf-8 -*-
 
 from cubeapp import core
+from cube import gl
 
 class Player(core.Player):
-    velocity = 2
+    velocity = 10
     def update(self, delta):
+        move = gl.Vector3f()
         if self.inputs.move_forward.held:
-            self.camera.position += self.velocity * delta * self.camera.front
+            move += self.camera.front
         elif self.inputs.move_backward.held:
-            self.camera.position -= self.velocity * delta * self.camera.front
+            move -= self.camera.front
 
         if self.inputs.strafe_right.held:
-            right = self.velocity * delta * self.camera.right
-            self.camera.position += right
+            move += self.camera.right
         elif self.inputs.strafe_left.held:
-            right = self.velocity * delta * self.camera.right
-            self.camera.position -= right
+            move -= self.camera.right
+
+        if move.x or move.y or move.z:
+            self.camera.position += self.velocity * delta * gl.vector.normalize(move)
