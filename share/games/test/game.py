@@ -11,7 +11,8 @@ class Game(core.Game):
 
     def __init__(self, window, client):
         self._menu = MainMenu(renderer=window.renderer, game=self)
-        super(Game, self).__init__(window, client, BINDINGS)
+        world = core.World(core.world.Generator(), core.world.Storage())
+        super(Game, self).__init__(window, client, BINDINGS, world)
         self._player = Player(client, self.inputs)
 
     @property

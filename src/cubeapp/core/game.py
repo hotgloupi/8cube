@@ -19,11 +19,11 @@ class Game():
     """Base class for every games
     """
 
-    def __init__(self, window, client, bindings):
-        print("core.Game(", window, client, bindings,")")
+    def __init__(self, window, client, bindings, world):
         self.window = window
         self.renderer = window.renderer
         self.client = client
+        self.world = world
         self._prepare()
         self.inputs = Inputs(window, bindings)
 
@@ -101,8 +101,11 @@ class Game():
         )
 
     def update(self, delta):
-        """Update the game state according to the delta (in seconds).
-        should be overridden
+        """
+        @brief Update the game state according to the delta (in seconds).
+
+        @note should be overridden.
         """
         self.player.update(delta)
+        self.world.update(delta, self.player)
 
