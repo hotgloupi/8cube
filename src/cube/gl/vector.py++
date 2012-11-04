@@ -14,63 +14,48 @@ namespace {
 		return ss.str();
 	}
 
-	template<typename T>
-	struct tvec2_to_python
-	{
-		static PyObject*
-		convert(detail::tvec2<T> const& val)
-		{
-			return boost::python::incref(
-				boost::python::object(Vector2<T>(val)).ptr()
-			);
-		}
-	};
-
-	template<typename T>
-	struct tvec3_to_python
-	{
-		static PyObject*
-		convert(detail::tvec3<T> const& val)
-		{
-			return boost::python::incref(
-				boost::python::object(Vector3<T>(val)).ptr()
-			);
-		}
-	};
 }
 
 BOOST_PYTHON_MODULE(vector)
 {
 	namespace py = boost::python;
 
-	py::class_<detail::tvec2<float>>("detail_tvec2f");
-	py::to_python_converter<detail::tvec2<float>, tvec2_to_python<float>>();
-	py::class_<Vector2f, py::bases<detail::tvec2<float>>>("Vector2f")
+#define EXPORT_VECTOR(__value_type, __arity, __suffix)                        \
+	_EXPORT_VECTOR(__value_type,                                              \
+	               Vector ## __arity<__value_type>,                           \
+	               "Vector" #__arity #__suffix                                \
+	)
+/**/
+
+#define _EXPORT_VECTOR(__value_type, __type, __type_str)                      \
+	py::class_<__type>(__type_str)                                            \
+		.def(                                                                 \
+			"__str__",                                                        \
+			&print_obj<__type>                                                \
+		)                                                                     \
+		.def(py::self * __value_type())                                       \
+		.def(__value_type() * py::self)                                       \
+		.def(py::self *= __type())                                            \
+		.def(py::self + py::self)                                             \
+		.def(py::self += __type())                                            \
+		.def(py::self / __value_type())                                       \
+		.def(__value_type() / py::self)                                       \
+		.def(py::self /= __type())                                            \
+		.def(py::self - py::self)                                             \
+		.def(py::self -= __type())                                            \
+/**/
+
+	EXPORT_VECTOR(float, 2, f)
 		.def(py::init<float, float>())
 		.def_readonly("x", &Vector2f::x)
 		.def_readonly("y", &Vector2f::y)
-		.def(
-			"__str__",
-			&print_obj<Vector2f>
-		)
 	;
 
-	py::class_<detail::tvec3<float>>("detail_tvec3f");
-	py::to_python_converter<detail::tvec3<float>, tvec3_to_python<float>>();
-	py::class_<Vector3f, py::bases<detail::tvec3<float>>>("Vector3f")
+	EXPORT_VECTOR(float, 3, f)
 		.def(py::init<float, float, float>())
 		.def_readonly("x", &Vector3f::x)
 		.def_readonly("y", &Vector3f::y)
 		.def_readonly("z", &Vector3f::z)
-		.def(
-			"__str__",
-			&print_obj<Vector3f>
-		)
-		.def(py::self * float())
-		.def(float() * py::self)
-		.def(py::self + py::self)
-		.def(py::self / float())
-		.def(float() / py::self)
-		.def(py::self - py::self)
 	;
+	py::def("cross", &cross<float>);
 }

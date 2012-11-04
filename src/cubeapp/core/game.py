@@ -97,7 +97,7 @@ class Game():
 
     def on_resize(self, w, h):
         self.__projection_matrix = gl.matrix.perspective(
-            90, w / h, 0.05, 300.0
+            90, w / h, 0.005, 300.0
         )
 
     def update(self, delta):
@@ -105,11 +105,4 @@ class Game():
         should be overridden
         """
         self.player.update(delta)
-
-    def render(self):
-        with self.renderer.begin(gl.mode_3d) as painter:
-            painter.state.projection = self.__projection_matrix
-            painter.bind(self.__sp)
-            painter.bind(self.__vb)
-            painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
 

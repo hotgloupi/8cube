@@ -5,6 +5,7 @@
 # include <limits>
 
 # include "fwd.hpp"
+# include "content_traits.hpp"
 
 namespace cube { namespace gl { namespace color {
 
@@ -139,5 +140,23 @@ namespace cube { namespace gl { namespace color {
 
 
 }}} // !cube::gl::color
+
+namespace cube { namespace gl {
+
+	template<typename T>
+	struct content_traits<color::Color3<T>>
+	{
+		static unsigned int const arity = 3;
+		typedef T component_type;
+	};
+
+	template<typename T>
+	struct content_traits<color::Color4<T>>
+	{
+		static unsigned int const arity = 4;
+		typedef T component_type;
+	};
+
+}}
 
 #endif

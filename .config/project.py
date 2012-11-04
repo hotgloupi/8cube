@@ -78,6 +78,7 @@ def configure(project, build):
         project, build,
         position_independent_code = True,
         standard = 'c++11',
+        defines = ['GLM_FORCE_CXX11'],
         library_directories = lib_dirs,
         include_directories = include_dirs + [
             path.absolute(project.root_dir, 'src'),

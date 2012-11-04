@@ -6,35 +6,13 @@
 # include "constants.hpp"
 # include "Bindable.hpp"
 
+# include "../content_traits.hpp"
+
 # include <cstdlib>
 # include <memory>
 # include <vector>
 
 namespace cube { namespace gl { namespace renderer {
-
-	namespace detail {
-
-		template<typename _T>
-		struct content_traits
-		{
-			static unsigned int const arity = _T::arity;
-			typedef typename _T::component_t component_t;
-		};
-
-# define _CUBE_GL_RENDERER_CONTENT_TRAITS(type_)                              \
-		template<> struct content_traits<type_>                               \
-		{                                                                     \
-			static unsigned int const arity = 1;                              \
-			typedef type_ component_t;                                        \
-		}                                                                     \
-	/**/
-		_CUBE_GL_RENDERER_CONTENT_TRAITS(uint8_t);
-		_CUBE_GL_RENDERER_CONTENT_TRAITS(uint16_t);
-		_CUBE_GL_RENDERER_CONTENT_TRAITS(uint32_t);
-
-# undef _CUBE_GL_RENDERER_CONTENT_TRAITS
-
-	} // !detail
 
 	class VertexBuffer
 		: public Bindable<>
@@ -120,13 +98,13 @@ namespace cube { namespace gl { namespace renderer {
 		                    unsigned int nb_elements,
 		                    bool managed = false)
 		{
-			typedef typename detail::content_traits<T>::component_t component_t;
+			typedef typename content_traits<T>::component_type component_t;
 
 			this->_push_content(
 				kind,
 				MakeContentType<component_t>::value,
 				ContentHint::static_content,
-				detail::content_traits<T>::arity,
+				content_traits<T>::arity,
 				nb_elements,
 				data,
 				nb_elements * sizeof (T),

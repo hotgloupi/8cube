@@ -3,6 +3,13 @@
 
 # include "renderer/fwd.hpp"
 
+namespace glm { namespace detail {
+
+	template<typename T> struct tvec2;
+	template<typename T> struct tvec3;
+
+}}
+
 namespace cube { namespace gl {
 
 	namespace color {
@@ -36,8 +43,12 @@ namespace cube { namespace gl {
 
 	namespace vector {
 
-		template<typename T> struct Vector2;
-		template<typename T> struct Vector3;
+		namespace detail {
+			using namespace ::glm::detail;
+		}
+
+		template<typename T> using Vector2 = detail::tvec2<T>;
+		template<typename T> using Vector3 = detail::tvec3<T>;
 
 		typedef Vector2<float> Vector2f;
 		typedef Vector3<float> Vector3f;

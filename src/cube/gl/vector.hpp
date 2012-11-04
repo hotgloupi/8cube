@@ -7,6 +7,7 @@
 //# include <glm/gtx/transform.hpp>
 
 # include "fwd.hpp"
+# include "content_traits.hpp"
 
 # include <iosfwd>
 
@@ -14,33 +15,43 @@ namespace cube { namespace gl { namespace vector {
 
 	using namespace ::glm;
 
-# define _CUBE_GL_VECTOR_DEF(arity_)                                          \
-	template<typename T>                                                      \
-	struct Vector##arity_                                                     \
-		: public detail::tvec##arity_<T>                                      \
-	{                                                                         \
-		static const unsigned int arity = arity_;                             \
-		typedef T component_t;                                                \
-		template<typename... K>                                               \
-		Vector##arity_(K... values)                                           \
-			: detail::tvec##arity_<T>{values...}                              \
-		{};                                                                   \
-		explicit                                                              \
-		Vector##arity_(detail::tvec##arity_<T> const& val)                    \
-			: detail::tvec##arity_<T>{val}                                    \
-		{};                                                                   \
-	};                                                                        \
-	typedef Vector##arity_<float> Vector##arity_##f;                          \
-	std::ostream& operator <<(std::ostream& out,                              \
-	                          Vector##arity_<float> const& value);            \
-	/**/
+	template<typename T> using Vector3 = detail::tvec3<T>;
+	template<typename T> using Vector2 = detail::tvec2<T>;
 
-	_CUBE_GL_VECTOR_DEF(2);
-	_CUBE_GL_VECTOR_DEF(3);
+}}}
+
+namespace cube { namespace gl {
+
+	template<typename T>
+	struct content_traits<vector::Vector2<T>>
+	{
+		static unsigned int const arity = 2;
+		typedef T component_type;
+	};
+
+	template<typename T>
+	struct content_traits<vector::Vector3<T>>
+	{
+		static unsigned int const arity = 3;
+		typedef T component_type;
+	};
+
+}}
+
+# define _CUBE_GL_VECTOR_DEF(__arity, __type, __suffix)                       \
+namespace cube { namespace gl { namespace vector {                            \
+	typedef Vector ## __arity<__type> Vector ## __arity ## __suffix;          \
+}}}                                                                           \
+namespace glm { namespace detail {                                            \
+	std::ostream& operator <<(std::ostream& out,                              \
+	                          tvec ## __arity<__type> const& value);          \
+}}                                                                            \
+/**/
+
+	_CUBE_GL_VECTOR_DEF(2, float, f);
+	_CUBE_GL_VECTOR_DEF(3, float, f);
 
 # undef _CUBE_GL_VECTOR_DEF
 
-
-}}}
 
 #endif /* ! VECTOR_HPP */

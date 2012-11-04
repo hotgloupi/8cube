@@ -6,8 +6,8 @@ BINDINGS = {
 
     'move_forward': sym.up,
     'move_backward': sym.down,
-    'strife_left': sym.left,
-    'strife_right': sym.right,
+    'strafe_left': sym.left,
+    'strafe_right': sym.right,
 
 }
 

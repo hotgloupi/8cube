@@ -23,7 +23,6 @@ class Game(core.Game):
         return self._player
 
     def render(self):
-        print("BIET")
         with self.renderer.begin(gl.mode_3d) as painter:
             painter.state.projection = self.__projection_matrix
             painter.state.view = gl.matrix.look_at(

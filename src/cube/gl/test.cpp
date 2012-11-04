@@ -69,11 +69,12 @@ namespace cube { namespace gl { namespace test {
 		text::Text text(f, u"Ceci est un test, et ça aussi !");
 
 		vector::Vector2f vertices[] = {
-			{10,     10},
-			{630,    10},
-			{630,    470},
-			{10,     470},
+			vector::Vector2f{10,     10},
+			vector::Vector2f{630,    10},
+			vector::Vector2f{630,    470},
+			vector::Vector2f{10,     470},
 		};
+
 		vb->push_static_content(
 			renderer::ContentKind::vertex,
 			vertices,
@@ -81,10 +82,10 @@ namespace cube { namespace gl { namespace test {
 		);
 
 		vector::Vector2f tex_coords[] = {
-			{0,     0},
-			{1,     0},
-			{1,     1},
-			{0,     1},
+			vector::Vector2f{0,     0},
+			vector::Vector2f{1,     0},
+			vector::Vector2f{1,     1},
+			vector::Vector2f{0,     1},
 		};
 		vb->push_static_content(
 			renderer::ContentKind::tex_coord0,
@@ -224,10 +225,10 @@ namespace cube { namespace gl { namespace test {
 		auto vb = window.renderer().new_vertex_buffer();
 		{
 			vector::Vector2f vertices[] = {
-				{10,     10},
-				{630,    10},
-				{630,    470},
-				{10,     470},
+				vector::Vector2f{10,     10},
+				vector::Vector2f{630,    10},
+				vector::Vector2f{630,    470},
+				vector::Vector2f{10,     470},
 			};
 			vb->push_static_content(
 				renderer::ContentKind::vertex,
@@ -236,10 +237,10 @@ namespace cube { namespace gl { namespace test {
 			);
 
 			vector::Vector2f tex_coords[] = {
-				{0,     0},
-				{1,     0},
-				{1,     1},
-				{0,     1},
+				vector::Vector2f{0,     0},
+				vector::Vector2f{1,     0},
+				vector::Vector2f{1,     1},
+				vector::Vector2f{0,     1},
 			};
 			vb->push_static_content(
 				renderer::ContentKind::tex_coord0,
