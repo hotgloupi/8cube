@@ -51,12 +51,18 @@ BOOST_PYTHON_MODULE(vector)
 		.def_readonly("y", &Vector2f::y)
 	;
 
-	EXPORT_VECTOR(float, 3, f)
-		.def(py::init<float, float, float>())
-		.def_readonly("x", &Vector3f::x)
-		.def_readonly("y", &Vector3f::y)
-		.def_readonly("z", &Vector3f::z)
-	;
+#define EXPORT_VECTOR3(__value_type, __suffix)                                \
+	EXPORT_VECTOR(__value_type, 3, __suffix)                                  \
+		.def(py::init<__value_type, __value_type, __value_type>())            \
+		.def_readonly("x", &Vector3 ## __suffix::x)                           \
+		.def_readonly("y", &Vector3 ## __suffix::y)                           \
+		.def_readonly("z", &Vector3 ## __suffix::z)                           \
+/**/
+
+	EXPORT_VECTOR3(float, f);
+	EXPORT_VECTOR3(double, d);
+	EXPORT_VECTOR3(int32_t, i);
+	EXPORT_VECTOR3(uint32_t, ui);
 
 	py::def("cross", &cross<float>);
 	py::def("normalize", static_cast<Vector3f (*)(Vector3f const&)>(&normalize));
