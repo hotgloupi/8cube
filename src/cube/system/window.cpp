@@ -195,8 +195,9 @@ namespace cube { namespace system { namespace window {
 		if (mode)
 			SDL_WarpMouse(_width / 2, _height / 2);
 		SDL_Event e;
+		SDL_PumpEvents();
 		while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEMOTION)))
-			etc::print("GOT ONE!");
+			;
 	}
 
 	// Check that SDL implem won't change
