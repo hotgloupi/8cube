@@ -43,12 +43,8 @@ namespace cube { namespace gl {
 
 	namespace vector {
 
-		namespace detail {
-			using namespace ::glm::detail;
-		}
-
-		template<typename T> using Vector2 = detail::tvec2<T>;
-		template<typename T> using Vector3 = detail::tvec3<T>;
+		template<typename T> using Vector2 = glm::detail::tvec2<T>;
+		template<typename T> using Vector3 = glm::detail::tvec3<T>;
 
 		typedef Vector2<float> Vector2f;
 		typedef Vector3<float> Vector3f;

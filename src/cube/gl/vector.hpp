@@ -4,6 +4,7 @@
 # include <glm/glm.hpp>
 # include <glm/core/type_vec2.hpp>
 # include <glm/core/type_vec3.hpp>
+# include <glm/gtx/rotate_vector.hpp>
 //# include <glm/gtx/transform.hpp>
 
 # include "fwd.hpp"
@@ -13,10 +14,41 @@
 
 namespace cube { namespace gl { namespace vector {
 
-	using namespace ::glm;
+	template<typename T> using Vector3 = glm::detail::tvec3<T>;
+	template<typename T> using Vector2 = glm::detail::tvec2<T>;
 
-	template<typename T> using Vector3 = detail::tvec3<T>;
-	template<typename T> using Vector2 = detail::tvec2<T>;
+	template<typename T>
+	inline
+	Vector3<T> rotate_x(Vector3<T> const& v, T const angle)
+	{
+		return glm::rotateX(v, angle);
+	}
+
+	template<typename T>
+	inline
+	Vector3<T> rotate_y(Vector3<T> const& v, T const angle)
+	{
+		return glm::rotateY(v, angle);
+	}
+
+	template<typename T>
+	inline
+	Vector3<T> rotate_z(Vector3<T> const& v, T const angle)
+	{
+		return glm::rotateZ(v, angle);
+	}
+
+	template<typename T>
+	inline
+	Vector3<T> rotate(Vector3<T> const& v,
+	                  T const angle,
+	                  Vector3<T> const& normal)
+	{
+		return glm::rotate(v, angle, normal);
+	}
+
+	using glm::normalize;
+	using glm::cross;
 
 }}}
 

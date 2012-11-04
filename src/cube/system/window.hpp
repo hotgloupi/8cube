@@ -26,6 +26,7 @@ namespace cube { namespace system { namespace window {
 		uint32_t poll(uint32_t max);
 		::cube::gl::renderer::Renderer& renderer();
 		::cube::system::inputs::Inputs& inputs();
+		void confine_mouse(bool mode);
 	};
 
 }}} // !cube::system::window

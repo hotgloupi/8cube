@@ -111,6 +111,7 @@ namespace cube { namespace system { namespace window {
 		bool has_resize = false;
 
 		SDL_Event e;
+		char ch;
 		while (SDL_PollEvent(&e))
 		{
 			switch (e.type)
@@ -132,30 +133,23 @@ namespace cube { namespace system { namespace window {
 					_impl->inputs.on_quit()();
 					break;
 				}
+				/* no break here, continue in KEYUP case */
 			case SDL_KEYUP:
-				inputs::KeyMod mod = static_cast<inputs::KeyMod>(
-					static_cast<int>(e.key.keysym.mod)
-				);
-				inputs::KeySym sym = static_cast<inputs::KeySym>(
-					static_cast<int>(e.key.keysym.sym)
-				);
-				char ch;
-				if ((e.key.keysym.unicode & 0xFF80) == 0)
-				{
-					ch = e.key.keysym.unicode & 0x7F;
-					if (e.type == SDL_KEYDOWN)
-						_impl->inputs.on_keydown()(mod, sym, ch);
-					else
-						_impl->inputs.on_keyup()(mod, sym, ch);
-				}
+#define MOD(e) static_cast<inputs::KeyMod>(static_cast<int>(e.key.keysym.mod))
+#define SYM(e) static_cast<inputs::KeySym>(static_cast<int>(e.key.keysym.sym))
+#define CHR(e) (                                                              \
+		((e.key.keysym.unicode & 0xFF80) == 0)                                \
+		? e.key.keysym.unicode & 0x7F                                         \
+		: e.key.keysym.unicode                                                \
+	)                                                                         \
+/**/
+				if (e.type == SDL_KEYDOWN)
+					_impl->inputs.on_keydown()(MOD(e), SYM(e), CHR(e));
 				else
-				{
-					if (e.type == SDL_KEYDOWN)
-						_impl->inputs.on_keydown()(mod, sym, e.key.keysym.unicode);
-					else
-						_impl->inputs.on_keyup()(mod, sym, e.key.keysym.unicode);
-				}
+					_impl->inputs.on_keyup()(MOD(e), SYM(e), CHR(e));
 				break;
+			case SDL_MOUSEMOTION:
+				_impl->inputs.on_mousemove()(e.motion.xrel, e.motion.yrel);
 			}
 			if (++count >= max)
 				break;
@@ -186,6 +180,23 @@ namespace cube { namespace system { namespace window {
 	::cube::system::inputs::Inputs& Window::inputs()
 	{
 		return _impl->inputs;
+	}
+
+	void Window::confine_mouse(bool mode)
+	{
+		SDL_GrabMode input_mode = mode ? SDL_GRAB_ON : SDL_GRAB_OFF;
+		::SDL_WM_GrabInput(input_mode);
+		if (input_mode != ::SDL_WM_GrabInput(SDL_GRAB_QUERY))
+			throw Exception{etc::to_string(
+				"Cannot ", mode ? "enable" : "disable", "mouse grabbing"
+			)};
+		SDL_ShowCursor(!mode ? SDL_ENABLE : SDL_DISABLE);
+
+		if (mode)
+			SDL_WarpMouse(_width / 2, _height / 2);
+		SDL_Event e;
+		while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEMOTION)))
+			etc::print("GOT ONE!");
 	}
 
 	// Check that SDL implem won't change

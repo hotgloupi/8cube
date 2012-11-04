@@ -57,13 +57,54 @@ BOOST_PYTHON_MODULE(vector)
 		.def_readonly("x", &Vector3 ## __suffix::x)                           \
 		.def_readonly("y", &Vector3 ## __suffix::y)                           \
 		.def_readonly("z", &Vector3 ## __suffix::z)                           \
+	;                                                                         \
 /**/
 
 	EXPORT_VECTOR3(float, f);
 	EXPORT_VECTOR3(double, d);
+
 	EXPORT_VECTOR3(int32_t, i);
 	EXPORT_VECTOR3(uint32_t, ui);
 
-	py::def("cross", &cross<float>);
-	py::def("normalize", static_cast<Vector3f (*)(Vector3f const&)>(&normalize));
+
+#define _EXPORT_VECTOR_FLOAT_METHODS(__value_type, __type)                    \
+	py::def(                                                                  \
+		"normalize",                                                          \
+		static_cast<__type (*)(__type const&)>(&normalize)                    \
+	);                                                                        \
+	py::def(                                                                  \
+		"rotate_x",                                                           \
+		static_cast<__type(*)(__type const&, __value_type)>(                  \
+			&rotate_x<__value_type>                                           \
+		)                                                                     \
+	);                                                                        \
+	py::def(                                                                  \
+		"rotate_y",                                                           \
+		static_cast<__type(*)(__type const&, __value_type)>(                  \
+			&rotate_y<__value_type>                                           \
+		)                                                                     \
+	);                                                                        \
+	py::def(                                                                  \
+		"rotate_z",                                                           \
+		static_cast<__type(*)(__type const&, __value_type)>(                  \
+			&rotate_z<__value_type>                                           \
+		)                                                                     \
+	);                                                                        \
+	py::def(                                                                  \
+		"rotate",                                                             \
+		static_cast<__type(*)(__type const&, __value_type, __type const&)>(   \
+			&rotate<__value_type>                                             \
+		)                                                                     \
+	);                                                                        \
+	py::def("cross", &cross<__value_type>);                                   \
+/**/
+
+#define EXPORT_VECTOR_FLOAT_METHODS(__value_type, __arity, __suffix)          \
+	_EXPORT_VECTOR_FLOAT_METHODS(__value_type,                                \
+	                            Vector ## __arity<__value_type>)              \
+/**/
+
+	EXPORT_VECTOR_FLOAT_METHODS(float, 3, f);
+	EXPORT_VECTOR_FLOAT_METHODS(double, 3, d);
+
 }

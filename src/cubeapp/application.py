@@ -25,7 +25,7 @@ class Application(cube.gui.Application):
         self._game = core.load_game(game_dir, game,
                                     self.window,
                                     self._client)
-
+        self.window.confine_mouse(True)
         self.__prepare()
 
     def __prepare(self):

@@ -43,5 +43,9 @@ BOOST_PYTHON_MODULE(window)
 				py::return_internal_reference<>()
 			)
 		)
+		.def(
+			"confine_mouse",
+			&Window::confine_mouse
+		)
 	;
 }
