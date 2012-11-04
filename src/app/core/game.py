@@ -96,6 +96,12 @@ class Game():
             90, w / h, 0.05, 300.0
         )
 
+    def update(self, delta):
+        """Update the game state according to the delta (in seconds).
+        should be overridden
+        """
+        pass
+
     def render(self):
         with self.renderer.begin(gl.mode_3d) as painter:
             painter.state.projection = self.__projection_matrix

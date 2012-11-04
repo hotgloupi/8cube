@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 import os
+import time
+
 import cube
 
 from . import core
@@ -25,7 +27,6 @@ class Application(cube.gui.Application):
                                     self._client)
 
         self.__prepare()
-        self.window.inputs.on_keydown.connect(self._on_keydown)
 
     def __prepare(self):
 
@@ -39,16 +40,32 @@ class Application(cube.gui.Application):
             self._game_menu
         )
 
-    def _on_keydown(self, mod, sym, char):
-        s = chr(char)
-        if s == 'm':
-            self.viewport.set_child(
-                self._main_menu
-            )
-        elif s == 'g':
-            self.viewport.set_child(
-                self._game_menu
-            )
+    def run(self):
+        self._running = True
+        fps_target = 50
+        frame_time_target = 1.0 / fps_target
+        frame_counter_start_time = time.time()
+        nb_frame = 0
+        last_update = time.time()
+        while self._running is True:
+            start = time.time()
+            self._window.poll()
+            self._update(time.time() - last_update)
+            last_update = time.time()
+            frame_time = time.time() - start
+            if frame_time < frame_time_target:
+                self.render()
+            frame_time = time.time() - start
+            if frame_time < frame_time_target:
+                time.sleep(frame_time_target - frame_time)
+            nb_frame += 1
+            if time.time() - frame_counter_start_time  > 1:
+                print("FPS:", nb_frame / (time.time() - frame_counter_start_time))
+                frame_counter_start_time = time.time()
+                nb_frame = 0
+
+    def _update(self, delta):
+        self._game.update(delta)
 
     def _on_quit(self):
         self.stop()
