@@ -160,9 +160,9 @@ def configure(project, build):
 
     build.add_targets(
         Target(
-            'release/lib/python/' + 'cube' + src[4:],
+            'release/lib/python/' + src[4:],
             CopyFile(Source(src))
-        ) for src in glob("src/app/*.py", recursive=True)
+        ) for src in glob("src/cubeapp/*.py", recursive=True)
     )
 
     build.add_targets(
@@ -174,7 +174,7 @@ def configure(project, build):
 
     infinit_cube = compiler.link_executable(
         "8cube",
-        glob("src/app/*.cpp", recursive=True),
+        glob("src/cubeapp/*.cpp", recursive=True),
         directory = "release/bin",
         libraries=[libcube, libetc] + boost_libraries + python_libraries,
     )
