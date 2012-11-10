@@ -1,14 +1,14 @@
 #ifndef  CUBE_GL_VECTOR_HPP
 # define CUBE_GL_VECTOR_HPP
 
+# include "fwd.hpp"
+# include "content_traits.hpp"
+
 # include <glm/glm.hpp>
 # include <glm/core/type_vec2.hpp>
 # include <glm/core/type_vec3.hpp>
 # include <glm/gtx/rotate_vector.hpp>
 //# include <glm/gtx/transform.hpp>
-
-# include "fwd.hpp"
-# include "content_traits.hpp"
 
 # include <iosfwd>
 
