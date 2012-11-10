@@ -1,8 +1,6 @@
 #ifndef  CUBE_GL_FWD_HH
 # define CUBE_GL_FWD_HH
 
-# include "renderer/fwd.hpp"
-
 namespace glm { namespace detail {
 
 	template<typename T> struct tvec2;

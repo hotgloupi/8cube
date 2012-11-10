@@ -19,9 +19,21 @@ namespace {
 
 BOOST_PYTHON_MODULE(matrix)
 {
-	py::class_<matrix::mat44f>("Matrix44f")
-		.def("__str__", &print_obj<matrix::mat44f>)
+	py::class_<matrix::Matrix44f>("Matrix44f")
+		.def("__str__", &print_obj<matrix::Matrix44f>)
 	;
 	py::def("perspective", &matrix::perspective<float>);
-	py::def("look_at", &matrix::lookAt<float>);
+	py::def("look_at", &matrix::look_at<float>);
+	py::def(
+		"translate",
+		static_cast<
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, float const, float const, float const)
+		>(&matrix::translate<float>)
+	);
+	py::def(
+		"translate",
+		static_cast<
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, vector::Vector3<float> const&)
+		>(&matrix::translate<float>)
+	);
 }
