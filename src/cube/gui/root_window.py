@@ -4,12 +4,12 @@ from cube.gl.renderer import Renderer
 from cube import gl
 from cube import system
 from cube.gui.widgets.viewport import Viewport
-print(Renderer)
 
 class RootWindow(system.Window):
 
     def __init__(self, title, width, height):
         super(RootWindow, self).__init__(title, width, height)
+        print(self.renderer.description())
         self._root_widget = Viewport(
             renderer=self.renderer,
             x=0, y=0, w=width, h=height,

@@ -42,7 +42,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 					"GLEW version", glewGetString(GLEW_VERSION), '\n',
 					"OpenGL version", (char*) glGetString(GL_VERSION), '\n',
 					"OpenGL renderer", (char*) glGetString(GL_RENDERER), '\n',
-					"OpenGL vendor", (char*) glGetString(GL_VENDOR), '\n'
+					"OpenGL vendor", (char*) glGetString(GL_VENDOR), '\n',
+					"GLSL version", (char*) glGetString(GL_SHADING_LANGUAGE_VERSION), '\n'
 				);
 			}
 
