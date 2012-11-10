@@ -4,6 +4,7 @@
 # include <string>
 
 # include <cube/gl/fwd.hpp>
+# include <cube/gl/renderer/fwd.hpp>
 # include <cube/system/fwd.hpp>
 
 namespace cube { namespace system { namespace window {

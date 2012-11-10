@@ -25,7 +25,7 @@ namespace cube { namespace gl { namespace renderer {
 	/**
 	 * Matrix type used for every transformation.
 	 */
-	typedef ::cube::gl::matrix::mat44f      matrix_type;
+	typedef ::cube::gl::matrix::Matrix44f      matrix_type;
 
 	enum class MatrixKind
 	{
