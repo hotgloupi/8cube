@@ -111,7 +111,7 @@ def configure(project, build):
     if sys.platform == 'win32':
         base_libraries += list(Library(name) for name in ['Shlwapi', 'mingw32',])
 
-    libetc = compiler.link_static_library(
+    libetc = compiler.link_dynamic_library(
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
