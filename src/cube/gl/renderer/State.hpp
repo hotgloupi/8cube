@@ -18,9 +18,14 @@ namespace cube { namespace gl { namespace renderer {
 		State(Mode const mode);
 		State(State&& other);
 		State& operator =(State&& other);
+		State& operator =(State const& other)
+		{
+			std::copy(other._matrices,
+			          other._matrices + (size_t)MatrixKind::_max_value,
+			          _matrices);
+		}
 	private:
 		State(State const& other) = delete;
-		State& operator =(State const& other) = delete;
 
 		/**
 		 * Getter/setter for matrices

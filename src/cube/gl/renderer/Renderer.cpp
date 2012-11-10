@@ -64,6 +64,16 @@ namespace cube { namespace gl { namespace renderer {
 
 	Painter Renderer::begin(State&& state)
 	{
+		auto it = _states.rbegin(),
+		     end = _states.rend();
+		for (; it != end; ++it)
+		{
+			if (it->mode == state.mode)
+			{
+				state = *it;
+				break;
+			}
+		}
 		ETC_TRACE.debug("Begining new state in mode", state.mode);
 		switch (state.mode)
 		{
