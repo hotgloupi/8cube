@@ -97,7 +97,7 @@ class Game():
 
     def on_resize(self, w, h):
         self.__projection_matrix = gl.matrix.perspective(
-            90, w / h, 0.005, 300.0
+            45, w / h, 0.005, 300.0
         )
 
     def update(self, delta):

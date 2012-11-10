@@ -11,7 +11,9 @@ class Game(core.Game):
 
     def __init__(self, window, client):
         self._menu = MainMenu(renderer=window.renderer, game=self)
-        world = core.World(core.world.Storage(), core.world.Generator())
+        world = core.World(core.world.Storage(),
+                           core.world.Generator(),
+                           window.renderer)
         super(Game, self).__init__(window, client, BINDINGS, world)
         self._player = Player(client, self.inputs)
 
@@ -31,7 +33,7 @@ class Game(core.Game):
                 self.player.camera.position + self.player.camera.front,
                 self.player.camera.up
             )
-            self.world.render(painter)
+            self.world.render(self.renderer)
             painter.bind(self.__sp)
             painter.bind(self.__vb)
             painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)

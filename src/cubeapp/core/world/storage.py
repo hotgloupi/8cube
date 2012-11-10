@@ -17,4 +17,3 @@ class Storage:
         assert chunk is not None
         assert self.__chunks.get((pos.x, pos.y, pos.z)) is None
         self.__chunks[(pos.x, pos.y, pos.z)] = chunk
-        print("set_chunk", pos, chunk)

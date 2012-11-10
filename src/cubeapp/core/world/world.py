@@ -6,11 +6,12 @@ from .storage import Storage
 from .generator import Generator
 
 class World:
-    def __init__(self, storage, generator):
+    def __init__(self, storage, generator, renderer):
         assert isinstance(storage, Storage)
         assert isinstance(generator, Generator)
         self.__storage = storage
         self.__generator = generator
+        self.__renderer = renderer
         self.__xxx_chunks = {}
 
     def update(self, delta, player):
@@ -21,12 +22,14 @@ class World:
         chunk = self.__storage.get_chunk(pos)
         if chunk is None:
             chunk = self.__generator.gen_chunk(pos)
+            chunk.prepare(self.__renderer)
             self.__storage.set_chunk(pos, chunk)
         return chunk
 
-    def render(self, painter):
+    def render(self, renderer):
         for pos, chunk in self.__xxx_chunks.items():
-            chunk.render(gl.Vector3i(*pos), painter)
+            with renderer.begin(gl.mode_3d) as painter:
+                chunk.render(gl.Vector3i(*pos), painter)
 
     @staticmethod
     def _chunk_coord(v):
