@@ -9,6 +9,10 @@ class Player:
         self.inputs = inputs
 
 
+    @property
+    def position(self):
+        return self.camera.position
+
     def update(self, delta):
         """
         @brief Update the player state according to the elapsed time since last

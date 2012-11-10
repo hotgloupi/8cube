@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+from .chunk import Chunk
 
 class Generator:
-    pass
+    def gen_chunk(self, pos):
+        return Chunk()

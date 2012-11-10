@@ -46,17 +46,20 @@ BOOST_PYTHON_MODULE(vector)
 /**/
 
 	EXPORT_VECTOR(float, 2, f)
+		.def(py::init<double, double>())
+		.def(py::init<int64_t, int64_t>())
 		.def(py::init<float, float>())
-		.def_readonly("x", &Vector2f::x)
-		.def_readonly("y", &Vector2f::y)
+		.def_readwrite("x", &Vector2f::x)
+		.def_readwrite("y", &Vector2f::y)
 	;
 
 #define EXPORT_VECTOR3(__value_type, __suffix)                                \
 	EXPORT_VECTOR(__value_type, 3, __suffix)                                  \
-		.def(py::init<__value_type, __value_type, __value_type>())            \
-		.def_readonly("x", &Vector3 ## __suffix::x)                           \
-		.def_readonly("y", &Vector3 ## __suffix::y)                           \
-		.def_readonly("z", &Vector3 ## __suffix::z)                           \
+		.def(py::init<double, double, double>())                              \
+		.def(py::init<int64_t, int64_t, int64_t>())                           \
+		.def_readwrite("x", &Vector3 ## __suffix::x)                          \
+		.def_readwrite("y", &Vector3 ## __suffix::y)                          \
+		.def_readwrite("z", &Vector3 ## __suffix::z)                          \
 	;                                                                         \
 /**/
 
