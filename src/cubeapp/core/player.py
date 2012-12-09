@@ -5,6 +5,7 @@ from cube import gl
 class Player:
     def __init__(self, client, inputs):
         self.camera = gl.Camera()
+        self.camera.position = gl.Vector3f(-0.1, 1, -0.1)
         self.client = client
         self.inputs = inputs
 

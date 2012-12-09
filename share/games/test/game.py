@@ -34,7 +34,4 @@ class Game(core.Game):
                 self.player.camera.up
             )
             self.world.render(self.renderer)
-            painter.bind(self.__sp)
-            painter.bind(self.__vb)
-            painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
 
