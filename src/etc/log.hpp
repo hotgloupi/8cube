@@ -7,7 +7,7 @@
 # include <boost/preprocessor/cat.hpp>
 
 # define ETC_LOG_COMPONENT(__name)                                            \
-	static constexpr char const* _etc_log_component_name = (__name)                     \
+	static constexpr char const* _etc_log_component_name = (__name)           \
 /**/
 
 
