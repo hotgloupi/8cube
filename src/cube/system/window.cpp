@@ -22,8 +22,9 @@ namespace cube { namespace system { namespace window {
 		RendererPtr     renderer;
 		inputs::Inputs  inputs;
 	private:
-		::SDL_Surface*  _screen;
-		int             _flags;
+		::SDL_Surface*          _screen;
+		::SDL_VideoInfo const*  _video_info;
+		int                     _flags;
 
 	public:
 		Impl(std::string const& title,
@@ -33,6 +34,7 @@ namespace cube { namespace system { namespace window {
 			: renderer{}
 			, inputs{}
 			, _screen{nullptr}
+			, _video_info{nullptr}
 			, _flags{SDL_RESIZABLE}
 		{
 			::SDL_WM_SetCaption(title.c_str(), 0);
@@ -45,10 +47,11 @@ namespace cube { namespace system { namespace window {
 			case gl::renderer::RendererType::OpenGL:
 				::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 				::SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+				::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
 				_flags |= SDL_OPENGL;
 			break;
 			default:
-				throw "NotImplemented";
+				throw Exception("Other renderer than OpenGL are not supported");
 			}
 			this->resize(width, height);
 			gl::viewport::Viewport vp{
@@ -57,6 +60,7 @@ namespace cube { namespace system { namespace window {
 				static_cast<float>(height),
 			};
 
+			ETC_LOG("SDL has been initialized, creating the renderer");
 			// SDL_SetVideoMode has been called before (with resize()), we can
 			// create the renderer safely.
 			this->renderer = std::move(gl::renderer::create_renderer(vp, name));
@@ -65,6 +69,16 @@ namespace cube { namespace system { namespace window {
 	public:
 		void resize(uint32_t const width, uint32_t const height)
 		{
+			ETC_LOG("Setting SDL video mode with", width, height, _flags);
+			if (_video_info == nullptr)
+			{
+				_video_info = SDL_GetVideoInfo();
+				if (_video_info == nullptr)
+					throw Exception{
+							etc::to_string("Coudn't get video information!", SDL_GetError())
+					};
+			}
+			// XXX use _video_info
 			_screen = SDL_SetVideoMode(width, height, 0, _flags);
 			if (_screen == nullptr)
 				throw Exception(SDL_GetError());
@@ -79,7 +93,8 @@ namespace cube { namespace system { namespace window {
 		, _width(width)
 		, _height(height)
 	{
-		if (::SDL_Init(SDL_INIT_VIDEO))
+		ETC_TRACE("Creating a window", title, "(", width, 'x', height, ')');
+		if (::SDL_Init(SDL_INIT_EVERYTHING))
 			throw Exception(SDL_GetError());
 		_impl = new Impl{
 			title,
