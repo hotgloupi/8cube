@@ -23,6 +23,13 @@ namespace {
 					std::basic_string<char16_t>(str)
 				).release();
 			}
+
+			static
+			font::FontInfos*
+			get_infos(std::string const& path)
+			{
+				return font::get_infos(path).release();
+			}
 		};
 	};
 
@@ -44,4 +51,18 @@ BOOST_PYTHON_MODULE(font)
 			py::return_internal_reference<>()
 		)
 	;
+
+	py::def("can_load_file", &font::can_load_file);
+
+	py::class_<font::FontInfos, boost::noncopyable>("FontInfos", py::no_init)
+		.def_readonly("path", &font::FontInfos::path)
+		.def_readonly("family_name", &font::FontInfos::family_name)
+		.def_readonly("style_name", &font::FontInfos::style_name)
+	;
+
+	py::def(
+		"get_infos",
+		&Proxy::Font::get_infos,
+		py::return_value_policy<py::manage_new_object>()
+	);
 }

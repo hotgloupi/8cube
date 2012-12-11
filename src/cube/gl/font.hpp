@@ -42,7 +42,42 @@ namespace cube { namespace gl { namespace font {
 		void unbind(renderer::Painter& painter);
 	};
 
+	/**
+	 * @brief Returns wether or not the file should be loadable.
+	 */
+	bool can_load_file(std::string const& path);
+
+	struct FontInfos;
+	/**
+	 * @brief Retreive infos for a speficied font file.
+	 *
+	 * This function does return a valid FontInfos structure
+	 * or throws on any error.
+	 */
+	std::unique_ptr<FontInfos>
+	get_infos(std::string const& path);
+
+	struct FontInfos
+	{
+	public:
+		std::string const path;
+		std::string const family_name;
+		std::string const style_name;
+
+		~FontInfos();
+
+	private:
+		FontInfos(std::string const& path,
+		          std::string const& family_name,
+		          std::string const& style_name);
+		struct Impl;
+		std::unique_ptr<Impl> _impl;
+
+		friend
+		std::unique_ptr<FontInfos>
+		get_infos(std::string const& path);
+	};
+
 }}}
 
 #endif
-

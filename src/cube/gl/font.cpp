@@ -23,11 +23,23 @@ namespace cube { namespace gl { namespace font {
 	// FreeType related objects
 	namespace { namespace freetype {
 
+		/**
+		 * @brief singleton instance for Freetype library.
+		 */
 		struct Library
 		{
 			::FT_Library    handle;
 			bool            initialized;
 
+			static Library& instance()
+			{
+				static Library library{};
+				if (!library.initialized)
+					throw Exception{"Cannot initialize Freetype library"};
+				return library;
+			}
+
+		private:
 			Library()
 				: handle(nullptr)
 				, initialized{false}
@@ -38,6 +50,7 @@ namespace cube { namespace gl { namespace font {
 				else
 					this->initialized = true;
 			}
+
 			~Library()
 			{
 				if (this->initialized)
@@ -68,16 +81,14 @@ namespace cube { namespace gl { namespace font {
 		{
 			::FT_Face handle;
 
-			Face(freetype::Library& library,
-			     std::string const& path,
+			Face(std::string const& path,
 			     unsigned int size)
 				: handle(nullptr)
 			{
-
 				ETC_TRACE.debug("New FreeType Face", path);
 				FT_CALL(
 					New_Face,
-					library.handle,
+					freetype::Library::instance().handle,
 					path.c_str(),
 					0,
 					&this->handle
@@ -285,10 +296,6 @@ namespace cube { namespace gl { namespace font {
 
 	struct Font::Impl
 	{
-	private:
-		// unique freetype library instance
-		static freetype::Library    _library;
-
 	public:
 		renderer::Renderer&         renderer;
 	private:
@@ -300,12 +307,9 @@ namespace cube { namespace gl { namespace font {
 		     std::string const& name,
 		     unsigned int size)
 			: renderer(renderer)
-			, _face{_library, name, size}
+			, _face{name, size}
 			, _glyphs{_face, renderer}
-		{
-			if (!_library.initialized)
-				throw Exception{"FreeType library is not initialized"};
-		}
+		{}
 
 		vector::Vector2f const&
 		tex_coord(etc::size_type idx) const
@@ -332,9 +336,6 @@ namespace cube { namespace gl { namespace font {
 			painter.unbind(_glyphs.texture());
 		}
 	};
-
-	freetype::Library Font::Impl::_library{};
-
 
 	///////////////////////////////////////////////////////////////////////////
 	// Font class
@@ -434,6 +435,82 @@ namespace cube { namespace gl { namespace font {
 	void Font::unbind(renderer::Painter& painter)
 	{
 		_impl->unbind(painter);
+	}
+
+
+	bool can_load_file(std::string const& path)
+	{
+		FT_Open_Args args = {0};
+		args.flags = FT_OPEN_PATHNAME;
+		assert((args.flags & FT_OPEN_STREAM) == false);
+		assert((args.flags & FT_OPEN_MEMORY) == false);
+		args.pathname = (char*)path.c_str(); // According to the doc, it's ro.
+		FT_Face face = nullptr;
+		auto res = FT_Open_Face(
+			freetype::Library::instance().handle,
+			&args,
+			-1,     // face_index (-1 means only check if the file is loadable).
+			&face // the face to fill (we don't care in this case).
+		);
+		if (face != nullptr)
+			FT_Done_Face(face);
+		else
+			return false;
+		return (res == 0); // 0 means the file can be loaded.
+	}
+
+
+	struct FontInfos::Impl
+	{
+	};
+
+	FontInfos::FontInfos(std::string const& path,
+	                     std::string const& family_name,
+	                     std::string const& style_name)
+		: path{path}
+		, family_name{family_name}
+		, style_name{style_name}
+		, _impl{new Impl}
+	{}
+
+	FontInfos::~FontInfos()
+	{}
+
+	std::unique_ptr<FontInfos>
+	get_infos(std::string const& path)
+	{
+		FT_Open_Args args = {0};
+		args.flags = FT_OPEN_PATHNAME;
+		assert((args.flags & FT_OPEN_STREAM) == false);
+		assert((args.flags & FT_OPEN_MEMORY) == false);
+		args.pathname = (char*)path.c_str(); // According to the doc, it's ro.
+		FT_Face face = nullptr;
+		auto res = FT_Open_Face(
+			freetype::Library::instance().handle,
+			&args,
+			0,     // face_index
+			&face  // the face to fill
+		);
+
+		// In any case we destroy the face.
+		struct RIIA
+		{
+			FT_Face face;
+			~RIIA() { if (face != nullptr) FT_Done_Face(face); }
+		} riia{face};
+
+		if (res != 0 || face == nullptr)
+			throw Exception{
+				etc::to_string("Couldn't open font file:", path)
+			};
+
+		auto infos = std::unique_ptr<FontInfos>{new FontInfos{
+			path,
+			(face->family_name == nullptr ? "" : face->family_name),
+			(face->style_name == nullptr ? "" : face->style_name),
+		}};
+
+		return infos;
 	}
 
 }}}
