@@ -59,15 +59,6 @@ namespace cube { namespace gl { namespace font {
 			}
 		};
 
-		unsigned int next_p2(unsigned int n)
-		{
-			assert(n * 2u > n);
-			unsigned int p2 = 2;
-			while (n > p2) p2 *= 2;
-			return p2;
-		}
-
-
 # define FT_CALL(name, ...)                                                   \
 	do {                                                                      \
 		auto error = ::FT_ ## name(__VA_ARGS__);                              \
@@ -229,13 +220,6 @@ namespace cube { namespace gl { namespace font {
 					return _gen_glyph(c);
 			}
 		private:
-			static inline
-			unsigned int next_p2(unsigned int n)
-			{
-				unsigned int i = 2;
-				while (i < n) i *= 2;
-				return i;
-			}
 
 			Glyph& _gen_glyph(uint32_t c)
 			{
