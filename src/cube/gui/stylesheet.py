@@ -37,6 +37,10 @@ class Stylesheet:
                 infos[0],
                 font_definition[2]
             )
+        if font is None:
+            raise Exception(
+                "Cannot find any font for families '%s'" % font_definition[0]
+            )
         return font
 
     def get_style(self, style, id_, class_, tag):
