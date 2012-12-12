@@ -25,6 +25,9 @@ class Game():
         self.client = client
         self.world = world
         self.inputs = Inputs(window, bindings)
+        self.projection_matrix = gl.matrix.perspective(
+            45, 1, 0.005, 300.0
+        )
 
     @property
     def gui(self):
@@ -36,7 +39,7 @@ class Game():
         raise Exception("Not implemented")
 
     def on_resize(self, w, h):
-        self.__projection_matrix = gl.matrix.perspective(
+        self.projection_matrix = gl.matrix.perspective(
             45, w / h, 0.005, 300.0
         )
 
