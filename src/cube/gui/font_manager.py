@@ -8,34 +8,47 @@ from cube.gl import font
 class FontManager:
     __mutex = threading.Lock()
 
-    __font_instances = {}
+    def __init__(self):
+        raise Exception("Cannot instanciate a font manager")
 
-    def __init__(self, renderer):
-        self.renderer = renderer
-
-    def search(self, name, size):
+    @classmethod
+    def search(cls,
+               family=None,
+               scalable=None,
+               fixed_width=None):
         results = []
-        for item in self._get_fonts().values():
-            lock, infos = item
+        for item in cls._get_fonts().values():
+            lock, infos_list = item
             if lock.locked():
                 with lock:
-                    _, infos = item
-            if infos is None:
+                    _, infos_list = item
+            if infos_list is None:
                 continue
-            if self._match(name, infos):
-                results.append(self._font_instance(infos, size))
+            results.extend(
+                cls._find_matches(
+                    infos_list,
+                    family=family,
+                    scalable=scalable,
+                    fixed_width=fixed_width,
+                )
+            )
         return results
 
     @staticmethod
-    def _match(name, infos):
-        return name.lower() in infos.family_name.lower()
-
-    def _font_instance(self, infos, size):
-        instance = self.__font_instances.get(infos.path)
-        if instance is None:
-            instance = (infos, font.Font(self.renderer, infos.path, size))
-            self.__font_instances[infos.path] = instance
-        return instance
+    def _find_matches(infos_list,
+                      family=None,
+                      scalable=None,
+                      fixed_width=None):
+        matching_infos = []
+        for infos in infos_list:
+            if family is not None and family.lower() not in infos.family_name.lower():
+                continue
+            if scalable is not None and infos.is_scalable != scalable:
+                continue
+            if fixed_width is not None and infos.is_fixed_width != fixed_width:
+                continue
+            matching_infos.append(infos)
+        return matching_infos
 
     @classmethod
     def _get_fonts(cls):
@@ -82,7 +95,7 @@ font_directories = list(
 ] if os.path.isdir(os.path.expanduser(p)))
 
 def __add_font_file(path, fonts):
-    if font.can_load_file(path):
+    if font.is_valid(path):
         lock = threading.Lock()
         fonts[path] = [lock, None]
         lock.acquire()
@@ -100,6 +113,7 @@ def __populate_fonts():
                     __add_font_file(os.path.join(root, f), fonts)
         FontManager._fonts = fonts
     except:
+        print("WARNING: got exception while initializing the FontManager")
         FontManager._unlock(True)
         return
     else:
@@ -110,8 +124,8 @@ def __populate_fonts():
     for path, infos in fonts.items():
         try:
             infos[1] = font.get_infos(path)
-        except:
-            print("Ignoring font", path)
+        except Exception as e:
+            print("Ignoring font", path, e)
         finally:
             infos[0].release()
     print("all font infos fetched in %f seconds" % (time.time() - start))

@@ -25,10 +25,31 @@ namespace {
 			}
 
 			static
-			font::FontInfos*
+			py::object
 			get_infos(std::string const& path)
 			{
-				return font::get_infos(path).release();
+				py::list res;
+				for (auto& info: font::get_infos(path))
+					res.append(py::ptr(info.release()));
+				return res;
+			}
+		};
+
+		struct Infos
+		{
+			static
+			std::string str(font::Infos const& infos)
+			{
+				return etc::to_string(infos);
+			}
+		};
+
+		struct Style
+		{
+			static
+			std::string str(font::Style const style)
+			{
+				return etc::to_string(style);
 			}
 		};
 	};
@@ -41,7 +62,7 @@ BOOST_PYTHON_MODULE(font)
 			"Font",
 			py::init<
 				  renderer::Renderer&
-				, std::string const&
+				, font::Infos const&
 				, etc::size_type
 			>()
 		)
@@ -52,17 +73,36 @@ BOOST_PYTHON_MODULE(font)
 		)
 	;
 
-	py::def("can_load_file", &font::can_load_file);
+	py::def("is_valid", &font::is_valid);
 
-	py::class_<font::FontInfos, boost::noncopyable>("FontInfos", py::no_init)
-		.def_readonly("path", &font::FontInfos::path)
-		.def_readonly("family_name", &font::FontInfos::family_name)
-		.def_readonly("style_name", &font::FontInfos::style_name)
+	py::class_<font::Infos, boost::noncopyable>("Infos", py::no_init)
+		.def_readonly("path", &font::Infos::path)
+		.def_readonly("family_name", &font::Infos::family_name)
+		.def_readonly("style_name", &font::Infos::style_name)
+		.def_readonly("style", &font::Infos::style)
+		.def_readonly("has_horizontal", &font::Infos::has_horizontal)
+		.def_readonly("has_vertical", &font::Infos::has_vertical)
+		.def_readonly("is_fixed_width", &font::Infos::is_fixed_width)
+		.def_readonly("is_scalable", &font::Infos::is_scalable)
+		.def_readonly("has_bitmaps", &font::Infos::has_bitmaps)
+		.def_readonly("support_kerning", &font::Infos::support_kerning)
+		.def("__str__", &Proxy::Infos::str)
 	;
 
 	py::def(
 		"get_infos",
-		&Proxy::Font::get_infos,
-		py::return_value_policy<py::manage_new_object>()
+		&Proxy::Font::get_infos/*,
+		py::return_value_policy<py::manage_new_object>()*/
 	);
+
+	{
+		py::scope Style_scope = py::enum_<font::Style>("Style")
+			.value("regular", font::Style::regular)
+			.value("bold", font::Style::bold)
+			.value("italic", font::Style::italic)
+			.value("bold_italic", font::Style::bold_italic)
+		;
+
+		py::def("__str__", &Proxy::Style::str);
+	}
 }

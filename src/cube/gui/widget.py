@@ -33,15 +33,11 @@ class ComputedStyles:
 
 
 def _make_default_stylesheet():
-    import sys
-    if sys.platform == 'win32':
-        default_font = 'c:/windows/fonts/dejavusans.ttf'
-    else:
-        default_font = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
     stylesheet = Stylesheet()
     stylesheet.set_styles([
         ("font-size", "48px"),
-        ("font-file", default_font),
+        ("font-family", 'Helvetica, Arial'),
+        ("font-style", "regular"),
         ("color", "black"),
         ("background-color", "transparent"),
     ])
