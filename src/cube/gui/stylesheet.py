@@ -25,10 +25,16 @@ class Stylesheet:
             self.to_pixel(self.get_style("font-size", id_, class_, tag))
         )
         font = self._fonts.get(font_definition)
-        if not font:
+        if font:
+            return font
+        for family in font_definition[0].split(','):
+            family = family.strip()
+            infos = FontManager.search(family=family, scalable=True)
+            if not infos:
+                continue
             font = self._fonts[font_definition] = Font(
                 renderer,
-                font_definition[0],
+                infos[0],
                 font_definition[2]
             )
         return font
