@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from ..gl.font import Font
+from .font_manager import FontManager
 
 class StyleDefinition(dict):
     def __init__(self, id_, class_, tag):
@@ -19,15 +20,21 @@ class Stylesheet:
 
     def get_font(self, renderer, id_, class_, tag):
         font_definition = (
-            self.get_style("font-file", id_, class_, tag),
-            self.get_style("font-color", id_, class_, tag),
+            self.get_style("font-family", id_, class_, tag),
+            self.get_style("font-style", id_, class_, tag),
             self.to_pixel(self.get_style("font-size", id_, class_, tag))
         )
         font = self._fonts.get(font_definition)
-        if not font:
+        if font:
+            return font
+        for family in font_definition[0].split(','):
+            family = family.strip()
+            infos = FontManager.search(family=family, scalable=True)
+            if not infos:
+                continue
             font = self._fonts[font_definition] = Font(
                 renderer,
-                font_definition[0],
+                infos[0],
                 font_definition[2]
             )
         return font

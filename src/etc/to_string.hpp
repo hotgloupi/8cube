@@ -5,14 +5,13 @@
 
 namespace etc {
 
-    template<typename... T>
-    std::string
-    to_string(T const&... values)
+    template<typename... Args>
+    inline
+    std::string to_string(Args&&... values)
     {
-        return stringify(values...);
+        return stringify(std::forward<Args>(values)...);
     }
 
 }
 
 #endif
-

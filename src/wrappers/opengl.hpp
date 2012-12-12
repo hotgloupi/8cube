@@ -8,7 +8,7 @@
 #  include <GL/wglew.h>
 # else
 #  include <GL/glew.h>
-#  include <GL/glxew.h>
+//#  include <GL/glxew.h>
 # endif
 
 # ifdef DEBUG
