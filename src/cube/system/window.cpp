@@ -47,7 +47,11 @@ namespace cube { namespace system { namespace window {
 			case gl::renderer::RendererType::OpenGL:
 				::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 				::SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+#ifdef __APPLE__
 				::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+#else
+				::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+#endif
 				_flags |= SDL_OPENGL;
 			break;
 			default:
