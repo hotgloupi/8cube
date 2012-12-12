@@ -6,7 +6,8 @@
 namespace etc {
 
     template<typename... T>
-    std::string to_string(T const&... values)
+    std::string
+    to_string(T const&... values)
     {
         return stringify(values...);
     }
