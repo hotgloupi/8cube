@@ -73,7 +73,11 @@ namespace cube { namespace gl { namespace font {
 		auto error = ::FT_ ## name(__VA_ARGS__);                              \
 		if (error)                                                            \
 			throw Exception{                                                  \
-				etc::to_string("FT_" #name, "error:", error)                  \
+				etc::to_string(                                               \
+					"FT_" #name,                                              \
+					"(" + etc::to_string(__VA_ARGS__) + ")",                  \
+					"has error:", error                                       \
+				)                                                             \
 			};                                                                \
 	} while (false)                                                           \
 /**/
@@ -82,11 +86,10 @@ namespace cube { namespace gl { namespace font {
 		{
 			::FT_Face handle;
 
-			Face(Infos const& infos,
-			     unsigned int size)
+			Face(Infos const& infos, etc::size_type size)
 				: handle(nullptr)
 			{
-				ETC_TRACE.debug("New FreeType Face", infos.path);
+				ETC_TRACE.debug("New FreeType Face", infos);
 				FT_CALL(
 					New_Face,
 					freetype::Library::instance().handle,
