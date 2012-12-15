@@ -5,6 +5,8 @@
 #  include <Windows.h>
 #  include <Winbase.h>
 #  undef DELETE
+#  undef far
+#  undef near
 # endif
 
 #endif
