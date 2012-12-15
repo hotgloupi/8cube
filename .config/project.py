@@ -9,6 +9,7 @@ from tupcfg import tools, path
 from tupcfg import Source
 from tupcfg import Target
 from tupcfg import Command
+from tupcfg import platform
 
 class CopyFile(Command):
 
@@ -20,13 +21,15 @@ class CopyFile(Command):
         return ['cp', self.dependencies, kw['target']]
 
 class Library:
-    def __init__(self, names, include_directories=[], directories=[], shared=False):
+    def __init__(self, names, include_directories=[], directories=[],
+                 shared=False, macosx_framework=False):
         if not isinstance(names, list):
             names = [names]
         self.names = names
         self.directories = directories
         self.include_directories = include_directories
         self.shared = shared
+        self.macosx_framework = macosx_framework
 
 
 class PythonLibrary(Library):
@@ -43,15 +46,23 @@ class PythonLibrary(Library):
             if path.exists(prefix, d, 'libpython' + version + '.a') or \
                path.exists(prefix, d, 'python' + version + '.lib') or \
                path.exists(prefix, d, 'python' + version[0] + '.dll') or \
-               path.exists(prefix, d, 'libpython' + version + '.so'):
+               path.exists(prefix, d, 'libpython' + version + '.so') or \
+               path.exists(prefix, d, 'libpython' + version + '.dylib'):
                 lib_dirs.append(path.join(prefix, d))
-        name = 'python' + (var('LDVERSION') or version)
+        if platform.IS_MACOSX:
+            lib_dir = var('LIBPL')
+            assert path.exists(lib_dir)
+            name = 'python' + var('py_version_short')
+            assert path.exists(lib_dir, 'lib' + name + '.dylib')
+            lib_dirs.append(lib_dir)
+        else:
+            name = 'python' + (var('LDVERSION') or version)
+        print('PYTHON lib dirs:', ', '.join(lib_dirs))
         Library.__init__(self, name, [include_dir], lib_dirs, **kw)
 
 class SDLLibrary(Library):
     def __init__(self, components=[], **kw):
-        import sys
-        if sys.platform == 'win32':
+        if platform.IS_WINDOWS:
             names = ['SDL.dll']
         else:
             names = ['SDL']
@@ -59,6 +70,8 @@ class SDLLibrary(Library):
             if sys.platform == 'win32':
                 c += '.dll'
             names.append('SDL_' + c)
+        if platform.IS_MACOSX:
+            names.append('SDLMain') # Fixture from SDL is needed
         Library.__init__(self, names, **kw)
 
 def configure(project, build):
@@ -66,7 +79,6 @@ def configure(project, build):
     from tupcfg.tools import glob, status
     from tupcfg import path
     status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % project.env.BUILD_TYPE)
-    from tupcfg.lang.cxx import gcc
 
     prefixes = project.env.get('PREFIXES', [])
     if isinstance(prefixes, str):
@@ -79,7 +91,13 @@ def configure(project, build):
     print("Lib dirs:", lib_dirs)
     include_dirs = list(path.join(p, 'include') for p in prefixes)
 
-    compiler = gcc.Compiler(
+    from tupcfg.lang import cxx
+    if platform.IS_WINDOWS:
+        Compiler = cxx.msvc.Compiler
+    else:
+        Compiler = cxx.gcc.Compiler
+
+    compiler = Compiler(
         project, build,
         position_independent_code = True,
         standard = 'c++11',
@@ -99,21 +117,31 @@ def configure(project, build):
     python_libraries = [python_library]
 
     graphic_libraries = [
-        SDLLibrary(components=['image'], shared=False),
-        Library('freetype', include_directories=['/usr/include/freetype2'], shared=True),
+        SDLLibrary(components=['image'], shared=not platform.IS_WINDOWS),
+        Library('freetype', include_directories=[
+            '/usr/include/freetype2',
+            '/opt/local/include/freetype2',
+        ], shared=True),
         Library('z', shared=True),
     ] +  list(Library(s, shared=False) for s in ['png', 'jpeg'])
-    if sys.platform == 'win32':
+
+    if platform.IS_WINDOWS:
         graphic_libraries += [
             Library(s) for s in ['opengl32', 'glu32']
         ]
+    elif platform.IS_MACOSX:
+        graphic_libraries.extend(
+            Library(name, shared=True, macosx_framework=True) for name in [
+                'OpenGL', 'Cocoa', 'CoreFoundation',
+            ]
+        )
     else:
         graphic_libraries += [
             Library(s, shared=True) for s in ['GL', 'GLU']
         ]
 
     base_libraries = []
-    if sys.platform == 'win32':
+    if platform.IS_WINDOWS:
         base_libraries += list(Library(name) for name in ['Shlwapi', 'mingw32',])
 
     libetc = compiler.link_static_library(
@@ -183,8 +211,17 @@ def configure(project, build):
         "8cube",
         glob("src/cubeapp/*.cpp", recursive=True),
         directory = "release/bin",
-        libraries=[libcube, libetc] + boost_libraries + python_libraries,
+        libraries=[libcube, libetc] + graphic_libraries + boost_libraries + python_libraries,
     )
 
-    #build.dump(project)
-    build.execute(project)
+    tests = [
+        'simple_window',
+    ]
+
+    for test in tests:
+        compiler.link_executable(
+            test,
+            [path.join('tests', test + '.cpp')],
+            directory = 'tests',
+            libraries = [libcube, libetc] + graphic_libraries + boost_libraries + base_libraries,
+        )

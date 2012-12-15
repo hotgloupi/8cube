@@ -9,6 +9,7 @@
 #include "vector.hpp"
 
 #include <etc/log.hpp>
+#include <etc/memory.hpp>
 
 #include <wrappers/freetype.hpp>
 
@@ -23,11 +24,23 @@ namespace cube { namespace gl { namespace font {
 	// FreeType related objects
 	namespace { namespace freetype {
 
+		/**
+		 * @brief singleton instance for Freetype library.
+		 */
 		struct Library
 		{
 			::FT_Library    handle;
 			bool            initialized;
 
+			static Library& instance()
+			{
+				static Library library{};
+				if (!library.initialized)
+					throw Exception{"Cannot initialize Freetype library"};
+				return library;
+			}
+
+		private:
 			Library()
 				: handle(nullptr)
 				, initialized{false}
@@ -38,6 +51,7 @@ namespace cube { namespace gl { namespace font {
 				else
 					this->initialized = true;
 			}
+
 			~Library()
 			{
 				if (this->initialized)
@@ -45,21 +59,16 @@ namespace cube { namespace gl { namespace font {
 			}
 		};
 
-		unsigned int next_p2(unsigned int n)
-		{
-			assert(n * 2u > n);
-			unsigned int p2 = 2;
-			while (n > p2) p2 *= 2;
-			return p2;
-		}
-
-
 # define FT_CALL(name, ...)                                                   \
 	do {                                                                      \
 		auto error = ::FT_ ## name(__VA_ARGS__);                              \
 		if (error)                                                            \
 			throw Exception{                                                  \
-				etc::to_string("FT_" #name, "error:", error)                  \
+				etc::to_string(                                               \
+					"FT_" #name,                                              \
+					"(" + etc::to_string(__VA_ARGS__) + ")",                  \
+					"has error:", error                                       \
+				)                                                             \
 			};                                                                \
 	} while (false)                                                           \
 /**/
@@ -68,18 +77,15 @@ namespace cube { namespace gl { namespace font {
 		{
 			::FT_Face handle;
 
-			Face(freetype::Library& library,
-			     std::string const& path,
-			     unsigned int size)
+			Face(Infos const& infos, etc::size_type size)
 				: handle(nullptr)
 			{
-
-				ETC_TRACE.debug("New FreeType Face", path);
+				ETC_TRACE.debug("New FreeType Face", infos);
 				FT_CALL(
 					New_Face,
-					library.handle,
-					path.c_str(),
-					0,
+					freetype::Library::instance().handle,
+					infos.path.c_str(),
+					infos.face_index,
 					&this->handle
 				);
 
@@ -214,13 +220,6 @@ namespace cube { namespace gl { namespace font {
 					return _gen_glyph(c);
 			}
 		private:
-			static inline
-			unsigned int next_p2(unsigned int n)
-			{
-				unsigned int i = 2;
-				while (i < n) i *= 2;
-				return i;
-			}
 
 			Glyph& _gen_glyph(uint32_t c)
 			{
@@ -285,10 +284,6 @@ namespace cube { namespace gl { namespace font {
 
 	struct Font::Impl
 	{
-	private:
-		// unique freetype library instance
-		static freetype::Library    _library;
-
 	public:
 		renderer::Renderer&         renderer;
 	private:
@@ -297,15 +292,12 @@ namespace cube { namespace gl { namespace font {
 
 	public:
 		Impl(renderer::Renderer& renderer,
-		     std::string const& name,
+		     Infos const& infos,
 		     unsigned int size)
 			: renderer(renderer)
-			, _face{_library, name, size}
+			, _face{infos, size}
 			, _glyphs{_face, renderer}
-		{
-			if (!_library.initialized)
-				throw Exception{"FreeType library is not initialized"};
-		}
+		{}
 
 		vector::Vector2f const&
 		tex_coord(etc::size_type idx) const
@@ -333,16 +325,13 @@ namespace cube { namespace gl { namespace font {
 		}
 	};
 
-	freetype::Library Font::Impl::_library{};
-
-
 	///////////////////////////////////////////////////////////////////////////
 	// Font class
 
 	Font::Font(renderer::Renderer& renderer,
-	           std::string const& name,
+	           Infos const& infos,
 	           etc::size_type size)
-		: _impl{new Impl{renderer, name, size}}
+		: _impl{new Impl{renderer, infos, size}}
 	{}
 
 	Font::~Font()
@@ -434,6 +423,184 @@ namespace cube { namespace gl { namespace font {
 	void Font::unbind(renderer::Painter& painter)
 	{
 		_impl->unbind(painter);
+	}
+
+
+	Infos::Infos(std::string const& path,
+	             std::string const& family_name,
+	             std::string const& style_name,
+	             Style const style,
+	             bool const has_horizontal,
+	             bool const has_vertical,
+	             bool const is_fixed_width,
+	             bool const is_scalable,
+	             bool const has_bitmaps,
+	             bool const support_kerning,
+	             etc::size_type face_index)
+		: path{path}
+		, family_name{family_name}
+		, style_name{style_name}
+		, style{style}
+		, has_horizontal{has_horizontal}
+		, has_vertical{has_vertical}
+		, is_fixed_width{is_fixed_width}
+		, is_scalable{is_scalable}
+		, has_bitmaps{has_bitmaps}
+		, support_kerning{support_kerning}
+		, face_index{face_index}
+	{}
+
+	Infos::~Infos()
+	{}
+
+	std::unique_ptr<Font>
+	Infos::font(renderer::Renderer& renderer,
+	            etc::size_type size)
+	{
+		return etc::make_unique<Font>(renderer, *this, size);
+	}
+
+	etc::size_type
+	get_faces_count(std::string const& path) noexcept
+	{
+		FT_Face face = nullptr;
+		auto res = FT_New_Face(
+			freetype::Library::instance().handle,
+			path.c_str(),
+			-1,     // face_index (-1 means only check if the file is loadable).
+			&face   // the face to fill (we don't care in this case).
+		);
+		if (face != nullptr)
+		{
+			if (res == 0) // 0 means the file can be loaded.
+				return face->num_faces;
+			FT_Done_Face(face);
+		}
+		return 0;
+	}
+
+	std::unique_ptr<Infos>
+	get_face_infos(std::string const& path,
+	               etc::size_type face_index)
+	{
+		FT_Face face = nullptr;
+		auto res = FT_New_Face(
+			freetype::Library::instance().handle,
+			path.c_str(),
+			face_index,
+			&face  // the face to fill
+		);
+
+		// In any case we destroy the face.
+		struct RIIA
+		{
+			FT_Face face;
+			~RIIA() { if (face != nullptr) FT_Done_Face(face); }
+		} riia{face};
+
+		if (res != 0 || face == nullptr)
+			throw Exception{
+				etc::to_string("Couldn't open font file:", path)
+			};
+
+		Style style;
+		switch (face->style_flags)
+		{
+		case 0:
+			style = Style::regular;
+			break;
+		case FT_STYLE_FLAG_ITALIC:
+			style = Style::italic;
+			break;
+		case FT_STYLE_FLAG_BOLD:
+			style = Style::bold;
+			break;
+		case FT_STYLE_FLAG_BOLD | FT_STYLE_FLAG_ITALIC:
+			style = Style::bold_italic;
+			break;
+		default:
+			throw Exception{
+				"Unknown style flag value: " + etc::to_string(face->style_flags)
+			};
+		}
+
+		return std::unique_ptr<Infos>{new Infos{
+			path,
+			(face->family_name == nullptr ? "" : face->family_name),
+			(face->style_name == nullptr ? "" : face->style_name),
+			style,
+			FT_HAS_HORIZONTAL(face),
+			FT_HAS_VERTICAL(face),
+			FT_IS_FIXED_WIDTH(face),
+			FT_IS_SCALABLE(face),
+			FT_HAS_FIXED_SIZES(face),
+			FT_HAS_KERNING(face),
+			face_index
+		}};
+	}
+
+	std::list<std::unique_ptr<Infos>>
+	get_infos(std::string const& path)
+	{
+		etc::size_type nb_faces = get_faces_count(path);
+		if (nb_faces == 0)
+			throw Exception{
+				"No face available for font '" + path + "'"
+			};
+
+		std::list<std::unique_ptr<Infos>> list;
+
+		for (etc::size_type face_index = 0; face_index < nb_faces; ++face_index)
+		{
+			list.emplace_back(std::move(get_face_infos(path, face_index)));
+		}
+
+		return list;
+	}
+
+	std::ostream&
+	operator <<(std::ostream& out, Infos const& rhs)
+	{
+		out << "<Font "
+		    << rhs.family_name << ':' << rhs.face_index
+		    << " (" << rhs.style;
+		if (rhs.has_horizontal)
+			out << ", horizontal";
+		if (rhs.has_vertical)
+			out << ", vertical";
+		if (rhs.is_fixed_width)
+			out << ", fixed width";
+		if (rhs.is_scalable)
+			out << ", scalable";
+		if (rhs.has_bitmaps)
+			out << ", has bitmaps";
+		if (rhs.support_kerning)
+			out << ", support kerning";
+		out << ")"  << " at '" << rhs.path << "'>";
+		return out;
+	}
+
+	std::ostream&
+	operator <<(std::ostream& out, Style const rhs)
+	{
+		switch (rhs)
+		{
+		case Style::regular:
+			out << "Style::regular";
+			break;
+		case Style::bold:
+			out << "Style::bold";
+			break;
+		case Style::italic:
+			out << "Style::italic";
+			break;
+		case Style::bold_italic:
+			out << "Style::bold_italic";
+			break;
+		default:
+			out << "Style::invalid";
+		}
+		return out;
 	}
 
 }}}

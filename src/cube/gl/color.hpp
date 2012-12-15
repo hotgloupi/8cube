@@ -129,8 +129,6 @@ namespace cube { namespace gl { namespace color {
 #define CUBE_GL_COLOR_DECLARE_TYPE(type, suffix)                             \
     typedef Color3<type> Color3 ## suffix;                                   \
     typedef Color4<type> Color4 ## suffix;                                   \
-    template struct Color3<type>;                                            \
-    template struct Color4<type>;                                            \
   /**/
 
 	CUBE_GL_COLOR_DECLARE_TYPE(float, f);

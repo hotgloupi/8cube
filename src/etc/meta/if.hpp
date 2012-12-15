@@ -3,10 +3,10 @@
 
 namespace etc { namespace meta {
 
-    template<bool Pred, typename Then, typename Else>
-      struct if_ { typedef Then type; };
-    template<typename Then, typename Else>
-      struct if_<false, Then, Else> { typedef Else type; };
+	template<bool Pred, typename Then, typename Else>
+	struct if_ { typedef Then type; };
+	template<typename Then, typename Else>
+	struct if_<false, Then, Else> { typedef Else type; };
 
 }}
 

@@ -13,27 +13,39 @@ namespace etc {
 		struct PrintFlags
 		{
 		public:
-			char endl;
-			char sep;
+			std::string endl;
+			std::string sep;
 
 		public:
+			explicit
 			PrintFlags()
-				: endl('\n')
-				, sep(' ')
+				: endl{"\n"}
+				, sep{" "}
 			{}
 		};
 
+		template <typename T>
+		struct is_iomanip { static bool const value = false; };
+		template <typename T>
+		struct is_iomanip<T&> { static bool const value = is_iomanip<T>::value; };
+		template <typename T>
+		struct is_iomanip<T const> { static bool const value = is_iomanip<T>::value; };
+		template <>
+		struct is_iomanip<iomanip::Separator> { static bool const value = true; };
+		template <>
+		struct is_iomanip<iomanip::EndOfLine> { static bool const value = true; };
+
 		// generic value sprint
 		template<typename T>
-		bool
+		typename std::enable_if<!is_iomanip<T>::value, bool>::type
 		sprint_value(std::ostream&                      out,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
-		             T const&                           value)
+		             T&&                                value)
 		{
-		  if (!is_first && flags.sep != '\0')
+		  if (!is_first && flags.sep.size())
 			  out << flags.sep;
-		  out << value;
+		  out << std::forward<T>(value);
 		  return false;
 		}
 
@@ -42,14 +54,14 @@ namespace etc {
 		sprint_value(std::ostream&                      out,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
-		             etc::iomanip::Separator const&    value);
+		             etc::iomanip::Separator const&     value);
 
 		// specialization to treat end of line classes
 		bool
 		sprint_value(std::ostream&                      out,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
-		             etc::iomanip::EndOfLine const&    value);
+		             etc::iomanip::EndOfLine const&     value);
 
 		// sprint recursion ends here
 		void
@@ -63,12 +75,11 @@ namespace etc {
 		sprint(std::ostream&                            out,
 		       PrintFlags&                              flags,
 		       bool                                     is_first,
-		       T const&                                 value,
-		       U const&...                              values)
+		       T&&                                      value,
+		       U&&...                                   values)
 		{
-
-		  is_first = sprint_value(out, flags, is_first, value);
-		  sprint(out, flags, is_first, values...);
+			is_first = sprint_value(out, flags, is_first, std::forward<T>(value));
+			sprint(out, flags, is_first, std::forward<U>(values)...);
 		}
 
 		inline
@@ -81,54 +92,60 @@ namespace etc {
 		template<typename First, typename... Tail>
 		void sprintf(std::ostream& out,
 		             boost::format& fmt,
-		             First const& first,
-		             Tail const&... values)
+		             First&& first,
+		             Tail&&... values)
 		{
-			fmt % first;
-			return sprintf(out, fmt, values...);
+			fmt % std::forward<First>(first);
+			return sprintf(out, fmt, std::forward<Tail>(values)...);
 		}
 
 	} // !etc::detail
 
 	template<typename... T>
 	void
-	print(T const&...         values)
+	print(T&&... values)
 	{
-		return sprint(std::cout, values...);
+		return sprint(std::cout, std::forward<T>(values)...);
 	}
 
 	template<typename... T>
 	void
-	sprint(std::ostream&      out,
-	       T const&...        values)
+	sprint(std::ostream& out,
+	       T&&... values)
 	{
 		detail::PrintFlags flags;
-		return detail::sprint(out, flags, true, values...);
-	}
-
-    template<typename... T>
-	void sprintf(std::ostream& out,
-	             std::string const& fmt,
-	             T const&... values)
-	{
-		boost::format format{fmt};
-		detail::sprintf(out, format, values...);
+		return detail::sprint(out, flags, true, std::forward<T>(values)...);
 	}
 
 	template<typename... T>
-	std::string
-	stringify(T const&...     values)
+	void printf(std::string const& format, T&&... values)
+	{
+		return sprintf(std::cout, format, std::forward<T>(values)...);
+	}
+
+	template<typename... T>
+	void sprintf(std::ostream& out,
+	             std::string const& fmt,
+	             T&&... values)
+	{
+		boost::format format{fmt};
+		detail::sprintf(out, format, std::forward<T>(values)...);
+	}
+
+	template<typename... T>
+	std::string stringify(T&&... values)
 	{
 		std::ostringstream ss;
-		sprint(ss, iomanip::nonewline, values...);
+		sprint(ss, iomanip::nonewline(), std::forward<T>(values)...);
 		return ss.str();
 	}
 
 } // !etc
 
-inline std::ostream& operator <<(std::ostream& out, std::nullptr_t)
+inline
+std::ostream& operator <<(std::ostream& out, std::nullptr_t)
 {
-	return out << "nullptr";
+	return out << "(nullptr)";
 }
 
 #endif

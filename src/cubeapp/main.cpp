@@ -1,14 +1,16 @@
 
-#include <iostream>
-#include <stdexcept>
-#include <string>
+#include "python/Interpreter.hpp"
+
+#include <cube/main_proto.hpp>
+
+#include <wrappers/boost/filesystem.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <wrappers/boost/filesystem.hpp>
-#include <wrappers/opengl.hpp>
 
-#include "python/Interpreter.hpp"
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 namespace fs = boost::filesystem;
 namespace algo = boost::algorithm;
@@ -22,7 +24,7 @@ static std::string safe_path(std::string const& path)
 	return res;
 }
 
-int main(int argc, char* argv[])
+CUBE_MAIN_PROTO(int argc, char** argv)
 {
 	if (argc < 1 || argv[0] == nullptr)
 		throw std::runtime_error("Wrong program inputs");
@@ -31,8 +33,10 @@ int main(int argc, char* argv[])
 	fs::path games_dir = exec_dir.parent_path() / "share" / "8cube" / "games";
 	fs::path lib_dir = exec_dir.parent_path() / "lib";
 
+#ifdef _WIN32
 	//load_libraries(exec_dir);
 	load_libraries(lib_dir);
+#endif
 
 	auto& interpreter = app::python::Interpreter::instance();
 

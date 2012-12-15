@@ -135,5 +135,3 @@ class Inputs:
     def __on_mousemove(self, xrel, yrel):
         self.mouse.xrel += xrel
         self.mouse.yrel += yrel
-        if xrel or yrel:
-            print("Yeah", xrel, yrel)

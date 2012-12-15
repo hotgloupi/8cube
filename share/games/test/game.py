@@ -27,14 +27,11 @@ class Game(core.Game):
 
     def render(self):
         with self.renderer.begin(gl.mode_3d) as painter:
-            painter.state.projection = self.__projection_matrix
+            painter.state.projection = self.projection_matrix
             painter.state.view = gl.matrix.look_at(
                 self.player.camera.position,
                 self.player.camera.position + self.player.camera.front,
                 self.player.camera.up
             )
             self.world.render(self.renderer)
-            painter.bind(self.__sp)
-            painter.bind(self.__vb)
-            painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
 

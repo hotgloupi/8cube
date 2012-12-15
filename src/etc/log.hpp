@@ -7,7 +7,7 @@
 # include <boost/preprocessor/cat.hpp>
 
 # define ETC_LOG_COMPONENT(__name)                                            \
-	static constexpr char const* _etc_log_component_name = (__name)                     \
+	static constexpr char const* _etc_log_component_name = (__name)           \
 /**/
 
 
@@ -68,7 +68,7 @@ namespace etc { namespace log {
 		Log& send(T const&... strs)
 		{
 # ifdef NDEBUG
-			// No debug if NDEBUG is specified.
+			// No debug level if NDEBUG is specified.
 			if (_line.level <= Level::debug)
 				return *this;
 #endif
