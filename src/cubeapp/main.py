@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-import sys
+import os, sys
 
 
 def console():
@@ -42,7 +42,13 @@ def parse_args(args):
     return parser, parser.parse_args(args=args)
 
 def main(args):
-    import cube
+    print("PIF", os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    try:
+        import cube
+    except Exception as err:
+        import traceback
+        traceback.print_exc()
+        return
     try:
         parser, args = parse_args(args)
         if (args.console):
