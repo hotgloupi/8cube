@@ -15,6 +15,13 @@ namespace algo = boost::algorithm;
 
 static int load_libraries(fs::path lib_dir);
 
+static std::string safe_path(std::string const& path)
+{
+	std::string res{path};
+	std::replace(res.begin(), res.end(), '\\', '/');
+	return res;
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc < 1 || argv[0] == nullptr)
@@ -30,7 +37,7 @@ int main(int argc, char* argv[])
 	auto& interpreter = app::python::Interpreter::instance();
 
 	fs::path python_lib_dir = lib_dir / "python";
-	interpreter.setglobal("lib_dir", python_lib_dir.string());
+	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
 
 	// XXX This, is ugly and not safe.
 	std::string pyargs = "[\n";
@@ -42,16 +49,17 @@ int main(int argc, char* argv[])
 		pyargs += "\t'''" + arg + "''',\n";
 	}
 	pyargs += "\t'-G',\n";
-	pyargs += "\t'''" + games_dir.string() + "''',\n";
+	pyargs += "\t'''" + safe_path(games_dir.string()) + "''',\n";
 	pyargs += "]";
 
 	std::string init_script =
 		"import sys\n"
 		"sys.path.insert(0, lib_dir)\n"
+		"print(sys.path[0])\n"
 		"from cubeapp.main import main\n"
-		"import cube\n"
 		"main(" + pyargs + ")\n"
 	;
+	std::cout << init_script << std::endl;
 	try {
 		return !interpreter.exec(init_script);
 	} catch (std::exception const& err) {
