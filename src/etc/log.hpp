@@ -68,7 +68,7 @@ namespace etc { namespace log {
 		Log& send(T const&... strs)
 		{
 # ifdef NDEBUG
-			// No debug if NDEBUG is specified.
+			// No debug level if NDEBUG is specified.
 			if (_line.level <= Level::debug)
 				return *this;
 #endif
