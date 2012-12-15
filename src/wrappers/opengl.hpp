@@ -18,5 +18,6 @@
 #  define GL_ASSERT_NO_ERROR() ((void)0)
 # endif
 
+# include "windows.hpp"
 
 #endif
