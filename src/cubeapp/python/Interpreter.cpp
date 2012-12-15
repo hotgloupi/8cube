@@ -38,13 +38,17 @@ namespace app { namespace python {
 	bool Interpreter::exec(std::string const& script)
 	{
 		try {
-			py::exec(script.c_str(), _impl->main_namespace);
+			py::exec(script.c_str(),
+			         _impl->main_namespace,
+			         _impl->main_namespace);
 			return true;
-		} catch (py::error_already_set const&) {
+		} catch (boost::python::error_already_set const&) {
 			std::cerr << "Python exception:\n";
 			PyErr_Print();
-			return false;
+		} catch (...) {
+			std::cerr << "This is fucking unbelievable\n";
 		}
+
 		return false;
 	}
 
