@@ -22,16 +22,22 @@ namespace etc {
 	 */
 	template<typename... T>
 	void sprint(std::ostream& out,
-	            T const&... values);
+	            T&&... values);
 
 	template<typename... T>
 	void sprintf(std::ostream& out,
 	             std::string const& fmt,
-	             T const&... values);
+	             T&&... values);
 
-    /// Same as `sprint' with standard output stream
+	/// Same as `sprint' with standard output stream
 	template<typename... T>
-	void print(T const&... values);
+	void print(T&&... values);
+
+	/**
+	 * @brief Print on standard output with a format string.
+	 */
+	template<typename... T>
+	void printf(std::string const& format, T&&... values);
 
 	/**
 	 * Same as `sprint' but returns a string instead of printing it, and do not
@@ -39,7 +45,7 @@ namespace etc {
 	 * etc::iomanip::newline manipulator).
 	 */
 	template<typename... T>
-	std::string stringify(T const&... values);
+	std::string stringify(T&&... values);
 
     /// manipulators for print functions are defined here
 	namespace iomanip {
@@ -48,34 +54,103 @@ namespace etc {
 		/// separators are defined as constants.
 		struct Separator
 		{
-			char sep;
-			Separator(char c) : sep(c) {}
+		public:
+			std::string sep;
+
+		public:
+			explicit
+			Separator(char const* s)
+				: sep{s}
+			{}
+
+			explicit
+			Separator(char const c)
+				: sep{&c, 1}
+			{}
 		};
 
+		/**
+		 * Custom separator.
+		 */
+		template<typename T>
+		inline
+		Separator const sep(T&& s)
+		{
+			return Separator{std::forward<T>(s)};
+		}
+
 		/// no separator
-		extern Separator const      nosep;
+		inline
+		Separator const& nosep()
+		{
+			static auto sep = Separator{""};
+			return sep;
+		}
 
 		/// space separator (default)
-		extern Separator const      spacesep;
+		inline
+		Separator const& spacesep()
+		{
+			static auto sep = Separator{' '};
+			return sep;
+		}
 
 		/// tabulation separator
-		extern Separator const      tabsep;
+		inline
+		Separator const& tabsep()
+		{
+			static auto sep = Separator{'\t'};
+			return sep;
+		}
 
 		/// linefeed separator
-		extern Separator const      newlinesep;
+		inline
+		Separator const& newlinesep()
+		{
+			static auto sep = Separator{'\n'};
+			return sep;
+		}
 
 		/// You can define your own end of line character with this class.
 		struct EndOfLine
 		{
-			char endl;
-			EndOfLine(char c) : endl(c) {}
+		public:
+			std::string endl;
+
+		public:
+			explicit
+			EndOfLine(char const* s)
+				: endl{s}
+			{}
+
+			explicit
+			EndOfLine(char const c)
+				: endl{&c, 1}
+			{}
 		};
 
 		/// line feed end of line character
-		extern EndOfLine const      newline;
+		inline
+		EndOfLine const& newline()
+		{
+			static auto endl = EndOfLine{'\n'};
+			return endl;
+		}
 
 		/// no new line
-		extern EndOfLine const      nonewline;
+		inline
+		EndOfLine const nonewline()
+		{
+			static EndOfLine const endl{""};
+			return endl;
+		}
+
+		template<typename T>
+		inline
+		EndOfLine const endl(T&& s)
+		{
+			return EndOfLine{std::forward<T>(s)};
+		}
 
 	} // !iomanip
 
