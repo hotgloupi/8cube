@@ -17,11 +17,11 @@ class FontManager:
                scalable=None,
                fixed_width=None):
         results = []
-        for item in cls._get_fonts().values():
+        for path, item in cls._get_fonts().items():
             lock, infos_list = item
             if lock.locked():
-                with lock:
-                    _, infos_list = item
+                infos_list = font.get_infos(path)
+                print("fetch locked font", family)
             if infos_list is None:
                 continue
             results.extend(
@@ -71,6 +71,7 @@ class FontManager:
 
     @classmethod
     def _get_fonts_locked(cls):
+        print("get locked fonts")
         with cls.__mutex:
             return cls._get_fonts_ready()
 
@@ -128,7 +129,7 @@ def __populate_fonts():
             print("Ignoring font", path, e)
         finally:
             infos[0].release()
-    print("all font infos fetched in %f seconds" % (time.time() - start))
+    print(len(fonts), "font infos fetched in %f seconds" % (time.time() - start))
 
 
 threading.Thread(target=__populate_fonts).start()
