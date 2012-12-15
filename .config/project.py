@@ -56,6 +56,8 @@ class SDLLibrary(Library):
         else:
             names = ['SDL']
         for c in components:
+            if sys.platform == 'win32':
+                c += '.dll'
             names.append('SDL_' + c)
         Library.__init__(self, names, **kw)
 
@@ -68,10 +70,13 @@ def configure(project, build):
 
     prefixes = project.env.get('PREFIXES', [])
     if isinstance(prefixes, str):
-        prefixes = prefixes.split(':')
+        import os
+        prefixes = prefixes.split(os.path.pathsep)
+    status("Prefixes:", ':'.join(prefixes))
     project.env.project_set('PREFIXES', prefixes)
 
     lib_dirs = list(path.join(p, 'lib') for p in prefixes)
+    print("Lib dirs:", lib_dirs)
     include_dirs = list(path.join(p, 'include') for p in prefixes)
 
     compiler = gcc.Compiler(
@@ -87,14 +92,14 @@ def configure(project, build):
     )
     status("CXX compiler is", compiler.binary)
 
-    boost_libraries = [Library('boost_python', shared=True)] + list(
-        Library('boost_' + s, shared=True) for s in ['filesystem', 'signals', 'system']
+    boost_libraries = [Library('boost_python3.dll', shared=True)] + list(
+        Library('boost_' + s, shared=False) for s in ['filesystem', 'signals', 'system']
     )
     python_library = PythonLibrary(shared=True)
     python_libraries = [python_library]
 
     graphic_libraries = [
-        SDLLibrary(components=['image'], shared=True),
+        SDLLibrary(components=['image'], shared=False),
         Library('freetype', include_directories=['/usr/include/freetype2'], shared=True),
         Library('z', shared=True),
     ] +  list(Library(s, shared=False) for s in ['png', 'jpeg'])
@@ -111,10 +116,11 @@ def configure(project, build):
     if sys.platform == 'win32':
         base_libraries += list(Library(name) for name in ['Shlwapi', 'mingw32',])
 
-    libetc = compiler.link_dynamic_library(
+    libetc = compiler.link_static_library(
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
+        libraries = base_libraries
     )
 
     libglew = compiler.link_static_library(
