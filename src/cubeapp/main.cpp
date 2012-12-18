@@ -27,7 +27,10 @@ static std::string safe_path(std::string const& path)
 CUBE_MAIN_PROTO(int argc, char** argv)
 {
 	if (argc < 1 || argv[0] == nullptr)
-		throw std::runtime_error("Wrong program inputs");
+	{
+		std::cerr << "Wrong program arguments\n";
+		return EXIT_FAILURE;
+	}
 
 	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
 	fs::path games_dir = exec_dir.parent_path() / "share" / "8cube" / "games";
