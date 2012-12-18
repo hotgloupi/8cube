@@ -1,4 +1,5 @@
 #include <wrappers/boost/python.hpp>
+#include <boost/python/import.hpp>
 
 #include "Interpreter.hpp"
 
@@ -19,7 +20,7 @@ namespace app { namespace python {
 		py::object main_namespace;
 
 		Impl()
-			: main_module{py::import("__main__")}
+			: main_module(boost::python::import("__main__"))
 			, main_namespace{main_module.attr("__dict__")}
 		{}
 	};
