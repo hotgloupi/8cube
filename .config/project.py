@@ -67,7 +67,7 @@ class SDLLibrary(Library):
         else:
             names = ['SDL']
         for c in components:
-            if sys.platform == 'win32':
+            if platform.IS_WINDOWS:
                 c += '.dll'
             names.append('SDL_' + c)
         if platform.IS_MACOSX:
@@ -78,7 +78,9 @@ def configure(project, build):
     import sys
     from tupcfg.tools import glob, status
     from tupcfg import path
-    status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % project.env.BUILD_TYPE)
+    build_type = project.env.get('BUILD_TYPE', 'DEBUG')
+    project.env.build_set('BUILD_TYPE', build_type)
+    status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % build_type)
 
     prefixes = project.env.get('PREFIXES', [])
     if isinstance(prefixes, str):
@@ -87,9 +89,21 @@ def configure(project, build):
     status("Prefixes:", ':'.join(prefixes))
     project.env.project_set('PREFIXES', prefixes)
 
+    include_dirs = project.env.get('INCLUDE_DIRS', [])
+    if isinstance(include_dirs, str):
+        import os
+        include_dirs = include_dirs.split(os.path.pathsep)
+    project.env.project_set('INCLUDE_DIRS', include_dirs)
+
+
     lib_dirs = list(path.join(p, 'lib') for p in prefixes)
     print("Lib dirs:", lib_dirs)
-    include_dirs = list(path.join(p, 'include') for p in prefixes)
+    include_dirs = list(
+        dir_ for dir_ in (
+            list(path.join(p, 'include') for p in prefixes) + include_dirs
+        ) if path.exists(dir_)
+    )
+    print("Include dirs:", include_dirs)
 
     from tupcfg.lang import cxx
     if platform.IS_WINDOWS:
