@@ -5,11 +5,11 @@ NAME = "8cube"
 # The version name (could be "alpha" for example)
 VERSION_NAME = "prototype"
 
-from tupcfg import tools, path
+from tupcfg import tools, path, platform
 from tupcfg import Source
 from tupcfg import Target
 from tupcfg import Command
-from tupcfg import platform
+from tupcfg import Library
 
 class CopyFile(Command):
 
@@ -20,59 +20,85 @@ class CopyFile(Command):
     def command(self, **kw):
         return ['cp', self.dependencies, kw['target']]
 
-class Library:
-    def __init__(self, names, include_directories=[], directories=[],
-                 shared=False, macosx_framework=False):
-        if not isinstance(names, list):
-            names = [names]
-        self.names = names
-        self.directories = directories
-        self.include_directories = include_directories
-        self.shared = shared
-        self.macosx_framework = macosx_framework
-
-
 class PythonLibrary(Library):
-    def __init__(self, **kw):
+    def __init__(self, compiler, **kw):
         from sysconfig import get_config_var as var
         include_dir = var('INCLUDEPY')
         assert include_dir is not None
         prefix = var('prefix')
         assert prefix is not None
-        version = var('py_version_nodot')
+        super(PythonLibrary, self).__init__(
+            "python" + var('LDVERSION'),
+            compiler,
+            find_includes = ['Python.h'],
+            prefixes = [prefix],
+            include_directories = var('INCLUDEPY') and [var('INCLUDEPY')] or [],
+            directories = var('LIBPL') and [var('LIBPL')] or [],
+            shared = kw.get('shared', True),
+        )
         self.ext = var('SO')[1:]
-        lib_dirs = []
-        for d in ['lib', 'Libs', 'DLLs']:
-            if path.exists(prefix, d, 'libpython' + version + '.a') or \
-               path.exists(prefix, d, 'python' + version + '.lib') or \
-               path.exists(prefix, d, 'python' + version[0] + '.dll') or \
-               path.exists(prefix, d, 'libpython' + version + '.so') or \
-               path.exists(prefix, d, 'libpython' + version + '.dylib'):
-                lib_dirs.append(path.join(prefix, d))
-        if platform.IS_MACOSX:
-            lib_dir = var('LIBPL')
-            assert path.exists(lib_dir)
-            name = 'python' + var('py_version_short')
-            assert path.exists(lib_dir, 'lib' + name + '.dylib')
-            lib_dirs.append(lib_dir)
-        else:
-            name = 'python' + (var('LDVERSION') or version)
-        print('PYTHON lib dirs:', ', '.join(lib_dirs))
-        Library.__init__(self, name, [include_dir], lib_dirs, **kw)
+        #version = var('py_version_nodot')
+        #lib_dirs = []
+        #for d in ['lib', 'Libs', 'DLLs']:
+        #    if path.exists(prefix, d, 'libpython' + version + '.a') or \
+        #       path.exists(prefix, d, 'python' + version + '.lib') or \
+        #       path.exists(prefix, d, 'python' + version[0] + '.dll') or \
+        #       path.exists(prefix, d, 'libpython' + version + '.so') or \
+        #       path.exists(prefix, d, 'libpython' + version + '.dylib'):
+        #        lib_dirs.append(path.join(prefix, d))
+        #if platform.IS_MACOSX:
+        #    lib_dir = var('LIBPL')
+        #    assert path.exists(lib_dir)
+        #    name = 'python' + var('py_version_short')
+        #    assert path.exists(lib_dir, 'lib' + name + '.dylib')
+        #    lib_dirs.append(lib_dir)
+        #else:
+        #    name = 'python' + (var('LDVERSION') or version)
+        #print('PYTHON lib dirs:', ', '.join(lib_dirs))
+        #Library.__init__(self, name, [include_dir], lib_dirs, **kw)
 
 class SDLLibrary(Library):
-    def __init__(self, components=[], **kw):
-        if platform.IS_WINDOWS:
-            names = ['SDL.dll']
-        else:
-            names = ['SDL']
-        for c in components:
-            if platform.IS_WINDOWS:
-                c += '.dll'
-            names.append('SDL_' + c)
+    def __init__(self, compiler, components=[], **kw):
+        super(SDLLibrary, self).__init__(
+            'SDL',
+            compiler,
+            find_includes = ['SDL/SDL.h'],
+            shared = kw.get('shared', True),
+        )
+        self.components = list(
+            Library('SDL_' + c, compiler, shared = kw.get('shared', True))
+            for c in components
+        )
         if platform.IS_MACOSX:
-            names.append('SDLMain') # Fixture from SDL is needed
-        Library.__init__(self, names, **kw)
+            self.components.append(Library('SDLMain')) # Fixture from SDL is needed
+
+    @property
+    def libraries(self):
+        return [self] + self.components
+
+class BoostLibrary(Library):
+    def __init__(self, compiler, components=[], **kw):
+        super(BoostLibrary, self).__init__(
+            "boost",
+            compiler,
+            find_includes=['boost/config.hpp'],
+            search_binary_files = False,
+        )
+        self.components = list(
+            Library(
+                "boost_" + component,
+                compiler,
+                prefixes = self.prefixes,
+                include_directories = self.include_directories,
+                directories = self.directories,
+                shared = kw.get('%s_shared', kw.get('shared', True)),
+            )
+            for component in components
+        )
+
+    @property
+    def libraries(self):
+        return self.components
 
 def configure(project, build):
     import sys
@@ -97,13 +123,11 @@ def configure(project, build):
 
 
     lib_dirs = list(path.join(p, 'lib') for p in prefixes)
-    print("Lib dirs:", lib_dirs)
     include_dirs = list(
         dir_ for dir_ in (
             list(path.join(p, 'include') for p in prefixes) + include_dirs
         ) if path.exists(dir_)
     )
-    print("Include dirs:", include_dirs)
 
     from tupcfg.lang import cxx
     if platform.IS_WINDOWS:
@@ -124,20 +148,25 @@ def configure(project, build):
     )
     status("CXX compiler is", compiler.binary)
 
-    boost_libraries = [Library('boost_python3.dll', shared=True)] + list(
-        Library('boost_' + s, shared=False) for s in ['filesystem', 'signals', 'system']
-    )
-    python_library = PythonLibrary(shared=True)
+    boost_libraries = BoostLibrary(
+        compiler, components=['system', 'filesystem', 'signals', 'python3']
+    ).libraries
+
+    python_library = PythonLibrary(compiler, shared=True)
     python_libraries = [python_library]
 
-    graphic_libraries = [
-        SDLLibrary(components=['image'], shared=not platform.IS_WINDOWS),
-        Library('freetype', include_directories=[
-            '/usr/include/freetype2',
-            '/opt/local/include/freetype2',
-        ], shared=True),
-        Library('z', shared=True),
-    ] +  list(Library(s, shared=False) for s in ['png', 'jpeg'])
+    sdl = SDLLibrary(compiler, components=['image'], shared=not platform.IS_WINDOWS)
+
+    freetype = Library(
+        'freetype',
+        compiler,
+        find_includes = ['ft2build.h', 'freetype/config/ftconfig.h'],
+        include_directory_names = ['', 'freetype2'],
+        shared=True
+    )
+    graphic_libraries = sdl.libraries + [
+         freetype, Library('z', compiler, shared=True),
+    ] + list(Library(s, compiler, shared=False) for s in ['png', 'jpeg'])
 
     if platform.IS_WINDOWS:
         graphic_libraries += [
@@ -151,7 +180,7 @@ def configure(project, build):
         )
     else:
         graphic_libraries += [
-            Library(s, shared=True) for s in ['GL', 'GLU']
+            Library(s, compiler, shared=True) for s in ['GL', 'GLU']
         ]
 
     base_libraries = []
@@ -162,7 +191,7 @@ def configure(project, build):
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
-        libraries = base_libraries
+        libraries = base_libraries + boost_libraries
     )
 
     libglew = compiler.link_static_library(
