@@ -14,9 +14,6 @@
 
 namespace cube { namespace gl { namespace vector {
 
-	template<typename T> using Vector3 = glm::detail::tvec3<T>;
-	template<typename T> using Vector2 = glm::detail::tvec2<T>;
-
 	template<typename T>
 	inline
 	Vector3<T> rotate_x(Vector3<T> const& v, T const angle)

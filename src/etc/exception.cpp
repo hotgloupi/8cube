@@ -16,7 +16,7 @@ namespace etc { namespace exception {
 		}
 		catch (std::exception const& err)
 		{
-			try { _msg = std::string{err.what()}; }
+			try { _msg = std::string(err.what()); }
 			catch (std::exception const&) {}
 		}
 	}

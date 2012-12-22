@@ -1,6 +1,7 @@
 #ifndef  CUBE_GL_MATRIX_HPP
 # define CUBE_GL_MATRIX_HPP
 
+# include "fwd.hpp"
 # include "vector.hpp"
 
 # include <etc/types.hpp>
@@ -14,17 +15,11 @@
 
 namespace cube { namespace gl { namespace matrix {
 
-	typedef vector::Vector3f pif;
-
-	template<typename T>
-	using Matrix44 = ::glm::detail::tmat4x4<T>;
-
-	typedef Matrix44<float>    Matrix44f;
-	typedef Matrix44<double>   Matrix44d;
-
 	template<typename T>
 	inline
-	typename std::enable_if<std::is_floating_point<T>::value, Matrix44<T>>::type
+	typename std::enable_if<
+		std::is_floating_point<T>::value, Matrix44<T>
+	>::type
 	perspective(T const fov, T const aspect, T const near, T const far)
 	{
 		return ::glm::perspective(fov, aspect, near, far);
@@ -32,7 +27,9 @@ namespace cube { namespace gl { namespace matrix {
 
 	template<typename T>
 	inline
-	typename std::enable_if<std::is_floating_point<T>::value, Matrix44<T>>::type
+	typename std::enable_if<
+		std::is_floating_point<T>::value, Matrix44<T>
+	>::type
 	look_at(vector::Vector3<T> const& eye,
 	        vector::Vector3<T> const& center,
 	        vector::Vector3<T> const up)

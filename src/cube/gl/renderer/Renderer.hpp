@@ -36,7 +36,7 @@ namespace cube { namespace gl { namespace renderer {
 		 *      - Push a new state into the renderer on creation.            *
 		 *      - Pop that state on destruction.                             *
 		 *********************************************************************/
-		friend struct Painter;
+		friend class Painter;
 
 	protected:
 		cube::gl::viewport::Viewport    _viewport;

@@ -1,3 +1,4 @@
+#ifndef _WIN32 //XXX
 #include "static_string.hpp"
 
 #include <iostream>
@@ -12,3 +13,4 @@ namespace etc { namespace detail {
 	}
 
 }}
+#endif

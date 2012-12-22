@@ -3,22 +3,23 @@
 
 # include "log/Logger.hpp"
 # include "types.hpp"
+# include "compiler.hpp"
 
 # include <boost/preprocessor/cat.hpp>
 
 # define ETC_LOG_COMPONENT(__name)                                            \
-	static constexpr char const* _etc_log_component_name = (__name)           \
+	static BOOST_CONSTEXPR char const* _etc_log_component_name = (__name)     \
 /**/
 
 
 # define ETC_LOG                                                              \
-	::etc::log::Log{                                                          \
+	::etc::log::Log(                                                          \
 		::etc::log::Level::info,                                              \
 		__FILE__,                                                             \
 		__LINE__,                                                             \
 		_ETC_LOG_FUNCTION,                                                    \
 		_etc_log_component_name,                                              \
-	}                                                                         \
+	)                                                                         \
 /**/
 
 # define ETC_TRACE                                                            \
@@ -46,9 +47,11 @@ namespace etc { namespace log {
 			 std::string const& component);
 		Log(Log const& o);
 		Log(Log&& o);
-		Log& operator =(Log const&) = delete;
-		Log& operator =(Log&&) = delete;
 		~Log();
+
+	private:
+		Log& operator =(Log const&) ETC_DELETED_FUNCTION;
+		Log& operator =(Log&&) ETC_DELETED_FUNCTION;
 
 		/**
 		 * Send messages with send(...) or operator(...).
@@ -123,18 +126,17 @@ namespace etc { namespace log {
 		etc::size_type _current_indent();
 	};
 
-#define DLL_PUBLIC __attribute__((__visibility__("default")))
-		struct DLL_PUBLIC Indent
+		struct Indent
 		{
-			private:DLL_PUBLIC
-				DLL_PUBLIC static size_type _indent;
+			private:
+				static size_type _indent;
 			public:
 				static inline size_type increment() { return ++_indent; }
 				static inline size_type decrement() { return --_indent; }
 				static inline size_type get() { return _indent; }
 		};
 
-		DLL_PUBLIC extern Indent indent;
+		extern Indent indent;
 
 }}
 

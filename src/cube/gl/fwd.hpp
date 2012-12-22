@@ -1,10 +1,13 @@
 #ifndef  CUBE_GL_FWD_HH
 # define CUBE_GL_FWD_HH
 
+# include <boost/config.hpp>
+
 namespace glm { namespace detail {
 
 	template<typename T> struct tvec2;
 	template<typename T> struct tvec3;
+	template<typename T> struct tmat4x4;
 
 }}
 
@@ -26,6 +29,23 @@ namespace cube { namespace gl {
 
 	}
 
+	namespace matrix {
+
+# ifdef BOOST_NO_CXX11_TEMPLATE_ALIASES
+		template<typename T>
+		struct Matrix44
+			: public ::glm::detail::tmat4x4<T>
+		{};
+# else
+		template<typename T>
+		using Matrix44 = ::glm::detail::tmat4x4<T>;
+# endif
+
+		typedef Matrix44<float>    Matrix44f;
+		typedef Matrix44<double>   Matrix44d;
+
+	}
+
 	namespace rectangle {
 
 		template<typename T> struct Rectangle2;
@@ -41,8 +61,20 @@ namespace cube { namespace gl {
 
 	namespace vector {
 
+#ifdef BOOST_NO_CXX11_TEMPLATE_ALIASES
+		template<typename T>
+		struct Vector2
+			: public glm::detail::tvec2<T>
+		{};
+
+		template<typename T>
+		struct Vector3
+			: public glm::detail::tvec3<T>
+		{};
+#else
 		template<typename T> using Vector2 = glm::detail::tvec2<T>;
 		template<typename T> using Vector3 = glm::detail::tvec3<T>;
+#endif
 
 		typedef Vector2<float> Vector2f;
 		typedef Vector3<float> Vector3f;

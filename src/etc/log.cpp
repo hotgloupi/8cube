@@ -6,7 +6,7 @@ namespace etc { namespace log {
 	// static variable indent
 	//namespace {
 
-		DLL_PUBLIC Indent indent;
+		Indent indent;
 		size_type Indent::_indent = 0;
 
 	//} // !anonymous
@@ -37,7 +37,7 @@ namespace etc { namespace log {
 	}
 
 	Log::Log(Log&& other)
-		: _line{std::move(other._line)}
+		: _line(std::move(other._line))
 		, _logger(other._logger)
 		, _dtor_indent{true}
 	{

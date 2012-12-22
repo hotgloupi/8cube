@@ -11,7 +11,7 @@
 
 #ifdef _WIN32
 # include <Shlwapi.h>
-# pragma comment(lib, "shlwapi.lib");
+# pragma comment(lib, "shlwapi.lib")
 #else
 # include <fnmatch.h>
 #endif
@@ -28,6 +28,11 @@ namespace etc { namespace log {
 				remove_match,
 			} op;
 			std::string str;
+
+			Pattern(Operation op, std::string str)
+				: op(op)
+				, str(str)
+			{}
 		};
 
 		std::vector<Pattern> get_patterns()
@@ -50,11 +55,11 @@ namespace etc { namespace log {
 							pattern[0] == '-')))
 					continue;
 				if (pattern[0] == '+')
-					res.push_back(Pattern{Pattern::add_match, pattern.substr(1)});
+					res.push_back(Pattern(Pattern::add_match, pattern.substr(1)));
 				else if (pattern[0] == '-')
-					res.push_back(Pattern{Pattern::remove_match, pattern.substr(1)});
+					res.push_back(Pattern(Pattern::remove_match, pattern.substr(1)));
 				else
-					res.push_back(Pattern{Pattern::add_match, pattern});
+					res.push_back(Pattern(Pattern::add_match, pattern));
 			}
 			return res;
 		}
@@ -96,11 +101,11 @@ namespace etc { namespace log {
 	               Flag const flags /* = Flag::level | Flag::component */)
 		: _name(name)
 		, _level(level)
-		, _streams{}
+		, _streams()
 		, _flags{flags}
 	{
 		for (auto& stream : _streams)
-			stream = { &std::cerr, false };
+			stream = OutStream(&std::cerr, false);
 	}
 
 	void Logger::_message(Line const& line,

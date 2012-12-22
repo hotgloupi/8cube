@@ -10,9 +10,10 @@
 namespace cube { namespace gl { namespace color {
 
 	template<typename T>
-		Color3<T> const& parse_color3(std::string const& s);
+	Color3<T> const& parse_color3(std::string const& s);
+
 	template<typename T>
-		Color4<T> const& parse_color4(std::string const& s);
+	Color4<T> const& parse_color4(std::string const& s);
 
 	template<typename T>
 	struct traits
@@ -50,13 +51,41 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
+# ifdef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+		Color3(Color3<T> const& other)
+			: r(other.r)
+			, g(other.g)
+			, b(other.b)
+		{}
+
+		Color3& operator =(Color3<T> const& other)
+		{
+			this->r = other.r;
+			this->g = other.g;
+			this->b = other.b;
+		}
+
+		Color3(Color3<T>&& other)
+			: r(std::move(other.r))
+			, g(std::move(other.g))
+			, b(std::move(other.b))
+		{}
+
+		Color3& operator =(Color3<T>&& other)
+		{
+			this->r = std::move(other.r);
+			this->g = std::move(other.g);
+			this->b = std::move(other.b);
+		}
+# else
 		Color3(Color3<T> const&) = default;
 		Color3& operator =(Color3<T> const&) = default;
 		Color3(Color3<T>&&) = default;
 		Color3& operator =(Color3<T>&&) = default;
+#endif
 
 		Color3()
-			: r{}, g{}, b{}
+			: r(), g(), b()
 		{}
 
 		Color3(T r, T g, T b)

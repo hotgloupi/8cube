@@ -18,7 +18,13 @@ namespace etc { namespace sys {
 	std::string getenv(std::string const& key,
 	                   std::string const& value);
 
-	ETC_EXCEPTION_CLASS(KeyError);
+	struct KeyError
+		: public etc::exception::Exception
+	{
+		KeyError(std::string const& msg)
+			: etc::exception::Exception(msg)
+		{}
+	};
 }}
 
 #endif

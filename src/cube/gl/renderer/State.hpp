@@ -3,6 +3,8 @@
 
 # include "fwd.hpp"
 
+# include <etc/compiler.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	///////////////////////////////////////////////////////////////////////////
@@ -25,7 +27,7 @@ namespace cube { namespace gl { namespace renderer {
 			          _matrices);
 		}
 	private:
-		State(State const& other) = delete;
+		State(State const& other) ETC_DELETED_FUNCTION;
 
 		/**
 		 * Getter/setter for matrices

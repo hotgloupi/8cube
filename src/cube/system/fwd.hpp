@@ -5,7 +5,7 @@ namespace cube { namespace system {
 
 	namespace inputs {
 
-		class Inputs;
+		struct Inputs;
 
 	}
 

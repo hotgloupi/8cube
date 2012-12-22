@@ -31,9 +31,10 @@ namespace etc { namespace log {
 	inline
 	bool operator &(Flag const lhs, Flag const rhs)
 	{
-		return static_cast<bool>(
-			static_cast<int>(lhs) & static_cast<int>(rhs)
-		);
+		// C4800 warning when casting to bool
+		if (static_cast<int>(lhs) & static_cast<int>(rhs))
+			return true;
+		return false;
 	}
 
 	class Logger;
@@ -81,7 +82,12 @@ namespace etc { namespace log {
 
 }} // !etc::log
 
+# include <boost/config.hpp>
 
-# define _ETC_LOG_FUNCTION __PRETTY_FUNCTION__
+# ifdef BOOST_MSVC
+#  define _ETC_LOG_FUNCTION __FUNCTION__
+# else
+#  define _ETC_LOG_FUNCTION __PRETTY_FUNCTION__
+# endif
 
 #endif

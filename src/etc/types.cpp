@@ -2,7 +2,11 @@
 
 #include "to_string.hpp"
 
-#include <cxxabi.h>
+#include <boost/config.hpp>
+
+#ifndef BOOST_MSVC
+# include <cxxabi.h>
+#endif
 
 namespace etc {
 
@@ -11,6 +15,7 @@ namespace etc {
 	         std::string& res,
 	         std::string& error) throw()
 	{
+#ifndef BOOST_MSVC
 		size_t size;
 		int status;
 		char* demangled = abi::__cxa_demangle(sym.c_str(), 0, &size, &status);
@@ -35,6 +40,8 @@ namespace etc {
 		default:
 			std::abort();
 		}
+#endif
+		return false;
 	}
 
 	std::string demangle(std::string const& sym)
@@ -42,9 +49,9 @@ namespace etc {
 		std::string error;
 		std::string res;
 		if (!demangle(sym, res, error))
-			throw std::runtime_error{
+			throw std::runtime_error(
 				etc::to_string("couldn't demangle", sym, ":", error)
-			};
+			);
 		return res;
 	}
 

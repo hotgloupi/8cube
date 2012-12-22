@@ -83,7 +83,7 @@ namespace etc {
 		inline
 		Separator const& nosep()
 		{
-			static auto sep = Separator{""};
+			static Separator const sep("");
 			return sep;
 		}
 
@@ -91,7 +91,7 @@ namespace etc {
 		inline
 		Separator const& spacesep()
 		{
-			static auto sep = Separator{' '};
+			static Separator const sep(' ');
 			return sep;
 		}
 
@@ -99,7 +99,7 @@ namespace etc {
 		inline
 		Separator const& tabsep()
 		{
-			static auto sep = Separator{'\t'};
+			static Separator const sep('\t');
 			return sep;
 		}
 
@@ -107,7 +107,7 @@ namespace etc {
 		inline
 		Separator const& newlinesep()
 		{
-			static auto sep = Separator{'\n'};
+			static Separator const sep('\n');
 			return sep;
 		}
 
@@ -133,15 +133,15 @@ namespace etc {
 		inline
 		EndOfLine const& newline()
 		{
-			static auto endl = EndOfLine{'\n'};
+			static EndOfLine const endl('\n');
 			return endl;
 		}
 
 		/// no new line
 		inline
-		EndOfLine const nonewline()
+		EndOfLine const& nonewline()
 		{
-			static EndOfLine const endl{""};
+			static EndOfLine const endl("");
 			return endl;
 		}
 

@@ -7,14 +7,14 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	struct BindableBase
+	class BindableBase
 	{
 	protected:
 		etc::size_type __bound;
 
 	public:
 		BindableBase()
-			: __bound{0}
+			: __bound(0)
 		{}
 
 		virtual
@@ -79,7 +79,7 @@ namespace cube { namespace gl { namespace renderer {
 	};
 
 	template<typename... Args>
-	struct Bindable
+	class Bindable
 		: public BindableBase
 	{
 	protected:

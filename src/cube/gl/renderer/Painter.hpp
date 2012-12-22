@@ -19,7 +19,7 @@ namespace cube { namespace gl { namespace renderer {
 	 *
 	 * This is an abstract class that should be implemented per renderer basis.
 	 */
-	struct Painter
+	class Painter
 		: private boost::noncopyable
 	{
 	private:
@@ -132,7 +132,6 @@ namespace cube { namespace gl { namespace renderer {
 
 	struct Painter::Proxy
 	{
-		ETC_LOG_COMPONENT("cube.gl.renderer.Painter.Proxy");
 	private:
 		Painter&                    _self;
 		etc::size_type              _guards_size;
@@ -151,6 +150,7 @@ namespace cube { namespace gl { namespace renderer {
 				sizeof(BindableBase::GuardBase) == sizeof(Bindable<Args...>::Guard),
 				"Derived guard has to have the same size."
 			);
+			ETC_LOG_COMPONENT("cube.gl.renderer.Painter.Proxy");
 			ETC_TRACE.debug("Insert guard of", &first);
 			typedef typename Bindable<Args...>::Guard Guard;
 			new (_new_guard_mem()) Guard(first, args...);

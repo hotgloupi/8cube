@@ -31,7 +31,9 @@ namespace cube { namespace system { namespace inputs {
 	bool
 	operator &(KeyMod const l, KeyMod const r)
 	{
-		return (int) l & (int) r;
+		if ((int) l & (int) r)
+			return true;
+		return false;
 	}
 
 	inline

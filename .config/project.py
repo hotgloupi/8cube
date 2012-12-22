@@ -31,27 +31,6 @@ def configure(project, build):
     project.env.build_set('BUILD_TYPE', build_type)
     status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % build_type)
 
-    prefixes = project.env.get('PREFIXES', [])
-    if isinstance(prefixes, str):
-        import os
-        prefixes = prefixes.split(os.path.pathsep)
-    status("Prefixes:", ':'.join(prefixes))
-    project.env.project_set('PREFIXES', prefixes)
-
-    include_dirs = project.env.get('INCLUDE_DIRS', [])
-    if isinstance(include_dirs, str):
-        import os
-        include_dirs = include_dirs.split(os.path.pathsep)
-    project.env.project_set('INCLUDE_DIRS', include_dirs)
-
-
-    lib_dirs = list(path.join(p, 'lib') for p in prefixes)
-    include_dirs = list(
-        dir_ for dir_ in (
-            list(path.join(p, 'include') for p in prefixes) + include_dirs
-        ) if path.exists(dir_)
-    )
-
     from tupcfg.lang import cxx
     if platform.IS_WINDOWS:
         Compiler = cxx.msvc.Compiler
@@ -62,9 +41,8 @@ def configure(project, build):
         project, build,
         position_independent_code = True,
         standard = 'c++11',
-        defines = ['GLM_FORCE_CXX11'],
-        library_directories = lib_dirs,
-        include_directories = include_dirs + [
+        defines = ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB'],
+        include_directories = [
             path.absolute(project.root_dir, 'src'),
             path.absolute(project.root_dir, 'src/glew'),
         ],
@@ -72,32 +50,37 @@ def configure(project, build):
     status("CXX compiler is", compiler.binary)
 
     boost = cxxlib.BoostLibrary(
-        compiler, components=['system', 'filesystem', 'signals', 'python3']
+        compiler,
+        components=['system', 'filesystem', 'signals', 'python3'],
+        shared=False,
+        python3_shared=True,
     )
 
-    python = clib.PythonLibrary(compiler)
+    python = clib.PythonLibrary(compiler, shared=False)
 
     sdl = clib.SDLLibrary(
         compiler,
         components=['image'],
-        shared=not platform.IS_WINDOWS
+        shared=True
     )
 
     opengl = clib.OpenGLLibrary(compiler)
 
-    freetype = clib.FreetypeLibrary(compiler)
+    freetype = clib.FreetypeLibrary(compiler, shared=False)
 
     graphic_libraries = (
         sdl.libraries +
         opengl.libraries +
-        freetype.libraries +
-        list(clib.simple(s, compiler) for s in ['png', 'jpeg'])
+        freetype.libraries
     )
-
+    if not platform.IS_WINDOWS:
+        list(clib.simple(s, compiler) for s in ['png', 'jpeg'])
 
     base_libraries = []
     if platform.IS_WINDOWS:
-        base_libraries += list(clib.simple(name, compiler) for name in ['Shlwapi', 'mingw32',])
+        base_libraries += list(
+            clib.simple(name, compiler, shared=True) for name in ['Shlwapi',]
+        )
 
     libetc = compiler.link_static_library(
         'libetc',
@@ -111,7 +94,7 @@ def configure(project, build):
         ['src/glew/glew.c'],
         directory = 'release/lib',
         libraries = graphic_libraries,
-        defines = ['GLEW_NO_GLU', 'GLEW_BUILD'],
+        defines = ['GLEW_NO_GLU', 'GLEW_STATIC'],
     )
 
     graphic_libraries.insert(0, libglew)

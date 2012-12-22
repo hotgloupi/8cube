@@ -27,7 +27,7 @@ namespace cube { namespace gl { namespace text {
 		     std::basic_string<CharType> const& str);
 		template<typename CharType>
 		Text(font::Font& font, CharType const* str)
-			: Text{font, std::basic_string<CharType>{str}}
+			: Text(font, std::basic_string<CharType>(str))
 		{}
 		~Text();
 	private:

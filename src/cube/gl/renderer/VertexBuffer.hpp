@@ -133,9 +133,17 @@ namespace cube { namespace gl { namespace renderer {
 		              size_t size,
 		              bool managed)
 		{
-			_attributes.push_back(Attribute{
-				kind, type, hint, nb_elements, arity, ptr, size, managed
-			});
+			Attribute attr = {
+				kind,
+				type,
+				hint,
+				nb_elements,
+				arity,
+				ptr,
+				size,
+				managed,
+			};
+			_attributes.push_back(attr);
 		}
 
 	};

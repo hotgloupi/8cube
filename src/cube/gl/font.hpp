@@ -4,6 +4,7 @@
 # include "renderer/fwd.hpp"
 # include "renderer/Bindable.hpp"
 
+# include <etc/compiler.hpp>
 # include <etc/types.hpp>
 
 # include <iosfwd>
@@ -52,13 +53,13 @@ namespace cube { namespace gl { namespace font {
 	 * @note This function will silently ignore any errors and return 0.
 	 */
 	etc::size_type
-	get_faces_count(std::string const& path) noexcept;
+	get_faces_count(std::string const& path) ETC_NOEXCEPT;
 
 	/**
 	 * @brief Returns wether or not the file should be loadable.
 	 */
 	inline
-	bool is_valid(std::string const& path) noexcept
+	bool is_valid(std::string const& path) ETC_NOEXCEPT
 	{
 		return (get_faces_count(path) > 0);
 	}

@@ -57,7 +57,7 @@ namespace etc { namespace exception {
 					BOOST_PP_DEC(BOOST_PP_VARIADIC_SIZE(Name, ##__VA_ARGS__)),\
 					__VA_ARGS__,                                              \
 					::etc::exception::Exception                               \
-				)(msg)                                                        \
+				){msg}                                                        \
 		{}                                                                    \
 	}                                                                         \
 /**/

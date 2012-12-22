@@ -6,6 +6,7 @@
 # include <etc/types.hpp>
 
 # include <string>
+# include <utility>
 
 namespace etc { namespace log {
 
@@ -45,10 +46,10 @@ namespace etc { namespace log {
 
 		Line(Line&& o)
 			: level{o.level}
-			, file{std::move(o.file)}
+			, file(std::move(o.file))
 			, line{o.line}
-			, function{std::move(o.function)}
-			, component{std::move(o.component)}
+			, function(std::move(o.function))
+			, component(std::move(o.component))
 			, indent{o.indent}
 		{}
 
