@@ -6,6 +6,7 @@ NAME = "8cube"
 VERSION_NAME = "prototype"
 
 from tupcfg import tools, path, platform
+from tupcfg import generators
 from tupcfg import Source
 from tupcfg import Target
 from tupcfg import Command
@@ -23,7 +24,39 @@ class CopyFile(Command):
         return ['cp', self.dependencies, kw['target']]
 
 
+#class PythonCommandGenerator(Generator):
+#
+#    def __init__(self, **kw):
+#        Generator.__
+#
+#    def apply_rule(self,
+#                   action=None,
+#                   command=None,
+#                   inputs=None,
+#                   additional_inputs=None,
+#                   outputs=None,
+#                   additional_ouputs=None,
+#                   target=None):
+#        import pipes
+#        target_filename = target.shell_string(build=self.build,
+#                                              target=target)
+#        script = path.join(self.working_directory, target_filename + "_gen.py")
+#        with open(script, 'w') as f:
+#            write = lambda *args: print(*args, file=f)
+#            write("#!python")
+#            write("import os, pipes, sys, subprocess")
+#            write("print('in', %s)" % repr(self.working_directory))
+#            write("os.chdir(%s)" % repr(self.working_directory))
+#            write("cmd = [")
+#            for p in command:
+#                write("\t%s," % repr(p))
+#            write("]")
+#            write("print(' '.join(map(pipes.quote, cmd)))")
+#            write("subprocess.call(cmd, stdout=sys.stdout, stderr=subprocess.STDOUT)")
+#        tools.debug("Creating Python command script", script)
+
 def configure(project, build):
+    project.generators.append(generators.Makefile)
     import sys
     from tupcfg.tools import glob, status
     from tupcfg import path
@@ -56,7 +89,7 @@ def configure(project, build):
         python3_shared=True,
     )
 
-    python = clib.PythonLibrary(compiler, shared=False)
+    python = clib.PythonLibrary(compiler, shared=True)
 
     sdl = clib.SDLLibrary(
         compiler,
@@ -163,3 +196,29 @@ def configure(project, build):
             directory = 'tests',
             libraries = [libcube, libetc] + graphic_libraries + boost.libraries + base_libraries,
         )
+
+    def find_targets(targets):
+        for target in targets:
+            if isinstance(target, Target):
+                yield target
+            elif hasattr(target, 'dependencies'):
+                for t in find_targets(target.dependencies):
+                    yield t
+
+    targets = []
+
+    with open(path.join(build.directory, 'Makefile.all'), 'w') as f:
+        targets = []
+        for target in find_targets(build.targets):
+            p = target.relpath(build.directory, build)
+            targets.append(p)
+            f.write("%s:\n" % p)
+            f.write("\t@make -r -R --quiet --no-print-directory -C %s %s\n\n" % (path.split(p)))
+
+        f.write('all:')
+        for p in targets:
+            f.write(' ' + p)
+        f.write('\n\n')
+
+
+
