@@ -151,6 +151,7 @@ namespace cube { namespace gl { namespace renderer {
 				"Derived guard has to have the same size."
 			);
 			ETC_LOG_COMPONENT("cube.gl.renderer.Painter.Proxy");
+			int i = 0;
 			ETC_TRACE.debug("Insert guard of", &first);
 			typedef typename Bindable<Args...>::Guard Guard;
 			new (_new_guard_mem()) Guard(first, args...);

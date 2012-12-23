@@ -53,6 +53,16 @@ namespace etc { namespace log {
 		{
 			std::ostream* out;
 			bool          owned;
+
+			OutStream()
+				: out{nullptr}
+				, owned{false}
+			{}
+
+			OutStream(std::ostream* out, bool owned)
+				: out{out}
+				, owned{owned}
+			{}
 		};
 
 	private:
