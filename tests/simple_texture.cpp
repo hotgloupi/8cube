@@ -26,7 +26,6 @@ namespace cube { namespace gl { namespace test {
 
 	ETC_LOG_COMPONENT("cube.gl.test");
 
-
 	namespace {
 
 		struct OnExpose

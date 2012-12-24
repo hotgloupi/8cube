@@ -11,7 +11,6 @@
 	static BOOST_CONSTEXPR char const* _etc_log_component_name = __name       \
 /**/
 
-
 # define ETC_LOG                                                              \
 	::etc::log::Log(                                                          \
 		::etc::log::Level::info,                                              \

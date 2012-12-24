@@ -156,6 +156,6 @@ namespace etc {
 
 } // !etc
 
-# include "print.ipp"
+# include "print.inl"
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef  ETC_PRINT_IPP
-# define ETC_PRINT_IPP
+#ifndef  ETC_PRINT_INL
+# define ETC_PRINT_INL
 
 # include <iostream>
 # include <sstream>
