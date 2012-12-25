@@ -25,6 +25,7 @@ namespace cube { namespace gl { namespace renderer {
 			std::copy(other._matrices,
 			          other._matrices + (size_t)MatrixKind::_max_value,
 			          _matrices);
+			return *this;
 		}
 	private:
 		State(State const& other) ETC_DELETED_FUNCTION;

@@ -130,7 +130,6 @@ namespace cube { namespace system { namespace window {
 		bool has_resize = false;
 
 		SDL_Event e;
-		char ch;
 		while (SDL_PollEvent(&e))
 		{
 			switch (e.type)

@@ -269,7 +269,7 @@ BOOST_PYTHON_MODULE(inputs)
 } while (false)                                                               \
 	/**/
 
-	py::class_<Inputs, boost::noncopyable> cls("Inputs");
+	py::class_<Inputs, boost::noncopyable> cls("Inputs", py::no_init);
 
 	DEF_CONNECT(cls, expose);
 	DEF_CONNECT(cls, resize);

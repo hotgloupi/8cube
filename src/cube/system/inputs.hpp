@@ -176,7 +176,7 @@ namespace cube { namespace system { namespace inputs {
 	};
 
 
-    struct Inputs
+    struct Inputs : private boost::noncopyable
     {
 # define CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(name, ...)                          \
 	public:                                                                   \
