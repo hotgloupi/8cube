@@ -115,7 +115,7 @@ def configure(project, build):
             clib.simple(name, compiler, shared=True) for name in ['Shlwapi',]
         )
 
-    libetc = compiler.link_dynamic_library(
+    libetc = compiler.link_static_library(
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
