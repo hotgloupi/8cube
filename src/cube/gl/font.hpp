@@ -117,7 +117,14 @@ namespace cube { namespace gl { namespace font {
 		     etc::size_type size = CUBE_GL_FONT_DEFAULT_SIZE);
 		~Infos();
 
-	private:
+		/**
+		 * @brief Construct a font with full information.
+		 *
+		 * Infos should not be constructed directly, instead you should use @a
+		 * `get_infos()` or @a `get_face_infos()`.
+		 *
+		 * @note It is exposed to enable pickling from python.
+		 */
 		Infos(std::string const& path,
 		      std::string const& family_name,
 		      std::string const& style_name,

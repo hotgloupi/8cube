@@ -497,6 +497,7 @@ namespace cube { namespace gl { namespace font {
 			FT_Face face;
 			~RIIA() { if (face != nullptr) FT_Done_Face(face); }
 		} riia{face};
+		(void) riia;
 
 		if (res != 0 || face == nullptr)
 			throw Exception{

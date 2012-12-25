@@ -54,6 +54,41 @@ namespace {
 		};
 	};
 
+	struct FontInfosPickleSuite
+		: py::pickle_suite
+	{
+		static
+		py::tuple getinitargs(font::Infos const& infos)
+		{
+			return py::make_tuple(
+				infos.path,
+				infos.family_name,
+				infos.style_name,
+				infos.style,
+				infos.has_horizontal,
+				infos.has_vertical,
+				infos.is_fixed_width,
+				infos.is_scalable,
+				infos.has_bitmaps,
+				infos.support_kerning,
+				infos.face_index
+			);
+		}
+/*
+		static
+		py::tuple getstate(font::Infos const& infos)
+		{
+			// ...
+		}
+
+		static
+		void setstate(font::Infos& infos, boost::python::tuple state)
+		{
+			// ...
+		}
+*/
+	};
+
 } // !anonymous
 
 BOOST_PYTHON_MODULE(font)
@@ -75,7 +110,22 @@ BOOST_PYTHON_MODULE(font)
 
 	py::def("is_valid", &font::is_valid);
 
-	py::class_<font::Infos, boost::noncopyable>("Infos", py::no_init)
+	py::class_<font::Infos, boost::noncopyable>(
+			"Infos",
+			py::init<
+				std::string const&,
+				std::string const&,
+				std::string const&,
+				font::Style const,
+				bool,
+				bool,
+				bool,
+				bool,
+				bool,
+				bool,
+				etc::size_type
+			>()
+		)
 		.def_readonly("path", &font::Infos::path)
 		.def_readonly("family_name", &font::Infos::family_name)
 		.def_readonly("style_name", &font::Infos::style_name)
@@ -87,6 +137,7 @@ BOOST_PYTHON_MODULE(font)
 		.def_readonly("has_bitmaps", &font::Infos::has_bitmaps)
 		.def_readonly("support_kerning", &font::Infos::support_kerning)
 		.def("__str__", &Proxy::Infos::str)
+		.def_pickle(FontInfosPickleSuite{})
 	;
 
 	py::def(
