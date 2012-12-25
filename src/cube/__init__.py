@@ -11,4 +11,4 @@ The cube library provides:
 
 from .application import Application
 from .exception import Exception
-from . import gl, gui, system
+from . import constants, gl, gui, system

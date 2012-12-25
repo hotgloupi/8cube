@@ -1,0 +1,37 @@
+#include <wrappers/boost/python.hpp>
+
+#include "../constants.hpp"
+
+namespace {
+
+	std::string const& get_name()
+	{
+		return cube::constants::application::name();
+	}
+
+}
+
+BOOST_PYTHON_MODULE(application)
+{
+	using namespace cube::constants::application;
+	namespace py = boost::python;
+
+	py::def(
+		"name",
+		&name,
+		py::return_value_policy<py::copy_const_reference>()
+	);
+
+	py::def(
+		"name",
+		&get_name,
+		py::return_value_policy<py::copy_const_reference>()
+	);
+
+	py::def(
+		"config_directory",
+		&config_directory,
+		py::return_value_policy<py::copy_const_reference>()
+	);
+}
+

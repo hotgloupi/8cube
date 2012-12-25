@@ -1,0 +1,21 @@
+#include <wrappers/boost/python.hpp>
+
+#include "../constants.hpp"
+
+BOOST_PYTHON_MODULE(system)
+{
+	using namespace cube::constants::system;
+	namespace py = boost::python;
+
+	py::def(
+		"home_directory",
+		&home_directory,
+		py::return_value_policy<py::copy_const_reference>()
+	);
+
+	py::def(
+		"config_directory",
+		&config_directory,
+		py::return_value_policy<py::copy_const_reference>()
+	);
+}
