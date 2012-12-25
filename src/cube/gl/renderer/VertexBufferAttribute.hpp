@@ -63,7 +63,7 @@ namespace cube { namespace gl { namespace renderer {
 		std::function<void(void*)>  _deleter;
 
 	public:
-		void* const buffer() const { return _buffer; }
+		void* buffer() const { return _buffer; }
 
 	public:
 		/**
