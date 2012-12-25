@@ -59,6 +59,8 @@ def main(args):
         import traceback
         traceback.print_exc()
         return
+    cube.constants.application.name("8cube")
+    cube.gui.FontManager.populate()
     try:
         parser, args = parse_args(args)
         if args.console:
@@ -69,7 +71,7 @@ def main(args):
             if not os.path.exists(args.script):
                 fatal("Cannot find the file '%s'" % args.script)
             import runpy
-            runpy.run_path(args.script)
+            runpy.run_path(args.script, run_name='__main__')
             return
 
         if not args.game:
