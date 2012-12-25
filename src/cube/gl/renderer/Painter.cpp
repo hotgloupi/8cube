@@ -79,16 +79,16 @@ namespace cube { namespace gl { namespace renderer {
 
 
 		if (count == ((etc::size_type) -1))
-			count = attr.nb_elements - start;
-		else if (count > attr.nb_elements - start)
+			count = attr->nb_elements - start;
+		else if (count > attr->nb_elements - start)
 			throw Exception{"Count is out of range."};
 
 		Bindable<>::Guard guard(indices);
 		_renderer.draw_elements(
 			mode,
 			count,
-			attr.type,
-			(uint8_t*)0 + (start * get_content_type_size(attr.type))
+			attr->type,
+			(uint8_t*)0 + (start * get_content_type_size(attr->type))
 		);
 	}
 
@@ -98,11 +98,11 @@ namespace cube { namespace gl { namespace renderer {
 	                          etc::size_type count)
 	{
 		ETC_TRACE.debug("draw arrays");
-		VertexBuffer::Attribute const* vertex_attr = nullptr;
+		VertexBufferAttribute const* vertex_attr = nullptr;
 		for (auto const& attr : vertices.attributes())
-			if (attr.kind == ContentKind::vertex)
+			if (attr->kind == ContentKind::vertex)
 			{
-				vertex_attr = &attr;
+				vertex_attr = attr.get();
 				break;
 			}
 		if (vertex_attr == nullptr)

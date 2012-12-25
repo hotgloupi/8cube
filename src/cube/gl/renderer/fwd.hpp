@@ -1,6 +1,8 @@
 #ifndef  CUBE_GL_RENDERER_FWD_HPP
 # define CUBE_GL_RENDERER_FWD_HPP
 
+# include <memory>
+
 # include "constants.hpp"
 
 namespace cube { namespace gl { namespace renderer {
@@ -20,9 +22,16 @@ namespace cube { namespace gl { namespace renderer {
 	class ShaderProgram;
 	class ShaderProgramParameter;
 	struct State;
-	class VertextShader;
-	class VertexBuffer;
 	class Texture;
+	class VertexBuffer;
+	class VertexBufferAttribute;
+
+
+	typedef std::unique_ptr<Shader>                 ShaderPtr;
+	typedef std::unique_ptr<ShaderProgram>          ShaderProgramPtr;
+	typedef std::unique_ptr<Texture>                TexturePtr;
+	typedef std::unique_ptr<VertexBuffer>           VertexBufferPtr;
+	typedef std::unique_ptr<VertexBufferAttribute>  VertexBufferAttributePtr;
 
 }}}
 

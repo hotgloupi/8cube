@@ -69,6 +69,8 @@ namespace cube { namespace gl { namespace renderer {
 		_max_value
 	};
 
+	std::ostream& operator <<(std::ostream& out, ShaderType const type);
+
 	enum class DrawMode
 	{
 		points,

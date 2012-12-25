@@ -66,7 +66,6 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 		"from cubeapp.main import main\n"
 		"main(" + pyargs + ")\n"
 	;
-	std::cout << init_script << std::endl;
 	try {
 		return !interpreter.exec(init_script);
 	} catch (std::exception const& err) {

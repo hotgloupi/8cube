@@ -57,6 +57,53 @@ namespace {
 					cube::gl::viewport::Viewport(x, y, w, h)
 				);
 			}
+
+			template<typename T>
+			static
+			std::vector<std::unique_ptr<T>>
+			_tuple_to_vector(boost::python::tuple& args)
+			{
+				size_t len = boost::python::len(args);
+				std::vector<std::unique_ptr<T>> ptrs;
+				for (size_t i = 0; i < len; ++i)
+				{
+					std::auto_ptr<T> ptr =
+						boost::python::extract<std::auto_ptr<T>>(args[i]);
+					ptrs.emplace_back(ptr.release());
+				}
+				return ptrs;
+			}
+
+			static
+			renderer::ShaderProgramPtr
+			new_shader_program(renderer::Renderer& self,
+			                   boost::python::tuple args)
+			{
+				return self.new_shader_program(
+					_tuple_to_vector<renderer::Shader>(args)
+				);
+			}
+
+			static
+			renderer::VertexBufferPtr
+			new_vertex_buffer(renderer::Renderer& self,
+			                  boost::python::tuple args)
+			{
+				return self.new_vertex_buffer(
+					_tuple_to_vector<renderer::VertexBufferAttribute>(args)
+				);
+			}
+
+			static
+			renderer::VertexBufferPtr
+			new_index_buffer(renderer::Renderer& self,
+			                 std::auto_ptr<VertexBufferAttribute>& attr)
+			{
+				return self.new_index_buffer(
+					VertexBufferAttributePtr{attr.release()}
+				);
+			}
+
 		};
 
 		///////////////////////////////////////////////////////////////////////
@@ -113,7 +160,7 @@ namespace {
 
 		///////////////////////////////////////////////////////////////////////
 		// VertexBuffer
-
+/*
 		struct VertexBuffer
 		{
 			template<typename T>
@@ -180,32 +227,7 @@ namespace {
 				);
 			}
 		};
-
-		///////////////////////////////////////////////////////////////////////
-		// ShaderProgram
-
-		struct ShaderProgram
-		{
-			static
-			void push_shader(renderer::ShaderProgram& p,
-			                 std::auto_ptr<renderer::Shader>& s)
-			{
-				p.push_shader(std::unique_ptr<renderer::Shader>(s.release()));
-			}
-
-			static
-			void finalize(renderer::ShaderProgram& p)
-			{
-				p.finalize();
-			}
-
-			static
-			void finalize_clear(renderer::ShaderProgram& p, bool clear)
-			{
-				p.finalize(clear);
-			}
-		};
-
+*/
 
 	}; // !struct Wrap
 
@@ -509,16 +531,24 @@ BOOST_PYTHON_MODULE(renderer)
 	///////////////////////////////////////////////////////////////////////////
 	// Renderer
 
-	typedef Renderer::TexturePtr
-		(Renderer::*new_texture_cb_t)(std::string const&);
+	typedef TexturePtr (Renderer::*new_texture_cb_t)(std::string const&);
 
-	typedef Renderer::TexturePtr
-		(Renderer::*new_texture_raw_cb_t)(PixelFormat const,
-		                                  unsigned int,
-		                                  unsigned int,
-		                                  renderer::PixelFormat const,
-		                                  renderer::ContentPacking const,
-		                                  void const*);
+	typedef TexturePtr (Renderer::*new_texture_raw_cb_t)(
+		PixelFormat const,
+		unsigned int,
+		unsigned int,
+		renderer::PixelFormat const,
+		renderer::ContentPacking const,
+		void const*
+	);
+
+	typedef ShaderPtr (Renderer::*new_fragment_shader_t)(
+		std::vector<std::string> const&
+	);
+
+	typedef ShaderPtr (Renderer::*new_vertex_shader_t)(
+		std::vector<std::string> const&
+	);
 
 	py::class_<Renderer, boost::shared_ptr<Renderer>, boost::noncopyable>(
 			"Renderer", py::no_init
@@ -553,7 +583,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"new_vertex_buffer",
-			&Renderer::new_vertex_buffer,
+			&Wrap::Renderer::new_vertex_buffer,
 			py::return_value_policy<
 				py::return_by_value,
 				py::with_custodian_and_ward_postcall<1,0>
@@ -561,7 +591,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"new_index_buffer",
-			&Renderer::new_index_buffer,
+			&Wrap::Renderer::new_index_buffer,
 			py::return_value_policy<
 				py::return_by_value,
 				py::with_custodian_and_ward_postcall<1,0>
@@ -569,7 +599,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"new_shader_program",
-			&Renderer::new_shader_program,
+			&Wrap::Renderer::new_shader_program,
 			py::return_value_policy<
 				py::return_by_value,
 				py::with_custodian_and_ward_postcall<1,0>
@@ -577,7 +607,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"new_fragment_shader",
-			&Renderer::new_fragment_shader,
+			static_cast<new_fragment_shader_t>(&Renderer::new_fragment_shader),
 			py::return_value_policy<
 				py::return_by_value,
 				py::with_custodian_and_ward_postcall<1,0>
@@ -585,7 +615,7 @@ BOOST_PYTHON_MODULE(renderer)
 		)
 		.def(
 			"new_vertex_shader",
-			&Renderer::new_vertex_shader,
+			static_cast<new_vertex_shader_t>(&Renderer::new_vertex_shader),
 			py::return_value_policy<
 				py::return_by_value,
 				py::with_custodian_and_ward_postcall<1,0>
@@ -642,14 +672,6 @@ BOOST_PYTHON_MODULE(renderer)
 			"VertexBuffer",
 			py::no_init
 		)
-		.def(
-			"finalize",
-			&VertexBuffer::finalize
-		)
-		.def(
-			"push_static_content",
-			&Wrap::VertexBuffer::push_static_content
-		)
 	;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -662,12 +684,6 @@ BOOST_PYTHON_MODULE(renderer)
 		>(
 			"Shader",
 			py::no_init
-		)
-		.def(
-			"push_source",
-			static_cast<void (Shader::*)(std::string const&)>(
-				&Shader::push_source
-			)
 		)
 	;
 
@@ -683,18 +699,6 @@ BOOST_PYTHON_MODULE(renderer)
 			>(
 				"ShaderProgram",
 				py::no_init
-			)
-			.def(
-				"push_shader",
-				&Wrap::ShaderProgram::push_shader
-			)
-			.def(
-				"finalize",
-				&Wrap::ShaderProgram::finalize
-			)
-			.def(
-				"finalize",
-				&Wrap::ShaderProgram::finalize_clear
 			)
 			.def(
 				"parameter",

@@ -383,18 +383,18 @@ namespace cube { namespace gl { namespace font {
 			}
 		}
 
-		auto vb = _impl->renderer.new_vertex_buffer();
-		vb->push_static_content(
-			renderer::ContentKind::vertex,
-			&vertices[0],
-			vertices.size()
+		auto vb = _impl->renderer.new_vertex_buffer(
+			renderer::make_vertex_buffer_attribute(
+				renderer::ContentKind::vertex,
+				&vertices[0],
+				vertices.size()
+			),
+			renderer::make_vertex_buffer_attribute(
+				renderer::ContentKind::tex_coord0, // XXX should be configurable
+				&tex_coords[0],
+				tex_coords.size()
+			)
 		);
-		vb->push_static_content(
-			renderer::ContentKind::tex_coord0, // XXX should be configurable
-			&tex_coords[0],
-			tex_coords.size()
-		);
-		vb->finalize();
 		return vb;
 	}
 

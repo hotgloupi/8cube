@@ -18,8 +18,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Renderer");
 
-	using namespace cube::gl::renderer;
-
 	namespace detail {
 
 		struct GLRendererType
@@ -141,39 +139,46 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::DrawArrays(gl::get_draw_mode(mode), start, count);
 	}
 
-	GLRenderer::VertexBufferPtr
-	GLRenderer::new_vertex_buffer()
+	VertexBufferPtr
+	GLRenderer::new_vertex_buffer(
+		std::vector<VertexBufferAttributePtr>&& attributes
+	)
 	{
-		return VertexBufferPtr{new GLVertexBuffer};
+		return VertexBufferPtr{new GLVertexBuffer{std::move(attributes)}};
 	}
 
-	GLRenderer::VertexBufferPtr
-	GLRenderer::new_index_buffer()
+	VertexBufferPtr
+	GLRenderer::new_index_buffer(VertexBufferAttributePtr&& attribute)
 	{
-		return VertexBufferPtr{new GLIndexBuffer};
+		std::vector<VertexBufferAttributePtr> attributes;
+		attributes.emplace_back(std::move(attribute));
+		return VertexBufferPtr{new GLIndexBuffer{std::move(attributes)}};
 	}
 
-	GLRenderer::ShaderPtr GLRenderer::new_vertex_shader()
+	ShaderPtr
+	GLRenderer::new_vertex_shader(std::vector<std::string> const& sources)
 	{
-		return ShaderPtr{new Shader{renderer::ShaderType::vertex}};
+		return ShaderPtr{new Shader{renderer::ShaderType::vertex, sources}};
 	}
 
-	GLRenderer::ShaderPtr GLRenderer::new_fragment_shader()
+	ShaderPtr
+	GLRenderer::new_fragment_shader(std::vector<std::string> const& sources)
 	{
-		return ShaderPtr{new Shader{renderer::ShaderType::fragment}};
+		return ShaderPtr{new Shader{renderer::ShaderType::fragment, sources}};
 	}
 
-	GLRenderer::ShaderProgramPtr GLRenderer::new_shader_program()
+	ShaderProgramPtr
+	GLRenderer::new_shader_program(std::vector<ShaderPtr>&& shaders)
 	{
-		return ShaderProgramPtr{new ShaderProgram};
+		return ShaderProgramPtr{new ShaderProgram{std::move(shaders)}};
 	}
 
-	GLRenderer::TexturePtr GLRenderer::new_texture(std::string const& path)
+	TexturePtr GLRenderer::new_texture(std::string const& path)
 	{
 		return TexturePtr{new Texture{path}};
 	}
 
-	GLRenderer::TexturePtr
+	TexturePtr
 	GLRenderer::new_texture(renderer::PixelFormat const internal_format,
 	                        unsigned int width,
 	                        unsigned int height,

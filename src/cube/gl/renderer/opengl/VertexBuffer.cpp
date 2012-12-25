@@ -10,9 +10,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ETC_LOG_COMPONENT("cube.gl.opengl.VertexBuffer");
 
 	template<bool is_indices>
-	_GLVertexBuffer<is_indices>::_GLVertexBuffer()
-		: _vbo{nullptr}
+	_GLVertexBuffer<is_indices>::_GLVertexBuffer(VertexBufferAttributePtr&& attribute)
+		: VertexBuffer{make_vertex_buffer_attributes(std::move(attribute))}
+		, _vbo{nullptr}
 	{
+
+	}
+
+	template<bool is_indices>
+	_GLVertexBuffer<is_indices>::_GLVertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes)
+		: VertexBuffer{std::move(attributes)}
+		, _vbo{nullptr}
+	{
+
 	}
 
 	template<bool is_indices>
@@ -35,14 +45,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		size_t total_size = 0;
 		for (auto const& attr: _attributes)
-			total_size += attr.size;
+			total_size += attr->buffer_size;
 		_vbo = new gl::VBO<is_indices>{total_size};
 
 		size_t offset = 0;
-		for (VertexBuffer::Attribute const& attr: _attributes)
+		for (auto const& attr: _attributes)
 		{
-			_vbo->sub_vbo(attr, offset);
-			offset += attr.size;
+			_vbo->sub_vbo(*attr, offset);
+			offset += attr->buffer_size;
 		}
 	}
 

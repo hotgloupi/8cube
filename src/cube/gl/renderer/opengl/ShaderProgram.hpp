@@ -10,12 +10,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	class ShaderProgram
 		: public renderer::ShaderProgram
 	{
+	public:
+		typedef std::unique_ptr<renderer::Shader> ShaderPtr;
+
 	private:
 		GLuint          _id;
-		bool            _finalized;
 
 	public:
-		ShaderProgram();
+		ShaderProgram(std::vector<ShaderPtr>&& shaders);
 
 		virtual
 		~ShaderProgram();
@@ -24,10 +26,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	 * renderer::Shader interface.
 	 */
 	protected:
-		virtual
-		void _push_shader(renderer::Shader const& shader);
-		virtual
-		void _finalize();
 		virtual
 		ParameterPtr _fetch_parameter(std::string const& name);
 

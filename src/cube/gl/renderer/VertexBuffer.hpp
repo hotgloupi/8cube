@@ -17,134 +17,78 @@ namespace cube { namespace gl { namespace renderer {
 	class VertexBuffer
 		: public Bindable<>
 	{
-	private:
-		bool _finalized;
-	public:
-		/**
-		 * Send all stored data to the rendering system. This method should be
-		 * called only once, when all data have been pushed.
-		 * The vertex buffer is not drawable until this method is called. Be
-		 * aware that managed data in attributes is no longer available after
-		 * a successfull call.
-		 */
-		void finalize()
-		{
-			if (_finalized)
-				throw Exception("Cannot call finalize more than once.");
-			this->_finalize();
-			for (auto& attr: _attributes)
-			{
-				if (attr.managed)
-				{
-					::free(const_cast<void*>(attr.ptr));
-					attr.ptr = nullptr;
-				}
-			}
-			_finalized = true;
-		}
-
-	/**************************************************************************
-	 * Interface to implement
-	 */
-	protected:
-		/**
-		 * Method called only once to prepare the buffer for rendering.
-		 */
-		virtual void _finalize() = 0;
-
 	/**************************************************************************
 	 * Abstract behaviors.
 	 */
-	public:
-		struct Attribute
-		{
-			ContentKind     kind;
-			ContentType     type;
-			ContentHint     hint;
-			unsigned int    arity;
-			unsigned int    nb_elements;
-			void const*     ptr;
-			size_t          size; // size = nb_elements * arity * sizeof(type)
-			bool            managed;
-		};
-
 	protected:
-		std::vector<Attribute> _attributes;
+		std::vector<VertexBufferAttributePtr> _attributes;
+
 	public:
-		std::vector<Attribute> const&
-		attributes() const
+		std::vector<VertexBufferAttributePtr> const& attributes() const
 		{ return _attributes; }
 
 	public:
-		VertexBuffer()
-			: _finalized{false}
-			, _attributes{}
+		VertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes)
+			: _attributes{std::move(attributes)}
 		{}
+
 		virtual ~VertexBuffer()
-		{
-			for (auto const& attr: _attributes)
-			{
-				if (attr.managed)
-				{
-					::free(const_cast<void*>(attr.ptr));
-				}
-			}
-		}
+		{}
 
-		template<typename T>
-		inline void
-		push_static_content(ContentKind kind,
-		                    T const* data,
-		                    unsigned int nb_elements,
-		                    bool managed = false)
-		{
-			typedef typename content_traits<T>::component_type component_t;
+	//	template<typename T>
+	//	inline void
+	//	push_static_content(ContentKind kind,
+	//	                    T const* data,
+	//	                    unsigned int nb_elements,
+	//	                    bool managed = false)
+	//	{
+	//		typedef typename content_traits<T>::component_type component_t;
 
-			this->_push_content(
-				kind,
-				MakeContentType<component_t>::value,
-				ContentHint::static_content,
-				content_traits<T>::arity,
-				nb_elements,
-				data,
-				nb_elements * sizeof (T),
-				managed
-			);
-		}
+	//		this->_push_content(
+	//			kind,
+	//			MakeContentType<component_t>::value,
+	//			ContentHint::static_content,
+	//			content_traits<T>::arity,
+	//			nb_elements,
+	//			data,
+	//			nb_elements * sizeof (T),
+	//			managed
+	//		);
+	//	}
 
-		template<typename T>
-		inline void
-		push_static_content(ContentKind kind,
-		                    std::unique_ptr<T, void(*)(void*)>&& data,
-		                    unsigned int nb_elements)
-		{
-			this->push_static_content(kind, data.get(), nb_elements, true);
-			data.release();
-		}
+	//	template<typename T>
+	//	inline void
+	//	push_static_content(ContentKind kind,
+	//	                    std::unique_ptr<T, void(*)(void*)>&& data,
+	//	                    unsigned int nb_elements)
+	//	{
+	//		this->push_static_content(kind, data.get(), nb_elements, true);
+	//		data.release();
+	//	}
 
-	protected:
-		inline void
-		_push_content(ContentKind kind,
-		              ContentType type,
-		              ContentHint hint,
-		              unsigned int nb_elements,
-		              unsigned int arity,
-		              void const* ptr,
-		              size_t size,
-		              bool managed)
-		{
-			Attribute attr = {
-				kind,
-				type,
-				hint,
-				nb_elements,
-				arity,
-				ptr,
-				size,
-				managed,
-			};
-			_attributes.push_back(attr);
-		}
+	//protected:
+	//	inline void
+	//	_push_content(ContentKind kind,
+	//	              ContentType type,
+	//	              ContentHint hint,
+	//	              unsigned int nb_elements,
+	//	              unsigned int arity,
+	//	              void const* ptr,
+	//	              size_t size,
+	//	              bool managed)
+	//	{
+	//		Attribute attr = {
+	//			kind,
+	//			type,
+	//			hint,
+	//			nb_elements,
+	//			arity,
+	//			ptr,
+	//			size,
+	//			managed,
+	//		};
+	//		_attributes.push_back(attr);
+	//	}
 
 	};
 

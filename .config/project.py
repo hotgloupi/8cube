@@ -197,28 +197,4 @@ def configure(project, build):
             libraries = [libcube, libetc] + graphic_libraries + boost.libraries + base_libraries,
         )
 
-    def find_targets(targets):
-        for target in targets:
-            if isinstance(target, Target):
-                yield target
-            elif hasattr(target, 'dependencies'):
-                for t in find_targets(target.dependencies):
-                    yield t
-
-    targets = []
-
-    with open(path.join(build.directory, 'Makefile.all'), 'w') as f:
-        targets = []
-        for target in find_targets(build.targets):
-            p = target.relpath(build.directory, build)
-            targets.append(p)
-            f.write("%s:\n" % p)
-            f.write("\t@make -r -R --quiet --no-print-directory -C %s %s\n\n" % (path.split(p)))
-
-        f.write('all:')
-        for p in targets:
-            f.write(' ' + p)
-        f.write('\n\n')
-
-
 

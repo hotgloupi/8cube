@@ -17,16 +17,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GLuint _id;
 
 	public:
-		Shader(renderer::ShaderType const type);
+		Shader(renderer::ShaderType const type,
+		       std::vector<std::string> const& sources);
 		virtual ~Shader();
 
 	public:
-		GLuint id() const
-		{ return _id; }
-
-	protected:
-		virtual
-		void _finalize(std::vector<std::string> const& sources);
+		inline
+		GLuint id() const { return _id; }
 	};
 
 }}}}

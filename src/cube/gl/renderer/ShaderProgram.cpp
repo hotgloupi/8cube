@@ -24,32 +24,8 @@ namespace cube { namespace gl { namespace renderer {
 	///////////////////////////////////////////////////////////////////////////
 	// ShaderProgram
 
-	void ShaderProgram::push_shader(std::unique_ptr<Shader>&& shader)
-	{
-		ETC_TRACE.debug("Attach shader", shader.get());
-		if (_finalized)
-			throw Exception{"Cannot modify a finalized shader"};
-		if (!shader)
-			throw Exception{"Trying to insert a null shader"};
-		shader->finalize();
-		// just ptr.get() in case of insert() throws.
-		_shaders.insert(shader.get());
-		// insertion done, next call releases the pointer first.
-		_push_shader(*shader.release());
-	}
-
-	void ShaderProgram::finalize(bool clear /* = true */)
-	{
-		ETC_TRACE.debug("Finalize the program.");
-		if (_shaders.size() == 0)
-			throw Exception{"Cannot finalize an empty shader program."};
-		if (_finalized)
-			throw Exception{"Already finalized shader program."};
-		_finalize();
-		_finalized = true;
-		if (clear)
-			this->clear();
-	}
+	ShaderProgram::~ShaderProgram()
+	{}
 
 	void ShaderProgram::bind_texture_unit(Texture& tex,
 	                                      ShaderProgramParameter& param)
@@ -68,23 +44,9 @@ namespace cube { namespace gl { namespace renderer {
 
 	}
 
-	void ShaderProgram::clear(bool parameters_too)
-	{
-		if (!_finalized)
-			throw Exception{"ShaderProgram not yet finalized."};
-		for (Shader* shader: _shaders)
-			delete shader;
-		_shaders.clear();
-
-		if (parameters_too)
-			_parameters.clear();
-	}
-
 	ShaderProgramParameter&
 	ShaderProgram::parameter(std::string const& name)
 	{
-		if (!_finalized)
-			throw Exception{"Shader is not finalized"};
 		auto it = _parameters.find(name);
 		if (it != _parameters.end())
 		{

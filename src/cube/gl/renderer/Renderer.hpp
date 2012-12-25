@@ -2,7 +2,9 @@
 # define CUBE_GL_RENDERER_RENDERER_HPP
 
 # include "fwd.hpp"
+# include "Shader.hpp"
 # include "State.hpp"
+# include "VertexBufferAttribute.hpp"
 
 # include "../viewport.hpp"
 
@@ -23,12 +25,6 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	class Renderer
 	{
-	public:
-		typedef std::unique_ptr<VertexBuffer>   VertexBufferPtr;
-		typedef std::unique_ptr<Shader>         ShaderPtr;
-		typedef std::unique_ptr<ShaderProgram>  ShaderProgramPtr;
-		typedef std::unique_ptr<Texture>        TexturePtr;
-
 	public:
 		/*********************************************************************
 		 * A painter is returned by the Renderer::begin(Mode) method.        *
@@ -108,25 +104,75 @@ namespace cube { namespace gl { namespace renderer {
 		virtual
 		Painter begin(Mode mode) = 0;
 
-		///
+		/// Create a new vertex buffer.
 		virtual
-		VertexBufferPtr new_vertex_buffer() = 0;
+		VertexBufferPtr
+		new_vertex_buffer(std::vector<VertexBufferAttributePtr>&& attributes) = 0;
+
+		/// Create a new index buffer.
+		virtual
+		VertexBufferPtr
+		new_index_buffer(VertexBufferAttributePtr&& attribute) = 0;
 
 		///
-		virtual
-		VertexBufferPtr new_index_buffer() = 0;
+		template<typename... Args>
+		VertexBufferPtr
+		new_vertex_buffer(VertexBufferAttributePtr&& attribute1,
+		                  VertexBufferAttributePtr&& attribute2,
+		                  Args&&... args)
+		{
+			std::vector<VertexBufferAttributePtr> attributes;
+			return this->new_vertex_buffer(
+				make_vertex_buffer_attributes(
+					std::move(attribute1),
+					std::move(attribute2),
+					std::move(args)...
+				)
+			);
+		}
 
-		///
-		virtual
-		ShaderPtr new_vertex_shader() = 0;
 
-		///
-		virtual
-		ShaderPtr new_fragment_shader() = 0;
 
-		///
+		/// Create a new vertex shader.
 		virtual
-		ShaderProgramPtr new_shader_program() = 0;
+		ShaderPtr new_vertex_shader(std::vector<std::string> const& sources) = 0;
+
+		/// Create a new vertex shared from one source.
+		inline
+		ShaderPtr new_vertex_shader(std::string const& source)
+		{
+			return this->new_vertex_shader(std::vector<std::string>{source});
+		}
+
+		/// Create a new fragment shader.
+		virtual
+		ShaderPtr new_fragment_shader(std::vector<std::string> const& sources) = 0;
+
+		/// Create a new fragment from one source.
+		inline
+		ShaderPtr new_fragment_shader(std::string const& source)
+		{
+			return this->new_fragment_shader(std::vector<std::string>{source});
+		}
+
+		/// Create a shader program from shaders.
+		virtual
+		ShaderProgramPtr new_shader_program(std::vector<ShaderPtr>&& shaders) = 0;
+
+		/// Create a shader program from shaders.
+		template<typename ShaderPtr1, typename ShaderPtr2, typename... ShaderPtrs>
+		inline
+		ShaderProgramPtr new_shader_program(ShaderPtr1&& shader1,
+		                                    ShaderPtr2&& shader2,
+		                                    ShaderPtrs&&... shaders)
+		{
+			return this->new_shader_program({
+				std::move(shader1),
+				std::move(shader2),
+				std::move(shaders)...
+			});
+		}
+
 
 		/// Create a texture from file.
 		virtual

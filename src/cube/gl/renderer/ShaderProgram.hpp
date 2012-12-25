@@ -6,12 +6,13 @@
 # include <etc/types.hpp>
 
 # include <memory>
-# include <set>
 # include <unordered_map>
 
 namespace cube { namespace gl { namespace renderer {
 
 	class ShaderProgram;
+
+	typedef std::unique_ptr<ShaderProgram> ShaderProgramPtr;
 
 	/**
 	 * Represent a shader parameter.
@@ -49,39 +50,13 @@ namespace cube { namespace gl { namespace renderer {
 	class ShaderProgram
 		: public Bindable<>
 	{
-	private:
-		std::set<Shader*> _shaders;
-		bool              _finalized;
-
 	public:
-		ShaderProgram()
-			: _shaders{}
-			, _finalized{false}
-		{}
 		virtual
-		~ShaderProgram()
-		{ _finalized = true; this->clear(true); }
+		~ShaderProgram();
 
 	/**************************************************************************
 	 * Common program behavior.
 	 */
-	public:
-		/**
-		 * Attach the shader to the program.
-		 */
-		void push_shader(std::unique_ptr<Shader>&& shader);
-
-		/**
-		 * Finalize the program, must be called before rendering.
-		 * When the parameter clear is true, shaders are deleted.
-		 */
-		void finalize(bool clear = true);
-
-		/**
-		 * Delete contained shaders and parameters if parameters_too is true.
-		 */
-		void clear(bool parameters_too = false);
-
 	public:
 		friend class ShaderProgramParameter;
 		typedef std::unique_ptr<ShaderProgramParameter> ParameterPtr;
@@ -118,19 +93,6 @@ namespace cube { namespace gl { namespace renderer {
 	 * Interface to implement.
 	 */
 	protected:
-		/**
-		 * Do graphic operation to attach the shader to the program.
-		 * The shader has already been saved.
-		 */
-		virtual
-		void _push_shader(Shader const& shader) = 0;
-
-		/**
-		 * Finalize the program (makes it ready for being rendered).
-		 */
-		virtual
-		void _finalize() = 0;
-
 		/**
 		 * Fetch a new shader parameter.
 		 */

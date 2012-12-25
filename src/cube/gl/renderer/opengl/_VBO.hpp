@@ -20,7 +20,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	public:
 		GLuint                          id;
-		VertexBuffer::Attribute const*  attr;
+		VertexBufferAttribute const*    attr;
 		GLenum                          gl_kind;
 		GLenum                          gl_type;
 		GLvoid*                         offset;
@@ -34,7 +34,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	public:
 		SubVBO(GLuint id,
-		       VertexBuffer::Attribute const& attr,
+		       VertexBufferAttribute const& attr,
 		       GLvoid* offset,
 		       GLsizei stride)
 			: id{id}
@@ -176,10 +176,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		}
 
 		void
-		sub_vbo(VertexBuffer::Attribute const& attr, size_t offset)
+		sub_vbo(VertexBufferAttribute const& attr, size_t offset)
 		{
 			ETC_TRACE.debug("Set a sub VBO");
-			assert(offset + attr.size <= _total_size);
+			assert(offset + attr.buffer_size <= _total_size);
 			if (is_indices && attr.kind != ContentKind::index)
 				throw Exception(
 					"an index buffer has to receive only indices"
@@ -190,7 +190,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				);
 
 			this->bind(false);
-			gl::BufferSubData(_gl_array_type, offset, attr.size, attr.ptr);
+			gl::BufferSubData(
+				_gl_array_type,
+				offset,
+				attr.buffer_size,
+				attr.buffer()
+			);
 			this->unbind(false);
 
 			// works for interleaved vbo or not

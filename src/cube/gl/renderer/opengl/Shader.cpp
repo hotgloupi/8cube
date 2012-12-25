@@ -7,42 +7,40 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Shader");
 
-	Shader::Shader(renderer::ShaderType const type)
-		: type(type)
+	Shader::Shader(renderer::ShaderType const type,
+	               std::vector<std::string> const& sources)
+		: type{type}
 	{
-		ETC_TRACE.debug("Create shader", this);
+		ETC_TRACE.debug("Create a", type, "shader", "with", sources.size(), "sources");
 		_id = gl::CreateShader(gl::get_shader_type(type));
-	}
 
-	Shader::~Shader()
-	{
-		ETC_TRACE.debug("Delete shader", this);
-		gl::DeleteShader(_id);
-	}
+		{
+			// Adding sources to the shader
+			std::vector<char const*> c_sources;
+			for (auto const& source : sources)
+				c_sources.push_back(source.c_str());
 
-	void Shader::_finalize(std::vector<std::string> const& sources)
-	{
-		ETC_TRACE.debug("Finalize shader with", sources.size(), "sources");
-		if (sources.size() > 100)
-			throw Exception{"Two much source in the shader."};
-		char const* c_sources[100];
-		for (size_t i = 0; i < sources.size(); ++i)
-			c_sources[i] = sources[i].c_str();
-
-		gl::ShaderSource(_id, sources.size(), c_sources, nullptr);
-
+			gl::ShaderSource(_id, c_sources.size(), &c_sources[0], nullptr);
+		}
 
 		gl::CompileShader(_id);
 		GLint success = 0;
 		gl::GetShaderiv(_id, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			GLchar log[4096];
-			gl::GetShaderInfoLog(_id, sizeof(log), nullptr, log);
+			std::vector<GLchar> log{};
+			log.resize(4096);
+			gl::GetShaderInfoLog(_id, log.size(), nullptr, &log[0]);
 			throw Exception{
-				"Cannot compile shader: " + std::string(log)
+				"Cannot compile shader: " + std::string(&log[0])
 			};
 		}
+	}
+
+	Shader::~Shader()
+	{
+		ETC_TRACE.debug("Delete shader", this);
+		gl::DeleteShader(_id);
 	}
 
 }}}}

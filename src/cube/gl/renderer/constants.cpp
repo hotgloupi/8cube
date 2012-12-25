@@ -18,7 +18,7 @@ namespace cube { namespace gl { namespace renderer {
 			_CASE(_3d);
 #undef _CASE
 		default:
-			out << "Unknown mode";
+			out << "Unknown Mode";
 		}
 		return out;
 	}
@@ -38,7 +38,25 @@ namespace cube { namespace gl { namespace renderer {
 		_CASE(mvp);
 #undef _CASE
 		default:
-		out << "Unknown MatrixKind value";
+			out << "Unknown MatrixKind value";
+		}
+		return out;
+	}
+
+	std::ostream& operator <<(std::ostream& out, ShaderType const type)
+	{
+		switch (type)
+		{
+#define _CASE(name)                                                           \
+		case ShaderType::name:                                                \
+			out << "ShaderType::" #name;                                      \
+			break                                                             \
+/**/
+		_CASE(vertex);
+		_CASE(fragment);
+#undef _CASE
+		default:
+			out << "Unknown ShaderType";
 		}
 		return out;
 	}

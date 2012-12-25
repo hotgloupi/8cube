@@ -11,31 +11,25 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgram");
 
-	ShaderProgram::ShaderProgram()
+	ShaderProgram::ShaderProgram(std::vector<ShaderPtr>&& shaders)
 		: _id{0}
-		, _finalized{false}
 	{
 		_id = gl::CreateProgram();
-	}
 
-	ShaderProgram::~ShaderProgram()
-	{
-		gl::DeleteProgram(_id);
-	}
 
-	void ShaderProgram::_push_shader(renderer::Shader const& shader_)
-	{
-		Shader const* shader = static_cast<Shader const*>(&shader_);
-		assert(
-			dynamic_cast<Shader const*>(&shader_) == shader && "Wrong cast !?"
-		);
-		gl::AttachShader(_id, shader->id());
-	}
+		ETC_LOG.debug("Attaching shaders");
+		for (auto& shader: shaders)
+		{
+			Shader const* opengl_shader = static_cast<Shader const*>(shader.get());
+			assert(
+				dynamic_cast<Shader const*>(shader.get()) != nullptr && "Wrong cast !?"
+			);
+			gl::AttachShader(_id, opengl_shader->id());
+		}
 
-	void ShaderProgram::_finalize()
-	{
-		ETC_TRACE.debug("Finalize the program");
+		ETC_LOG.debug("Linking the program");
 		gl::LinkProgram(_id);
+
 		GLint success = 0;
 		glGetProgramiv(_id, GL_LINK_STATUS, &success);
 		if (!success)
@@ -46,6 +40,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				"Cannot link shader program: " + std::string(log)
 			};
 		}
+
+		ETC_LOG.debug("Validating the program");
 		gl::ValidateProgram(_id);
 		success = 0;
 		glGetProgramiv(_id, GL_VALIDATE_STATUS, &success);
@@ -57,6 +53,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				"Cannot link shader program: " + std::string(log)
 			};
 		}
+	}
+
+	ShaderProgram::~ShaderProgram()
+	{
+		gl::DeleteProgram(_id);
 	}
 
 	void ShaderProgram::_bind()

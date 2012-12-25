@@ -2,6 +2,12 @@
 
 import os, sys
 
+def err(*args, **kw):
+    print(*args, file=sys.stderr, **kw)
+
+def fatal(*args, **kw):
+    err(*args, **kw)
+    sys.exit(1)
 
 def console():
     import cube
@@ -39,10 +45,14 @@ def parse_args(args):
         '--console', '-c', action="store_true",
         help="Start a python console instead of launching a game",
     )
+    parser.add_argument(
+        '--script', '-s', action="store",
+        help="Eval a script file"
+    )
     return parser, parser.parse_args(args=args)
 
 def main(args):
-    print("PIF", os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    sys.argv = ['cubeapp.main'] + args
     try:
         import cube
     except Exception as err:
@@ -51,8 +61,15 @@ def main(args):
         return
     try:
         parser, args = parse_args(args)
-        if (args.console):
+        if args.console:
             console()
+            return
+
+        if args.script:
+            if not os.path.exists(args.script):
+                fatal("Cannot find the file '%s'" % args.script)
+            import runpy
+            runpy.run_path(args.script)
             return
 
         if not args.game:
@@ -77,7 +94,6 @@ def main(args):
             bt = bt[:index]
         bt.reverse()
 
-        err = lambda *args: print(*args, file=sys.stderr)
         err("Python traceback: (most recent call last)")
         import traceback
         traceback.print_tb(e.__traceback__, file=sys.stderr)

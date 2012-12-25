@@ -17,11 +17,27 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		cube::gl::renderer::RendererType const& description() const;
 		~GLRenderer();
 		renderer::Painter begin(renderer::Mode mode);
-		VertexBufferPtr new_vertex_buffer();
-		VertexBufferPtr new_index_buffer();
-		ShaderPtr new_vertex_shader();
-		ShaderPtr new_fragment_shader();
-		ShaderProgramPtr new_shader_program();
+
+		/// Create a new vertex buffer.
+		VertexBufferPtr
+		new_vertex_buffer(std::vector<VertexBufferAttributePtr>&& attributes) override;
+
+		/// Create a new index buffer.
+		VertexBufferPtr
+		new_index_buffer(VertexBufferAttributePtr&& attributes) override;
+
+		/// Create a new vertex shader.
+		ShaderPtr
+		new_vertex_shader(std::vector<std::string> const& sources) override;
+
+		/// Create a new fragment shader.
+		ShaderPtr
+		new_fragment_shader(std::vector<std::string> const& sources) override;
+
+		/// Create a shader program from shaders.
+		ShaderProgramPtr
+		new_shader_program(std::vector<ShaderPtr>&& shaders) override;
+
 		TexturePtr new_texture(std::string const& path);
 
 		TexturePtr new_texture(renderer::PixelFormat const internal_format,
@@ -30,13 +46,16 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		                       renderer::PixelFormat const data_format,
 		                       renderer::ContentPacking const data_packing,
 		                       void const* data);
+
 		void draw_elements(renderer::DrawMode mode,
 		                   unsigned int count,
 		                   cube::gl::renderer::ContentType type,
 		                   void* indices);
+
 		void draw_arrays(renderer::DrawMode mode,
 		                 etc::size_type start,
 		                 etc::size_type count);
+
 		void clear(cube::gl::renderer::BufferBit flags);
 		void viewport(cube::gl::viewport::Viewport const& vp);
 	};
