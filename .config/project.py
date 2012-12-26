@@ -79,6 +79,7 @@ def configure(project, build):
             path.absolute(project.root_dir, 'src'),
             path.absolute(project.root_dir, 'src/glew'),
         ],
+        static_libstd = False,
     )
     status("CXX compiler is", compiler.binary)
 
