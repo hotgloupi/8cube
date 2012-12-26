@@ -1,0 +1,26 @@
+#include "exports.hpp"
+
+#include "../renderer/ShaderProgram.hpp"
+#include "../renderer/Texture.hpp"
+
+namespace cube { namespace gl { namespace renderer_bindings {
+
+	void export_texture()
+	{
+		py::class_<
+				Texture,
+				std::auto_ptr<Texture>,
+				boost::noncopyable,
+				py::bases<BindableBase>
+			>(
+				"Texture",
+				py::no_init
+			)
+			.def(
+				"bind_unit",
+				&Texture::bind_unit
+			)
+		;
+	}
+
+}}}
