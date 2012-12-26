@@ -110,41 +110,4 @@ namespace cube { namespace gl { namespace renderer {
 		_states.pop_back();
 	}
 
-
 }}} // !cube::gl::renderer
-
-//////////////////////////////////////////////////////////////////////////////
-// Python wrappers
-
-namespace cube { namespace gl { namespace renderer { namespace detail {
-
-	PainterWithProxy::PainterWithProxy(PainterWithProxy const& other)
-		: _renderer(other._renderer)
-		, _mode(other._mode)
-		, _painter(other._painter)
-	{
-	}
-
-	PainterWithProxy::PainterWithProxy(Renderer& r, Mode m)
-		: _renderer(r)
-		, _mode(m)
-		, _painter(nullptr)
-	{}
-
-	Painter& PainterWithProxy::__enter__()
-	{
-		assert(_painter == nullptr);
-		ETC_TRACE.debug("Creating painter");
-		_painter = new Painter(_renderer.begin(_mode));
-		return *_painter;
-	}
-
-	void PainterWithProxy::__exit__()
-	{
-		assert(_painter != nullptr);
-		delete _painter;
-		_painter = nullptr;
-		ETC_TRACE.debug("Painter has been deleted");
-	}
-
-}}}} // !cube::gl::renderer::detail

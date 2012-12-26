@@ -238,29 +238,6 @@ namespace cube { namespace gl { namespace renderer {
 
   std::ostream& operator <<(std::ostream& out, RendererType const& descr);
 
-	///////////////////////////////////////////////////////////////////////////
-	// Python export these classes. Needed for cube.gl.window.Window.
-
-	namespace detail {
-
-		///////////////////////////////////////////////////////////////////////
-		// Painter proxy class.
-		struct PainterWithProxy
-		{
-		private:
-			Renderer&           _renderer;
-			Mode                _mode;
-			Painter*            _painter;
-
-		public:
-			PainterWithProxy(PainterWithProxy const& other);
-			PainterWithProxy(Renderer& r, Mode m);
-			Painter& __enter__();
-			void __exit__();
-		};
-
-	} // !detail
-
 }}} // !cube::gl::renderer
 
 #endif
