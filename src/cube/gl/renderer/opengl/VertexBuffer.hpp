@@ -1,30 +1,32 @@
 #ifndef  CUBE_GL_OPENGL_VERTEXBUFFER_HPP
 # define CUBE_GL_OPENGL_VERTEXBUFFER_HPP
 
-# include <cube/gl/renderer/VertexBuffer.hpp>
+# include "../VertexBuffer.hpp"
 
 # include "_opengl.hpp"
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-
 	template<bool is_indices>
-	class _GLVertexBuffer
-		: public VertexBuffer
+	class _VertexBuffer
+		: public renderer::VertexBuffer
 	{
 	private:
 		gl::VBO<is_indices>*    _vbo;
 	public:
-		_GLVertexBuffer(VertexBufferAttributePtr&& attribute);
-		_GLVertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes);
-		virtual ~_GLVertexBuffer();
+		_VertexBuffer(AttributePtr&& attribute);
+		_VertexBuffer(AttributeList&& attributes);
+
+		virtual
+		~_VertexBuffer();
+
 	protected:
-		virtual void _bind();
-		virtual void _unbind();
+		void _bind() override;
+		void _unbind() override;
 	};
 
-	typedef _GLVertexBuffer<false> GLVertexBuffer;
-	typedef _GLVertexBuffer<true> GLIndexBuffer;
+	typedef _VertexBuffer<false> VertexBuffer;
+	typedef _VertexBuffer<true> IndexBuffer;
 
 }}}} // !cube::gl::opengl
 

@@ -48,7 +48,7 @@ namespace cube { namespace gl { namespace renderer {
 	};
 
 	class ShaderProgram
-		: public Bindable<>
+		: public Bindable
 	{
 	public:
 		virtual
@@ -89,10 +89,26 @@ namespace cube { namespace gl { namespace renderer {
 		virtual
 		void bind_texture_unit(Texture& tex, ShaderProgramParameter& param);
 
+	protected:
+		/**
+		 * Bindable::_bind(State const&) method is implemented here.
+		 * It forward to _bind() and update all parameters from the state.
+		 */
+		void _bind(State const& state) override;
+
+		typedef InternalGuard<ShaderProgram> Guard;
+		friend struct InternalGuard<ShaderProgram>;
+
 	/**************************************************************************
 	 * Interface to implement.
 	 */
 	protected:
+		/**
+		 * @brief Enable the shader program.
+		 */
+		virtual
+		void _bind() = 0;
+
 		/**
 		 * Fetch a new shader parameter.
 		 */

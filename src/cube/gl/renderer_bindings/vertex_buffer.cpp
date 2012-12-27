@@ -14,7 +14,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 				VertexBuffer,
 				std::auto_ptr<VertexBuffer>,
 				boost::noncopyable,
-				py::bases<BindableBase>
+				py::bases<Bindable>
 			>(
 				"VertexBuffer",
 				py::no_init

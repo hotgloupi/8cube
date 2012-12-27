@@ -14,7 +14,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			py::scope scope(py::class_<
 					ShaderProgram,
 					std::auto_ptr<ShaderProgram>,
-					py::bases<BindableBase>,
+					py::bases<Bindable>,
 					boost::noncopyable
 				>(
 					"ShaderProgram",

@@ -3,7 +3,9 @@
 #include "font.hpp"
 #include "renderer/Painter.hpp"
 #include "renderer/Renderer.hpp"
+#include "renderer/ShaderProgram.hpp"
 #include "renderer/VertexBuffer.hpp"
+#include "renderer/Texture.hpp"
 
 namespace cube { namespace gl { namespace text {
 
@@ -35,8 +37,9 @@ namespace cube { namespace gl { namespace text {
 	void Text::_draw(renderer::Painter& painter,
 	                 renderer::ShaderProgramParameter& sampler)
 	{
-		_font.bind(painter, sampler);
-		painter.draw_arrays(renderer::DrawMode::quads, *_vertices);
+		auto proxy = painter.with(_font.texture());
+		sampler = _font.texture();
+		proxy->draw_arrays(renderer::DrawMode::quads, *_vertices);
 	}
 
 }}}

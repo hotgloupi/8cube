@@ -55,7 +55,7 @@ namespace cube { namespace gl { namespace renderer {
 			return *(it->second);
 		}
 
-		bool temp_bind = !this->_bound();
+		bool temp_bind = !this->bound();
 		if (temp_bind)
 			this->_bind();
 		ETC_TRACE.debug("Fetching parameter", name, "from the program");
@@ -113,6 +113,12 @@ namespace cube { namespace gl { namespace renderer {
 				+ "'."
 			};
 		}
+	}
+
+	void ShaderProgram::_bind(State const& state)
+	{
+		_bind();
+		//XXX implement !
 	}
 
 }}} // !cube::gl::renderer

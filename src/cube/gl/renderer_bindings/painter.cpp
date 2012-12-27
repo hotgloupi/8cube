@@ -19,9 +19,9 @@ namespace {
 		struct Painter
 		{
 			static
-			void bind(renderer::Painter& self, renderer::Bindable<>& o)
+			void bind(renderer::Painter& self, py::list bindables)
 			{
-				self.bind(o);
+				//self.bind(o);
 			}
 		};
 
@@ -61,13 +61,9 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.def(
 				"bind",
 				&Wrap::Painter::bind,
-				py::args("drawable", "The drawable to bind."),
+				py::args("drawables", "A list of drawables"),
 				"Bound drawables can be unbound with the `unbind' method but are"
 				" automatically unbound when the painter is deleted."
-			)
-			.def(
-				"unbind",
-				&Painter::unbind
 			)
 			.def(
 				"draw_elements",

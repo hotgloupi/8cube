@@ -312,16 +312,9 @@ namespace cube { namespace gl { namespace font {
 			return _glyphs.get_glyph(c);
 		}
 
-		void bind(renderer::Painter& painter,
-		          renderer::ShaderProgramParameter& param)
+		renderer::Texture& texture()
 		{
-			param = _glyphs.texture();
-			painter.bind(_glyphs.texture());
-		}
-
-		void unbind(renderer::Painter& painter)
-		{
-			painter.unbind(_glyphs.texture());
+			return _glyphs.texture();
 		}
 	};
 
@@ -414,17 +407,10 @@ namespace cube { namespace gl { namespace font {
 	std::unique_ptr<renderer::VertexBuffer>
 	Font::generate_text<char32_t>(std::basic_string<char32_t> const& str);
 
-	void Font::bind(renderer::Painter& painter,
-	                renderer::ShaderProgramParameter& param)
+	renderer::Texture& Font::texture()
 	{
-		_impl->bind(painter, param);
+		return _impl->texture();
 	}
-
-	void Font::unbind(renderer::Painter& painter)
-	{
-		_impl->unbind(painter);
-	}
-
 
 	Infos::Infos(std::string const& path,
 	             std::string const& family_name,

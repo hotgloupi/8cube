@@ -7,29 +7,18 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class BindableBase
+	class Bindable
 	{
-	protected:
+	private:
 		etc::size_type __bound;
 
 	public:
-		BindableBase()
-			: __bound(0)
+		Bindable()
+			: __bound{0}
 		{}
 
 		virtual
-		~BindableBase()
-		{}
-
-	public:
-		/**
-		 * @brief abstract update method.
-		 *
-		 * This method is called whenever a matrix is updated in the current
-		 * state.
-		 */
-		virtual
-		void update(MatrixKind, matrix_type const&)
+		~Bindable()
 		{}
 
 	protected:
@@ -40,88 +29,107 @@ namespace cube { namespace gl { namespace renderer {
 		 * *needs* to be unbound. That means implementations of this method do
 		 * not need to maintain or check a bound state.
 		 *
-		 * WARNING: This method should only be used in the subclasses
-		 * constructors. If you need to bind/unbind in a subclass method, use
-		 * the Bindable<>::Guard class.
-		 *
+		 * @warning This method should only be used in the subclasses
+		 *          constructors. If you need to bind/unbind in a subclass
+		 *          method, use the Bindable<>::Guard class.
 		 */
 		virtual
 		void _unbind() = 0;
 
+		/**
+		 * @brief Bind the bindable with the current state.
+		 *
+		 * This method is called when the bindable *needs* to be bound.
+		 */
+		virtual
+		void _bind(State const& state) = 0;
+
+	public:
+		/**
+		 * @brief Check is the bindable is bound.
+		 */
+		inline
+		etc::size_type bound() const
+		{ return __bound; }
+
 	protected:
-		void _set_bound(bool value);
+		/**
+		 * @brief A generic guard that does not affect the bound count.
+		 *
+		 * The class is meant to be used internally by implementation whenever
+		 * they need to ensure the resource they hold is bound.
+		 *
+		 * To do so, final class has to make `struct InternalGuard<FinalClass>'
+		 * a friend and implement the method `FinalClass::_bind()'.
+		 */
+		template<typename T>
+		struct InternalGuard;
 
 	private:
 		inline
 		void __unbind()
 		{
-			_set_bound(false);
-			_unbind();
+			if (__bound > 0)
+				__bound -= 1;
+			if (__bound == 0)
+				_unbind();
 		}
 
-	protected:
-		struct GuardBase
+		inline
+		void __bind(State const& state)
 		{
-		protected:
-			BindableBase* _bindable;
+			__bound += 1;
+			if (__bound == 1)
+				_bind(state);
+		}
 
-		protected:
-			GuardBase(BindableBase* bindable)
-				: _bindable(bindable)
-			{}
-
-		public:
-			~GuardBase() // WARNING : dtor is not virtual
-			{ if (_bindable != nullptr) _bindable->__unbind(); }
-		};
-		friend struct GuardBase;
+		/**
+		 * @brief Bind guard used by the painter.
+		 *
+		 * The guard increment the bound counter at construction and
+		 * decrement it at destruction.
+		 */
+		struct Guard;
+		friend struct Guard;
 		friend class Painter;
 	};
 
-	template<typename... Args>
-	class Bindable
-		: public BindableBase
+	struct Bindable::Guard
 	{
-	protected:
-		virtual
-		void _bind(Args&...) = 0;
-
-
-		inline
-		bool _bound() const
-		{ return __bound > 0; }
-
+	public:
+		Bindable& bindable;
 
 	protected:
-		/**
-		 * @brief   Lazy bind guard.
-		 *
-		 * Use RIIA pattern to bind/unbind a Bindable if not already bound. In
-		 * other words, it will unbind the Bindable instance only if it were
-		 * bound in the first place.
-		 */
-		struct Guard
-			: public GuardBase
-		{
-		public:
-			explicit
-			Guard(Bindable& bindable, Args&... args)
-				: GuardBase(!bindable._bound() ? &bindable : nullptr)
-			{ if (_bindable != nullptr) bindable.__bind(args...); }
-		};
-	private:
-		// __bind method is called by Painter and Guard
-		inline
-		void __bind(Args&... args)
-		{
-			_set_bound(true);
-			_bind(args...);
-		}
-		friend struct Guard;
+		Guard(Bindable& bindable, State const& state)
+			: bindable(bindable)
+		{ this->bindable.__bind(state); }
+
+	public:
+		~Guard()
+		{ this->bindable.__unbind(); }
 		friend class Painter;
+	};
+
+	template<typename T>
+	struct Bindable::InternalGuard
+	{
+	private:
+		T* _bindable;
+
+	public:
+		InternalGuard(T& bindable)
+			: _bindable(bindable.bound() ? &bindable : nullptr)
+		{
+			if (_bindable != nullptr)
+				_bindable->_bind();
+		}
+		~InternalGuard()
+		{
+			if (_bindable != nullptr)
+				_bindable->_unbind();
+		}
 	};
 
 }}}
 
 #endif
-

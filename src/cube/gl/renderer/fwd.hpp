@@ -7,9 +7,6 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class BindableBase;
-
-	template<typename... Args>
 	class Bindable;
 
 	template<typename... Args>

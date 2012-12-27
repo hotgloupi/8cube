@@ -10,13 +10,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ETC_LOG_COMPONENT("cube.gl.opengl.VertexBuffer");
 
 	template<bool is_indices>
-	_GLVertexBuffer<is_indices>::_GLVertexBuffer(VertexBufferAttributePtr&& attribute)
-		: _GLVertexBuffer{make_vertex_buffer_attributes(std::move(attribute))}
+	_VertexBuffer<is_indices>::_VertexBuffer(AttributePtr&& attribute)
+		: _VertexBuffer{make_vertex_buffer_attributes(std::move(attribute))}
 	{}
 
 	template<bool is_indices>
-	_GLVertexBuffer<is_indices>::_GLVertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes)
-		: VertexBuffer{std::move(attributes)}
+	_VertexBuffer<is_indices>::_VertexBuffer(AttributeList&& attributes)
+		: renderer::VertexBuffer{std::move(attributes)}
 		, _vbo{nullptr}
 	{
 		ETC_TRACE.debug("Creating a vertex buffer");
@@ -40,7 +40,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	template<bool is_indices>
-	_GLVertexBuffer<is_indices>::~_GLVertexBuffer()
+	_VertexBuffer<is_indices>::~_VertexBuffer()
 	{
 		ETC_TRACE.debug("Delete VertexBuffer", this);
 		delete _vbo;
@@ -48,7 +48,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	template<bool is_indices>
-	void _GLVertexBuffer<is_indices>::_bind()
+	void _VertexBuffer<is_indices>::_bind()
 	{
 		ETC_TRACE.debug("bind vertex buffer");
 		if (_vbo == nullptr)
@@ -57,7 +57,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	template<bool is_indices>
-	void _GLVertexBuffer<is_indices>::_unbind()
+	void _VertexBuffer<is_indices>::_unbind()
 	{
 		ETC_TRACE.debug("Unbind vertex buffer");
 		if (_vbo == nullptr)
@@ -65,8 +65,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		this->_vbo->unbind();
 	}
 
-	template class _GLVertexBuffer<true>;
-	template class _GLVertexBuffer<false>;
+	template class _VertexBuffer<true>;
+	template class _VertexBuffer<false>;
 
 	//void _GLVertexBuffer::attribute(ContentType type,
 	//                               ContentKind kind,

@@ -14,7 +14,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 				Texture,
 				std::auto_ptr<Texture>,
 				boost::noncopyable,
-				py::bases<BindableBase>
+				py::bases<Bindable>
 			>(
 				"Texture",
 				py::no_init

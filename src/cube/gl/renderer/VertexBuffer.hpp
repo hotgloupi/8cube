@@ -5,6 +5,7 @@
 
 # include "constants.hpp"
 # include "Bindable.hpp"
+# include "VertexBufferAttribute.hpp"
 
 # include "../content_traits.hpp"
 
@@ -15,25 +16,41 @@
 namespace cube { namespace gl { namespace renderer {
 
 	class VertexBuffer
-		: public Bindable<>
+		: public Bindable
 	{
+	public:
+		typedef VertexBufferAttribute       Attribute;
+		typedef VertexBufferAttributePtr    AttributePtr;
+		typedef std::vector<AttributePtr>   AttributeList;
+
 	/**************************************************************************
 	 * Abstract behaviors.
 	 */
 	protected:
-		std::vector<VertexBufferAttributePtr> _attributes;
+		AttributeList _attributes;
 
 	public:
-		std::vector<VertexBufferAttributePtr> const& attributes() const
+		AttributeList const& attributes() const
 		{ return _attributes; }
 
 	public:
-		VertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes)
+		VertexBuffer(AttributeList&& attributes)
 			: _attributes{std::move(attributes)}
 		{}
 
-		virtual ~VertexBuffer()
+		virtual
+		~VertexBuffer()
 		{}
+
+	protected:
+		void _bind(State const&) override
+		{
+			_bind();
+		}
+
+		virtual
+		void _bind() = 0;
+		friend struct Bindable::InternalGuard<VertexBuffer>;
 
 	//	template<typename T>
 	//	inline void

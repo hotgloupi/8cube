@@ -9,7 +9,7 @@ namespace {
 
 
 	template<typename T>
-	void export_for(std::string const& suffix, std::string const& type_name)
+	void export_for(std::string const& suffix, std::string const&)
 	{
 		namespace py = boost::python;
 

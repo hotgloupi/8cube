@@ -3,6 +3,7 @@
 
 # include "fwd.hpp"
 # include "Bindable.hpp"
+# include "Exception.hpp"
 
 # include <etc/types.hpp>
 # include <etc/log.hpp>
@@ -25,7 +26,7 @@ namespace cube { namespace gl { namespace renderer {
 	private:
 		Renderer&               _renderer;
 		State&                  _current_state;
-		std::set<BindableBase*> _bound_drawables;
+		std::set<Bindable*>     _bound_drawables;
 
 	public:
 		Painter(Painter&& other);
@@ -36,27 +37,19 @@ namespace cube { namespace gl { namespace renderer {
 		{ return _current_state; }
 
 		/**
-		 * @brief Bind a drawable to the painter.
-		 */
-		template<typename... Args>
-		void bind(Bindable<Args...>& bindable, Args&... args)
-		{
-			bindable.__bind(args...);
-			_bound_drawables.insert(&bindable);
-			_update_parameters(bindable);
-		}
-
-		/**
 		 * @brief Proxy of a painter.
 		 *
 		 */
+		template<etc::size_type const bounds>
 		struct Proxy;
+		template<etc::size_type const bounds>
+		friend struct Proxy;
 
 		/**
 		 * @brief Bind all bindable and return a painter proxy.
 		 */
-		template<typename... T>
-		Proxy with(T&... bindables);
+		template<typename... Args>
+		Proxy<sizeof...(Args)> with(Args&&... bindables);
 
 		/**
 		 * @brief Send indices to the rendering system.
@@ -94,99 +87,135 @@ namespace cube { namespace gl { namespace renderer {
 		}
 
 		/**
-		 * @brief Manually unbind any bindable.
-		 *
-		 * This is usually done automatically when the painter goes out of
-		 * scope.
-		 */
-		void unbind(BindableBase& bindable);
-
-		/**
 		 * Send to bound drawable (of this painter) a new matrix.
 		 */
 		void update(MatrixKind kind, matrix_type const& matrix);
 
 		/**
-		 * Convert painter to a boolean. If the painter is not available for
-		 * renderering, this should convert to false.
+		 * Convert painter to a boolean. If the painter is not ready for
+		 * renderering, this should convert to false. It meant to be used in a
+		 * if statement.
 		 *
 		 * Default implementation always convert to true.
 		 * ------------------------------------------------
 		 *  if (auto painter = renderer.begin(Mode::_2d))
 		 *  {
-		 *      // Do rendering.
+		 *      painter.with(vbo, shader)->draw_elements(...);
 		 *  }
 		 */
+		inline
 		operator bool() const
 		{ return true; }
 
 	private:
 		// used internally to set all parameters
-		void _update_parameters(BindableBase& bindable);
+		//void _update_parameters(BindableBase& bindable);
 
 		// used by the renderer begin method
 	private:
 		Painter(Renderer& renderer);
 		friend class Renderer;
+
+	private:
+		// For the proxy
+		void _new_guard(Bindable::Guard* mem, Bindable& bindable)
+		{
+			if (_bound_drawables.find(&bindable) != _bound_drawables.end())
+			{
+				throw Exception{
+					"The bindable is already bound to this painter"
+				};
+			}
+			new (mem) Bindable::Guard(bindable, _current_state);
+			_bound_drawables.insert(&bindable);
+		}
+
+		void _delete_guard(Bindable::Guard& guard)
+		{
+			auto it = _bound_drawables.find(&guard.bindable);
+			// We assert here since we know that a bindable cannot be bound
+			// twice to the same painter.
+			assert(it != _bound_drawables.end());
+			_bound_drawables.erase(it);
+			guard.~Guard();
+		}
+
 	};
 
+	template<etc::size_type const bounds>
 	struct Painter::Proxy
 	{
 	private:
-		Painter&                    _self;
-		etc::size_type              _guards_size;
-		BindableBase::GuardBase*    _guards;
-
-	private:
-		BindableBase::GuardBase*
-		_new_guard_mem();
-
-		template<typename... Args, typename... Tail>
-		void _init(Bindable<Args...>& first,
-		           Args&... args,
-		           Tail&... tail)
-		{
-			static_assert(
-				sizeof(BindableBase::GuardBase) == sizeof(Bindable<Args...>::Guard),
-				"Derived guard has to have the same size."
-			);
-			ETC_LOG_COMPONENT("cube.gl.renderer.Painter.Proxy");
-			int i = 0;
-			ETC_TRACE.debug("Insert guard of", &first);
-			typedef typename Bindable<Args...>::Guard Guard;
-			new (_new_guard_mem()) Guard(first, args...);
-			_init(tail...);
-		}
-
-		// termination
-		void _init();
+		Painter&    _self;
+		uint8_t     _guards[sizeof(Bindable::Guard) * bounds];
 
 	public:
-		template<typename... T>
+		template<typename... Args>
 		explicit
-		Proxy(Painter& self, T&... drawables)
+		Proxy(Painter& self, Args&&... drawables)
 			: _self(self)
-			, _guards_size{0}
-			, _guards{nullptr}
+			, _guards{}
 		{
-			_init(drawables...);
+			_init(
+				(Bindable::Guard*) _guards,
+				std::forward<Args>(drawables)...
+			);
 		}
 
-		Proxy(Proxy&& other);
-		~Proxy();
+		~Proxy()
+		{
+			auto tab = (Bindable::Guard*) _guards;
+			for (etc::size_type i = 0; i < bounds; ++i)
+			{
+				_self._delete_guard(tab[i]);
+			}
+		}
+		Proxy(Proxy&& other) = default;
 
 		inline
 		Painter* operator ->()
 		{
 			return &_self;
 		}
+
+	private:
+		Proxy(Proxy const&) = delete;
+		Proxy& operator =(Proxy const&) = delete;
+		Proxy& operator =(Proxy&&) = delete;
+
+	private:
+		template<typename T>
+		struct ERROR_HELPER_incomplete_type_detected_for
+		{
+			static const int size = sizeof(T);
+		};
+	private:
+		template<typename First, typename... Tail>
+		inline
+		void _init(Bindable::Guard* mem,
+		           First&& first,
+		           Tail&&... tail)
+		{
+			static_assert(
+				ERROR_HELPER_incomplete_type_detected_for<First>::size > 0,
+				"Incomplete type detected!"
+			);
+			_self._new_guard(mem, first);
+			_init(mem + 1, std::forward<Tail>(tail)...);
+		}
+
+		// termination
+		inline void _init(Bindable::Guard*) {}
 	};
 
-	template<typename... T>
-	Painter::Proxy
-	Painter::with(T&... drawables)
+	template<typename... Args>
+	Painter::Proxy<sizeof...(Args)>
+	Painter::with(Args&&... drawables)
 	{
-		return Proxy(*this, drawables...);
+		return Proxy<sizeof...(Args)>{
+			*this,
+			std::forward<Args>(drawables)...
+		};
 	}
 
 }}}

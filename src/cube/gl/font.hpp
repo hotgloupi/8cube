@@ -32,18 +32,26 @@ namespace cube { namespace gl { namespace font {
 		~Font();
 
 		/**
-		 * Generate a vertex buffer corresponding to a string.
+		 * @brief Generate a vertex buffer corresponding to a string.
 		 *
 		 * The vertex buffer returned is filled with vertices and font texture
-		 * coordinates, and finalized.
+		 * coordinates.
 		 */
 		template<typename CharType>
 		std::unique_ptr<renderer::VertexBuffer>
 		generate_text(std::basic_string<CharType> const& str);
 
-		void bind(renderer::Painter& painter,
-		          renderer::ShaderProgramParameter& sampler);
-		void unbind(renderer::Painter& painter);
+		/**
+		 * @brief The texture of the font.
+		 *
+		 * The texture is generated according the needs of previous calls to
+		 * generate_text(), and will be updated depending on characters needed.
+		 *
+		 * @warning You should not call generate_text while the texture is
+		 *          bound. however, you can safely keep a reference to it, it
+		 *          will be updated inplace.
+		 */
+		renderer::Texture& texture();
 	};
 
 

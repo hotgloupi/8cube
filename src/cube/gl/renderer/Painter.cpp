@@ -29,6 +29,7 @@ namespace cube { namespace gl { namespace renderer {
 		, _current_state(other._current_state)
 		, _bound_drawables(std::move(other._bound_drawables))
 	{
+		// XXX invalidates all proxies !!!
 		ETC_TRACE.debug("Move painter");
 		_current_state.painter_switch(&other, this);
 	}
@@ -36,28 +37,27 @@ namespace cube { namespace gl { namespace renderer {
 	Painter::~Painter()
 	{
 		ETC_TRACE.debug("Delete painter");
-		for (BindableBase* drawable: _bound_drawables)
-			drawable->__unbind();
-		_bound_drawables.clear();
+		// XXX Should be empty !
+		assert(_bound_drawables.size() == 0);
 		_renderer._pop_state();
 	}
 
-	void Painter::_update_parameters(BindableBase& bindable)
-	{
-		auto debug = ETC_LOG.debug("Update all parameters of", &bindable);
+	//void Painter::_update_parameters(BindableBase& bindable)
+	//{
+	//	auto debug = ETC_LOG.debug("Update all parameters of", &bindable);
 
-		debug("Projection matrix is", _current_state.projection());
-		debug("mvp matrix is", _current_state.mvp());
-		bindable.update(MatrixKind::mvp, _current_state.mvp());
-		bindable.update(MatrixKind::projection, _current_state.projection());
-	}
+	//	debug("Projection matrix is", _current_state.projection());
+	//	debug("mvp matrix is", _current_state.mvp());
+	//	bindable.update(MatrixKind::mvp, _current_state.mvp());
+	//	bindable.update(MatrixKind::projection, _current_state.projection());
+	//}
 
 	void Painter::update(MatrixKind kind, matrix_type const& matrix)
 	{
 		ETC_TRACE.debug("update", _bound_drawables.size(),
 		                "bindable(s) with matrix", kind, matrix);
-		for (auto& drawable : _bound_drawables)
-			drawable->update(kind, matrix);
+		//for (auto& drawable : _bound_drawables)
+		//	drawable->update(kind, matrix);
 	}
 
 	void Painter::draw_elements(DrawMode mode,
@@ -83,7 +83,7 @@ namespace cube { namespace gl { namespace renderer {
 		else if (count > attr->nb_elements - start)
 			throw Exception{"Count is out of range."};
 
-		Bindable<>::Guard guard(indices);
+		Bindable::InternalGuard<VertexBuffer> guard{indices};
 		_renderer.draw_elements(
 			mode,
 			count,
@@ -128,62 +128,8 @@ namespace cube { namespace gl { namespace renderer {
 					vertex_attr->nb_elements - start
 			)};
 
-		Bindable<>::Guard guard(vertices);
+		Bindable::InternalGuard<VertexBuffer> guard{vertices};
 		_renderer.draw_arrays(mode, start, count);
-	}
-
-	void Painter::unbind(BindableBase& bindable)
-	{
-		ETC_TRACE.debug("Unbind bindable");
-		auto it = _bound_drawables.find(&bindable);
-		if (it == _bound_drawables.end())
-			throw Exception{"Cannot unbind the drawable: not bound by this painter"};
-		bindable.__unbind();
-		_bound_drawables.erase(it);
-	}
-
-	///////////////////////////////////////////////////////////////////////////
-	// Painter::Proxy
-
-
-	Painter::Proxy::Proxy(Proxy&& other)
-		: _self(other._self)
-		, _guards_size{other._guards_size}
-		, _guards{other._guards}
-	{
-		ETC_TRACE.debug("Moving painter proxy");
-		other._guards_size = 0;
-		other._guards = nullptr;
-	}
-
-	void Painter::Proxy::_init()
-	{
-		ETC_TRACE.debug("Painter proxy initialized");
-	}
-
-	BindableBase::GuardBase*
-	Painter::Proxy::_new_guard_mem()
-	{
-		assert((_guards != nullptr) == (_guards_size > 0));
-		auto new_tab = (BindableBase::GuardBase*) ::realloc(
-			_guards,
-			(_guards_size + 1) * sizeof(BindableBase::GuardBase)
-		);
-
-		if (new_tab == nullptr)
-			throw std::bad_alloc();
-
-		_guards = new_tab;
-		return &_guards[_guards_size++];
-	}
-
-	Painter::Proxy::~Proxy()
-	{
-		assert((_guards != nullptr) == (_guards_size > 0));
-		for (etc::size_type i = 0; i < _guards_size; ++i)
-			_guards[i].~GuardBase();
-		free(_guards);
-		_guards = nullptr;
 	}
 
 }}} //!cube::gl::renderer

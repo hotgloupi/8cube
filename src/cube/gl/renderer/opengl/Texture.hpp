@@ -32,7 +32,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	public:
 		void
 		bind_unit(etc::size_type unit,
-		          renderer::ShaderProgramParameter& param);
+		          renderer::ShaderProgramParameter& param) override;
 
 		void
 		set_data(unsigned int x,
@@ -41,10 +41,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		         unsigned int height,
 		         renderer::PixelFormat const data_format,
 		         renderer::ContentPacking const data_packing,
-		         void const* data);
+		         void const* data) override;
 	protected:
-		void _bind();
-		void _unbind();
+		void _bind() override;
+		void _unbind() override;
+
+		// Bind guard without state.
+		typedef InternalGuard<Texture> Guard;
+		friend struct InternalGuard<Texture>;
 	};
 
 }}}}

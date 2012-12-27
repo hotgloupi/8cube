@@ -23,20 +23,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		~ShaderProgram();
 
 	/**************************************************************************
-	 * renderer::Shader interface.
+	 * renderer::ShaderProgram interface.
 	 */
 	protected:
-		virtual
-		ParameterPtr _fetch_parameter(std::string const& name);
+		ParameterPtr
+		_fetch_parameter(std::string const& name) override;
+
+		void _bind() override;
 
 	/**************************************************************************
 	 * renderer::Bindable interface.
 	 */
 	protected:
-		virtual
-		void _bind();
-		virtual
-		void _unbind();
+		void _unbind() override;
 
 	};
 
