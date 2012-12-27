@@ -1,4 +1,4 @@
-#include "exports.hpp"
+#include <wrappers/boost/python.hpp>
 
 #include "PainterWithProxy.hpp"
 
@@ -45,6 +45,9 @@ namespace {
 } // !anonymous
 
 namespace cube { namespace gl { namespace renderer_bindings {
+
+	namespace py = boost::python;
+	using namespace ::cube::gl::renderer;
 
 	void export_painter()
 	{

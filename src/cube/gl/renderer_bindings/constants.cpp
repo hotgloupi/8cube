@@ -1,8 +1,11 @@
-#include "exports.hpp"
+#include <wrappers/boost/python.hpp>
 
 #include "../renderer/constants.hpp"
 
 namespace cube { namespace gl { namespace renderer_bindings {
+
+	namespace py = boost::python;
+	using namespace ::cube::gl::renderer;
 
 	void export_constants()
 	{
@@ -27,6 +30,13 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.value("tex_coord1", ContentKind::tex_coord1)
 			.value("tex_coord2", ContentKind::tex_coord2)
 		;
+
+		py::enum_<ContentHint>("ContentHint")
+			.value("stream_content", ContentHint::stream_content)
+			.value("static_content", ContentHint::static_content)
+			.value("dynamic_content", ContentHint::dynamic_content)
+		;
+
 
 		py::enum_<ContentPacking>("ContentPacking")
 			.value("uint8", ContentPacking::uint8)

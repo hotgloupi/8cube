@@ -19,8 +19,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_GLVertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes);
 		virtual ~_GLVertexBuffer();
 	protected:
-		virtual void _finalize();
-	protected:
 		virtual void _bind();
 		virtual void _unbind();
 	};

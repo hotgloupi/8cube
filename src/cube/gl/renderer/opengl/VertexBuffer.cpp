@@ -11,32 +11,15 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	template<bool is_indices>
 	_GLVertexBuffer<is_indices>::_GLVertexBuffer(VertexBufferAttributePtr&& attribute)
-		: VertexBuffer{make_vertex_buffer_attributes(std::move(attribute))}
-		, _vbo{nullptr}
-	{
-
-	}
+		: _GLVertexBuffer{make_vertex_buffer_attributes(std::move(attribute))}
+	{}
 
 	template<bool is_indices>
 	_GLVertexBuffer<is_indices>::_GLVertexBuffer(std::vector<VertexBufferAttributePtr>&& attributes)
 		: VertexBuffer{std::move(attributes)}
 		, _vbo{nullptr}
 	{
-
-	}
-
-	template<bool is_indices>
-	_GLVertexBuffer<is_indices>::~_GLVertexBuffer()
-	{
-		ETC_TRACE.debug("Delete VertexBuffer", this);
-		delete _vbo;
-		_vbo = nullptr;
-	}
-
-	template<bool is_indices>
-	void _GLVertexBuffer<is_indices>::_finalize()
-	{
-		ETC_TRACE.debug("Finalize the vertex buffer");
+		ETC_TRACE.debug("Creating a vertex buffer");
 		if (_attributes.size() == 0)
 			throw Exception("Refreshing an empty VBO.");
 
@@ -54,6 +37,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			_vbo->sub_vbo(*attr, offset);
 			offset += attr->buffer_size;
 		}
+	}
+
+	template<bool is_indices>
+	_GLVertexBuffer<is_indices>::~_GLVertexBuffer()
+	{
+		ETC_TRACE.debug("Delete VertexBuffer", this);
+		delete _vbo;
+		_vbo = nullptr;
 	}
 
 	template<bool is_indices>

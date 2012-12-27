@@ -1,3 +1,5 @@
+#include <wrappers/boost/python.hpp>
+
 #include "renderer_bindings/exports.hpp"
 
 #include "renderer/Shader.hpp"
@@ -43,6 +45,7 @@ BOOST_PYTHON_MODULE(renderer)
 {
 	namespace py = boost::python;
 	using namespace cube::gl::renderer_bindings;
+	using namespace cube::gl::renderer;
 
 	export_constants();
 	export_bindable();
@@ -51,6 +54,7 @@ BOOST_PYTHON_MODULE(renderer)
 	export_painter();
 	export_renderer();
 	export_vertex_buffer();
+	export_vertex_buffer_attribute();
 	export_shader();
 	export_shader_program();
 	export_texture();
@@ -66,6 +70,7 @@ BOOST_PYTHON_MODULE(renderer)
 /**/
 
 	PTR_TO_PYTHON(VertexBuffer);
+	PTR_TO_PYTHON(VertexBufferAttribute);
 	PTR_TO_PYTHON(ShaderProgram);
 	PTR_TO_PYTHON(Shader);
 

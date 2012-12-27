@@ -1,4 +1,4 @@
-#include "exports.hpp"
+#include <wrappers/boost/python.hpp>
 
 #include "PainterWithProxy.hpp"
 
@@ -8,10 +8,13 @@
 #include "../renderer/VertexBuffer.hpp"
 #include "../renderer/VertexBufferAttribute.hpp"
 
+#include "../exception.hpp"
+
 namespace {
 
 	namespace renderer = cube::gl::renderer;
 	namespace renderer_bindings = cube::gl::renderer_bindings;
+	namespace py = boost::python;
 
 	struct Wrap
 	{
@@ -48,15 +51,19 @@ namespace {
 			template<typename T>
 			static
 			std::vector<std::unique_ptr<T>>
-			_tuple_to_vector(boost::python::tuple& args)
+			_list_to_vector(boost::python::list& args)
 			{
 				size_t len = boost::python::len(args);
 				std::vector<std::unique_ptr<T>> ptrs;
 				for (size_t i = 0; i < len; ++i)
 				{
-					std::auto_ptr<T> ptr =
-						boost::python::extract<std::auto_ptr<T>>(args[i]);
+					std::auto_ptr<T> ptr = boost::python::extract<std::auto_ptr<T>>(args[i]);
+					if (ptr.get() == nullptr)
+						throw cube::gl::exception::Exception{
+							"Found a null pointer in the list!"
+						};
 					ptrs.emplace_back(ptr.release());
+					args[i] = boost::python::object{};
 				}
 				return ptrs;
 			}
@@ -64,20 +71,20 @@ namespace {
 			static
 			renderer::ShaderProgramPtr
 			new_shader_program(renderer::Renderer& self,
-			                   boost::python::tuple args)
+			                   boost::python::list args)
 			{
 				return self.new_shader_program(
-					_tuple_to_vector<renderer::Shader>(args)
+					_list_to_vector<renderer::Shader>(args)
 				);
 			}
 
 			static
 			renderer::VertexBufferPtr
 			new_vertex_buffer(renderer::Renderer& self,
-			                  boost::python::tuple args)
+			                  boost::python::list args)
 			{
 				return self.new_vertex_buffer(
-					_tuple_to_vector<renderer::VertexBufferAttribute>(args)
+					_list_to_vector<renderer::VertexBufferAttribute>(args)
 				);
 			}
 
@@ -92,14 +99,91 @@ namespace {
 			}
 
 		};
+
+	};
+
+	struct vector_of_string_from_python
+	{
+		vector_of_string_from_python()
+		{
+		}
+
+		static
+		void* convertible(PyObject* ptr)
+		{
+			// is convertible from list and tuple. if len(ptr) > 0,
+			if (PyList_Check(ptr) || PyTuple_Check(ptr))
+				return ptr;
+			return nullptr;
+		}
+
+		static
+		void construct(PyObject* ptr,
+		               py::converter::rvalue_from_python_stage1_data* data)
+		{
+			typedef PyObject* (*extractor_t)(PyObject*, ssize_t);
+
+			extractor_t extractor;
+			Py_ssize_t len;
+
+			if (PyList_Check(ptr))
+			{
+				extractor = &PyList_GetItem;
+				len = PyList_Size(ptr);
+			}
+			else if (PyTuple_Check(ptr))
+			{
+				extractor = &PyTuple_GetItem;
+				len = PyTuple_Size(ptr);
+			}
+			else
+				throw cube::gl::exception::Exception{
+					"convertible has messed up"
+				};
+
+			typedef py::converter::rvalue_from_python_storage<std::vector<std::string>> storage_t;
+
+			// Grab pointer to memory into which to construct the new QString
+			void* storage = ((storage_t*) data)->storage.bytes;
+
+			assert(storage != nullptr && "Boost.Python gave a null storage");
+
+			// in-place construct the new std::vector<std::string>.
+			auto vec = new (storage) std::vector<std::string>{};
+
+			for (Py_ssize_t i = 0; i < len; ++i)
+			{
+				PyObject* item = (*extractor)(ptr, i);
+				if (!PyUnicode_Check(item))
+					throw cube::gl::exception::Exception{
+						"Items has to be of type unicode"
+					};
+				char* str = PyBytes_AsString(PyUnicode_AsUTF8String(item));
+				if (str == nullptr)
+					throw py::error_already_set{};
+				vec->emplace_back(str);
+			}
+
+			// Stash the memory chunk pointer for later use by boost.python
+			data->convertible = storage;
+		}
 	};
 
 } //!anonymous
 
 namespace cube { namespace gl { namespace renderer_bindings {
 
+	using namespace ::cube::gl::renderer;
+
 	void export_renderer()
 	{
+
+		py::converter::registry::push_back(
+			&vector_of_string_from_python::convertible,
+			&vector_of_string_from_python::construct,
+			py::type_id<std::vector<std::string>>()
+		);
+
 		typedef TexturePtr (Renderer::*new_texture_cb_t)(std::string const&);
 
 		typedef TexturePtr (Renderer::*new_texture_raw_cb_t)(

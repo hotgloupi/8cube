@@ -55,7 +55,7 @@ def main(args):
     sys.argv = ['cubeapp.main'] + args
     try:
         import cube
-    except Exception as err:
+    except Exception:
         import traceback
         traceback.print_exc()
         return

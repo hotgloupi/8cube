@@ -80,6 +80,8 @@ def configure(project, build):
             path.absolute(project.root_dir, 'src/glew'),
         ],
         static_libstd = False,
+        use_build_type_flags = True,
+        hidden_visibility = (build_type != 'DEBUG')
     )
     status("CXX compiler is", compiler.binary)
 
@@ -116,11 +118,12 @@ def configure(project, build):
             clib.simple(name, compiler, shared=True) for name in ['Shlwapi',]
         )
 
-    libetc = compiler.link_static_library(
+    libetc = compiler.link_library(
         'libetc',
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
-        libraries = base_libraries + boost.libraries
+        libraries = base_libraries + boost.libraries,
+        shared = True
     )
 
     libglew = compiler.link_static_library(

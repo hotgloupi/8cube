@@ -36,7 +36,6 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
-
 	std::ostream& operator <<(std::ostream& out, MatrixKind kind);
 
 	enum class BufferBit : int
@@ -68,7 +67,6 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
-
 	std::ostream& operator <<(std::ostream& out, ShaderType const type);
 
 	enum class DrawMode
@@ -99,6 +97,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value,
 	};
+	std::ostream& operator <<(std::ostream& out, ContentType const type);
 
 	enum class ContentPacking
 	{
@@ -133,6 +132,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	std::ostream& operator <<(std::ostream& out, ContentHint const hint);
 
 	enum class ContentKind
 	{
@@ -146,6 +146,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	std::ostream& operator <<(std::ostream& out, ContentKind const kind);
 
 	enum class PixelFormat
 	{
