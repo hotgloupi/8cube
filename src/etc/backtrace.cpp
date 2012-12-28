@@ -141,7 +141,7 @@ namespace etc { namespace backtrace {
 	{
 		out << (
 			boost::format(
-				"0x%0" + etc::to_string(2 * sizeof(void*)) + "x: "
+				"0x%0" + std::to_string(2 * sizeof(void*)) + "x: "
 			) % frame.address
 		);
 
@@ -159,7 +159,7 @@ namespace etc { namespace backtrace {
 		const size_t width = std::log10(float(bt.size())) + 1;
 		for (Backtrace::Frame const& f : bt)
 		{
-			boost::format fmt("#%-" + etc::to_string(width) + "d %s\n");
+			boost::format fmt("#%-" + std::to_string(width) + "d %s\n");
 			out << (fmt % i++ % f);
 		}
 		return out;

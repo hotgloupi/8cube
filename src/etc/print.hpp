@@ -1,6 +1,8 @@
 #ifndef  ETC_PRINT_HPP
 # define ETC_PRINT_HPP
 
+# include "api.hpp"
+
 # include <boost/format.hpp>
 
 # include <iosfwd>
@@ -52,7 +54,7 @@ namespace etc {
 
 		/// You can define your own separator with this class, but common
 		/// separators are defined as constants.
-		struct Separator
+		struct ETC_API Separator
 		{
 		public:
 			std::string sep;
@@ -80,7 +82,7 @@ namespace etc {
 		}
 
 		/// no separator
-		inline
+		ETC_API inline
 		Separator const& nosep()
 		{
 			static Separator const sep("");
@@ -88,7 +90,7 @@ namespace etc {
 		}
 
 		/// space separator (default)
-		inline
+		ETC_API inline
 		Separator const& spacesep()
 		{
 			static Separator const sep(' ');
@@ -96,7 +98,7 @@ namespace etc {
 		}
 
 		/// tabulation separator
-		inline
+		ETC_API inline
 		Separator const& tabsep()
 		{
 			static Separator const sep('\t');
@@ -104,7 +106,7 @@ namespace etc {
 		}
 
 		/// linefeed separator
-		inline
+		ETC_API inline
 		Separator const& newlinesep()
 		{
 			static Separator const sep('\n');
@@ -112,7 +114,7 @@ namespace etc {
 		}
 
 		/// You can define your own end of line character with this class.
-		struct EndOfLine
+		struct ETC_API EndOfLine
 		{
 		public:
 			std::string endl;
@@ -130,7 +132,7 @@ namespace etc {
 		};
 
 		/// line feed end of line character
-		inline
+		ETC_API inline
 		EndOfLine const& newline()
 		{
 			static EndOfLine const endl('\n');
@@ -138,7 +140,7 @@ namespace etc {
 		}
 
 		/// no new line
-		inline
+		ETC_API inline
 		EndOfLine const& nonewline()
 		{
 			static EndOfLine const endl("");

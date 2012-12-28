@@ -3,7 +3,8 @@
 
 # include "Line.hpp"
 
-# include <etc/to_string.hpp>
+# include "../api.hpp"
+# include "../to_string.hpp"
 
 # include <boost/noncopyable.hpp>
 
@@ -41,9 +42,9 @@ namespace etc { namespace log {
 	struct Line;
 
 	/// Factory for loggers
-	Logger& logger(std::string const& name = "");
+	ETC_API Logger& logger(std::string const& name = "");
 
-	class Logger
+	class ETC_API Logger
 		: private boost::noncopyable
 	{
 	public:
@@ -79,6 +80,7 @@ namespace etc { namespace log {
 
 	public:
 		template<typename... T>
+		inline
 		void message(Line const& line, T const&... values)
 		{
 			if (line.level < _level)

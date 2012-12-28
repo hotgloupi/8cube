@@ -1,6 +1,8 @@
 #ifndef  ETC_BACKTRACE_HPP
 # define ETC_BACKTRACE_HPP
 
+# include "api.hpp"
+
 # include <iosfwd>
 # include <string>
 # include <vector>
@@ -9,7 +11,7 @@
 
 namespace etc { namespace backtrace {
 
-	struct StackFrame
+	struct ETC_API StackFrame
 	{
 		std::string symbol;
 		std::string symbol_mangled;
@@ -19,7 +21,7 @@ namespace etc { namespace backtrace {
 		operator std::string() const;
 	};
 
-	class Backtrace
+	class ETC_API Backtrace
 		: public std::vector<StackFrame>
 	{
 	public:
@@ -31,8 +33,8 @@ namespace etc { namespace backtrace {
 		void strip_base(Backtrace const& base);
 	};
 
-	std::ostream& operator <<(std::ostream& output, StackFrame const& frame);
-	std::ostream& operator <<(std::ostream& output, Backtrace const& bt);
+	ETC_API std::ostream& operator <<(std::ostream& output, StackFrame const& frame);
+	ETC_API std::ostream& operator <<(std::ostream& output, Backtrace const& bt);
 
 }} // !etc::backtrace
 

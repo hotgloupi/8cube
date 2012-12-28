@@ -1,6 +1,7 @@
 #ifndef  ETC_EXCEPTION_HPP
 # define ETC_EXCEPTION_HPP
 
+# include "api.hpp"
 # include "fwd.hpp"
 
 # include <string>
@@ -8,7 +9,7 @@
 
 namespace etc { namespace exception {
 
-	class Exception
+	class ETC_API_EXCEPTION Exception
 		: public std::runtime_error
 	{
 	private:
@@ -27,7 +28,7 @@ namespace etc { namespace exception {
 		friend std::ostream& operator <<(std::ostream& out, Exception const& e);
 	};
 
-	std::ostream& operator <<(std::ostream& out, Exception const& e);
+	ETC_API std::ostream& operator <<(std::ostream& out, Exception const& e);
 
 }} // !etc::exception
 

@@ -79,7 +79,10 @@ class FontManager:
                     for f in files:
                         path = os.path.join(root, f)
                         if font.is_valid(path):
-                            cls.fonts[path] = font.get_infos(path)
+                            try:
+                                cls.fonts[path] = font.get_infos(path)
+                            except:
+                                print("Error: ignoring font file", path)
 
         print(len(cls.fonts), "font infos fetched in %f seconds" % (time.time() - start))
 

@@ -50,21 +50,21 @@ namespace etc {
 		}
 
 		// specialization to treat separator classes
-		bool
+		ETC_API bool
 		sprint_value(std::ostream&                      out,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
 		             etc::iomanip::Separator const&     value);
 
 		// specialization to treat end of line classes
-		bool
+		ETC_API bool
 		sprint_value(std::ostream&                      out,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
 		             etc::iomanip::EndOfLine const&     value);
 
 		// sprint recursion ends here
-		void
+		ETC_API void
 		sprint(std::ostream&                            out,
 		       PrintFlags&                              flags,
 		       bool                                     is_first);
@@ -82,7 +82,7 @@ namespace etc {
 			sprint(out, flags, is_first, std::forward<U>(values)...);
 		}
 
-		inline
+		ETC_API inline
 		void sprintf(std::ostream& out,
 		             boost::format& fmt)
 		{
@@ -142,7 +142,7 @@ namespace etc {
 
 } // !etc
 
-inline
+ETC_API inline
 std::ostream& operator <<(std::ostream& out, std::nullptr_t)
 {
 	return out << "(nullptr)";

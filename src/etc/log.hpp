@@ -1,6 +1,7 @@
 #ifndef  ETC_LOG_HPP
 # define ETC_LOG_HPP
 
+# include "api.hpp"
 # include "log/Logger.hpp"
 # include "types.hpp"
 # include "compiler.hpp"
@@ -27,7 +28,7 @@
 
 namespace etc { namespace log {
 
-	struct Log
+	struct ETC_API Log
 	{
 	private:
 		Line            _line;
@@ -39,14 +40,14 @@ namespace etc { namespace log {
 		 * Log object should not be built directly, but with macros ETC_LOG*.
 		 * They are copiable and movable by construction, but not by assignment.
 		 */
-		Log(Level level,
-			 std::string const& file,
-			 size_type line,
-			 std::string const& function,
-			 std::string const& component);
-		Log(Log const& o);
-		Log(Log&& o);
-		~Log();
+		ETC_API Log(Level level,
+		            std::string const& file,
+		            size_type line,
+		            std::string const& function,
+		            std::string const& component);
+		ETC_API Log(Log const& o);
+		ETC_API Log(Log&& o);
+		ETC_API ~Log();
 
 	private:
 		Log& operator =(Log const&) ETC_DELETED_FUNCTION;

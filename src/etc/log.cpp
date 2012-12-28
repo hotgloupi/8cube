@@ -11,11 +11,11 @@ namespace etc { namespace log {
 
 	//} // !anonymous
 
-	Log::Log(Level level,
-	         std::string const& file,
-	         size_type line,
-	         std::string const& function,
-	         std::string const& component)
+	ETC_API Log::Log(Level level,
+	                 std::string const& file,
+	                 size_type line,
+	                 std::string const& function,
+	                 std::string const& component)
 		: _line{
 			level,
 			file,

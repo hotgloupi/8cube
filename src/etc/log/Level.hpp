@@ -1,11 +1,13 @@
 #ifndef  ETC_LOG_LEVEL_HPP
 # define ETC_LOG_LEVEL_HPP
 
+# include "../api.hpp"
+
 # include <iosfwd>
 
 namespace etc { namespace log {
 
-	enum class Level
+	enum class ETC_API Level
 	{
 		debug = 0,
 		info,
@@ -16,7 +18,7 @@ namespace etc { namespace log {
 		_maxvalue,
 	};
 
-	std::ostream& operator <<(std::ostream& out, Level level);
+	ETC_API std::ostream& operator <<(std::ostream& out, Level level);
 
 }}
 

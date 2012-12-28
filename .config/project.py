@@ -114,8 +114,12 @@ def configure(project, build):
 
     base_libraries = []
     if platform.IS_WINDOWS:
-        base_libraries += list(
+        base_libraries.extend(
             clib.simple(name, compiler, shared=True) for name in ['Shlwapi',]
+        )
+    elif platform.IS_MACOSX:
+        base_libraries.extend(
+            clib.simple(name, compiler, shared=True) for name in ['z', 'bz2',]
         )
 
     libetc = compiler.link_library(
@@ -123,6 +127,7 @@ def configure(project, build):
         glob("src/etc/*.cpp", recursive=True),
         directory  = 'release/lib',
         libraries = base_libraries + boost.libraries,
+        defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
         shared = True
     )
 
