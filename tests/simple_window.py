@@ -100,13 +100,12 @@ class App:
                 cube.gl.Vector3f(0, 0, 1),
                 cube.gl.Vector3f(0, 1, 0),
             )
-            painter.bind(self.vb)
-            painter.bind(self.shader)
-            painter.draw_elements(
-                cube.gl.DrawMode.quads,
-                self.ib,
-                0, 4
-            )
+            with painter.bind([self.vb, self.shader]):
+                painter.draw_elements(
+                    cube.gl.DrawMode.quads,
+                    self.ib,
+                    0, 4
+                )
         r.swap_buffers()
 
 if __name__ == '__main__':

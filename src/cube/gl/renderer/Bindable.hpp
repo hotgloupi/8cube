@@ -71,8 +71,10 @@ namespace cube { namespace gl { namespace renderer {
 		{
 			if (__bound > 0)
 				__bound -= 1;
-			if (__bound == 0)
-				_unbind();
+			{
+				if (__bound == 0)
+					_unbind();
+			}
 		}
 
 		inline
@@ -118,7 +120,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	public:
 		InternalGuard(T& bindable)
-			: _bindable(bindable.bound() ? &bindable : nullptr)
+			: _bindable(!bindable.bound() ? &bindable : nullptr)
 		{
 			if (_bindable != nullptr)
 				_bindable->_bind();

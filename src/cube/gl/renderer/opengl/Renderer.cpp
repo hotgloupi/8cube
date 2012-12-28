@@ -144,7 +144,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		std::vector<VertexBufferAttributePtr>&& attributes
 	)
 	{
-		return VertexBufferPtr{new GLVertexBuffer{std::move(attributes)}};
+		return VertexBufferPtr{new VertexBuffer{std::move(attributes)}};
 	}
 
 	VertexBufferPtr
@@ -152,7 +152,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		std::vector<VertexBufferAttributePtr> attributes;
 		attributes.emplace_back(std::move(attribute));
-		return VertexBufferPtr{new GLIndexBuffer{std::move(attributes)}};
+		return VertexBufferPtr{new IndexBuffer{std::move(attributes)}};
 	}
 
 	ShaderPtr
