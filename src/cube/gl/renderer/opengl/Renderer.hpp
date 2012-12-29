@@ -60,6 +60,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		void viewport(cube::gl::viewport::Viewport const& vp);
 	};
 
+	struct RendererType
+		: public renderer::RendererType
+	{
+		std::unique_ptr<renderer::Renderer>
+		create(::cube::gl::viewport::Viewport const& vp) const override;
+
+		std::string
+		__str__() const override;
+
+		Name name() const override { return Name::OpenGL; }
+	};
+
 }}}} // !cube::gl::renderer::opengl
 
 #endif

@@ -5,20 +5,21 @@
 
 #include "renderer/opengl/Renderer.hpp"
 
+#include <etc/memory.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	//////////////////////////////////////////////////////////////////////////
 	// free functions
 
 	static
-	std::vector<cube::gl::renderer::Renderer*> const&
-	all_renderers()
+	std::vector<RendererType*> const&
+	descriptions()
 	{
-		static opengl::GLRenderer opengl_renderer;
-
-		static std::vector<Renderer*> renderers{{
-			&opengl_renderer,
-		}};
+		static auto opengl_descr = etc::make_unique<opengl::RendererType>();
+		static std::vector<RendererType*> renderers{
+			opengl_descr.get(),
+		};
 		return renderers;
 	}
 
@@ -26,10 +27,10 @@ namespace cube { namespace gl { namespace renderer {
 	create_renderer(cube::gl::viewport::Viewport const& vp,
 	                RendererType::Name name)
 	{
-		for (auto const& renderer: all_renderers())
+		for (auto const& description: descriptions())
 		{
-			if (renderer->description().name() == name)
-				return renderer->description().create(vp);
+			if (description->name() == name)
+				return description->create(vp);
 		}
 		throw Exception{"Cannot find any renderer with that name"};
 	}

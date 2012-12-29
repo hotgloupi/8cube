@@ -18,40 +18,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Renderer");
 
-	namespace detail {
-
-		struct GLRendererType
-			: public RendererType
-		{
-			virtual
-			std::unique_ptr<Renderer>
-			create(::cube::gl::viewport::Viewport const& vp) const
-			{
-				std::unique_ptr<Renderer> renderer(new GLRenderer);
-				renderer->initialize(vp);
-				return renderer;
-			}
-
-			virtual
-			std::string
-			__str__() const
-			{
-				return etc::to_string(
-					"GLEW version", glewGetString(GLEW_VERSION), '\n',
-					"OpenGL version", (char*) glGetString(GL_VERSION), '\n',
-					"OpenGL renderer", (char*) glGetString(GL_RENDERER), '\n',
-					"OpenGL vendor", (char*) glGetString(GL_VENDOR), '\n',
-					"GLSL version", (char*) glGetString(GL_SHADING_LANGUAGE_VERSION), '\n'
-				);
-			}
-
-			virtual
-			Name name() const { return Name::OpenGL; }
-		};
-
-	} // !detail
-
-
 	GLRenderer::~GLRenderer()
 	{}
 
@@ -88,9 +54,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		ETC_TRACE.debug("Shutting down GLRenderer renderer");
 	}
 
-	RendererType const& GLRenderer::description() const
+	renderer::RendererType const&
+	GLRenderer::description() const
 	{
-		static detail::GLRendererType descr;
+		static RendererType descr;
 		return descr;
 	}
 
@@ -212,6 +179,27 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		this->Renderer::viewport(vp);
 		gl::Viewport(vp.x, vp.y, vp.w, vp.h);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// RendererType
+	std::unique_ptr<renderer::Renderer>
+	RendererType::create(::cube::gl::viewport::Viewport const& vp) const
+	{
+		std::unique_ptr<renderer::Renderer> renderer(new GLRenderer);
+		renderer->initialize(vp);
+		ETC_LOG.info("GLEW version",    glewGetString(GLEW_VERSION));
+		ETC_LOG.info("OpenGL version",  (char*) glGetString(GL_VERSION));
+		ETC_LOG.info("OpenGL renderer", (char*) glGetString(GL_RENDERER));
+		ETC_LOG.info("OpenGL vendor",   (char*) glGetString(GL_VENDOR));
+		ETC_LOG.info("GLSL version",    (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
+		return renderer;
+	}
+
+	std::string
+	RendererType::__str__() const
+	{
+		return "<RendererType: OpenGL>";
 	}
 
 }}}} // !cube::gl::renderers
