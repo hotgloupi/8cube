@@ -3,6 +3,8 @@
 
 #include <cube/main_proto.hpp>
 
+#include <etc/log.hpp>
+
 #include <wrappers/boost/filesystem.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
@@ -39,7 +41,13 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 #ifdef _WIN32
 	//load_libraries(exec_dir);
 	load_libraries(lib_dir);
+#else
+	(void)load_libraries;
 #endif
+
+	ETC_LOG_COMPONENT("cubeapp.main");
+
+	ETC_LOG("Starting 8cube");
 
 	auto& interpreter = app::python::Interpreter::instance();
 
