@@ -21,7 +21,6 @@ namespace cube { namespace gl { namespace renderer {
 		, _current_state(_renderer.current_state())
 	{
 		ETC_TRACE.debug("New painter");
-		_current_state.painter(this);
 	}
 
 	Painter::Painter(Painter&& other)
@@ -31,7 +30,6 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		// XXX invalidates all proxies !!!
 		ETC_TRACE.debug("Move painter");
-		_current_state.painter_switch(&other, this);
 	}
 
 	Painter::~Painter()

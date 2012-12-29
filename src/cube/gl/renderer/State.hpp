@@ -14,7 +14,8 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		Mode const mode;
 	protected:
-		matrix_type         _matrices[(size_t)MatrixKind::_max_value];
+		matrix_type mutable _matrices[(size_t)MatrixKind::_max_value];
+		bool mutable        _mvp_dirty;
 
 	public:
 		State(Mode const mode);
@@ -34,39 +35,50 @@ namespace cube { namespace gl { namespace renderer {
 		 * Getter/setter for matrices
 		 */
 	public:
-		matrix_type const& matrix(MatrixKind kind) const;
+
+		/**
+		 * @brief Returns the matrix of kind @a kind
+		 */
+		inline
+		matrix_type const& matrix(MatrixKind kind) const
+		{
+			if (kind == MatrixKind::mvp && _mvp_dirty)
+			{
+				_matrices[(size_t) MatrixKind::mvp] =
+					_matrices[(size_t) MatrixKind::projection] *
+					_matrices[(size_t) MatrixKind::view] *
+					_matrices[(size_t) MatrixKind::model]
+				;
+				_mvp_dirty = false;
+			}
+			return _matrices[(size_t) kind];
+		}
+
+		/**
+		 * @brief Set the matrix of kind @a kind
+		 *
+		 * @note You cannot set mvp matrix.
+		 */
 		void matrix(MatrixKind kind, matrix_type const& other);
-		inline matrix_type const& mvp() const
-		{ return _matrices[(size_t) MatrixKind::mvp]; }
+
+
+		inline
+		matrix_type const& mvp() const
+		{ return this->matrix(MatrixKind::mvp); }
 
 # define _CUBE_GL_RENDERER_RENDERER_STATE_MAT(name)                           \
 		inline                                                                \
 		matrix_type const& name() const                                       \
-		{ return this->matrix(MatrixKind::name); }                            \
+		{ return _matrices[(size_t) MatrixKind::name]; }                      \
                                                                               \
 		inline                                                                \
 		void name(matrix_type const& other)                                   \
-		{ this->matrix(MatrixKind::name, other); }                            \
+		{ _matrices[(size_t) MatrixKind::name] = other; _mvp_dirty = true; }  \
 	/**/
 		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(model);
 		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(view);
 		_CUBE_GL_RENDERER_RENDERER_STATE_MAT(projection);
 # undef _CUBE_GL_RENDERER_RENDERER_STATE_MAT
-
-		void translate(matrix_type::value_type x,
-		               matrix_type::value_type y,
-		               matrix_type::value_type z);
-
-		/**
-		 * Painter internally register to a state, so states can update their
-		 * bound painter when something changed.
-		 */
-	private:
-		friend class Painter;
-		Painter* _painter;
-		inline Painter* painter() { return _painter; }
-		void painter(Painter* painter);
-		void painter_switch(Painter* old, Painter* new_);
 	};
 
 }}}

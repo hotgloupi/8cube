@@ -37,10 +37,6 @@ namespace cube { namespace gl { namespace renderer_bindings {
 					py::return_internal_reference<>()
 				)
 			)
-			.def(
-				"translate",
-				&State::translate
-			)
 		;
 	}
 
