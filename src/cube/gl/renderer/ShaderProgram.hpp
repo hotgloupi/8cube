@@ -7,6 +7,7 @@
 
 # include <memory>
 # include <unordered_map>
+# include <vector>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -20,17 +21,24 @@ namespace cube { namespace gl { namespace renderer {
 	class ShaderProgramParameter
 	{
 	protected:
-		ShaderProgram& _program;
+		ShaderProgram&  _program;
+		std::string     _name;
 
 	public:
-		ShaderProgramParameter(ShaderProgram& program)
+		ShaderProgramParameter(ShaderProgram& program,
+		                       std::string const& name)
 			: _program(program)
+			, _name{name}
 		{}
 
 		virtual
 		~ShaderProgramParameter() {}
 
+		inline
 		ShaderProgram& program() { return _program; }
+
+		inline
+		std::string const& name() const { return _name; }
 
 	public:
 		virtual
@@ -59,12 +67,14 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	public:
 		friend class ShaderProgramParameter;
-		typedef std::unique_ptr<ShaderProgramParameter> ParameterPtr;
+		typedef std::unique_ptr<ShaderProgramParameter>         ParameterPtr;
+		typedef std::unordered_map<std::string, ParameterPtr>   ParameterMap;
+		typedef std::unique_ptr<ParameterMap>                   ParameterMapPtr;
+		typedef std::unordered_map<Texture*, etc::size_type>    TextureMap;
 
 	private:
-		/// Indexes paramaters with their name.
-		std::unordered_map<std::string, ParameterPtr>   _parameters;
-		std::unordered_map<Texture*, etc::size_type>    _bound_textures;
+		ParameterMapPtr _parameters_map;
+		TextureMap      _bound_textures;
 
 	public:
 		/**
@@ -96,8 +106,13 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		void _bind(State const& state) override;
 
-		typedef InternalGuard<ShaderProgram> Guard;
+		/**
+		 * @brief Retreive all parameters.
+		 */
+		ParameterMap& _parameters();
+
 		friend struct InternalGuard<ShaderProgram>;
+		typedef InternalGuard<ShaderProgram> Guard;
 
 	/**************************************************************************
 	 * Interface to implement.
@@ -110,10 +125,10 @@ namespace cube { namespace gl { namespace renderer {
 		void _bind() = 0;
 
 		/**
-		 * Fetch a new shader parameter.
+		 * @brief Fetch all shader program parameters.
 		 */
 		virtual
-		ParameterPtr _fetch_parameter(std::string const& name) = 0;
+		std::vector<ParameterPtr> _fetch_parameters() = 0;
 	};
 
 }}}

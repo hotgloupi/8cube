@@ -141,6 +141,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(DetachShader);
 		_CUBE_GL_OPENGL_WRAP(UseProgram);
 		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
+		_CUBE_GL_OPENGL_WRAP(GetActiveUniform);
 		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
 		_CUBE_GL_OPENGL_WRAP(Uniform1i);
 

@@ -26,8 +26,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	 * renderer::ShaderProgram interface.
 	 */
 	protected:
-		ParameterPtr
-		_fetch_parameter(std::string const& name) override;
+		std::vector<ParameterPtr> _fetch_parameters() override;
 
 		void _bind() override;
 

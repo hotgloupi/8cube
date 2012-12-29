@@ -70,33 +70,27 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::UseProgram(0);
 	}
 
-
 	template<typename BindGuard>
 	class ShaderProgramParameter
 		: public renderer::ShaderProgramParameter
 	{
 	private:
+		GLint           _size;
+		GLenum          _type;
 		GLint           _location;
-		std::string     _name;
 
 	public:
 		// Program is bound by renderer::ShaderProgram::fetch_parameter()
 		ShaderProgramParameter(ShaderProgram& program,
-		          GLuint id,
-		          std::string const& name)
-			: renderer::ShaderProgramParameter(program)
-			, _location(0)
-			, _name(name)
-		{
-			ETC_TRACE.debug("Retreive shader parameter", name);
-			BindGuard guard(_program);
-			_location = gl::GetUniformLocation(id, name.c_str());
-			if (_location == -1)
-				throw Exception{
-					"Cannot find any active uniform variable called '" +
-					name + "'."
-				};
-		}
+		                       std::string const& name,
+		                       GLint size,
+		                       GLenum type,
+		                       GLint location)
+			: renderer::ShaderProgramParameter{program, name}
+			, _size{size}
+			, _type{type}
+			, _location{location}
+		{}
 
 		void operator =(matrix_type const& value)
 		{
@@ -114,10 +108,60 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		}
 	};
 
-	ShaderProgram::ParameterPtr
-	ShaderProgram::_fetch_parameter(std::string const& name)
+
+	std::vector<ShaderProgram::ParameterPtr>
+	ShaderProgram::_fetch_parameters()
 	{
-		return ParameterPtr{new ShaderProgramParameter<Guard>{*this, _id, name}};
+		GLint max_name_size;
+		gl::GetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name_size);
+
+		GLint nb_uniforms;
+		gl::GetProgramiv(_id, GL_ACTIVE_UNIFORMS, &nb_uniforms);
+
+		std::vector<ParameterPtr> res;
+		if (max_name_size > 0 && nb_uniforms > 0)
+		{
+			std::vector<GLchar> name;
+			name.resize(max_name_size);
+			GLint size;
+			GLint location;
+			GLsizei written;
+			GLenum type;
+			for (GLint i = 0; i < nb_uniforms; ++i)
+			{
+				gl::GetActiveUniform(
+					_id,            // program handle
+					i,              // uniform index
+					name.size(),    // buffer size
+					&written,       // OUT: bytes written
+					&size,          // OUT: size of the uniform
+					&type,          // OUT: type of the uniform
+					&name[0]        // OUT: name of the uniform
+				);
+				if (written <= 0)
+				{
+					ETC_LOG.warn("Cannot read uniform name at index", i);
+					continue;
+				}
+				std::string valid_name{&name[0], static_cast<size_t>(written)};
+				location = gl::GetUniformLocation(_id, valid_name.c_str());
+				if (location < 0)
+				{
+					ETC_LOG.warn("Cannot find uniform location of", valid_name);
+					continue;
+				}
+				res.emplace_back(
+					new ShaderProgramParameter<Guard>{
+						*this,
+						valid_name,
+						size,
+						type,
+						location,
+					}
+				);
+			}
+		}
+		return res;
 	}
 
 }}}}

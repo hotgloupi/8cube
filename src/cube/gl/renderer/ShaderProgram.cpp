@@ -3,6 +3,7 @@
 #include "Exception.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
+#include "State.hpp"
 
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
@@ -44,37 +45,42 @@ namespace cube { namespace gl { namespace renderer {
 
 	}
 
+	ShaderProgram::ParameterMap&
+	ShaderProgram::_parameters()
+	{
+		if (_parameters_map.get() == nullptr)
+		{
+			auto list = _fetch_parameters();
+			_parameters_map.reset(new ParameterMap{});
+			for (auto& param : list)
+				_parameters_map->insert(
+					std::make_pair(
+						param->name(),
+						std::move(param)
+					)
+				);
+		}
+		return *(_parameters_map.get());
+	}
+
 	ShaderProgramParameter&
 	ShaderProgram::parameter(std::string const& name)
 	{
-		auto it = _parameters.find(name);
-		if (it != _parameters.end())
+		auto it = _parameters().find(name);
+		if (it != _parameters_map->end())
 		{
 			ETC_TRACE.debug("Retreived parameter", name, "in cache !");
 			assert(it->second != nullptr);
 			return *(it->second);
 		}
-
-		bool temp_bind = !this->bound();
-		if (temp_bind)
-			this->_bind();
-		ETC_TRACE.debug("Fetching parameter", name, "from the program");
-		auto param = this->_fetch_parameter(name);
-		if (temp_bind)
-			this->_unbind();
-
-		if (!param)
-			throw Exception{"Shader parameter '" + name + "' not found."};
-
-		auto res = _parameters.insert(std::make_pair(name, std::move(param)));
-		return *(res.first->second);
+		throw Exception{"Shader parameter '" + name + "' not found."};
 	}
 
 	ShaderProgramParameter*
 	ShaderProgram::find_parameter(std::string const& name)
 	{
-		auto it = _parameters.find(name);
-		if (it == _parameters.end())
+		auto it = _parameters().find(name);
+		if (it == _parameters_map->end())
 			return nullptr;
 		return it->second.get();
 	}
@@ -117,8 +123,29 @@ namespace cube { namespace gl { namespace renderer {
 
 	void ShaderProgram::_bind(State const& state)
 	{
+		struct MatrixGetter
+		{
+			std::string name;
+			matrix_type const& (State::*getter)() const;
+		};
+		static MatrixGetter matrix_get[] = {
+			{"cube_ModelMatrix", &State::model},
+			{"cube_ViewMatrix", &State::view},
+			{"cube_ProjectionMatrix", &State::projection},
+			{"cube_ModelViewProjectionMatrix", &State::mvp},
+		};
+
 		_bind();
-		//XXX implement !
+		auto& map = _parameters();
+		auto end = map.end();
+		for (auto const& matrix: matrix_get)
+		{
+			auto it = map.find(matrix.name);
+			if (it != end)
+			{
+				*(it->second) = (state.*(matrix.getter))(); // beuark
+			}
+		}
 	}
 
 }}} // !cube::gl::renderer
