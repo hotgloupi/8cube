@@ -29,7 +29,6 @@
 
 # ifdef ETC_BUILD_DYNAMIC_LIBRARY
 #  define ETC_API             ETC_API_EXPORT
-#  pragma message "Building etc as a dynamic library"
 # else
 #  define ETC_API             ETC_API_IMPORT
 # endif

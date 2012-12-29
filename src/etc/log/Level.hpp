@@ -7,7 +7,7 @@
 
 namespace etc { namespace log {
 
-	enum class ETC_API Level
+	enum class Level
 	{
 		debug = 0,
 		info,
