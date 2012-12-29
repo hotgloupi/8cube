@@ -26,10 +26,9 @@ class World:
             self.__storage.set_chunk(pos, chunk)
         return chunk
 
-    def render(self, renderer):
+    def render(self, painter):
         for pos, chunk in self.__xxx_chunks.items():
-            with renderer.begin(gl.mode_3d) as painter:
-                chunk.render(gl.Vector3i(*pos), painter)
+            chunk.render(gl.Vector3i(*pos), painter)
 
     @staticmethod
     def _chunk_coord(v):

@@ -33,5 +33,5 @@ class Game(core.Game):
                 self.player.camera.position + self.player.camera.front,
                 self.player.camera.up
             )
-            self.world.render(self.renderer)
+            self.world.render(painter)
 

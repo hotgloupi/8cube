@@ -10,65 +10,61 @@ class Button(Label):
 
     def _prepare(self, renderer):
         super(Button, self)._prepare(renderer)
-        self.__vb = renderer.new_vertex_buffer()
         x, y, w, h = (
             0, 0,
             self.size.x, self.size.y
         )
-        self.__vb.push_static_content(
-            gl.ContentKind.vertex,
-            list(gl.Vector2f(*v) for v in [
-                (x, y),
-                (x + w, y),
-                (x + w, y + h),
-                (x, y + h)
-            ])
+        attr = gl.renderer.make_vertex_buffer_attribute
+        self.__vb = renderer.new_vertex_buffer([
+            attr(
+                gl.ContentKind.vertex,
+                list(gl.Vector2f(*v) for v in [
+                    (x, y),
+                    (x + w, y),
+                    (x + w, y + h),
+                    (x, y + h)
+                ]),
+                gl.ContentHint.static_content
+            ),
+            attr(
+                gl.ContentKind.color,
+                [
+                    gl.Color3f('orange'),
+                    gl.Color3f('green'),
+                    gl.Color3f('gray'),
+                    gl.Color3f('blue'),
+                ],
+                gl.ContentHint.static_content
+            )
+        ])
+        self.__indices = renderer.new_index_buffer(
+            attr(
+                gl.ContentKind.index,
+                [ 0, 1, 2, 3],
+                gl.ContentHint.static_content
+            )
         )
-        self.__vb.push_static_content(
-            gl.ContentKind.color,
-            [
-                gl.Color3f('orange'),
-                gl.Color3f('green'),
-                gl.Color3f('gray'),
-                gl.Color3f('blue'),
-            ]
-        )
-        self.__vb.finalize()
-        self.__indices = renderer.new_index_buffer()
-        self.__indices.push_static_content(
-            gl.ContentKind.index,
-            [ 0, 1, 2, 3]
-        )
-        self.__indices.finalize()
 
-        self.__sp  = renderer.new_shader_program()
-        fs = renderer.new_fragment_shader()
-        fs.push_source("""
+        self.__sp  = renderer.new_shader_program([
+            renderer.new_fragment_shader(["""
             void main(void)
             {
                 gl_FragColor = gl_Color;
             }
-        """)
-        self.__sp.push_shader(fs)
-        del fs
-        vs = renderer.new_vertex_shader()
-        vs.push_source("""
+            """]),
+            renderer.new_vertex_shader(["""
             uniform mat4 cube_ModelViewProjectionMatrix;
             void main(void)
             {
                gl_FrontColor = gl_Color;
                gl_Position = cube_ModelViewProjectionMatrix * gl_Vertex;
             }
-        """)
-        self.__sp.push_shader(vs)
-        del vs
-        self.__sp.finalize()
-        self.__sp.parameter("cube_ModelViewProjectionMatrix")
+            """]),
+        ])
 
     def render(self, _):
         with self.renderer.begin(gl.renderer.mode_2d) as painter:
-            painter.state.translate(self.position.x, self.position.y,0)
-            painter.bind(self.__sp)
-            painter.bind(self.__vb)
-            painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
+            painter.state.model = gl.matrix.translate(painter.state.model, self.position.x, self.position.y, .0)
+            with painter.bind([self.__sp, self.__vb]):
+                painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
             super(Button, self).render(painter)

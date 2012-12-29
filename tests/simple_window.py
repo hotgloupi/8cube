@@ -36,7 +36,7 @@ class App:
         from cube.gl import Color3f, Vector3f
 
         r = self.window.renderer
-        w = h = 1
+        w = h = .5
         self.vb = r.new_vertex_buffer([
             vb_attr(
                 ContentKind.vertex,
@@ -72,10 +72,11 @@ class App:
         self.shader.parameter("cube_ModelViewProjectionMatrix")
 
     def _on_resize(self, w, h):
-        print("RESIZE")
+        print("RESIZE", w, h)
         self.projection_matrix = cube.gl.matrix.perspective(
             45, w / h, 0.005, 300.0
         )
+        self.window.renderer.clear(cube.gl.BufferBit.color | cube.gl.BufferBit.depth)
 
 
 
@@ -90,7 +91,6 @@ class App:
             time.sleep(0.05)
 
     def render(self):
-        print('#' * 80, time.time())
         r = self.window.renderer
         r.clear(cube.gl.BufferBit.color | cube.gl.BufferBit.depth)
         with r.begin(cube.gl.mode_2d) as painter:
