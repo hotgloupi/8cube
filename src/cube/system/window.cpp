@@ -64,7 +64,7 @@ namespace cube { namespace system { namespace window {
 				static_cast<float>(height),
 			};
 
-			ETC_LOG("SDL has been initialized, creating the renderer");
+			ETC_LOG.debug("SDL has been initialized, creating the renderer");
 			// SDL_SetVideoMode has been called before (with resize()), we can
 			// create the renderer safely.
 			this->renderer = std::move(gl::renderer::create_renderer(vp, name));
@@ -73,7 +73,7 @@ namespace cube { namespace system { namespace window {
 	public:
 		void resize(uint32_t const width, uint32_t const height)
 		{
-			ETC_LOG("Setting SDL video mode with", width, height, _flags);
+			ETC_LOG.debug("Setting SDL video mode with", width, height, _flags);
 			if (_video_info == nullptr)
 			{
 				_video_info = SDL_GetVideoInfo();
@@ -97,7 +97,7 @@ namespace cube { namespace system { namespace window {
 		, _width(width)
 		, _height(height)
 	{
-		ETC_TRACE("Creating a window", title, "(", width, 'x', height, ')');
+		ETC_TRACE.debug("Creating a window", title, "(", width, 'x', height, ')');
 		if (::SDL_Init(SDL_INIT_EVERYTHING))
 			throw Exception(SDL_GetError());
 		_impl = new Impl{
