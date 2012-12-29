@@ -93,7 +93,7 @@ namespace etc { namespace log {
 		auto it = loggers.find(name);
 		if (it != loggers.end())
 			return *it->second;
-		return *((loggers[name] = new Logger{name, Level::debug}));
+		return *((loggers[name] = new Logger{name, Level::info}));
 	}
 
 	Logger::Logger(std::string const& name,
@@ -111,7 +111,7 @@ namespace etc { namespace log {
 	void Logger::_message(Line const& line,
 	                      std::string const& message)
 	{
-		if (!component_enabled(line.component))
+		if (line.level < _level && !component_enabled(line.component))
 			return;
 
 		// every fields are strings.
