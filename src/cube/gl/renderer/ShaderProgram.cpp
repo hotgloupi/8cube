@@ -86,42 +86,7 @@ namespace cube { namespace gl { namespace renderer {
 	}
 
 	void
-	ShaderProgram::update(MatrixKind kind,
-	                      matrix_type const& matrix)
-	{
-		ETC_TRACE.debug("Update ShaderProgram matrix", kind);
-		static std::string const map[] = {
-			"cube_ModelMatrix",
-			"cube_ViewMatrix",
-			"cube_ProjectionMatrix",
-			"cube_ModelViewProjectionMatrix",
-		};
-		static_assert((int)MatrixKind::model == 0, "Wrong index");
-		static_assert((int)MatrixKind::view == 1, "Wrong index");
-		static_assert((int)MatrixKind::projection == 2, "Wrong index");
-		static_assert((int)MatrixKind::mvp == 3, "Wrong index");
-		std::string name;
-		switch (kind)
-		{
-		case MatrixKind::model:
-		case MatrixKind::view:
-		case MatrixKind::projection:
-		case MatrixKind::mvp:
-			name = map[(unsigned int) kind];
-			assert(name.size() > 0 && "Name not registered ?");
-			if (auto parameter = this->find_parameter(name))
-				*parameter = matrix;
-			break;
-		default:
-			throw Exception{
-				"Unknown MatrixKind '" +
-				etc::to_string((int) kind)
-				+ "'."
-			};
-		}
-	}
-
-	void ShaderProgram::_bind(State const& state)
+	ShaderProgram::update(State const& state)
 	{
 		struct MatrixGetter
 		{
@@ -135,7 +100,7 @@ namespace cube { namespace gl { namespace renderer {
 			{"cube_ModelViewProjectionMatrix", &State::mvp},
 		};
 
-		_bind();
+		Guard guard(*this);
 		auto& map = _parameters();
 		auto end = map.end();
 		for (auto const& matrix: matrix_get)

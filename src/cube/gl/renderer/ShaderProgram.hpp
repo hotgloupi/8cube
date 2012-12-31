@@ -91,7 +91,7 @@ namespace cube { namespace gl { namespace renderer {
 		 * Update matrix parameters for the given matrix kind.
 		 */
 		virtual
-		void update(MatrixKind kind, matrix_type const& matrix);
+		void update(State const& state);
 
 		/**
 		 * Bind a texture unit to a named shader program parameter.
@@ -104,7 +104,11 @@ namespace cube { namespace gl { namespace renderer {
 		 * Bindable::_bind(State const&) method is implemented here.
 		 * It forward to _bind() and update all parameters from the state.
 		 */
-		void _bind(State const& state) override;
+		void _bind(State const& state) override
+		{
+			this->_bind();
+			this->update(state);
+		}
 
 		/**
 		 * @brief Retreive all parameters.
