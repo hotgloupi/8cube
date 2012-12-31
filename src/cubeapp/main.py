@@ -2,13 +2,6 @@
 
 import os, sys
 
-def err(*args, **kw):
-    print(*args, file=sys.stderr, **kw)
-
-def fatal(*args, **kw):
-    err(*args, **kw)
-    sys.exit(1)
-
 def console():
     import cube
     locals_ = {
@@ -22,7 +15,7 @@ def console():
         except:
             pass
     if readline is None:
-        print("Warning: couldn't import any readline module")
+        cube.warn("Couldn't import any readline module")
     code.InteractiveConsole(locals_).interact(
         banner="Type 'help(cube)' to get started."
     )
@@ -59,6 +52,7 @@ def main(args):
         import traceback
         traceback.print_exc()
         return
+    cube.info("Launching 8cube with args", args)
     cube.constants.application.name("8cube")
     cube.gui.FontManager.populate()
     try:
@@ -69,7 +63,8 @@ def main(args):
 
         if args.script:
             if not os.path.exists(args.script):
-                fatal("Cannot find the file '%s'" % args.script)
+                cube.fatal("Cannot find the file '%s'" % args.script)
+                return
             import runpy
             runpy.run_path(args.script, run_name='__main__')
             return
@@ -96,11 +91,11 @@ def main(args):
             bt = bt[:index]
         bt.reverse()
 
-        err("Python traceback: (most recent call last)")
+        print("Python traceback: (most recent call last)", file=sys.stderr)
         import traceback
         traceback.print_tb(e.__traceback__, file=sys.stderr)
-        err("c++ traceback: (most recent call last)")
+        print("c++ traceback: (most recent call last)", file=sys.stderr)
         for i, frame in enumerate(bt):
-            err('  %i: %s' % (i + 1, frame))
-        err(e)
+            print('  %i: %s' % (i + 1, frame), file=sys.stderr)
+        print(e, file=sys.stderr)
 

@@ -1,16 +1,18 @@
 # -*- encoding: utf-8 -*-
 
+import cube
+from cube.gl import font
+
 import os
 import time
 
 try:
     import _pickle as pickle
 except:
-    print("WARNING: optimized pickle not available")
+    cube.warn("Optimized pickle not available")
     import pickle
 
 
-from cube.gl import font
 
 class FontManager:
 
@@ -64,15 +66,15 @@ class FontManager:
             os.makedirs(fonts_dir)
         fonts_file = os.path.join(fonts_dir, "fonts.lst")
         if os.path.exists(fonts_file):
-            print("Loading fonts from cache file '%s'" % fonts_file)
+            cube.debug("Loading fonts from cache file '%s'" % fonts_file)
             try:
                 with open(fonts_file, 'rb') as f:
                     cls.fonts = pickle.loads(f.read())
             except Exception as e:
-                print("WARNING: font cache file '%s' is not valid, it will be removed:" % fonts_file, e)
+                cube.warn("font cache file '%s' is not valid, it will be removed:" % fonts_file, e)
                 os.unlink(fonts_file)
         else:
-            print("Finding fonts on your system, this may take a while...")
+            cube.info("Finding fonts on your system, this may take a while...")
             cls.fonts = {}
             for font_dir in cls.font_directories():
                 for root, dirs, files in os.walk(font_dir):
@@ -82,11 +84,11 @@ class FontManager:
                             try:
                                 cls.fonts[path] = font.get_infos(path)
                             except:
-                                print("Error: ignoring font file", path)
+                                cube.error("ignoring font file", path)
 
-        print(len(cls.fonts), "font infos fetched in %f seconds" % (time.time() - start))
+        cube.info(len(cls.fonts), "font infos fetched in %f seconds" % (time.time() - start))
 
-        print("Saving fonts into cache file '%s'" % fonts_file)
+        cube.debug("Saving fonts into cache file '%s'" % fonts_file)
         with open(fonts_file, 'wb') as f:
             f.write(pickle.dumps(cls.fonts))
 

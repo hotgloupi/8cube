@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+import cube
 from cube.gl.renderer import Renderer
 from cube import gl
 from cube import system
@@ -9,7 +10,6 @@ class RootWindow(system.Window):
 
     def __init__(self, title, width, height):
         super(RootWindow, self).__init__(title, width, height)
-        print(self.renderer.description())
         self._root_widget = Viewport(
             renderer=self.renderer,
             x=0, y=0, w=width, h=height,
@@ -42,7 +42,7 @@ class RootWindow(system.Window):
         )
         if self._new_viewport_size is not None:
             w, h = self._new_viewport_size
-            print("Updating viewport size")
+            cube.debug("Updating viewport size")
             self.renderer.viewport(0, 0, w, h);
             if self._root_widget:
                 self._root_widget.on_resize(w, h)
@@ -52,13 +52,13 @@ class RootWindow(system.Window):
         self.renderer.swap_buffers()
 
     def _on_expose(self, w, h):
-        print("Expose from window", w, h)
+        cube.debug("Expose from window", w, h)
         self._new_viewport_size = (w, h)
 
     def _on_resize(self, w, h):
-        print("resize from window", w, h)
+        cube.debug("resize from window", w, h)
         self._new_viewport_size = (w, h)
 
     def _on_keydown(self, mod, sym, k):
-        print("Key down:", mod, sym, k, chr(k))
+        cube.debug("Key down:", mod, sym, k, chr(k))
 

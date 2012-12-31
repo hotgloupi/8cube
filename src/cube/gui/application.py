@@ -56,7 +56,7 @@ class Application(cube.Application):
         self._running = False
 
     def shutdown(self):
-        print("shutting down")
+        cube.debug("shutting down")
         for ev, hdlr in self._handlers.items():
             hdlr['connection'].disconnect()
         self._handlers = {}
