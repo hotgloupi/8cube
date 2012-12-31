@@ -8,6 +8,7 @@ using namespace cube::gl;
 
 BOOST_PYTHON_MODULE(text)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	py::class_<
 			  text::Text
 			, boost::noncopyable

@@ -59,6 +59,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(inputs)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 	{

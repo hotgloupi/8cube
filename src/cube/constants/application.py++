@@ -13,6 +13,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(application)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	using namespace cube::constants::application;
 	namespace py = boost::python;
 

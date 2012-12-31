@@ -1,6 +1,7 @@
 #include <wrappers/boost/python.hpp>
 
 #include "../renderer/ShaderProgram.hpp"
+#include "../renderer/State.hpp"
 #include "../renderer/Texture.hpp"
 
 namespace cube { namespace gl { namespace renderer_bindings {
@@ -24,6 +25,10 @@ namespace cube { namespace gl { namespace renderer_bindings {
 					"parameter",
 					&ShaderProgram::parameter,
 					py::return_internal_reference<>()
+				)
+				.def(
+					"update",
+					&ShaderProgram::update
 				)
 			);
 

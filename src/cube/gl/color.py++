@@ -42,6 +42,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(color)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	boost::python::scope().attr("__doc__") =
 		"Color types.\n"
 	;

@@ -43,6 +43,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(renderer)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 	using namespace cube::gl::renderer_bindings;
 	using namespace cube::gl::renderer;

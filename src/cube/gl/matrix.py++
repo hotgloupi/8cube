@@ -19,6 +19,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(matrix)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	py::class_<matrix::Matrix44f>("Matrix44f")
 		.def("__str__", &print_obj<matrix::Matrix44f>)
 	;

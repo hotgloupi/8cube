@@ -7,6 +7,7 @@ using namespace cube::gl::viewport;
 
 BOOST_PYTHON_MODULE(viewport)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 	py::class_<Viewport, boost::noncopyable>(

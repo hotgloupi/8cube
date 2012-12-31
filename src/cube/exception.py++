@@ -67,6 +67,7 @@ namespace cube { namespace exception {
 
 BOOST_PYTHON_MODULE(exception)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 
 	namespace py = boost::python;
 	//py::class_<cube::exception::Exception>("_Exception", py::no_init);

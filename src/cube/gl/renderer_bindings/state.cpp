@@ -11,7 +11,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 	{
 		typedef void(State::*get_matrix_t)(matrix_type const&);
 
-		py::class_<State, boost::noncopyable>("State", py::no_init)
+		py::class_<State, boost::noncopyable>("State", py::init<State const&>())
 
 # define EXPORT_STATE_MATRIX(__name)                                          \
 			.add_property(                                                    \

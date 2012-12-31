@@ -10,6 +10,7 @@
 
 BOOST_PYTHON_MODULE(window)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 	using namespace cube::system::window;
