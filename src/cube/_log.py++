@@ -1,0 +1,34 @@
+#include <wrappers/boost/python.hpp>
+
+#include <etc/log.hpp>
+
+namespace {
+
+	void send(etc::log::Level level,
+		      std::string const& file,
+		      etc::size_type line,
+		      std::string const& function,
+		      std::string const& component,
+		      std::string const& msg)
+	{
+		etc::log::Log{level, file, line, function, component}.send(msg);
+	}
+
+}
+
+BOOST_PYTHON_MODULE(_log)
+{
+	namespace py = boost::python;
+
+	py::enum_<etc::log::Level>("Level")
+		.value("debug", etc::log::Level::debug)
+		.value("info",  etc::log::Level::info)
+		.value("warn",  etc::log::Level::warn)
+		.value("error", etc::log::Level::error)
+		.value("fatal", etc::log::Level::fatal)
+	;
+
+	py::def("send", &send);
+
+}
+

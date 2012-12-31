@@ -10,5 +10,7 @@ The cube library provides:
 """
 
 from .application import Application
-from .exception import Exception
 from . import constants, gl, gui, system
+
+from .exception import Exception
+from .log import debug, info, warn, error, fatal
