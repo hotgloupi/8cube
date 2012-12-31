@@ -33,6 +33,17 @@ namespace boost { namespace python {
 		typedef T type;
 	};
 
+	template<typename T>
+	std::string stringof(T const& val)
+	{
+		std::stringstream ss;
+		ss << val;
+		return ss.str();
+	};
 }}
+
+#define BOOST_PYTHON_DOCSTRING_OPTIONS()                                      \
+	boost::python::docstring_options __docstring_options{true, true, false};  \
+/**/
 
 #endif
