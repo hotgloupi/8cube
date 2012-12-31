@@ -10,24 +10,15 @@ namespace cube { namespace gl { namespace renderer {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.State");
 
-	State::State(Mode const mode)
-		: mode(mode)
-		, _matrices{{}, {}, {}, {}}
-		, _mvp_dirty{false}
-	{ETC_TRACE.debug("New state ", mode);}
-
-	State::State(State&& other)
-		: mode(other.mode)
-		, _matrices(std::move(other._matrices))
-	{}
-
-	State& State::operator =(State&& other)
+	State& State::operator =(State const& other)
 	{
 		if (this != &other)
 		{
-			assert(mode == other.mode);
-			for (size_t i = 0; i < (size_t) MatrixKind::_max_value; ++i)
-				_matrices[i] = std::move(other._matrices[i]);
+			if (this->mode != other.mode)
+				throw Exception{"Trying to move state with a different mode"};
+			std::copy(other._matrices,
+			          other._matrices + (size_t)MatrixKind::_max_value,
+			          _matrices);
 		}
 		return *this;
 	}

@@ -18,18 +18,16 @@ namespace cube { namespace gl { namespace renderer {
 		bool mutable        _mvp_dirty;
 
 	public:
-		State(Mode const mode);
-		State(State&& other);
-		State& operator =(State&& other);
-		State& operator =(State const& other)
-		{
-			std::copy(other._matrices,
-			          other._matrices + (size_t)MatrixKind::_max_value,
-			          _matrices);
-			return *this;
-		}
-	private:
-		State(State const& other) ETC_DELETED_FUNCTION;
+		State(Mode const mode)
+			: mode(mode)
+			, _matrices{{}, {}, {}, {}}
+			, _mvp_dirty{false}
+		{}
+
+		State(State&&) = default;
+		State(State const&) = default;
+		State& operator =(State&&) = delete;
+		State& operator =(State const&);
 
 		/**
 		 * Getter/setter for matrices
