@@ -11,8 +11,9 @@ class Application(cube.gui.Application):
 
     def __init__(self, game_directories=[], game=None):
         super(Application, self).__init__(
-            name="Infinit-cube",
+            name="8cube",
         )
+        cube.debug("New application")
         game_dir = None
         for dir_ in game_directories:
             if os.path.isdir(os.path.join(dir_, game)):
