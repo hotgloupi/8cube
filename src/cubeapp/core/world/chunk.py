@@ -4,18 +4,13 @@ from cube import gl
 
 class Chunk:
 
-    __initialized = []
-
-    def prepare(self, renderer):
-        cls = Chunk
-        if cls.__initialized:
-            return
-        cls.__initialized.append(True)
+    @classmethod
+    def prepare(cls, renderer):
         r = renderer
         w = 16
         h = 16
         attr = gl.renderer.make_vertex_buffer_attribute
-        cls.__vb = r.new_vertex_buffer([
+        cls.vb = r.new_vertex_buffer([
             attr(
                 gl.ContentKind.vertex,
                 list(
@@ -47,7 +42,7 @@ class Chunk:
             )
         )
 
-        cls.__sp  = r.new_shader_program([
+        cls.sp  = r.new_shader_program([
             r.new_fragment_shader(["""
                 void main(void)
                 {
@@ -66,9 +61,10 @@ class Chunk:
 
     def render(self, pos, painter):
         cls = Chunk
-        with painter.bind([cls.__sp, cls.__vb]):
-            painter.state.model = gl.matrix.translate(
-                painter.state.model,
-                gl.Vector3f(pos.x * 16, pos.y * 16, pos.z * 16)
-            )
-            painter.draw_elements(gl.DrawMode.quads, cls.__indices, 0, 4)
+        state = gl.State(painter.state)
+        state.model = gl.matrix.translate(
+            state.model,
+            gl.Vector3f(pos.x * 16, pos.y * 16, pos.z * 16)
+        )
+        self.sp.update(state)
+        painter.draw_elements(gl.DrawMode.quads, cls.__indices, 0, 4)

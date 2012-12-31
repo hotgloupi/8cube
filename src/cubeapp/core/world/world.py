@@ -4,6 +4,7 @@ from cube import gl
 
 from .storage import Storage
 from .generator import Generator
+from .chunk import Chunk
 
 class World:
     def __init__(self, storage, generator, renderer):
@@ -13,6 +14,7 @@ class World:
         self.__generator = generator
         self.__renderer = renderer
         self.__xxx_chunks = {}
+        Chunk.prepare(renderer)
 
     def update(self, delta, player):
         pos = self._chunk_coord(player.position)
@@ -22,13 +24,15 @@ class World:
         chunk = self.__storage.get_chunk(pos)
         if chunk is None:
             chunk = self.__generator.gen_chunk(pos)
-            chunk.prepare(self.__renderer)
             self.__storage.set_chunk(pos, chunk)
         return chunk
 
     def render(self, painter):
-        for pos, chunk in self.__xxx_chunks.items():
-            chunk.render(gl.Vector3i(*pos), painter)
+        if not self.__xxx_chunks:
+            return
+        with painter.bind([Chunk.sp, Chunk.vb]):
+            for pos, chunk in self.__xxx_chunks.items():
+                chunk.render(gl.Vector3i(*pos), painter)
 
     @staticmethod
     def _chunk_coord(v):
