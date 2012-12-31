@@ -70,7 +70,6 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	std::string init_script =
 		"import sys\n"
 		"sys.path.insert(0, lib_dir)\n"
-		"print(sys.path[0])\n"
 		"from cubeapp.main import main\n"
 		"main(" + pyargs + ")\n"
 	;
