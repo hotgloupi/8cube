@@ -80,12 +80,16 @@ namespace glm { namespace detail {                                            \
 	_CUBE_GL_VECTOR_DEF(2, float, f);
 	_CUBE_GL_VECTOR_DEF(2, double, d);
 	_CUBE_GL_VECTOR_DEF(2, int32_t, i);
-	_CUBE_GL_VECTOR_DEF(2, uint32_t, ui);
+	_CUBE_GL_VECTOR_DEF(2, uint32_t, u);
+	_CUBE_GL_VECTOR_DEF(2, int64_t, il);
+	_CUBE_GL_VECTOR_DEF(2, uint64_t, ul);
 
 	_CUBE_GL_VECTOR_DEF(3, float, f);
 	_CUBE_GL_VECTOR_DEF(3, double, d);
 	_CUBE_GL_VECTOR_DEF(3, int32_t, i);
-	_CUBE_GL_VECTOR_DEF(3, uint32_t, ui);
+	_CUBE_GL_VECTOR_DEF(3, uint32_t, u);
+	_CUBE_GL_VECTOR_DEF(3, int64_t, il);
+	_CUBE_GL_VECTOR_DEF(3, uint64_t, ul);
 
 # undef _CUBE_GL_VECTOR_DEF
 

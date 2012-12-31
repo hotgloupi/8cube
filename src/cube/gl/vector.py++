@@ -18,6 +18,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(vector)
 {
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 #define EXPORT_VECTOR(__value_type, __arity, __suffix)                        \
@@ -45,17 +46,21 @@ BOOST_PYTHON_MODULE(vector)
 		.def(py::self -= __type())                                            \
 /**/
 
-	EXPORT_VECTOR(float, 2, f)
-		.def(py::init<double, double>())
-		.def(py::init<int64_t, int64_t>())
-		.def(py::init<float, float>())
-		.def_readwrite("x", &Vector2f::x)
-		.def_readwrite("y", &Vector2f::y)
+#define EXPORT_VECTOR2(__value_type, __suffix)                                \
+	EXPORT_VECTOR(__value_type, 2, __suffix)                                  \
+		.def(py::init<float, float>())                                        \
+		.def(py::init<double, double>())                                      \
+		.def(py::init<int32_t, int32_t>())                                    \
+		.def(py::init<int64_t, int64_t>())                                    \
+		.def_readwrite("x", &Vector2<__value_type>::x)                        \
+		.def_readwrite("y", &Vector2<__value_type>::y)                        \
 	;
 
 #define EXPORT_VECTOR3(__value_type, __suffix)                                \
 	EXPORT_VECTOR(__value_type, 3, __suffix)                                  \
+		.def(py::init<float, float, float>())                                 \
 		.def(py::init<double, double, double>())                              \
+		.def(py::init<int32_t, int32_t, int32_t>())                           \
 		.def(py::init<int64_t, int64_t, int64_t>())                           \
 		.def_readwrite("x", &Vector3 ## __suffix::x)                          \
 		.def_readwrite("y", &Vector3 ## __suffix::y)                          \
@@ -63,11 +68,19 @@ BOOST_PYTHON_MODULE(vector)
 	;                                                                         \
 /**/
 
+	EXPORT_VECTOR2(float, f);
+	EXPORT_VECTOR2(double, d);
+	EXPORT_VECTOR2(int32_t, i);
+	EXPORT_VECTOR2(uint32_t, u);
+	EXPORT_VECTOR2(int64_t, il);
+	EXPORT_VECTOR2(uint64_t, ul);
+
 	EXPORT_VECTOR3(float, f);
 	EXPORT_VECTOR3(double, d);
-
 	EXPORT_VECTOR3(int32_t, i);
-	EXPORT_VECTOR3(uint32_t, ui);
+	EXPORT_VECTOR3(uint32_t, u);
+	EXPORT_VECTOR3(int64_t, il);
+	EXPORT_VECTOR3(uint64_t, ul);
 
 
 #define _EXPORT_VECTOR_FLOAT_METHODS(__value_type, __type)                    \
