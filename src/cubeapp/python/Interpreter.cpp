@@ -12,7 +12,7 @@
 namespace py = boost::python;
 namespace fs = boost::filesystem;
 
-namespace app { namespace python {
+namespace cubeapp { namespace python {
 
 	struct Interpreter::Impl
 	{

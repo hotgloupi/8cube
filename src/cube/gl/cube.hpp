@@ -9,9 +9,9 @@
 
 namespace cube { namespace gl { namespace cube {
 
-	enum class XAxis { left = -1,   right = 1 };
-	enum class YAxis { top = 1,     down = -1 };
-	enum class ZAxis { front = -1,  back = 1 };
+	enum class XAxis { right = 1,  left = -1 };
+	enum class YAxis { top = 1,    down = -1 };
+	enum class ZAxis { front = 1,  back = -1 };
 
 	template<typename T>
 	struct Cube3

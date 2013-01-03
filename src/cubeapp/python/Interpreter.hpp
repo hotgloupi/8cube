@@ -1,9 +1,9 @@
-#ifndef  APP_PYTHON_INTERPRETER_HPP
-# define APP_PYTHON_INTERPRETER_HPP
+#ifndef  CUBEAPP_PYTHON_INTERPRETER_HPP
+# define CUBEAPP_PYTHON_INTERPRETER_HPP
 
 # include <string>
 
-namespace app { namespace python {
+namespace cubeapp { namespace python {
 
 	class Interpreter
 	{

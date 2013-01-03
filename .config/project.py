@@ -70,11 +70,22 @@ def configure(project, build):
     else:
         Compiler = cxx.gcc.Compiler
 
+    if project.env.BUILD_TYPE == 'DEBUG':
+        defines = [
+            'ETC_DEBUG',
+            'CUBE_DEBUG',
+            'CUBEAPP_DEBUG',
+        ]
+    elif project.env.BUILD_TYPE == 'release':
+        defines = ['NDEBUG']
+
+    defines += ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB']
+
     compiler = Compiler(
         project, build,
         position_independent_code = True,
         standard = 'c++11',
-        defines = ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB'],
+        defines = defines,
         include_directories = [
             path.absolute(project.root_dir, 'src'),
             path.absolute(project.root_dir, 'src/glew'),
@@ -141,6 +152,8 @@ def configure(project, build):
 
     graphic_libraries.insert(0, libglew)
 
+################### libcube
+
     libcube = compiler.link_static_library(
         'libcube',
         glob("src/cube/*.cpp", recursive=True),
@@ -148,15 +161,41 @@ def configure(project, build):
         libraries=[libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
-
-    for binding in glob("src/cube/*.py++", recursive=True):
+    for binding in glob("cube/*.py++", dir_='src', recursive=True):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
             ext = python.ext,
-            directory = path.dirname("release/lib/python/cube", binding[9:]),
+            directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
+
+################### libcubeapp
+
+    libcubeapp = compiler.link_static_library(
+        'libcubeapp',
+        (src for src in glob("src/cubeapp/*.cpp", recursive=True) if not src.endswith('main.cpp')),
+        directory  = 'release/lib',
+        libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
+    )
+
+    for binding in glob("cubeapp/*.py++", dir_='src', recursive=True):
+        compiler.link_dynamic_library(
+            path.splitext(path.basename(binding))[0],
+            [binding],
+            ext = python.ext,
+            directory = path.dirname("release/lib/python", binding[4:]),
+            libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+        )
+
+    infinit_cube = compiler.link_executable(
+        "8cube",
+        ["src/cubeapp/main.cpp"],
+        directory = "release/bin",
+        libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
+    )
+
+#################### greenlet python module
 
     compiler.link_dynamic_library(
         "greenlet",
@@ -185,13 +224,6 @@ def configure(project, build):
             path.join('release/share/8cube', src[6:]),
             CopyFile(Source(src))
         ) for src in glob("share/games/*.py", recursive=True)
-    )
-
-    infinit_cube = compiler.link_executable(
-        "8cube",
-        glob("src/cubeapp/*.cpp", recursive=True),
-        directory = "release/bin",
-        libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
     tests = [

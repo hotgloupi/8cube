@@ -49,7 +49,7 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 
 	ETC_LOG("Starting 8cube");
 
-	auto& interpreter = app::python::Interpreter::instance();
+	auto& interpreter = cubeapp::python::Interpreter::instance();
 
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
