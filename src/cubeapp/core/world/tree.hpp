@@ -7,6 +7,7 @@
 # include <etc/types.hpp>
 
 # include <cstring>
+# include <limits>
 # include <tuple>
 # include <vector>
 
@@ -17,7 +18,8 @@
 namespace cubeapp { namespace core { namespace world { namespace tree {
 
 	/// world coordinate type
-	typedef uint64_t                                size_type;
+	typedef int64_t                                 size_type;
+	typedef std::make_unsigned<size_type>::type     usize_type;
 
 	/// Point in the world
 	typedef cube::gl::vector::Vector3<size_type>    vector_type;
@@ -50,8 +52,8 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	{
 	public:
 		static level_type const level = level_;
-		static size_type const size =
-			etc::meta::math::power<size_type, 2, level_>::value;
+		static usize_type const size =
+			etc::meta::math::power<usize_type, 2, level_>::value;
 
 	public:
 		vector_type const   origin;
@@ -73,9 +75,9 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 			);
 			*/
 			return (
-				   point.x - this->origin.x < this->size
-				&& point.y - this->origin.y < this->size
-				&& point.z - this->origin.z < this->size
+				   static_cast<usize_type>(glm::abs(point.x - this->origin.x)) < this->size
+				&& static_cast<usize_type>(glm::abs(point.y - this->origin.y)) < this->size
+				&& static_cast<usize_type>(glm::abs(point.z - this->origin.z)) < this->size
 			);
 		}
 

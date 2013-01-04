@@ -19,7 +19,7 @@ namespace {
 		tree::vector_type origin() const = 0;
 
 		virtual
-		tree::size_type size() const = 0;
+		tree::usize_type size() const = 0;
 
 		virtual
 		bool contains(tree::vector_type const& point) const = 0;
@@ -52,7 +52,7 @@ namespace {
 			return _node_implem.origin;
 		}
 
-		tree::size_type size() const override
+		tree::usize_type size() const override
 		{
 			return _node_implem.size;
 		}
