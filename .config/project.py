@@ -99,7 +99,7 @@ def configure(project, build):
     boost = cxxlib.BoostLibrary(
         compiler,
         components=['system', 'filesystem', 'signals', 'python3'],
-        shared=False,
+        shared=True,
         python3_shared=True,
     )
 
@@ -113,7 +113,7 @@ def configure(project, build):
 
     opengl = clib.OpenGLLibrary(compiler)
 
-    freetype = clib.FreetypeLibrary(compiler, shared=False)
+    freetype = clib.FreetypeLibrary(compiler, shared=True)
 
     graphic_libraries = (
         sdl.libraries +
