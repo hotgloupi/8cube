@@ -29,10 +29,10 @@ class Button(Label):
             attr(
                 gl.ContentKind.color,
                 [
-                    gl.Color3f('orange'),
-                    gl.Color3f('green'),
-                    gl.Color3f('gray'),
-                    gl.Color3f('blue'),
+                    gl.Color3f('#ccc'),
+                    gl.Color3f('#ccc'),
+                    gl.Color3f('#ccc'),
+                    gl.Color3f('#ccd'),
                 ],
                 gl.ContentHint.static_content
             )
