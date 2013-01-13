@@ -100,6 +100,7 @@ class FontManager:
                 '/Library/Fonts',
                 '/System/Library/Fonts',
                 '/usr/share/fonts',
+                '/usr/X11R6/lib/X11/fonts',
                 '/usr/local/share/fonts',
                 '~/.fonts',
                 '/opt/share/fonts',

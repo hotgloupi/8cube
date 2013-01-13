@@ -1,6 +1,7 @@
 #include <wrappers/boost/python.hpp>
 
 #include "font.hpp"
+#include "renderer/Texture.hpp"
 #include "renderer/Renderer.hpp"
 #include "renderer.hpp"
 #include "renderer/VertexBuffer.hpp"
@@ -14,13 +15,14 @@ namespace {
 	{
 		struct Font
 		{
+			template<typename CharType>
 			static
 			renderer::VertexBuffer*
-			generate_text(font::Font& self, char16_t const* str)
+			generate_text(font::Font& self, CharType const* str)
 			{
 				assert(str != nullptr && "Null string !");
 				return self.generate_text(
-					std::basic_string<char16_t>(str)
+					std::basic_string<CharType>(str)
 				).release();
 			}
 
@@ -104,8 +106,15 @@ BOOST_PYTHON_MODULE(font)
 		)
 		.def(
 			"generate_text",
-			&Proxy::Font::generate_text,
+			&Proxy::Font::generate_text<char>,
 			py::return_internal_reference<>()
+		)
+		.add_property(
+			"texture",
+			py::make_function(
+				&font::Font::texture,
+				py::return_internal_reference<>()
+			)
 		)
 	;
 
