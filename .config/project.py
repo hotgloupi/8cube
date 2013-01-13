@@ -235,7 +235,7 @@ def configure(project, build):
             test,
             [path.join('tests', test + '.cpp')],
             directory = 'tests',
-            libraries = [libcube, libetc] + graphic_libraries + boost.libraries + base_libraries,
+            libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
 
 
