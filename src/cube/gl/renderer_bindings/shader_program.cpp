@@ -54,6 +54,15 @@ namespace cube { namespace gl { namespace renderer_bindings {
 						>(&ShaderProgramParameter::operator =)                \
 					)                                                         \
 				)                                                             \
+				.def(                                                         \
+					"set",                                                    \
+					py::pure_virtual(                                         \
+						static_cast<                                          \
+							void                                              \
+							(ShaderProgramParameter::*) (type)                \
+						>(&ShaderProgramParameter::operator =)                \
+					)                                                         \
+				)                                                             \
 		/**/
 				__EQ__(matrix_type const&)
 				__EQ__(int32_t)
