@@ -76,8 +76,10 @@ def configure(project, build):
             'CUBE_DEBUG',
             'CUBEAPP_DEBUG',
         ]
-    elif project.env.BUILD_TYPE == 'release':
+    elif project.env.BUILD_TYPE == 'RELEASE':
         defines = ['NDEBUG']
+    else:
+        raise Exception("Unknown build type '%s'" % build_type)
 
     defines += ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB']
 
@@ -139,7 +141,7 @@ def configure(project, build):
         directory  = 'release/lib',
         libraries = base_libraries + boost.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
-        shared = True
+        shared = True and not platform.IS_MACOSX #bug with tup on macosx
     )
 
     libglew = compiler.link_static_library(
