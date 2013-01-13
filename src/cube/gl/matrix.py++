@@ -37,4 +37,12 @@ BOOST_PYTHON_MODULE(matrix)
 			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, vector::Vector3<float> const&)
 		>(&matrix::translate<float>)
 	);
+
+	py::def(
+		"scale",
+		static_cast<
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, float const, float const, float const)
+		>(&matrix::scale<float>)
+	);
+
 }

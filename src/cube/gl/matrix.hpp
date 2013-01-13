@@ -53,6 +53,13 @@ namespace cube { namespace gl { namespace matrix {
 		return ::glm::translate(m, x, y, z);
 	}
 
+	template<typename T>
+	inline
+	typename std::enable_if<std::is_floating_point<T>::value, Matrix44<T>>::type
+	scale(Matrix44<T> const& m, T const x, T const y, T const z)
+	{
+		return ::glm::scale(m, x, y, z);
+	}
 
 	template<typename T>
 	inline
