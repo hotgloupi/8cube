@@ -14,9 +14,11 @@ void main()
 """
 
 fragment_shader = """
+uniform sampler2D sampler0;
 void main()
 {
-    gl_FragColor = gl_Color;
+    vec4 font = texture2D(sampler0, vec2(gl_TexCoord[0]));
+    gl_FragColor =font;
 }
 
 """
@@ -41,10 +43,10 @@ class App:
     def _prepare(self):
         from cube.gl.renderer import make_vertex_buffer_attribute as vb_attr, \
                                      ContentHint, ContentKind
-        from cube.gl import Color3f, Vector3f
+        from cube.gl import Color3f, Vector3f, Vector2f
 
         r = self.window.renderer
-        w = h = .5
+        w = h = 1
         self.vb = r.new_vertex_buffer([
             vb_attr(
                 ContentKind.vertex,
@@ -58,11 +60,22 @@ class App:
                 ),
                 ContentHint.static_content
             ),
+
             vb_attr(
-                ContentKind.color,
-                list(Color3f(v) for v in ('red', 'orange', 'green', 'blue')),
+                ContentKind.tex_coord0,
+                list(Vector3f(*v) for v in [
+                    (0, -1, 0),
+                    (1, -1, 0),
+                    (1, 0, 0),
+                    (0, 0, 0),
+                ]),
                 ContentHint.static_content
-            )
+            ),
+            #vb_attr(
+            #    ContentKind.color,
+            #    list(Color3f(v) for v in ('red', 'orange', 'green', 'blue')),
+            #    ContentHint.static_content
+            #)
         ])
 
         self.ib = r.new_index_buffer(
@@ -80,28 +93,30 @@ class App:
         #self.shader.parameter("cube_ModelViewProjectionMatrix")
 
         infos = None
-        for name in ['monaco', 'monospace']:
-            infos = cube.gui.FontManager.search('monaco')
+        for name in ['monaco', 'monospace', 'mono']:
+            infos = cube.gui.FontManager.search(name)
             if len(infos):
+                print("Found font", name, infos[0])
                 break
         if not infos:
             raise Exception("Font not found")
         self.font = cube.gl.Font(r, infos[0], 48)
-        self.text = cube.gl.Text(self.font, "Salut")
+        self.text = cube.gl.Text(self.font, "abcdefghijklmnopqrstuvwxyz")
         #self.text_vb = self.font.generate_text("Hello")
         self.text_shader = r.new_shader_program([
             r.new_vertex_shader([vertex_shader]),
             r.new_fragment_shader([text_fragment_shader]),
         ])
-        #self.text_shader.parameter("sampler0").set(self.font.texture)
+        tex = self.font.texture
+        param = self.shader.parameter("sampler0")
+        param.set(tex)
 
     def _on_resize(self, w, h):
         self.projection_matrix = cube.gl.matrix.perspective(
             45, h / w, 0.005, 300.0
         )
         self.window.renderer.clear(cube.gl.BufferBit.color | cube.gl.BufferBit.depth)
-
-
+        self.window.renderer.viewport(0, 0, w, h)
 
     def _on_quit(self):
         self.running = False
@@ -124,13 +139,23 @@ class App:
                 cube.gl.Vector3f(0, 0, 1),
                 cube.gl.Vector3f(0, 1, 0),
             )
-            with painter.bind([self.vb, self.shader]):
+            with painter.bind([self.vb, self.shader, self.font.texture]):
                 painter.draw_elements(
                     cube.gl.DrawMode.quads,
                     self.ib,
                     0, 4
                 )
-            painter.state.model = cube.gl.matrix.
+        with r.begin(cube.gl.mode_3d) as painter:
+            painter.state.model = cube.gl.matrix.translate(
+                cube.gl.matrix.scale(painter.state.model, .01, -.01, .01),
+                -70, 0, 0
+            )
+            painter.state.projection = self.projection_matrix
+            painter.state.view = cube.gl.matrix.look_at(
+                cube.gl.Vector3f(0, 0, 10),
+                cube.gl.Vector3f(0, 0, -1),
+                cube.gl.Vector3f(0, 1, 0),
+            )
             with painter.bind([self.text_shader]):
                 painter.draw(self.text, self.text_shader.parameter('sampler0'))
 
