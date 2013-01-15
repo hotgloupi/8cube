@@ -44,30 +44,30 @@ namespace cube { namespace gl { namespace renderer_bindings {
 					"ShaderProgramParameter",
 					py::no_init
 				)
-#define __EQ__(type)                                                          \
+#define make_eq(__bind_method, __type)                                        \
 				.def(                                                         \
 					"__eq__",                                                 \
-					py::pure_virtual(                                         \
+					py::__bind_method(                                        \
 						static_cast<                                          \
 							void                                              \
-							(ShaderProgramParameter::*) (type)                \
+							(ShaderProgramParameter::*) (__type)              \
 						>(&ShaderProgramParameter::operator =)                \
 					)                                                         \
 				)                                                             \
 				.def(                                                         \
 					"set",                                                    \
-					py::pure_virtual(                                         \
+					py::__bind_method(                                        \
 						static_cast<                                          \
 							void                                              \
-							(ShaderProgramParameter::*) (type)                \
+							(ShaderProgramParameter::*) (__type)              \
 						>(&ShaderProgramParameter::operator =)                \
 					)                                                         \
 				)                                                             \
 		/**/
-				__EQ__(matrix_type const&)
-				__EQ__(int32_t)
-				__EQ__(Texture&)
-#undef __EQ__
+				make_eq(pure_virtual, matrix_type const&)
+				make_eq(pure_virtual, int32_t)
+				make_eq(make_function, Texture&)
+#undef make_eq
 			;
 	}
 
