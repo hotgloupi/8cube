@@ -4,6 +4,8 @@ from cube import gl
 
 class Chunk:
 
+    size = 16
+
     @classmethod
     def prepare(cls, renderer):
         r = renderer

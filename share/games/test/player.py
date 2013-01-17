@@ -34,4 +34,5 @@ class Player(core.Player):
 
         if move.x or move.y or move.z:
             self.camera.position += self.velocity * delta * gl.vector.normalize(move)
+        super(Player, self).update(delta)
 

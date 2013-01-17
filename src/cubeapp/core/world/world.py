@@ -7,6 +7,9 @@ from .generator import Generator
 from . import tree
 from .chunk import Chunk
 
+# World coordinate type
+coord_type = gl.Vector3il
+
 class World:
     def __init__(self, storage, generator, renderer):
         assert isinstance(storage, Storage)
@@ -16,10 +19,10 @@ class World:
         self.__renderer = renderer
         self.__tree = tree.Tree()
         Chunk.prepare(renderer)
+        self.referential = gl.Vector3il()
 
     def update(self, delta, player):
-        pos = self._chunk_coord(player.position)
-        self.__player_pos = gl.Vector3il(pos.x, pos.y, pos.z)
+        self.referential = player.world_position
         self.__nodes_to_render = []
         self.__tree.visit_nodes(self.__on_tree_node)
         #print("Found", len(self.__nodes_to_render), "nodes")
@@ -29,7 +32,7 @@ class World:
             self.__nodes_to_render.append(
                 (node.origin, self.get_chunk(node.origin))
             )
-        if node.contains(self.__player_pos):
+        if node.contains(self.referential):
             return tree.VisitAction.continue_
         return tree.VisitAction.stop_and_clean
 
@@ -43,17 +46,5 @@ class World:
     def render(self, painter):
         with painter.bind([Chunk.sp, Chunk.vb]):
             for pos, chunk in self.__nodes_to_render:
-                chunk.render(pos, painter)
-
-    @staticmethod
-    def _chunk_coord(v):
-        rounded = v / 16.0
-        pos = gl.Vector3il(rounded.x, rounded.y, rounded.z)
-        if v.x < 0:
-            pos.x -= 1
-        if v.y < 0:
-            pos.y -= 1
-        if v.z < 0:
-            pos.z -= 1
-        return pos
+                chunk.render(pos - self.referential, painter)
 
