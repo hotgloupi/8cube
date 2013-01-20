@@ -76,8 +76,10 @@ def configure(project, build):
             'CUBE_DEBUG',
             'CUBEAPP_DEBUG',
         ]
-    elif project.env.BUILD_TYPE == 'release':
+    elif project.env.BUILD_TYPE == 'RELEASE':
         defines = ['NDEBUG']
+    else:
+        raise Exception("Unknown build type '%s'" % build_type)
 
     defines += ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB']
 
@@ -100,7 +102,7 @@ def configure(project, build):
     boost = cxxlib.BoostLibrary(
         compiler,
         components=['system', 'filesystem', 'signals', 'python3'],
-        shared=False,
+        shared=True,
         python3_shared=True,
     )
 
@@ -114,19 +116,6 @@ def configure(project, build):
 
     opengl = clib.OpenGLLibrary(compiler)
 
-    from tupcfg.lang import c
-    gcc = c.gcc.Compiler(
-        project, build,
-        position_independent_code = True,
-        defines = defines,
-        include_directories = [
-            path.absolute(project.root_dir, 'src/freetype-2.4.11/include'),
-        ],
-        static_libstd = False,
-        use_build_type_flags = True,
-        hidden_visibility = (build_type != 'DEBUG')
-    )
-    #freetype = clib.FreetypeLibrary(compiler, shared=False)
     freetype = compiler.link_static_library(
         'libfreetype2',
         (
@@ -289,6 +278,7 @@ def configure(project, build):
         directory = 'release/lib',
         defines = ['FT2_BUILD_LIBRARY'],
     )
+    #freetype = clib.FreetypeLibrary(compiler, shared=True)
 
     graphic_libraries = (
         sdl.libraries +
@@ -315,7 +305,7 @@ def configure(project, build):
         directory  = 'release/lib',
         libraries = base_libraries + boost.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
-        shared = True
+        shared = True and not platform.IS_MACOSX #bug with tup on macosx
     )
 
     libglew = compiler.link_static_library(
@@ -411,7 +401,7 @@ def configure(project, build):
             test,
             [path.join('tests', test + '.cpp')],
             directory = 'tests',
-            libraries = [libcube, libetc] + graphic_libraries + boost.libraries + base_libraries,
+            libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
 
 

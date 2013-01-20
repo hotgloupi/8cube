@@ -24,7 +24,15 @@ namespace cube { namespace gl { namespace renderer {
 			, _mvp_dirty{false}
 		{}
 
-		State(State&&) = default;
+		State(State&& other)
+			: mode{other.mode}
+			, _mvp_dirty{other._matrices}
+		{
+			std::copy(other._matrices,
+			          other._matrices + (size_t)MatrixKind::_max_value,
+			          _matrices);
+		}
+
 		State(State const&) = default;
 		State& operator =(State&&) = delete;
 		State& operator =(State const&);

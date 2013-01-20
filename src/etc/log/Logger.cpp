@@ -85,15 +85,36 @@ namespace etc { namespace log {
 			}
 			return components[name] = enabled;
 		}
-	}
+
+		Level default_level()
+		{
+			std::string level_string = etc::sys::getenv("ETC_LOG_LEVEL", "INFO");
+			std::unordered_map<std::string, Level> map{
+				{"DEBUG", Level::debug},
+				{"INFO", Level::info},
+				{"WARN", Level::warn},
+				{"WARNING", Level::warn},
+				{"ERROR", Level::error},
+				{"FATAL", Level::fatal},
+			};
+			auto it = map.find(level_string);
+			if (it == map.end())
+				return Level::info;
+			return it->second;
+		}
+
+	} // !anonymous
+
+
 
 	Logger& logger(std::string const& name)
 	{
 		static std::unordered_map<std::string, Logger*> loggers;
+		static Level level = default_level();
 		auto it = loggers.find(name);
 		if (it != loggers.end())
 			return *it->second;
-		return *((loggers[name] = new Logger{name, Level::info}));
+		return *((loggers[name] = new Logger{name, level}));
 	}
 
 	Logger::Logger(std::string const& name,
