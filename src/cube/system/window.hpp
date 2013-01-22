@@ -1,33 +1,65 @@
 #ifndef  CUBE_SYSTEM_WINDOW_HPP
 # define CUBE_SYSTEM_WINDOW_HPP
 
-# include <string>
-
 # include <cube/gl/fwd.hpp>
 # include <cube/gl/renderer/fwd.hpp>
 # include <cube/system/fwd.hpp>
 
+# include <string>
+# include <memory>
+
 namespace cube { namespace system { namespace window {
+
+	class Window;
+
+	std::unique_ptr<Window>
+	create_window(std::string const& title,
+	              etc::size_type const width,
+	              etc::size_type const height,
+	              gl::renderer::Name const name = gl::renderer::Name::OpenGL);
 
 	class Window
 	{
 	private:
 		struct Impl;
-		Impl* _impl;
+		std::unique_ptr<Impl> _impl;
 
 	private:
-		std::string _title;
-		uint32_t _width;
-		uint32_t _height;
+		std::string     _title;
+	protected:
+		etc::size_type  _width;
+		etc::size_type  _height;
 
 	public:
-		Window(std::string const& title, uint32_t width, uint32_t height);
+		gl::renderer::Renderer& renderer();
+		inputs::Inputs& inputs();
+
+	public:
+		Window(std::string const& title,
+		       etc::size_type const width,
+		       etc::size_type const height,
+		       gl::renderer::Name const renderer_name);
 		virtual ~Window();
-		uint32_t poll();
-		uint32_t poll(uint32_t max);
-		::cube::gl::renderer::Renderer& renderer();
-		::cube::system::inputs::Inputs& inputs();
-		void confine_mouse(bool mode);
+
+		virtual
+		etc::size_type poll();
+
+		virtual
+		etc::size_type poll(etc::size_type const max) = 0;
+
+		virtual
+		void confine_mouse(bool mode) = 0;
+
+		virtual
+		void swap_buffers() = 0;
+
+	private:
+		friend
+		std::unique_ptr<Window>
+		create_window(std::string const& title,
+		              etc::size_type const width,
+		              etc::size_type const height,
+		              gl::renderer::Name const name);
 	};
 
 }}} // !cube::system::window

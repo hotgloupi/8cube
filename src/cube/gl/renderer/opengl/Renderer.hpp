@@ -13,7 +13,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	public:
 		void initialize(cube::gl::viewport::Viewport const& vp);
 		void shutdown();
-		void swap_buffers();
 		cube::gl::renderer::RendererType const& description() const;
 		~GLRenderer();
 		renderer::Painter begin(renderer::Mode mode);

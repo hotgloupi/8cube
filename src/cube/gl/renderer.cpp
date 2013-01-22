@@ -25,7 +25,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	std::unique_ptr<Renderer>
 	create_renderer(cube::gl::viewport::Viewport const& vp,
-	                RendererType::Name name)
+	                Name const name)
 	{
 		for (auto const& description: descriptions())
 		{

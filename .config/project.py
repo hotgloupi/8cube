@@ -88,17 +88,28 @@ def configure(project, build):
         position_independent_code = True,
         standard = 'c++11',
         defines = defines,
+        library_directories = [
+            '/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib',
+            '/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib/arm-linux-gnueabihf',
+            '/home/hotgloupi/sandbox/raspberry/root/usr/lib',
+            '/home/hotgloupi/sandbox/raspberry/root/usr/lib/arm-linux-gnueabihf',
+        ],
         include_directories = [
+            '/home/hotgloupi/sandbox/raspberry/root/usr/include',
+            '/home/hotgloupi/sandbox/raspberry/root/usr/include/arm-linux-gnueabihf',
             path.absolute(project.root_dir, 'src'),
             path.absolute(project.root_dir, 'src/glew'),
             path.absolute(project.root_dir, 'src/freetype-2.4.11/include'),
         ],
         static_libstd = False,
         use_build_type_flags = True,
-        hidden_visibility = (build_type != 'DEBUG')
+        hidden_visibility = (build_type != 'DEBUG'),
+        force_architecture = False,
+        additional_link_flags = {
+            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
+        }
     )
     status("CXX compiler is", compiler.binary)
-
     boost = cxxlib.BoostLibrary(
         compiler,
         components=['system', 'filesystem', 'signals', 'python3'],
@@ -331,7 +342,7 @@ def configure(project, build):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
-            ext = python.ext,
+            #ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
@@ -349,7 +360,7 @@ def configure(project, build):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
-            ext = python.ext,
+            #ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
@@ -367,7 +378,7 @@ def configure(project, build):
         "greenlet",
         ['src/greenlet/greenlet.c'],
         directory = 'release/lib/python',
-        ext = python.ext,
+        #ext = python.ext,
         libraries = python.libraries,
     )
 

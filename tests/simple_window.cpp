@@ -8,20 +8,20 @@
 
 #include <unistd.h>
 
-using cube::system::window::Window;
+using cube::system::window::create_window;
 
 CUBE_MAIN_PROTO(int ac, char** av)
 {
 	etc::print("Dir:", etc::path::directory_name(av[0]));
-	Window window{"SimpleWindow", 640, 480};
+	auto window = create_window("SimpleWindow", 640, 480);
 	bool running = true;
-	window.inputs().on_quit().connect(
+	window->inputs().on_quit().connect(
 		[&running]() { running = false; }
 	);
 	int i = 0;
 	while (i++ < 100)
 	{
-		window.poll();
+		window->poll();
 		usleep(1000);
 	}
 	return 0;

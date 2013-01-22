@@ -149,6 +149,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(DeleteTextures);
 		_CUBE_GL_OPENGL_WRAP(BindTexture);
 		_CUBE_GL_OPENGL_WRAP(TexImage2D);
+		_CUBE_GL_OPENGL_WRAP(TexStorage2D);
+		_CUBE_GL_OPENGL_WRAP(GenerateMipmap);
 		_CUBE_GL_OPENGL_WRAP(TexSubImage2D);
 		_CUBE_GL_OPENGL_WRAP(TexParameteri);
 		_CUBE_GL_OPENGL_WRAP(ActiveTexture);

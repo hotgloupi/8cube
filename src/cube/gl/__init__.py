@@ -23,6 +23,7 @@ Exported classes:
 
 Exported enumerations:
 
+    Name (OpenGL, DirectX)
     RendererMode (_2d, _3d)
     ContentKind (vertex, index, color, normal, tex_coord0, tex_coord1,
                  tex_coord2)

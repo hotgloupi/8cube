@@ -9,6 +9,13 @@ namespace cube { namespace gl { namespace renderer_bindings {
 
 	void export_constants()
 	{
+		py::enum_<Name>(
+				"Name", "Availables renderer names"
+			)
+			.value("OpenGL", Name::OpenGL)
+			.value("DirectX", Name::DirectX)
+		;
+
 		py::enum_<Mode>(
 				"RendererMode",
 				"Renderer mode affects default projection matrices"

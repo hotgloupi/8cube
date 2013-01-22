@@ -212,10 +212,6 @@ namespace cube { namespace gl { namespace renderer_bindings {
 				py::return_internal_reference<>()
 			)
 			.def(
-				"swap_buffers",
-				&Renderer::swap_buffers
-			)
-			.def(
 				"viewport",
 				&Wrap::Renderer::viewport
 			)

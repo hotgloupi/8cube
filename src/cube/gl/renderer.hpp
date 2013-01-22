@@ -18,7 +18,7 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	std::unique_ptr<Renderer>
 	create_renderer(cube::gl::viewport::Viewport const& vp,
-	                RendererType::Name name = RendererType::OpenGL);
+	                Name const name = Name::OpenGL);
 
 }}}
 
