@@ -101,7 +101,7 @@ def configure(project, build):
     boost = cxxlib.BoostLibrary(
         compiler,
         components=['system', 'filesystem', 'signals', 'python3'],
-        shared=True,
+        preferred_shared=False,
         python3_shared=True,
     )
 
