@@ -33,7 +33,7 @@ def info(*msgs):
     _send(_log.Level.info, *msgs)
 
 def warn(*msgs):
-    _send(_log.Level.warning, *msgs)
+    _send(_log.Level.warn, *msgs)
 
 def error(*msgs):
     _send(_log.Level.error, *msgs)

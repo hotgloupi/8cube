@@ -50,17 +50,63 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		//	_surface->pixels
 		//);
 
-		gluBuild2DMipmaps(
-			GL_TEXTURE_2D,
-			bpp,
-			_surface->w,
-			_surface->h,
-			mode,
-			GL_UNSIGNED_BYTE,
-			_surface->pixels
-		);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//gluBuild2DMipmaps(
+		//	GL_TEXTURE_2D,
+		//	bpp,
+		//	_surface->w,
+		//	_surface->h,
+		//	mode,
+		//	GL_UNSIGNED_BYTE,
+		//	_surface->pixels
+		//);
+
+		// calculate mipmap levels
+		etc::size_type levels = 1;
+		{
+			etc::size_type w = _surface->w,
+			               h = _surface->h;
+			while (w > 1 && h > 1)
+			{
+				levels += 1;
+				w /= 2;
+				h /= 2;
+			}
+		}
+		// Bug in ATI drivers
+		gl::Enable(GL_TEXTURE_2D);
+
+		if (GLEW_VERSION_3_0)
+		{
+			gl::TexStorage2D(GL_TEXTURE_2D, levels, mode, _surface->w, _surface->h);
+			gl::TexSubImage2D(
+				GL_TEXTURE_2D,
+				0, 0, 0,
+				_surface->w,
+				_surface->h,
+				GL_BGRA,
+				GL_UNSIGNED_BYTE,
+				_surface->pixels
+			);
+		}
+		else
+		{
+			gl::TexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				mode,
+				_surface->w,
+				_surface->h,
+				0,
+				GL_BGRA,
+				GL_UNSIGNED_BYTE,
+				_surface->pixels
+			);
+		}
+		gl::GenerateMipmap(GL_TEXTURE_2D);
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	}
 
 	Texture::Texture(renderer::PixelFormat const internal_format,

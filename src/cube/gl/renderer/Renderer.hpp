@@ -94,10 +94,6 @@ namespace cube { namespace gl { namespace renderer {
 
 		///
 		virtual
-		void swap_buffers() = 0;
-
-		///
-		virtual
 		RendererType const& description() const = 0;
 
 		///
@@ -219,13 +215,6 @@ namespace cube { namespace gl { namespace renderer {
 
 	class RendererType
 	{
-	public:
-		enum Name
-		{
-			OpenGL = 1,
-			DirectX = 2,
-		};
-
 	public:
 		virtual
 		std::unique_ptr<Renderer>

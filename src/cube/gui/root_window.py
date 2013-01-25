@@ -6,10 +6,10 @@ from cube import gl
 from cube import system
 from cube.gui.widgets.viewport import Viewport
 
-class RootWindow(system.Window):
+class RootWindow:
 
     def __init__(self, title, width, height):
-        super(RootWindow, self).__init__(title, width, height)
+        self.__window = system.create_window(title, width, height, gl.renderer.Name.OpenGL)
         self._root_widget = Viewport(
             renderer=self.renderer,
             x=0, y=0, w=width, h=height,
@@ -24,6 +24,20 @@ class RootWindow(system.Window):
     @property
     def size(self):
         return self._root_widget.size
+
+    @property
+    def renderer(self):
+        return self.__window.renderer
+
+    def confine_mouse(self, wrap):
+        pass
+
+    def poll(self):
+        return self.__window.poll()
+
+    @property
+    def inputs(self):
+        return self.__window.inputs
 
     @property
     def root_widget(self):
@@ -49,7 +63,7 @@ class RootWindow(system.Window):
             self._new_viewport_size = None
         if self._root_widget is not None:
             self._root_widget.render(painter)
-        self.renderer.swap_buffers()
+        self.__window.swap_buffers()
 
     def _on_expose(self, w, h):
         cube.debug("Expose from window", w, h)

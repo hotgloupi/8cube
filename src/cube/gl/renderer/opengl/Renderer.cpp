@@ -44,11 +44,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		this->viewport(vp);
 	}
 
-	void GLRenderer::swap_buffers()
-	{
-		::SDL_GL_SwapBuffers();
-	}
-
 	void GLRenderer::shutdown()
 	{
 		ETC_TRACE.debug("Shutting down GLRenderer renderer");

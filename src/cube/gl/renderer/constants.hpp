@@ -10,6 +10,15 @@
 namespace cube { namespace gl { namespace renderer {
 
 	/**
+	 * Names of available renderer.
+	 */
+	enum class Name
+	{
+		OpenGL = 1,
+		DirectX = 2,
+	};
+
+	/**
 	 * The rendering mode.
 	 */
 	enum class Mode
