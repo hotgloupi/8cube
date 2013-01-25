@@ -47,11 +47,11 @@ BOOST_PYTHON_MODULE(window)
 		)
 		.def(
 			"poll",
-			static_cast<uint32_t (Window::*)()>(&Window::poll)
+			static_cast<etc::size_type (Window::*)()>(&Window::poll)
 		)
 		.def(
 			"poll",
-			static_cast<uint32_t (Window::*)(uint32_t)>(&Window::poll)
+			static_cast<etc::size_type (Window::*)(etc::size_type const)>(&Window::poll)
 		)
 		.add_property(
 			"renderer",

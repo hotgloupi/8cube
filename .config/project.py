@@ -104,10 +104,10 @@ def configure(project, build):
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
-        force_architecture = False,
-        additional_link_flags = {
-            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
-        }
+#        force_architecture = False,
+#        additional_link_flags = {
+#            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
+#        }
     )
     status("CXX compiler is", compiler.binary)
     boost = cxxlib.BoostLibrary(

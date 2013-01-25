@@ -122,7 +122,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		::SDL_Quit();
 	}
 
-	uint32_t Window::poll(uint32_t max)
+	etc::size_type
+	Window::poll(etc::size_type const max)
 	{
 		ETC_TRACE.debug("Polling events");
 		uint32_t count = 0;
