@@ -345,7 +345,7 @@ def configure(project, build):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
-            #ext = python.ext,
+            ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
@@ -363,7 +363,7 @@ def configure(project, build):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
-            #ext = python.ext,
+            ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
@@ -381,7 +381,7 @@ def configure(project, build):
         "greenlet",
         ['src/greenlet/greenlet.c'],
         directory = 'release/lib/python',
-        #ext = python.ext,
+        ext = python.ext,
         libraries = python.libraries,
     )
 
