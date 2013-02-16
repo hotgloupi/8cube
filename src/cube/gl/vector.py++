@@ -14,6 +14,31 @@ namespace {
 		return ss.str();
 	}
 
+	template<typename T, etc::size_type arity>
+	struct Wrap
+	{
+		typedef typename T::value_type value_type;
+
+		static
+		value_type
+		getitem(T const& self, etc::size_type const index)
+		{
+			if (index >= arity)
+				throw std::out_of_range{std::to_string(index) + " is out of range"};
+			return self[index];
+		}
+
+		static
+		void
+		setitem(T& self, etc::size_type const index, value_type const value)
+		{
+			if (index >= arity)
+				throw std::out_of_range{std::to_string(index) + " is out of range"};
+			self[index] = value;
+		}
+
+	};
+
 }
 
 BOOST_PYTHON_MODULE(vector)
@@ -25,7 +50,15 @@ BOOST_PYTHON_MODULE(vector)
 	_EXPORT_VECTOR(__value_type,                                              \
 	               Vector ## __arity<__value_type>,                           \
 	               "Vector" #__arity #__suffix                                \
-	)
+	)                                                                         \
+	.def(                                                                     \
+		"__getitem__",                                                        \
+		&Wrap<Vector ## __arity<__value_type>, __arity>::getitem              \
+	)                                                                         \
+	.def(                                                                     \
+		"__setitem__",                                                        \
+		&Wrap<Vector ## __arity<__value_type>, __arity>::setitem              \
+	)                                                                         \
 /**/
 
 #define _EXPORT_VECTOR(__value_type, __type, __type_str)                      \
@@ -67,6 +100,19 @@ BOOST_PYTHON_MODULE(vector)
 		.def_readwrite("z", &Vector3 ## __suffix::z)                          \
 	;                                                                         \
 /**/
+#
+#define EXPORT_VECTOR4(__value_type, __suffix)                                \
+	EXPORT_VECTOR(__value_type, 4, __suffix)                                  \
+		.def(py::init<float, float, float, float>())                          \
+		.def(py::init<double, double, double, double>())                      \
+		.def(py::init<int32_t, int32_t, int32_t, int32_t>())                  \
+		.def(py::init<int64_t, int64_t, int64_t, int64_t>())                  \
+		.def_readwrite("x", &Vector4 ## __suffix::x)                          \
+		.def_readwrite("y", &Vector4 ## __suffix::y)                          \
+		.def_readwrite("z", &Vector4 ## __suffix::z)                          \
+		.def_readwrite("w", &Vector4 ## __suffix::w)                          \
+	;                                                                         \
+/**/
 
 	EXPORT_VECTOR2(float, f);
 	EXPORT_VECTOR2(double, d);
@@ -82,6 +128,12 @@ BOOST_PYTHON_MODULE(vector)
 	EXPORT_VECTOR3(int64_t, il);
 	EXPORT_VECTOR3(uint64_t, ul);
 
+	EXPORT_VECTOR4(float, f);
+	EXPORT_VECTOR4(double, d);
+	EXPORT_VECTOR4(int32_t, i);
+	EXPORT_VECTOR4(uint32_t, u);
+	EXPORT_VECTOR4(int64_t, il);
+	EXPORT_VECTOR4(uint64_t, ul);
 
 #define _EXPORT_VECTOR_FLOAT_METHODS(__value_type, __type)                    \
 	py::def(                                                                  \

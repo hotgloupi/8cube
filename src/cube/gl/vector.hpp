@@ -7,6 +7,7 @@
 # include <glm/glm.hpp>
 # include <glm/core/type_vec2.hpp>
 # include <glm/core/type_vec3.hpp>
+# include <glm/core/type_vec4.hpp>
 # include <glm/gtx/rotate_vector.hpp>
 //# include <glm/gtx/transform.hpp>
 
@@ -65,6 +66,13 @@ namespace cube { namespace gl {
 		typedef T component_type;
 	};
 
+	template<typename T>
+	struct content_traits<vector::Vector4<T>>
+	{
+		static unsigned int const arity = 4;
+		typedef T component_type;
+	};
+
 }}
 
 # define _CUBE_GL_VECTOR_DEF(__arity, __type, __suffix)                       \
@@ -91,6 +99,12 @@ namespace glm { namespace detail {                                            \
 	_CUBE_GL_VECTOR_DEF(3, int64_t, il);
 	_CUBE_GL_VECTOR_DEF(3, uint64_t, ul);
 
+	_CUBE_GL_VECTOR_DEF(4, float, f);
+	_CUBE_GL_VECTOR_DEF(4, double, d);
+	_CUBE_GL_VECTOR_DEF(4, int32_t, i);
+	_CUBE_GL_VECTOR_DEF(4, uint32_t, u);
+	_CUBE_GL_VECTOR_DEF(4, int64_t, il);
+	_CUBE_GL_VECTOR_DEF(4, uint64_t, ul);
 # undef _CUBE_GL_VECTOR_DEF
 
 

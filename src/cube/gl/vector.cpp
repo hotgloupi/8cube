@@ -39,5 +39,12 @@ namespace glm { namespace detail {
 	_CUBE_GL_VECTOR_DEF(3, int64_t, il);
 	_CUBE_GL_VECTOR_DEF(3, uint64_t, ul);
 
+	_CUBE_GL_VECTOR_DEF(4, float, f);
+	_CUBE_GL_VECTOR_DEF(4, double, d);
+	_CUBE_GL_VECTOR_DEF(4, int32_t, i);
+	_CUBE_GL_VECTOR_DEF(4, uint32_t, u);
+	_CUBE_GL_VECTOR_DEF(4, int64_t, il);
+	_CUBE_GL_VECTOR_DEF(4, uint64_t, ul);
+
 }}
 

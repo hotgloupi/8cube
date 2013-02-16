@@ -7,6 +7,7 @@ namespace glm { namespace detail {
 
 	template<typename T> struct tvec2;
 	template<typename T> struct tvec3;
+	template<typename T> struct tvec4;
 	template<typename T> struct tmat4x4;
 
 }}
@@ -74,10 +75,12 @@ namespace cube { namespace gl {
 #else
 		template<typename T> using Vector2 = glm::detail::tvec2<T>;
 		template<typename T> using Vector3 = glm::detail::tvec3<T>;
+		template<typename T> using Vector4 = glm::detail::tvec4<T>;
 #endif
 
 		typedef Vector2<float> Vector2f;
 		typedef Vector3<float> Vector3f;
+		typedef Vector4<float> Vector4f;
 
 	}
 
