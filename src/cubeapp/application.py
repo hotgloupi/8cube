@@ -54,8 +54,8 @@ class Application(cube.gui.Application):
             self._update(time.time() - last_update)
             last_update = time.time()
             frame_time = time.time() - start
-            if frame_time < frame_time_target:
-                self.render()
+            #if frame_time < frame_time_target:
+            self.render()
             frame_time = time.time() - start
             if frame_time < frame_time_target:
                 time.sleep(frame_time_target - frame_time)
