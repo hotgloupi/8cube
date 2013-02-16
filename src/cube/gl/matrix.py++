@@ -2,6 +2,8 @@
 
 #include "matrix.hpp"
 
+#include <array>
+
 using namespace cube::gl;
 namespace py = boost::python;
 
@@ -15,6 +17,15 @@ namespace {
 		return ss.str();
 	}
 
+	matrix::Matrix44f::col_type&
+	matrix_row(matrix::Matrix44f& mat,
+	           etc::size_type const row)
+	{
+		if (row > 3)
+			throw std::out_of_range{std::to_string(row) + " is greater than 3"};
+		return mat[row];
+	}
+
 }
 
 BOOST_PYTHON_MODULE(matrix)
@@ -22,6 +33,8 @@ BOOST_PYTHON_MODULE(matrix)
 	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	py::class_<matrix::Matrix44f>("Matrix44f")
 		.def("__str__", &print_obj<matrix::Matrix44f>)
+		.def(py::self * py::self)
+		.def("__getitem__", &matrix_row, py::return_internal_reference<>())
 	;
 	py::def("perspective", &matrix::perspective<float>);
 	py::def("look_at", &matrix::look_at<float>);
