@@ -13,6 +13,7 @@ class Player:
         self.world_position = world.coord_type(0, 0, 0)
         self.client = client
         self.inputs = inputs
+        self.update(0)
 
 
     @property
