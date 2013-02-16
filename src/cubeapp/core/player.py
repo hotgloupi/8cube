@@ -51,4 +51,9 @@ class Player:
         self.camera.position.y -= world_decay.y * chunk.Chunk.size
         self.camera.position.z -= world_decay.z * chunk.Chunk.size
         self.world_position += world_decay
+        self.view_matrix = gl.matrix.look_at(
+            self.camera.position,
+            self.camera.position + self.camera.front,
+            self.camera.up
+        )
 
