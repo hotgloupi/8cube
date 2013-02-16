@@ -28,6 +28,7 @@ class Game():
         self.projection_matrix = gl.matrix.perspective(
             45, 1, 0.005, 300.0
         )
+        self.window.inputs.on_keydown.connect(self._on_keydown)
 
     @property
     def gui(self):
@@ -50,5 +51,12 @@ class Game():
         @note should be overridden.
         """
         self.player.update(delta)
-        self.world.update(delta, self.player)
+        self.world.update(delta, self.player, self.projection_matrix)
+
+
+    def _on_keydown(self, mod, sym, key):
+        print(key, sym, mod)
+        if key == ord('f'):
+            self.world._fix()
+
 

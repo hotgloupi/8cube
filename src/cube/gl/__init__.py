@@ -15,7 +15,7 @@ Exported classes:
     Font
     Matrix44f
     Text
-    Vector{2,3}{f,d,i,u,il,ul}
+    Vector{2,3,4}{f,d,i,u,il,ul}
     Viewport
     Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
     ShaderProgram, ShaderProgramParameter
@@ -48,6 +48,7 @@ from .font import Font
 from .matrix import Matrix44f
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul
+from .vector import Vector4f, Vector4d, Vector4i, Vector4u, Vector4il, Vector4ul
 from .viewport import Viewport
 
 #from .test import test_all

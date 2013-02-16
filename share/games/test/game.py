@@ -28,7 +28,7 @@ class Game(core.Game):
     def render(self):
         with self.renderer.begin(gl.mode_3d) as painter:
             painter.state.projection = self.projection_matrix
-            painter.state.view = gl.matrix.look_at(
+            painter.state.model = gl.matrix.look_at(
                 self.player.camera.position,
                 self.player.camera.position + self.player.camera.front,
                 self.player.camera.up

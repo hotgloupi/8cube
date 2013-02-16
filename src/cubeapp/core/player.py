@@ -13,6 +13,7 @@ class Player:
         self.world_position = world.coord_type(0, 0, 0)
         self.client = client
         self.inputs = inputs
+        self.update(0)
 
 
     @property
@@ -50,4 +51,9 @@ class Player:
         self.camera.position.y -= world_decay.y * chunk.Chunk.size
         self.camera.position.z -= world_decay.z * chunk.Chunk.size
         self.world_position += world_decay
+        self.view_matrix = gl.matrix.look_at(
+            self.camera.position,
+            self.camera.position + self.camera.front,
+            self.camera.up
+        )
 

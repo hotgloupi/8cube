@@ -71,7 +71,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 		case Mode::_3d:
-			//gl::Enable(GL_DEPTH_TEST);
+			gl::Enable(GL_DEPTH_TEST);
 			//gl::Enable(GL_CULL_FACE);
 			gl::Enable(GL_BLEND);
 			break;
