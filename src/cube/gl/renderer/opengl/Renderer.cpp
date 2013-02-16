@@ -25,21 +25,22 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		ETC_TRACE.debug("GLRenderer::initialize(", vp, ")");
 		::glewExperimental = GL_TRUE;
-		auto error = ::glewInit();
-		if (error != GLEW_OK)
+		auto ret = ::glewInit();
+		if (ret != GLEW_OK)
 			throw Exception{
 				"Cannot initialize OpenGL renderer: " +
-				std::string((char const*) glewGetErrorString(error))
+				std::string((char const*) glewGetErrorString(ret))
 			};
 
-		bool has_required_extensions = (
-			  GLEW_ARB_shading_language_100
-			& GLEW_ARB_shader_objects
-			& GLEW_ARB_vertex_shader
-			& GLEW_ARB_fragment_shader
-		);
-		if (!has_required_extensions)
-			throw Exception{"Some required extensions are not available"};
+#define CHECK(ext) \
+		if (!ext) \
+			throw Exception{"Extension " #ext " is not available"}; \
+		/**/
+
+		CHECK(GLEW_ARB_shading_language_100)
+		CHECK(GLEW_ARB_shader_objects)
+		CHECK(GLEW_ARB_vertex_shader)
+		CHECK(GLEW_ARB_fragment_shader)
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
 		this->viewport(vp);
 	}
