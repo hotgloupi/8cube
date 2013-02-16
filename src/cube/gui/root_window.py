@@ -30,7 +30,7 @@ class RootWindow:
         return self.__window.renderer
 
     def confine_mouse(self, wrap):
-        pass
+        self.__window.confine_mouse(wrap)
 
     def poll(self):
         return self.__window.poll()
