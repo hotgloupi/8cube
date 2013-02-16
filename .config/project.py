@@ -83,6 +83,9 @@ def configure(project, build):
 
     defines += ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB']
 
+    if platform.IS_LINUX:
+        defines += ['CUBE_WITH_GLX']
+
     compiler = Compiler(
         project, build,
         position_independent_code = True,

@@ -10,7 +10,7 @@
 
 #include "sdl/window.hpp"
 
-#ifdef __linux__
+#ifdef CUBE_WITH_GLX
 # include "glx/window.hpp"
 #endif
 
