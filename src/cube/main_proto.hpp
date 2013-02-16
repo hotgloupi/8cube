@@ -8,7 +8,7 @@
  * requires on startup initialization done in SDLMain library. In that case,
  * we have to name our main function after SDL's requirement.
  */
-#ifdef __APPLE__
+#ifdef __apple__
 # define CUBE_MAIN_PROTO extern "C" int SDL_main
 #else
 # define CUBE_MAIN_PROTO extern "C" int main
