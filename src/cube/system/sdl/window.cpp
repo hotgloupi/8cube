@@ -206,8 +206,14 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			SDL_WarpMouse(_width / 2, _height / 2);
 		SDL_Event e;
 		SDL_PumpEvents();
-		while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEMOTION)))
-			;
+
+		while (
+#ifdef SDL_EVENT_MASK
+			SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEMOTION)) > 0
+#else
+			SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0
+#endif
+		) { /* Dry the queue of mouse motion events */ }
 	}
 
 	// Check that SDL implem won't change
