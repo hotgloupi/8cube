@@ -456,12 +456,15 @@ namespace cube { namespace gl { namespace font {
 			-1,     // face_index (-1 means only check if the file is loadable).
 			&face   // the face to fill (we don't care in this case).
 		);
-		if (face != nullptr)
+		// In any case we destroy the face.
+		struct RIIA
 		{
-			if (res == 0) // 0 means the file can be loaded.
-				return face->num_faces;
-			FT_Done_Face(face);
-		}
+			FT_Face face;
+			~RIIA() { if (face != nullptr) FT_Done_Face(face); }
+		} riia{face};
+		(void) riia;
+		if (face != nullptr && res == 0)
+			return face->num_faces;
 		return 0;
 	}
 
