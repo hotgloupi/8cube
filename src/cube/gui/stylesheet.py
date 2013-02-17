@@ -29,12 +29,12 @@ class Stylesheet:
             return font
         for family in font_definition[0].split(','):
             family = family.strip()
-            infos = FontManager.search(family=family, scalable=True)
+            infos = FontManager.find_one(family=family, scalable=True)
             if not infos:
                 continue
             font = self._fonts[font_definition] = Font(
                 renderer,
-                infos[0],
+                infos,
                 font_definition[2]
             )
         if font is None:

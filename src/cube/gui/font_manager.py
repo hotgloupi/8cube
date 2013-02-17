@@ -38,6 +38,18 @@ class FontManager:
             )
         return results
 
+    @classmethod
+    def find_one(cls, family=None, scalable=None, fixed_width=None):
+        results = cls.search(family, scalable,  fixed_width)
+        if not results:
+            return None
+        the_one = results[0]
+        for r in results[1:]:
+            if family is not None:
+                if len(r.family_name) < len(the_one.family_name):
+                    the_one = r
+        return the_one
+
     @staticmethod
     def _find_matches(infos_list,
                       family=None,
