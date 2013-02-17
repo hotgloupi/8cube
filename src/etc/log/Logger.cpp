@@ -37,7 +37,7 @@ namespace etc { namespace log {
 
 		std::vector<Pattern> get_patterns()
 		{
-			std::string envvar = etc::sys::getenv("ETC_LOG_COMPONENTS", "");
+			std::string envvar = etc::sys::getenv("ETC_LOG_COMPONENTS", "*");
 			std::vector<std::string> patterns;
 			boost::algorithm::split(
 				patterns,
@@ -88,7 +88,7 @@ namespace etc { namespace log {
 
 		Level default_level()
 		{
-			std::string level_string = etc::sys::getenv("ETC_LOG_LEVEL", "INFO");
+			static std::string level_string = etc::sys::getenv("ETC_LOG_LEVEL", "INFO");
 			std::unordered_map<std::string, Level> map{
 				{"DEBUG", Level::debug},
 				{"INFO", Level::info},
@@ -99,7 +99,15 @@ namespace etc { namespace log {
 			};
 			auto it = map.find(level_string);
 			if (it == map.end())
+			{
+				if (!level_string.empty())
+				{
+					std::cerr << "WARNING: Unkwnown log level '"
+					          << level_string << "', defaults to INFO\n";
+				}
+				level_string = "INFO";
 				return Level::info;
+			}
 			return it->second;
 		}
 
@@ -132,7 +140,8 @@ namespace etc { namespace log {
 	void Logger::_message(Line const& line,
 	                      std::string const& message)
 	{
-		if (line.level < _level && !component_enabled(line.component))
+		//std::cerr << line.component << ": " << std::boolalpha << component_enabled(line.component) << std::endl;
+		if (line.level < _level || !component_enabled(line.component))
 			return;
 
 		// every fields are strings.
