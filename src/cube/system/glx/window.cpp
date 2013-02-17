@@ -1,16 +1,18 @@
-#include "window.hpp"
-#include "../Exception.hpp"
-#include "../inputs.hpp"
+#ifdef CUBE_WITH_GLX
 
-#include <etc/log.hpp>
+# include "window.hpp"
+# include "../Exception.hpp"
+# include "../inputs.hpp"
 
-#ifdef Expose
-# error "Xlib already included"
-#endif
+# include <etc/log.hpp>
 
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <GL/glx.h>
+# ifdef Expose
+#  error "Xlib already included"
+# endif
+
+# include <X11/X.h>
+# include <X11/Xlib.h>
+# include <GL/glx.h>
 
 namespace cube { namespace system { namespace glx { namespace window {
 
@@ -224,3 +226,4 @@ namespace cube { namespace system { namespace glx { namespace window {
 
 }}}}
 
+#endif // CUBE_WITH_GLX
