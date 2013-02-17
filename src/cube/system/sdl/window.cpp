@@ -208,7 +208,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		SDL_PumpEvents();
 
 		while (
-#ifdef SDL_EVENT_MASK
+#ifdef SDL_EVENTMASK
 			SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEMOTION)) > 0
 #else
 			SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0
