@@ -15,14 +15,15 @@ CUBE_MAIN_PROTO(int ac, char** av)
 	etc::print("Dir:", etc::path::directory_name(av[0]));
 	auto window = create_window("SimpleWindow", 640, 480);
 	bool running = true;
-	window->inputs().on_quit().connect(
-		[&running]() { running = false; }
+	auto slot = window->inputs().on_quit().connect(
+		[&running]() { etc::print("Stop app"); running = false; }
 	);
 	int i = 0;
-	while (i++ < 100)
+	while (running)
 	{
 		window->poll();
 		usleep(1000);
 	}
+	slot.disconnect();
 	return 0;
 }
