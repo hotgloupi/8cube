@@ -3,6 +3,7 @@
 
 # include "vector.hpp"
 # include "plane.hpp"
+# include "sphere.hpp"
 
 namespace cube { namespace gl { namespace frustum {
 
@@ -24,6 +25,7 @@ namespace cube { namespace gl { namespace frustum {
 		typedef vector::Vector3<T>  vec3;
 		typedef vector::Vector3f    vec3f;
 		typedef plane::Plane<T>     plane_t;
+		typedef sphere::Sphere<T>   sphere_t;
 
 	public:
 		float const fov;
@@ -55,6 +57,8 @@ namespace cube { namespace gl { namespace frustum {
 		 * @brief Check whether or not a point is in the frustum.
 		 */
 		bool contains(vec3 const& point) const;
+
+		bool intersect(sphere_t const& sphere) const;
 
 	private:
 		inline

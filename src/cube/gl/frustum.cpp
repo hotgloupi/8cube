@@ -31,6 +31,21 @@ namespace cube { namespace gl { namespace frustum {
 	}
 
 	template<typename T>
+	bool
+	Frustum<T>::intersect(sphere_t const& sphere) const
+	{
+		for (plane_t const& plane: _planes)
+		{
+			T const d = plane.distance(sphere.center);
+			if (d > sphere.radius)
+				return false;
+			else if (d > -sphere.radius)
+				return true;
+		}
+		return true;
+	}
+
+	template<typename T>
 	vector::Vector2<T>
 	Frustum<T>::_plane_size(float const fov,
 	                        float const ratio,

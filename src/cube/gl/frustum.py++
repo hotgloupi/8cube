@@ -26,6 +26,7 @@ BOOST_PYTHON_MODULE(frustum)
 			py::return_internal_reference<>()                                 \
 		)                                                                     \
 		.def("contains", &Frustum<__type>::contains)                          \
+		.def("intersect", &Frustum<__type>::intersect)                        \
 	/**/
 
 	EXPORT_FRUSTUM(float, f);
