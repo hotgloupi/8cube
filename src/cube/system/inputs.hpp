@@ -1,7 +1,7 @@
 #ifndef  CUBE_SYSTEM_INPUTS_HPP
 # define CUBE_SYSTEM_INPUTS_HPP
 
-# include <boost/signal.hpp>
+# include <boost/signals2.hpp>
 
 # include <iosfwd>
 
@@ -180,7 +180,7 @@ namespace cube { namespace system { namespace inputs {
     {
 # define CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(name, ...)                          \
 	public:                                                                   \
-		typedef boost::signal<void(__VA_ARGS__)> on_ ## name ## _t;           \
+		typedef boost::signals2::signal<void(__VA_ARGS__)> on_ ## name ## _t; \
 	private:                                                                  \
 		on_ ## name ## _t    _on_ ## name;                                    \
 	public:                                                                   \
@@ -196,6 +196,8 @@ namespace cube { namespace system { namespace inputs {
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keyup, KeyMod, KeySym, uint16_t);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousemove, int32_t xrel, int32_t yrel);
 # undef CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL
+
+		~Inputs();
 	};
 
 }}} // !cube::system::inputs

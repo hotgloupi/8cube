@@ -115,7 +115,7 @@ def configure(project, build):
     status("CXX compiler is", compiler.binary)
     boost = cxxlib.BoostLibrary(
         compiler,
-        components=['system', 'filesystem', 'signals', 'python3'],
+        components=['system', 'filesystem', 'python3'],
         preferred_shared=False,
         python3_shared=True,
     )
@@ -334,7 +334,7 @@ def configure(project, build):
 
 ################### libcube
 
-    libcube = compiler.link_static_library(
+    libcube = compiler.link_dynamic_library(
         'libcube',
         glob("src/cube/*.cpp", recursive=True),
         directory  = 'release/lib',

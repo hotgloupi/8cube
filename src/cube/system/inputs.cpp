@@ -1,9 +1,32 @@
 #include "inputs.hpp"
 
+#include <etc/log.hpp>
+
 #include <ostream>
+
+ETC_LOG_COMPONENT("cube.system.inputs.Inputs");
 
 using namespace cube::system::inputs;
 
+Inputs::~Inputs()
+{
+#define CHECK_SIGNAL(__name)                                                  \
+	if (!_on_ ## __name.empty())                                              \
+	{                                                                         \
+		ETC_LOG.warn(                                                         \
+			#__name " has", _on_ ## __name.num_slots(),                       \
+			"not disconnected slots!");                                       \
+		_on_ ## __name.disconnect_all_slots();                                \
+	}                                                                         \
+	/**/
+	CHECK_SIGNAL(expose);
+	CHECK_SIGNAL(resize);
+	CHECK_SIGNAL(idle);
+	CHECK_SIGNAL(quit);
+	CHECK_SIGNAL(keydown);
+	CHECK_SIGNAL(keyup);
+	CHECK_SIGNAL(mousemove);
+}
 std::ostream&
 operator <<(std::ostream& out,
             KeyMod const mod)

@@ -1,5 +1,4 @@
-
-#include "../../wrappers/boost/python.hpp"
+#include <wrappers/boost/python.hpp>
 
 #include "inputs.hpp"
 
@@ -34,7 +33,7 @@ namespace {
 			, signal(other.signal)
 		{}
 
-		boost::signals::connection
+		boost::signals2::connection
 		connect(boost::python::object o)
 		{
 			return this->signal.connect(o);
@@ -221,16 +220,16 @@ BOOST_PYTHON_MODULE(inputs)
 		;
 		py::def("__str__", &enum_str<KeySym>);
 	}
-	py::class_<boost::signals::connection>(
+	py::class_<boost::signals2::connection>(
 			"Connection",
 			"Window's events slot"
 		).def(
 			"disconnect",
-			&boost::signals::connection::disconnect,
+			&boost::signals2::connection::disconnect,
 			"Disconnects the signal"
 		).def(
 			"connected",
-			&boost::signals::connection::connected,
+			&boost::signals2::connection::connected,
 			"True if the connection is both initialized and active"
 		)
 	;
