@@ -18,7 +18,6 @@ namespace cube { namespace gl { namespace cube {
 	{
 	public:
 		typedef vector::Vector3<T>  vec3;
-		typedef vector::Vector3f    vec3f;
 
 	public:
 		vec3    center;

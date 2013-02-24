@@ -6,6 +6,7 @@ process.
 Exported modules:
     matrix
     font
+    frustum
 
 Exported classes:
 
@@ -14,8 +15,9 @@ Exported classes:
     Cube3{f,d,i,u,il,ul}
     Font
     Matrix44f
+    Plane{f,d,i,u,il,ul}
     Text
-    Vector{2,3,4}{f,d,i,u,il,ul}
+    Vector{2,3,4}{f,d,i,u,il,ul} (and aliases vec*)
     Viewport
     Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
     ShaderProgram, ShaderProgramParameter
@@ -37,6 +39,7 @@ Exported enumerations:
 """
 
 from . import font
+from . import frustum
 from . import matrix
 
 from .camera import Camera
@@ -46,9 +49,29 @@ from .renderer import *
 from .text import Text
 from .font import Font
 from .matrix import Matrix44f
+from .plane import Planef, Planed, Planei, Planeu, Planeil, Planeul
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul
 from .vector import Vector4f, Vector4d, Vector4i, Vector4u, Vector4il, Vector4ul
+
+vec2f = Vector2f
+vec2d = Vector2d
+vec2i = Vector2i
+vec2u = Vector2u
+vec2il = Vector2il
+vec2ul = Vector2ul
+vec3f = Vector3f
+vec3d = Vector3d
+vec3i = Vector3i
+vec3u = Vector3u
+vec3il = Vector3il
+vec3ul = Vector3ul
+vec4f = Vector4f
+vec4d = Vector4d
+vec4i = Vector4i
+vec4u = Vector4u
+vec4il = Vector4il
+vec4ul = Vector4ul
+
 from .viewport import Viewport
 
-#from .test import test_all
