@@ -26,7 +26,7 @@ class Game():
         self.world = world
         self.inputs = Inputs(window, bindings)
         self.projection_matrix = gl.matrix.perspective(
-            self.player.fov, 1, 0.005, 300.0
+            45, 1, 0.005, 300.0
         )
         self.window.inputs.on_keydown.connect(self._on_keydown)
 
