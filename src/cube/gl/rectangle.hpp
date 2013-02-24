@@ -3,8 +3,6 @@
 
 # include "vector.hpp"
 
-# include <boost/config.hpp>
-
 namespace cube { namespace gl { namespace rectangle {
 
 	template<typename T>
@@ -13,21 +11,13 @@ namespace cube { namespace gl { namespace rectangle {
 	public:
 		union
 		{
-#ifndef BOOST_MSVC
 			vector::Vector2<T> position;
-#else
-			struct __PositionType { T x, y; } position;
-#endif
 			struct { T x, y; };
 		};
 
 		union
 		{
-#ifndef BOOST_MSVC
 			vector::Vector2<T> size;
-#else
-			struct __SizeType { T x, y; } size;
-#endif
 			struct { T w, h; };
 		};
 
