@@ -23,7 +23,8 @@ class World:
         self.__nodes_to_render2 = []
 
     def update(self, delta, player, projection_matrix):
-        self.__frustum_planes = self._compute_frustum_planes(projection_matrix * player.view_matrix)
+        self.__frustum = gl.frustum.Frustumil(45, 480.0/640.0,1,30)
+        self.__frustum.update(player.world_position, player.camera.front, player.camera.up)
         self.referential = player.world_position
         self.__nodes_to_render = []
         self.__tree.visit_nodes(self.__on_tree_node)
@@ -33,31 +34,20 @@ class World:
         if len(self.__nodes_to_render) > 200:
             return tree.VisitAction.stop_and_clean
 
-        if node.level > 5:
-            if node.contains(self.referential):
-                return tree.VisitAction.continue_
-            else:
-                return tree.VisitAction.stop_and_clean
-
-        center = gl.Vector3f(
-            node.origin.x + node.size / 2 - self.referential.x,
-            node.origin.y + node.size / 2 - self.referential.y,
-            node.origin.z + node.size / 2 - self.referential.z,
+        center = gl.vec3il(
+            node.origin.x + node.size / 2,
+            node.origin.y + node.size / 2,
+            node.origin.z + node.size / 2,
         )
-        d = self._sphere_in_frustum(
-            center.x, center.y, center.z,
-            node.size / 1.5,
-            self.__frustum_planes
-        )
-        if d > 0 and abs(d) < 10:
-            #print("pif", d, node.level, center, node.size)
-            if node.level > 3:
-                return tree.VisitAction.continue_and_clean
+        s = gl.Sphereil(center, int(node.size / 4))
+        if self.__frustum.intersect(s):
+            if node.level>3:
+                print('found', node.level, node.origin)
             if node.level == 0:
+                print("Found", node)
                 self.__nodes_to_render.append(
                     (node.origin, self.get_chunk(node.origin))
                 )
-                return tree.VisitAction.stop
             return tree.VisitAction.continue_
 
         return tree.VisitAction.stop_and_clean
