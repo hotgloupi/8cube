@@ -1,0 +1,24 @@
+#include <wrappers/boost/python.hpp>
+
+#include "sphere.hpp"
+
+BOOST_PYTHON_MODULE(sphere)
+{
+	namespace py = boost::python;
+	using namespace cube::gl::sphere;
+
+#define EXPORT_SPHERE(__type, __suffix)                                       \
+	py::class_<Sphere<__type>>("Sphere" #__suffix, py::no_init)               \
+		.def(py::init<Sphere<__type>::vec3, __type>())                        \
+		.def_readonly("center", &Sphere<__type>::center)                      \
+		.def_readonly("radius", &Sphere<__type>::radius)                      \
+		.def("__str__", &py::stringof<Sphere<__type>>)                        \
+	/**/
+
+	EXPORT_SPHERE(float, f);
+	EXPORT_SPHERE(double, d);
+	EXPORT_SPHERE(int32_t, i);
+	EXPORT_SPHERE(uint32_t, u);
+	EXPORT_SPHERE(int64_t, il);
+	EXPORT_SPHERE(uint64_t, ul);
+}
