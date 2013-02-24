@@ -16,6 +16,7 @@ Exported classes:
     Font
     Matrix44f
     Plane{f,d,i,u,il,ul}
+    Sphere{f,d,i,u,il,ul}
     Text
     Vector{2,3,4}{f,d,i,u,il,ul} (and aliases vec*)
     Viewport
@@ -50,6 +51,7 @@ from .text import Text
 from .font import Font
 from .matrix import Matrix44f
 from .plane import Planef, Planed, Planei, Planeu, Planeil, Planeul
+from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul
 from .vector import Vector4f, Vector4d, Vector4i, Vector4u, Vector4il, Vector4ul
