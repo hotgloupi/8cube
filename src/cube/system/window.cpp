@@ -38,6 +38,12 @@ namespace cube { namespace system { namespace window {
 			// create the renderer safely.
 			//this->renderer = std::move(gl::renderer::create_renderer(vp, name));
 		}
+
+		~Impl()
+		{
+			ETC_LOG.debug("Deleting Window impl");
+			this->renderer.reset();
+		}
 	};
 
 	Window::Window(std::string const& title,
