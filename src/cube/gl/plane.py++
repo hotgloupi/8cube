@@ -1,0 +1,41 @@
+#include <wrappers/boost/python.hpp>
+
+#include "plane.hpp"
+
+template<typename T>
+using vec3 = cube::gl::vector::Vector3<T>;
+
+BOOST_PYTHON_MODULE(plane)
+{
+	using namespace cube::gl::plane;
+	namespace py = boost::python;
+
+
+#define EXPORT_PLANE(__type, __suffix)                                        \
+	py::class_<Plane<__type>>("Plane" #__suffix)                              \
+		.def(py::init<vec3<__type>, vec3<__type>>())                          \
+		.def(py::init<vec3<__type>, vec3<__type>, vec3<__type>>())            \
+		.def(                                                                 \
+			"__str__",                                                        \
+			&py::stringof<Plane<__type>>                                      \
+		)                                                                     \
+		.add_property("normal", &Plane<__type>::normal)                       \
+		.add_property(                                                        \
+			"coef",                                                           \
+			py::make_function(                                                \
+				&Plane<__type>::coef,                                         \
+				py::return_internal_reference<>()                             \
+			)                                                                 \
+		)                                                                     \
+		.def("distance", &Plane<__type>::distance)                            \
+		.def("raw_distance", &Plane<__type>::raw_distance)                    \
+		.add_property("normalized", &Plane<__type>::normalized)               \
+/**/
+
+	EXPORT_PLANE(float, f);
+	EXPORT_PLANE(double, d);
+	EXPORT_PLANE(int32_t, i);
+	EXPORT_PLANE(uint32_t, u);
+	EXPORT_PLANE(int64_t, il);
+	EXPORT_PLANE(uint64_t, ul);
+}

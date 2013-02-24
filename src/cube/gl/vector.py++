@@ -65,7 +65,7 @@ BOOST_PYTHON_MODULE(vector)
 	py::class_<__type>(__type_str)                                            \
 		.def(                                                                 \
 			"__str__",                                                        \
-			&print_obj<__type>                                                \
+			&py::stringof<__type>                                             \
 		)                                                                     \
 		.def(py::self * __value_type())                                       \
 		.def(__value_type() * py::self)                                       \
