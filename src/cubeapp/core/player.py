@@ -15,6 +15,9 @@ class Player:
         self.inputs = inputs
         self.update(0)
 
+    @property
+    def fov(self):
+        return 45.0
 
     @property
     def position(self):
