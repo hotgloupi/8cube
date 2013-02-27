@@ -27,12 +27,14 @@ namespace cube { namespace gl { namespace plane {
 	struct Plane
 	{
 	public:
-		typedef vector::Vector3<T> vec3;
-		typedef vector::Vector4<T> vec4;
+		typedef vector::Vector3<T>      vec3;
+		typedef vector::Vector4<T>      vec4;
+		typedef vector::Vector4<double> vec4d;
 
 	private:
-		vec4 _coef;
-		T    _magnitude;
+		vec4    _coef;
+		vec4d   _coefd;
+		double  _magnitude;
 
 	public:
 		/**
@@ -72,7 +74,7 @@ namespace cube { namespace gl { namespace plane {
 		 * @brief Compute the algebraic distance to a point.
 		 */
 		inline
-		T distance(vec3 const& p) const
+		double distance(vec3 const& p) const
 		{
 			return (this->raw_distance(p) / _magnitude);
 		}
@@ -84,10 +86,10 @@ namespace cube { namespace gl { namespace plane {
 		 * normalized.
 		 */
 		inline
-		T raw_distance(vec3 const& p) const
+		double raw_distance(vec3 const& p) const
 		{
 			return (
-				p.x * _coef[0] + p.y * _coef[1] + p.z * _coef[2] + _coef[3]
+				p.x * _coefd[0] + p.y * _coefd[1] + p.z * _coefd[2] + _coefd[3]
 			);
 		}
 

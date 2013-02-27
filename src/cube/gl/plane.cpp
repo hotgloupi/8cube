@@ -13,14 +13,15 @@ namespace cube { namespace gl { namespace plane {
 	Plane<T>::Plane(vec3 const& point,
 	                vec3 const& normal)
 		: _coef{normal.x, normal.y, normal.z, -vector::dot(normal, point)}
+		, _coefd{_coef.x, _coef.y, _coef.z, _coef.w}
 		, _magnitude{
 			glm::sqrt(
-				normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+				_coefd.x * _coefd.x + _coefd.y * _coefd.y + _coefd.z * _coefd.z
 			)
 		}
 	{
 		if (_magnitude == 0)
-			_magnitude = T{1};
+			_magnitude = 1.0;
 	}
 
 	template struct Plane<float>;

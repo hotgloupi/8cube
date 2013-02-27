@@ -27,10 +27,15 @@ class World:
         self.__frustum.update(player.world_position, player.camera.front, player.camera.up)
         self.referential = player.world_position
         self.__nodes_to_render = []
+        self.__checked = 0
         self.__tree.visit_nodes(self.__on_tree_node)
-        print("Found", len(self.__nodes_to_render), "nodes")
+        print("Found", len(self.__nodes_to_render), "nodes", self.__frustum)
 
     def __on_tree_node(self, node):
+        if self.__checked > 1000:
+            print(".", end='')
+            return tree.VisitAction.stop
+        self.__checked += 1
         if len(self.__nodes_to_render) > 200:
             return tree.VisitAction.stop_and_clean
 
@@ -39,17 +44,19 @@ class World:
             node.origin.y + node.size / 2,
             node.origin.z + node.size / 2,
         )
-        s = gl.Sphereil(center, int(node.size / 4))
+        s = gl.Sphereil(center, int(node.size / 1.44))
         if self.__frustum.intersect(s):
-            if node.level>3:
-                print('found', node.level, node.origin)
+            if node.level>=200:
+                print('found', node.level, node.origin, node.size, s)
             if node.level == 0:
-                print("Found", node)
+                print('found', node.origin, node.size)
                 self.__nodes_to_render.append(
                     (node.origin, self.get_chunk(node.origin))
                 )
             return tree.VisitAction.continue_
 
+        if node.level>=600:
+            print('NOT INTERSECT', node.level, node.origin, node.size, s)
         return tree.VisitAction.stop_and_clean
 
     def _fix(self):

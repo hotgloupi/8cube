@@ -34,15 +34,17 @@ namespace cube { namespace gl { namespace frustum {
 	bool
 	Frustum<T>::intersect(sphere_t const& sphere) const
 	{
+		double const radius = sphere.radius;
+		bool ret = false;
 		for (plane_t const& plane: _planes)
 		{
-			T const d = plane.distance(sphere.center);
-			if (d > sphere.radius)
+			double const d = plane.distance(sphere.center);
+			if (d > radius)
 				return false;
-			else if (d > -sphere.radius)
-				return true;
+			if (d >= -radius)
+				ret = true;
 		}
-		return true;
+		return ret;
 	}
 
 	template<typename T>
