@@ -15,18 +15,18 @@ class Player(core.Player):
                 -xrel * self.rot_velocity,
                 self.camera.up
             ))
-        if yrel and False:
+        if yrel:
             right = self.camera.right
             self.camera.front = gl.vector.rotate(
                 self.camera.front,
                 -yrel * self.rot_velocity,
                 right,
             )
-            self.camera.up = gl.vector.rotate(
-                self.camera.up,
-                -yrel * self.rot_velocity,
-                right,
-            )
+            #self.camera.up = gl.vector.rotate(
+            #    self.camera.up,
+            #    -yrel * self.rot_velocity,
+            #    right,
+            #)
 
         move = gl.Vector3f()
         if self.inputs.move_forward.held:

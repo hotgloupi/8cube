@@ -1,5 +1,7 @@
 #include "plane.hpp"
 
+#include "exception.hpp"
+
 #include <iostream>
 
 namespace cube { namespace gl { namespace plane {
@@ -18,7 +20,7 @@ namespace cube { namespace gl { namespace plane {
 			_coef.x * _coef.x + _coef.y * _coef.y + _coef.z * _coef.z
 		);
 		if (magnitude == 0)
-			magnitude = 1.0;
+			throw exception::Exception{"Null plane"};
 		for (etc::size_type i = 0; i < 4; ++i)
 			_coef[i] /= magnitude;
 	}

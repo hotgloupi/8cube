@@ -128,7 +128,6 @@ namespace cube { namespace gl { namespace frustum {
 		this->_plane(PlanePosition::right, {near_tr, near_br, far_br});
 		this->_plane(PlanePosition::near, {near_br, near_tr, near_bl});
 		this->_plane(PlanePosition::far, {far_bl, far_tl, far_tr});
-		etc::print("top", this->plane(PlanePosition::top));
 	}
 
 	template struct Frustum<float>;
