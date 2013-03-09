@@ -32,9 +32,7 @@ namespace cube { namespace gl { namespace plane {
 		typedef vector::Vector4<double> vec4d;
 
 	private:
-		vec4    _coef;
-		vec4d   _coefd;
-		double  _magnitude;
+		vec4d   _coef;
 
 	public:
 		/**
@@ -60,7 +58,7 @@ namespace cube { namespace gl { namespace plane {
 		 * @brief Retreive plane equation coefficients.
 		 */
 		inline
-		vec4 const& coef() const
+		vec4d const& coef() const
 		{ return _coef; }
 
 		/**
@@ -76,38 +74,11 @@ namespace cube { namespace gl { namespace plane {
 		inline
 		double distance(vec3 const& p) const
 		{
-			return (this->raw_distance(p) / _magnitude);
-		}
-
-		/**
-		 * @brief Compute the non-normalized algebraic distance to a point.
-		 *
-		 * You should only use this f you are confident that the plane is
-		 * normalized.
-		 */
-		inline
-		double raw_distance(vec3 const& p) const
-		{
 			return (
-				p.x * _coefd[0] + p.y * _coefd[1] + p.z * _coefd[2] + _coefd[3]
+				p.x * _coef[0] + p.y * _coef[1] + p.z * _coef[2] + _coef[3]
 			);
 		}
-
-		inline
-		bool normalized() const
-		{ return _magnitude == 1; }
 	};
-
-	// TODO
-	template<typename T>
-	Plane<T> normalized(vector::Vector3<T> const& p0,
-	                    vector::Vector3<T> const& p1,
-	                    vector::Vector3<T> const& p2);
-
-	// TODO
-	template<typename T>
-	Plane<T> normalized(vector::Vector3<T> const& point,
-	                    vector::Vector3<T> const& normal);
 
 	typedef Plane<float>    Planef;
 	typedef Plane<double>   Planed;

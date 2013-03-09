@@ -4,21 +4,28 @@ from cubeapp import core
 from cube import gl
 
 class Player(core.Player):
-    velocity = 10
+    velocity = 50
     rot_velocity = .5
 
     def update(self, delta):
         xrel, yrel = self.inputs.mouse.xrel, self.inputs.mouse.yrel
         if xrel:
-            self.camera.front = gl.vector.rotate_y(
+            self.camera.front = gl.vector.normalize(gl.vector.rotate(
                 self.camera.front,
-                -xrel * self.rot_velocity
-            )
-        if yrel:
+                -xrel * self.rot_velocity,
+                self.camera.up
+            ))
+        if yrel and False:
+            right = self.camera.right
             self.camera.front = gl.vector.rotate(
                 self.camera.front,
                 -yrel * self.rot_velocity,
-                self.camera.right,
+                right,
+            )
+            self.camera.up = gl.vector.rotate(
+                self.camera.up,
+                -yrel * self.rot_velocity,
+                right,
             )
 
         move = gl.Vector3f()

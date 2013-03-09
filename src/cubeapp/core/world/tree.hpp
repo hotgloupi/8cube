@@ -67,18 +67,17 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		inline
 		bool contains(vector_type const& point) const
 		{
-			/*
 			return (
-				   point.x >= this->origin.x && point.x < this->origin.x + this->size
-				&& point.y >= this->origin.y && point.y < this->origin.y + this->size
-				&& point.z >= this->origin.z && point.z < this->origin.z + this->size
+				   point.x >= this->origin.x && point.x < this->origin.x + static_cast<size_type>(this->size)
+				&& point.y >= this->origin.y && point.y < this->origin.y + static_cast<size_type>(this->size)
+				&& point.z >= this->origin.z && point.z < this->origin.z + static_cast<size_type>(this->size)
 			);
-			*/
-			return (
+
+			/*return (
 				   static_cast<usize_type>(glm::abs(point.x - this->origin.x)) < this->size
 				&& static_cast<usize_type>(glm::abs(point.y - this->origin.y)) < this->size
 				&& static_cast<usize_type>(glm::abs(point.z - this->origin.z)) < this->size
-			);
+			);*/
 		}
 
 	protected:

@@ -7,7 +7,7 @@ class Player:
     def __init__(self, client, inputs):
         self.camera = gl.Camera(
             gl.Vector3f(-0.1, 1, -0.1),
-            gl.Vector3f(0, 0, -1),
+            gl.Vector3f(0, 0, -10),
             gl.Vector3f(0, 1, 0),
         )
         self.world_position = world.coord_type(0, 0, 0)

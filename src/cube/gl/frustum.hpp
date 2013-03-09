@@ -21,19 +21,20 @@ namespace cube { namespace gl { namespace frustum {
 	struct Frustum
 	{
 	public:
-		typedef vector::Vector2<T>  vec2;
-		typedef vector::Vector3<T>  vec3;
-		typedef vector::Vector3f    vec3f;
-		typedef plane::Plane<T>     plane_t;
-		typedef sphere::Sphere<T>   sphere_t;
+		typedef vector::Vector2d      vec2d;
+		typedef vector::Vector3<T>    vec3;
+		typedef vector::Vector3f      vec3f;
+		typedef vector::Vector3d      vec3d;
+		typedef plane::Planed         plane_t;
+		typedef sphere::Sphere<T>     sphere_t;
 
 	public:
-		float const fov;
-		float const ratio;
-		T const     near_distance;
-		T const     far_distance;
-		vec2 const  near_size;
-		vec2 const  far_size;
+		float const   fov;
+		float const   ratio;
+		double const  near_distance;
+		double const  far_distance;
+		vec2d const   near_size;
+		vec2d const   far_size;
 	private:
 		plane_t     _planes[6];
 
@@ -69,9 +70,9 @@ namespace cube { namespace gl { namespace frustum {
 
 	private:
 		static
-		vector::Vector2<T> _plane_size(float const fov,
-		                               float const ratio,
-		                               T const distance);
+		vec2d _plane_size(float const fov,
+		                  float const ratio,
+		                  T const distance);
 	};
 
 	typedef Frustum<float>    Frustumf;

@@ -28,8 +28,6 @@ BOOST_PYTHON_MODULE(plane)
 			)                                                                 \
 		)                                                                     \
 		.def("distance", &Plane<__type>::distance)                            \
-		.def("raw_distance", &Plane<__type>::raw_distance)                    \
-		.add_property("normalized", &Plane<__type>::normalized)               \
 /**/
 
 	EXPORT_PLANE(float, f);
