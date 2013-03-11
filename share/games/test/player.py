@@ -5,7 +5,7 @@ from cube import gl, units
 
 class Player(core.Player):
     velocity = 200
-    rot_velocity = .5
+    rot_velocity = .05
 
     def update(self, delta):
         xrel, yrel = self.inputs.mouse.xrel, self.inputs.mouse.yrel

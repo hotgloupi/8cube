@@ -41,7 +41,7 @@ namespace cube { namespace gl { namespace camera {
 
 		inline
 		vec3 right() const
-		{ return vector::cross(this->_front, this->_up); }
+		{ return vector::normalize(vector::cross(this->_front, this->_up)); }
 
 		Camera& rotate(units::Angle const horizontal_angle,
 		               units::Angle const vertical_angle);

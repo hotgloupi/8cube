@@ -4,7 +4,7 @@ from cube.gl import frustum, vec3il, vec3f, Sphereil, vec3d, vector
 
 fov = 45
 ratio = 640 / 480
-near_dist = 0
+near_dist = 1
 far_dist = 300
 
 f = frustum.Frustumil(fov, ratio, near_dist, far_dist)
@@ -15,8 +15,9 @@ front = vec3f(0,0,-1)
 f.update(pos, front, up)
 
 for p in frustum.PlanePosition.values.values():
-    assert f.plane(p).distance(vec3d(10, 12, 11)) < 0
-    assert f.plane(p).distance(vec3d(10, 10, -100)) < 0
+    print(f.plane(p).distance(vec3d(10, 12, 11)))
+    assert f.plane(p).distance(vec3d(10, 12, 11)) <= 0
+    assert f.plane(p).distance(vec3d(10, 10, -100)) <= 0
 
 pos = vec3il(10,12,11)
 
@@ -64,16 +65,17 @@ assert f.intersect(s)
 s = Sphereil(vec3il(10, 0, -10), 5)
 assert f.intersect(s)
 
-s = Sphereil(vec3il(10, -10, -10), 5)
+s = Sphereil(vec3il(10, 10, 0), 10)
+print(f.plane(frustum.PlanePosition.left).distance(vec3d(10, 10, 0)))
 assert f.intersect(s)
 
-s = Sphereil(vec3il(10, -10, 0), 5)
+s = Sphereil(vec3il(10, -10, 0), 10)
 assert f.intersect(s)
 
-s = Sphereil(vec3il(10, 10, 0), 5)
+s = Sphereil(vec3il(10, 10, 0), 10)
 assert f.intersect(s)
 
-s = Sphereil(vec3il(10, 10, -10), 5)
+s = Sphereil(vec3il(10, 10, -10), 10)
 assert f.intersect(s)
 
 s = Sphereil(vec3il(10, 0, 10), 1)
@@ -95,13 +97,13 @@ s = Sphereil(vec3il(10, 10, -10), 1)
 assert not f.intersect(s)
 
 for r in range(0, 4000000, 100):
-    s = Sphereil(vec3il(0, 0, 0), r)
+    s = Sphereil(vec3il(1, 0, 0), r)
     assert f.intersect(s)
 
 
 fov = 45
 ratio = 640.0 / 480.0
-near_dist = 0
+near_dist = 1
 far_dist = 4
 
 f = frustum.Frustumil(fov, ratio, near_dist, far_dist)

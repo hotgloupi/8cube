@@ -41,16 +41,12 @@ namespace cube { namespace gl { namespace frustum {
 			sphere.center.y,
 			sphere.center.z
 		};
-		bool ret = false;
 		for (plane_t const& plane: _planes)
 		{
-			double const d = plane.distance(center);
-			if (d > radius)
+			if (plane.distance(center) > radius)
 				return false;
-			if (!ret && d <= radius)
-				ret = true;
 		}
-		return ret;
+		return true;
 	}
 
 	template<typename T>

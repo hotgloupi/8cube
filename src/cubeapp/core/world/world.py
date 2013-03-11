@@ -29,7 +29,7 @@ class World:
             player.world_position.z + player.position.z / Chunk.size,
         )
         print(self.__pos)
-        self.__frustum = gl.frustum.Frustumd(45, 640.0 / 480.0,1,2)
+        self.__frustum = gl.frustum.Frustumd(45, 640.0 / 480.0,.01,4)
         self.__frustum.update(
             self.__pos,
             player.camera.front,
@@ -42,15 +42,15 @@ class World:
         print("Found", len(self.__nodes_to_render), "nodes",
               player.world_position,self.__pos, player.camera.front, player.camera.up, "check=",
              self.__checked)
-        self._fix()
+        #self._fix()
 
     def __on_tree_node(self, node):
         #if self.__checked > 10000:
         #    print(".", end='')
         #    return tree.VisitAction.stop
 
-        if  node.origin.y > 0:
-            return tree.VisitAction.stop
+        #if  node.origin.y > 0:
+        #    return tree.VisitAction.stop
 
         self.__checked += 1
         if self.__checked > 4000:
