@@ -47,7 +47,7 @@ namespace cube { namespace gl { namespace frustum {
 			double const d = plane.distance(center);
 			if (d > radius)
 				return false;
-			if (!ret && d >= -radius)
+			if (!ret && d <= radius)
 				ret = true;
 		}
 		return ret;
@@ -80,25 +80,12 @@ namespace cube { namespace gl { namespace frustum {
 
 		auto const near_center = pos + dir * this->near_distance;
 		auto const far_center = pos + dir * this->far_distance;
-		auto const right = vector::cross(dir, up);
+		auto const right = gl::vector::normalize(vector::cross(dir, up));
 
 		// near points
 		auto half_near_size = this->near_size / 2.0;
-		if (half_near_size.x == 0)
-			half_near_size.x = 1;
-		if (half_near_size.y == 0)
-			half_near_size.y = 1;
-
-		vec3d const half_near_up{
-			up.x * half_near_size.y,
-			up.y * half_near_size.y,
-			up.z * half_near_size.y,
-		};
-		vec3d const half_near_right{
-			right.x * half_near_size.x,
-			right.y * half_near_size.x,
-			right.z * half_near_size.x,
-		};
+		vec3d const half_near_up = up * half_near_size.y;
+		vec3d const half_near_right = right * half_near_size.x;
 		vec3d const near_tl{near_center + half_near_up - half_near_right};
 		vec3d const near_tr{near_center + half_near_up + half_near_right};
 		vec3d const near_bl{near_center - half_near_up - half_near_right};
@@ -106,16 +93,8 @@ namespace cube { namespace gl { namespace frustum {
 
 		// far points
 		auto const half_far_size = this->far_size / 2.0;
-		vec3d const half_far_up{
-			up.x * half_far_size.y,
-			up.y * half_far_size.y,
-			up.z * half_far_size.y,
-		};
-		vec3d const half_far_right{
-			right.x * half_far_size.x,
-			right.y * half_far_size.x,
-			right.z * half_far_size.x,
-		};
+		vec3d const half_far_up = up * half_far_size.y;
+		vec3d const half_far_right = right * half_far_size.x;
 		vec3d const far_tl{far_center + half_far_up - half_far_right};
 		vec3d const far_tr{far_center + half_far_up + half_far_right};
 		vec3d const far_bl{far_center - half_far_up - half_far_right};

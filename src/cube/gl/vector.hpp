@@ -5,6 +5,7 @@
 # include "content_traits.hpp"
 
 # include <glm/glm.hpp>
+# include <glm/core/func_geometric.hpp>
 # include <glm/core/type_vec2.hpp>
 # include <glm/core/type_vec3.hpp>
 # include <glm/core/type_vec4.hpp>
@@ -45,9 +46,10 @@ namespace cube { namespace gl { namespace vector {
 		return glm::rotate(v, angle, normal);
 	}
 
-	using glm::normalize;
 	using glm::cross;
 	using glm::dot;
+	using glm::distance;
+	using glm::normalize;
 
 }}}
 

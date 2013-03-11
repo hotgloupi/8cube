@@ -1,0 +1,12 @@
+#include <wrappers/boost/python.hpp>
+
+namespace cube { namespace units {
+
+	void export_angle();
+
+}}
+
+BOOST_PYTHON_MODULE(units)
+{
+	cube::units::export_angle();
+}

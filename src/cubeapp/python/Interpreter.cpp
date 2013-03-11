@@ -44,7 +44,7 @@ namespace cubeapp { namespace python {
 			         _impl->main_namespace);
 			return true;
 		} catch (boost::python::error_already_set const&) {
-			std::cerr << "Python exception:\n";
+			//std::cerr << "Python exception:\n";
 			PyErr_Print();
 		} catch (...) {
 			std::cerr << "This is fucking unbelievable\n";

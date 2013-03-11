@@ -1,32 +1,19 @@
 # -*- encoding: utf-8 -*-
 
 from cubeapp import core
-from cube import gl
+from cube import gl, units
 
 class Player(core.Player):
-    velocity = 50
+    velocity = 200
     rot_velocity = .5
 
     def update(self, delta):
         xrel, yrel = self.inputs.mouse.xrel, self.inputs.mouse.yrel
-        if xrel:
-            self.camera.front = gl.vector.normalize(gl.vector.rotate(
-                self.camera.front,
-                -xrel * self.rot_velocity,
-                self.camera.up
-            ))
-        if yrel:
-            right = self.camera.right
-            self.camera.front = gl.vector.rotate(
-                self.camera.front,
-                -yrel * self.rot_velocity,
-                right,
+        if xrel or yrel:
+            self.camera.rotate(
+                units.deg(-xrel * self.rot_velocity),
+                units.deg(yrel * self.rot_velocity)
             )
-            #self.camera.up = gl.vector.rotate(
-            #    self.camera.up,
-            #    -yrel * self.rot_velocity,
-            #    right,
-            #)
 
         move = gl.Vector3f()
         if self.inputs.move_forward.held:
@@ -40,6 +27,6 @@ class Player(core.Player):
             move -= self.camera.right
 
         if move.x or move.y or move.z:
-            self.camera.position += self.velocity * delta * gl.vector.normalize(move)
+            self.camera.move(self.velocity * delta * gl.vector.normalize(move))
         super(Player, self).update(delta)
 

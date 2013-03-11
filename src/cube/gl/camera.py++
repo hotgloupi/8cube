@@ -10,12 +10,13 @@ BOOST_PYTHON_MODULE(camera)
 	typedef cube::gl::vector::Vector3f vector_type;
 
 	py::class_<Camera>(
-			"Camera",
-			py::init<vector_type const&, vector_type const&, vector_type const&>()
+			"Camera"
 		)
-		.def_readwrite("position", &Camera::position)
-		.def_readwrite("front", &Camera::front)
-		.def_readwrite("up", &Camera::up)
+		.add_property("position", py::make_function(&Camera::position, py::return_internal_reference<>()))
+		.add_property("front", py::make_function(&Camera::front, py::return_internal_reference<>()))
+		.add_property("up", py::make_function(&Camera::up, py::return_internal_reference<>()))
 		.add_property("right", &Camera::right)
+		.def("rotate", &Camera::rotate, py::return_internal_reference<>())
+		.def("move", &Camera::move, py::return_internal_reference<>())
 	;
 }

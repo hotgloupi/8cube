@@ -31,7 +31,7 @@ class Game(core.Game):
             painter.state.model = gl.matrix.look_at(
                 self.player.camera.position,
                 self.player.camera.position + self.player.camera.front,
-                self.player.camera.up
+                gl.vec3f(0, 1, 0)
             )
             self.world.render(painter)
 

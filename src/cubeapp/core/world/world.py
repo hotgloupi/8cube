@@ -23,48 +23,69 @@ class World:
         self.__nodes_to_render2 = []
 
     def update(self, delta, player, projection_matrix):
-        self.__frustum = gl.frustum.Frustumil(45, 640.0 / 480.0,1,2)
+        self.__pos = gl.vec3d(
+            player.world_position.x + player.position.x / Chunk.size,
+            player.world_position.y + player.position.y / Chunk.size,
+            player.world_position.z + player.position.z / Chunk.size,
+        )
+        print(self.__pos)
+        self.__frustum = gl.frustum.Frustumd(45, 640.0 / 480.0,1,2)
         self.__frustum.update(
-            player.world_position,
-            gl.vector.normalize(player.camera.front),
-            gl.vector.normalize(gl.vector.cross(player.camera.right, player.camera.front))
+            self.__pos,
+            player.camera.front,
+            player.camera.up
         )
         self.referential = player.world_position
         self.__nodes_to_render = []
         self.__checked = 0
         self.__tree.visit_nodes(self.__on_tree_node)
         print("Found", len(self.__nodes_to_render), "nodes",
-              player.world_position, player.camera.front, player.camera.up, "check=",
+              player.world_position,self.__pos, player.camera.front, player.camera.up, "check=",
              self.__checked)
+        self._fix()
 
     def __on_tree_node(self, node):
         #if self.__checked > 10000:
         #    print(".", end='')
         #    return tree.VisitAction.stop
-        if node.level == 0:
-            self.__nodes_to_render.append(
-                (node.origin, self.get_chunk(node.origin))
-            )
-            return tree.VisitAction.continue_
+
+        if  node.origin.y > 0:
+            return tree.VisitAction.stop
 
         self.__checked += 1
-        if len(self.__nodes_to_render) > 200:
+        if self.__checked > 4000:
+            print(".", end='')
+            return tree.VisitAction.stop
+
+        if len(self.__nodes_to_render) > 5000:
             return tree.VisitAction.stop_and_clean
 
-        center = gl.vec3il(
+        #if node.level > 60 and node.origin.y > 0:
+
+
+        center = gl.vec3d(
             node.origin.x + node.size / 2,
             node.origin.y + node.size / 2,
             node.origin.z + node.size / 2,
         )
-        s = gl.Sphereil(center, int(node.size * 0.7071067811865476))
-        if self.__frustum.intersect(s):
-            if node.level>=200:
-                print('found', node.level, node.origin, node.size, s)
-            return tree.VisitAction.continue_
+        s = gl.Sphered(center, node.size * 0.7071067811865476)
+        if not self.__frustum.intersect(s):
+            #print("SKIP", node.level, gl.vector.distance(center, self.__pos) / 2**node.level)
+            #print(node.level, node.origin, s)
+            return tree.VisitAction.stop_and_clean
 
-        if node.level>=600:
-            print('NOT INTERSECT', node.level, node.origin, node.size, s)
-        return tree.VisitAction.stop_and_clean
+        #ratio = gl.vector.distance(center, self.__pos) / node.size
+        #if ratio > 1:
+        #    self.__nodes_to_render.append(
+        #        (node.level, node.origin, self.get_chunk(node.origin))
+        #    )
+            #return tree.VisitAction.stop
+        #print(node.level, node.origin, s, "<-- MATCH")
+        if node.level == 0:
+            self.__nodes_to_render.append(
+                (node.level, node.origin, self.get_chunk(node.origin))
+            )
+        return tree.VisitAction.continue_
 
     def _fix(self):
         self.__nodes_to_render2 = self.__nodes_to_render[:]
@@ -77,9 +98,14 @@ class World:
 
     def render(self, painter):
         with painter.bind([Chunk.sp, Chunk.vb]):
-            for pos, chunk in self.__nodes_to_render2:
+            ignored = 0
+            for level, pos, chunk in self.__nodes_to_render2:
+                if level > 0:
+                    ignored += 1
+                    continue
                 try:
                     chunk.render(pos - self.referential, painter)
-                except:
-                    print(pos, self.referential, pos-self.referential)
+                except Exception as e:
+                    print(e, pos, self.referential, pos-self.referential)
+            print(ignored, "ignored node")
 

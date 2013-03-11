@@ -34,7 +34,7 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	fs::path exec_dir = fs::absolute(argv[0]).parent_path();
+	fs::path exec_dir = fs::canonical(argv[0]).parent_path();
 	fs::path games_dir = exec_dir.parent_path() / "share" / "8cube" / "games";
 	fs::path lib_dir = exec_dir.parent_path() / "lib";
 

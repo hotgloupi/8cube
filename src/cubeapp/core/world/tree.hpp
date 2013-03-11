@@ -157,14 +157,14 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 			if (_children[0] != nullptr)
 				return;
 			auto s = this->size / 2;
-			_children[0] = new ChildType{this->origin + vector_type{0, 0, 0}};
-			_children[1] = new ChildType{this->origin + vector_type{0, 0, s}};
-			_children[2] = new ChildType{this->origin + vector_type{0, s, 0}};
-			_children[3] = new ChildType{this->origin + vector_type{0, s, s}};
-			_children[4] = new ChildType{this->origin + vector_type{s, 0, 0}};
-			_children[5] = new ChildType{this->origin + vector_type{s, 0, s}};
-			_children[6] = new ChildType{this->origin + vector_type{s, s, 0}};
-			_children[7] = new ChildType{this->origin + vector_type{s, s, s}};
+			_children[7] = new ChildType{this->origin + vector_type{0, 0, 0}};
+			_children[6] = new ChildType{this->origin + vector_type{0, 0, s}};
+			_children[5] = new ChildType{this->origin + vector_type{0, s, 0}};
+			_children[4] = new ChildType{this->origin + vector_type{0, s, s}};
+			_children[3] = new ChildType{this->origin + vector_type{s, 0, 0}};
+			_children[2] = new ChildType{this->origin + vector_type{s, 0, s}};
+			_children[1] = new ChildType{this->origin + vector_type{s, s, 0}};
+			_children[0] = new ChildType{this->origin + vector_type{s, s, s}};
 		}
 	};
 
