@@ -50,7 +50,6 @@ BOOST_PYTHON_MODULE(renderer)
 
 	export_constants();
 	export_bindable();
-	export_drawable();
 	export_state();
 	export_painter();
 	export_renderer();

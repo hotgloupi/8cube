@@ -2,7 +2,6 @@
 
 #include "PainterWithProxy.hpp"
 
-#include "../renderer/Drawable.hpp"
 #include "../renderer/Painter.hpp"
 #include "../renderer/State.hpp"
 #include "../renderer/ShaderProgram.hpp"
@@ -130,10 +129,6 @@ namespace cube { namespace gl { namespace renderer_bindings {
 
 	void export_painter()
 	{
-#define PAINTER_DRAW1(_P1)                                                    \
-		static_cast<void(Painter::*)(Drawable<_P1>&, _P1&)>(&Painter::draw)   \
-/**/
-
 		py::class_<Painter, boost::noncopyable>(
 				"Painter", py::no_init
 			)
@@ -151,14 +146,6 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.def(
 				"draw_elements",
 				&Painter::draw_elements
-			)
-			.def(
-				"draw",
-				(void(Painter::*)(Drawable<>&)) &Painter::draw
-			)
-			.def(
-				"draw",
-				PAINTER_DRAW1(ShaderProgramParameter)
 			)
 			.add_property(
 				"state",

@@ -34,8 +34,8 @@ namespace cube { namespace gl { namespace text {
 		_vertices = nullptr;
 	}
 
-	void Text::_draw(renderer::Painter& painter,
-	                 renderer::ShaderProgramParameter& sampler)
+	void Text::draw(renderer::Painter& painter,
+	                renderer::ShaderProgramParameter& sampler)
 	{
 		auto proxy = painter.with(_font.texture());
 		sampler = _font.texture();

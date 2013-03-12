@@ -5,7 +5,6 @@ namespace cube { namespace gl { namespace renderer_bindings {
 
 	void export_constants();
 	void export_bindable();
-	void export_drawable();
 	void export_state();
 	void export_painter();
 	void export_renderer();

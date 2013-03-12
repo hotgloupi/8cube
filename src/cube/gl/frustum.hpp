@@ -5,6 +5,8 @@
 # include "plane.hpp"
 # include "sphere.hpp"
 
+# include <cube/units/angle.hpp>
+
 namespace cube { namespace gl { namespace frustum {
 
 	enum class PlanePosition
@@ -29,7 +31,7 @@ namespace cube { namespace gl { namespace frustum {
 		typedef sphere::Sphere<T>     sphere_t;
 
 	public:
-		float const   fov;
+		units::Angle const   fov;
 		float const   ratio;
 		double const  near_distance;
 		double const  far_distance;
@@ -39,7 +41,7 @@ namespace cube { namespace gl { namespace frustum {
 		plane_t     _planes[6];
 
 	public:
-		Frustum(float const fov,
+		Frustum(units::Angle const fov,
 		        float const ratio,
 		        T const ndist,
 		        T const fdist);
@@ -70,7 +72,7 @@ namespace cube { namespace gl { namespace frustum {
 
 	private:
 		static
-		vec2d _plane_size(float const fov,
+		vec2d _plane_size(units::Angle const fov,
 		                  float const ratio,
 		                  T const distance);
 	};

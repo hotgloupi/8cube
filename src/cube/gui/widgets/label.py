@@ -18,7 +18,8 @@ class Label(widget.Widget):
             uniform sampler2D sampler0;
             void main(void) {
                 float c = texture2D(sampler0, vec2(gl_TexCoord[0])).r;
-                gl_FragColor = vec4(.1,.1,.1,c);
+                if (c == 0) discard;
+                gl_FragColor = vec4(vec3(.1,.1,.1) , c);
             }
         """]),
         renderer.new_vertex_shader(["""
@@ -35,5 +36,5 @@ class Label(widget.Widget):
 
     def render(self, painter):
         with painter.bind([self.__sp]):
-            painter.draw(self.__text, self.__sp.parameter("sampler0"))
+            self.__text.draw(painter, self.__sp.parameter("sampler0"))
 

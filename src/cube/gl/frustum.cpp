@@ -7,7 +7,7 @@
 namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
-	Frustum<T>::Frustum(float const fov,
+	Frustum<T>::Frustum(units::Angle const fov,
 	                    float const ratio,
 	                    T const ndist,
 	                    T const fdist)
@@ -51,12 +51,12 @@ namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
 	vector::Vector2d
-	Frustum<T>::_plane_size(float const fov,
+	Frustum<T>::_plane_size(units::Angle const fov,
 	                        float const ratio,
 	                        T const distance)
 	{
 		double const height =
-			glm::tan(glm::radians(fov) / 2.0) * (2.0 * distance);
+			glm::tan(units::rad_value(fov) / 2.0) * (2.0 * distance);
 		return vec2d{height * ratio, height};
 	}
 
@@ -97,10 +97,10 @@ namespace cube { namespace gl { namespace frustum {
 		vec3d const far_br{far_center - half_far_up + half_far_right};
 
 		// XXX normals point to outside of the frustum
-		this->_plane(PlanePosition::top, {near_tl, near_tr, far_tl});
-		this->_plane(PlanePosition::bottom, {near_br, near_bl, far_bl});
-		this->_plane(PlanePosition::left, {near_bl, near_tl, far_bl});
-		this->_plane(PlanePosition::right, {near_tr, near_br, far_br});
+		this->_plane(PlanePosition::top, {near_tl, far_tr, far_tl});
+		this->_plane(PlanePosition::bottom, {near_br, far_bl, far_br});
+		this->_plane(PlanePosition::left, {near_bl, far_tl, far_bl});
+		this->_plane(PlanePosition::right, {near_br, far_br, far_tr});
 		this->_plane(PlanePosition::near, {near_br, near_tr, near_bl});
 		this->_plane(PlanePosition::far, {far_bl, far_tl, far_tr});
 	}

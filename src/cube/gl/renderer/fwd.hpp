@@ -9,9 +9,6 @@ namespace cube { namespace gl { namespace renderer {
 
 	class Bindable;
 
-	template<typename... Args>
-	class Drawable;
-
 	class Painter;
 	class Renderer;
 	class RendererType;

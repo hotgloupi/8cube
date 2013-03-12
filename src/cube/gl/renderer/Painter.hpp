@@ -77,16 +77,6 @@ namespace cube { namespace gl { namespace renderer {
 		                 etc::size_type count = -1);
 
 		/**
-		 * @brief Draw a drawable.
-		 */
-		template<typename... Args>
-		void draw(Drawable<Args...>& drawable,
-		          Args&... args)
-		{
-			drawable._draw(*this, args...);
-		}
-
-		/**
 		 * Send to bound drawable (of this painter) a new matrix.
 		 */
 		void update(MatrixKind kind, matrix_type const& matrix);
@@ -103,16 +93,10 @@ namespace cube { namespace gl { namespace renderer {
 		 *      painter.with(vbo, shader)->draw_elements(...);
 		 *  }
 		 */
-		inline
-		operator bool() const
-		{ return true; }
+		inline operator bool() const { return true; }
 
 	private:
-		// used internally to set all parameters
-		//void _update_parameters(BindableBase& bindable);
-
 		// used by the renderer begin method
-	private:
 		Painter(Renderer& renderer);
 		friend class Renderer;
 
@@ -152,13 +136,13 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		template<typename... Args>
 		explicit
-		Proxy(Painter& self, Args&&... drawables)
+		Proxy(Painter& self, Args&&... bindables)
 			: _self(self)
 			, _guards{}
 		{
 			_init(
 				(Bindable::Guard*) _guards,
-				std::forward<Args>(drawables)...
+				std::forward<Args>(bindables)...
 			);
 		}
 
@@ -201,7 +185,12 @@ namespace cube { namespace gl { namespace renderer {
 				"Incomplete type detected!"
 			);
 			_self._new_guard(mem, first);
-			_init(mem + 1, std::forward<Tail>(tail)...);
+			try {
+				_init(mem + 1, std::forward<Tail>(tail)...);
+			} catch (...) {
+				_self._delete_guard(*mem);
+				throw;
+			}
 		}
 
 		// termination

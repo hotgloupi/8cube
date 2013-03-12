@@ -3,6 +3,9 @@
 #include "font.hpp"
 #include "text.hpp"
 
+#include "renderer/ShaderProgram.hpp"
+#include "renderer/Painter.hpp"
+
 namespace py = boost::python;
 using namespace cube::gl;
 
@@ -12,11 +15,11 @@ BOOST_PYTHON_MODULE(text)
 	py::class_<
 			  text::Text
 			, boost::noncopyable
-			, py::bases<renderer::Drawable<renderer::ShaderProgramParameter>>
 		>(
 			"Text",
 			py::init<font::Font&, std::basic_string<char> const&>()
 		)
+		.def("draw", &text::Text::draw)
 	;
 }
 

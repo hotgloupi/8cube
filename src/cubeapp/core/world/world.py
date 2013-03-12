@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from cube import gl
+from cube import gl, units
 
 from .storage import Storage
 from .generator import Generator
@@ -29,7 +29,7 @@ class World:
             player.world_position.z + player.position.z / Chunk.size,
         )
         print(self.__pos)
-        self.__frustum = gl.frustum.Frustumd(45, 640.0 / 480.0,.01,4)
+        self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,4)
         self.__frustum.update(
             self.__pos,
             player.camera.front,
