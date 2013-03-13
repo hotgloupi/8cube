@@ -1,5 +1,7 @@
 #include "frustum.hpp"
 
+#include "mesh.hpp"
+
 #include <etc/print.hpp>
 
 #include <glm/core/func_trigonometric.hpp>
@@ -95,6 +97,22 @@ namespace cube { namespace gl { namespace frustum {
 		vec3d const far_tr{far_center + half_far_up + half_far_right};
 		vec3d const far_bl{far_center - half_far_up - half_far_right};
 		vec3d const far_br{far_center - half_far_up + half_far_right};
+
+		mesh::Mesh mesh{renderer::DrawMode::quads};
+		vec3d quads[] = {
+			near_tr, near_tl, near_bl, near_br, // near
+			far_bl, far_br, far_tr, far_tl,     // far
+			near_bl, near_tl, far_tl, far_bl,   // left
+			near_tr, near_br, far_br, far_tr,   // right
+			near_tl, near_tr, far_tr, far_tl,   // top
+			near_br, near_bl, far_tl, far_tr,   // bottom
+		};
+		for (vec3d& p: quads)
+		{
+			p = p - pos;
+			mesh.push_back(vec3f{p.x, p.y, p.z});
+		}
+
 
 		// XXX normals point to outside of the frustum
 		this->_plane(PlanePosition::top, {near_tl, far_tr, far_tl});
