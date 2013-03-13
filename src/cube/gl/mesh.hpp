@@ -4,88 +4,79 @@
 # include "renderer/constants.hpp"
 # include "vector.hpp"
 
-# include <set>
-# include <unordered_map>
-# include <vector>
+# include <memory>
 
 namespace cube { namespace gl { namespace mesh {
 
 	class Mesh
 	{
 	public:
-		typedef vector::Vector3<float> vec3;
-	private:
-		typedef std::pair<etc::size_type, vec3> ordered_vertex;
-		struct ordered_vertex_compare
-		{
-			bool operator ()(ordered_vertex const& lhs,
-			                 ordered_vertex const& rhs)
-			{ return lhs.first < rhs.first && lhs.second != rhs.second; }
-		};
+		typedef vector::Vector3<float>  vec3;
+		typedef renderer::DrawMode      Mode;
+		typedef renderer::ContentKind   Kind;
 
 	private:
-		renderer::DrawMode                                      _mode;
-		std::set<ordered_vertex, ordered_vertex_compare>        _vertices;
-		std::unordered_map<int, std::vector<etc::size_type>>    _indices;
+		struct Impl;
+		std::unique_ptr<Impl> _this;
 
 	public:
-		Mesh(renderer::DrawMode const mode = renderer::DrawMode::triangles)
-			: _mode{mode}
-		{}
+		Mesh(Kind const kind = Kind::vertex,
+		     Mode const mode = Mode::triangle_strip);
+		Mesh(Mesh&& other);
+		virtual ~Mesh();
 
 		template<typename... Args>
-		Mesh&
-		push_back(vec3 const& value, Args&&... args)
+		inline
+		Mesh& append(vec3 const& value, Args&&... args)
 		{
-			this->_push_vertex(_mode, value);
-			return this->push_back(std::forward<Args>(args)...);
+			this->_push_vertex(value);
+			return this->append(std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		Mesh&
-		push_back(renderer::DrawMode const mode, Args&&... args)
+		inline
+		Mesh& append(Mode const mode, Args&&... args)
 		{
-			// XXX check completions
-			_mode = mode;
-			return this->push_back(std::forward<Args>(args)...);
+			_set_mode(mode);
+			return this->append(std::forward<Args>(args)...);
+		}
+
+		template<typename... Args>
+		inline
+		Mesh& append(Kind const kind, Args&&... args)
+		{
+			_set_kind(kind);
+			return this->append(std::forward<Args>(args)...);
 		}
 
 		inline
-		Mesh& push_back() { return *this; }
+		Mesh& append() { return *this; }
 
 		template<typename Array>
-		Mesh& append(renderer::DrawMode const mode, Array&& arr)
+		inline
+		Mesh& extend(Mode const mode, Array&& arr)
 		{
-			auto& indices = _indices[(int) mode];
-			for (auto const& vertex: arr)
-				this->_push_vertex(indices, vertex);
+			for (vec3 const& vertex: arr)
+				this->_push_vertex(mode, vertex);
 			return *this;
 		}
 
 		template<typename T>
-		Mesh& append(renderer::DrawMode const mode, std::initializer_list<T> l)
+		inline
+		Mesh& extend(Mode const mode, std::initializer_list<T> l)
 		{
-			auto& indices = _indices[(int) mode];
 			for (vec3 const& vertex: l)
-				this->_push_vertex(indices, vertex);
+				this->_push_vertex(mode, vertex);
 			return *this;
 		}
 
 	protected:
-		void _push_vertex(renderer::DrawMode const mode, vec3 const& vertex)
-		{
-			this->_push_vertex(_indices[(int) mode], vertex);
-		}
+		void _push_vertex(Mode const mode, vec3 const& vertex);
 
 	private:
-		void _push_vertex(std::vector<etc::size_type>& indices,
-		                  vec3 const& vertex)
-		{
-			etc::size_type inserted_index = _vertices.insert(
-				ordered_vertex{_vertices.size(), vertex}
-			).first->first;
-			indices.push_back(inserted_index);
-		}
+		void _push_vertex(vec3 const& vertex);
+		void _set_mode(Mode const mode);
+		void _set_kind(Kind const kind);
 	};
 
 }}}

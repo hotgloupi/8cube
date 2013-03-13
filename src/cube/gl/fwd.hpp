@@ -47,6 +47,12 @@ namespace cube { namespace gl {
 
 	}
 
+	namespace mesh {
+
+		class Mesh;
+
+	}
+
 	namespace rectangle {
 
 		template<typename T> struct Rectangle2;
@@ -62,21 +68,9 @@ namespace cube { namespace gl {
 
 	namespace vector {
 
-#ifdef BOOST_NO_CXX11_TEMPLATE_ALIASES
-		template<typename T>
-		struct Vector2
-			: public glm::detail::tvec2<T>
-		{};
-
-		template<typename T>
-		struct Vector3
-			: public glm::detail::tvec3<T>
-		{};
-#else
 		template<typename T> using Vector2 = glm::detail::tvec2<T>;
 		template<typename T> using Vector3 = glm::detail::tvec3<T>;
 		template<typename T> using Vector4 = glm::detail::tvec4<T>;
-#endif
 
 		typedef Vector2<float> Vector2f;
 		typedef Vector3<float> Vector3f;

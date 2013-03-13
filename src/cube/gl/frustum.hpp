@@ -37,6 +37,17 @@ namespace cube { namespace gl { namespace frustum {
 		double const  far_distance;
 		vec2d const   near_size;
 		vec2d const   far_size;
+		struct Quad
+		{
+			vec3d tl;
+			vec3d tr;
+			vec3d br;
+			vec3d bl;
+		};
+
+	public:
+		Quad near;
+		Quad far;
 	private:
 		plane_t     _planes[6];
 
@@ -52,16 +63,20 @@ namespace cube { namespace gl { namespace frustum {
 
 		inline
 		plane_t const& plane(PlanePosition const pos)
-		{
-			return _planes[static_cast<etc::size_type>(pos)];
-		}
+		{ return _planes[static_cast<etc::size_type>(pos)]; }
+
+		/**
+		 * @brief Retreive a mesh representing the frustum according to the
+		 * last update.
+		 */
+		mesh::Mesh mesh();
 
 		/**
 		 * @brief Check whether or not a point is in the frustum.
 		 */
 		bool contains(vec3 const& point) const;
 
-		bool intersect(sphere_t const& sphere) const;
+		bool intersects(sphere_t const& sphere) const;
 
 	private:
 		inline

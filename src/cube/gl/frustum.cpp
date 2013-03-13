@@ -35,7 +35,7 @@ namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
 	bool
-	Frustum<T>::intersect(sphere_t const& sphere) const
+	Frustum<T>::intersects(sphere_t const& sphere) const
 	{
 		double const radius = sphere.radius;
 		vec3d const center{
@@ -84,43 +84,49 @@ namespace cube { namespace gl { namespace frustum {
 		auto half_near_size = this->near_size / 2.0;
 		vec3d const half_near_up = up * half_near_size.y;
 		vec3d const half_near_right = right * half_near_size.x;
-		vec3d const near_tl{near_center + half_near_up - half_near_right};
-		vec3d const near_tr{near_center + half_near_up + half_near_right};
-		vec3d const near_bl{near_center - half_near_up - half_near_right};
-		vec3d const near_br{near_center - half_near_up + half_near_right};
+		this->near.tl = near_center + half_near_up - half_near_right;
+		this->near.tr = near_center + half_near_up + half_near_right;
+		this->near.bl = near_center - half_near_up - half_near_right;
+		this->near.br = near_center - half_near_up + half_near_right;
+
 
 		// far points
 		auto const half_far_size = this->far_size / 2.0;
 		vec3d const half_far_up = up * half_far_size.y;
 		vec3d const half_far_right = right * half_far_size.x;
-		vec3d const far_tl{far_center + half_far_up - half_far_right};
-		vec3d const far_tr{far_center + half_far_up + half_far_right};
-		vec3d const far_bl{far_center - half_far_up - half_far_right};
-		vec3d const far_br{far_center - half_far_up + half_far_right};
-
-		mesh::Mesh mesh{renderer::DrawMode::quads};
-		vec3d quads[] = {
-			near_tr, near_tl, near_bl, near_br, // near
-			far_bl, far_br, far_tr, far_tl,     // far
-			near_bl, near_tl, far_tl, far_bl,   // left
-			near_tr, near_br, far_br, far_tr,   // right
-			near_tl, near_tr, far_tr, far_tl,   // top
-			near_br, near_bl, far_tl, far_tr,   // bottom
-		};
-		for (vec3d& p: quads)
-		{
-			p = p - pos;
-			mesh.push_back(vec3f{p.x, p.y, p.z});
-		}
+		this->far.tl = far_center + half_far_up - half_far_right;
+		this->far.tr = far_center + half_far_up + half_far_right;
+		this->far.bl = far_center - half_far_up - half_far_right;
+		this->far.br = far_center - half_far_up + half_far_right;
 
 
 		// XXX normals point to outside of the frustum
-		this->_plane(PlanePosition::top, {near_tl, far_tr, far_tl});
-		this->_plane(PlanePosition::bottom, {near_br, far_bl, far_br});
-		this->_plane(PlanePosition::left, {near_bl, far_tl, far_bl});
-		this->_plane(PlanePosition::right, {near_br, far_br, far_tr});
-		this->_plane(PlanePosition::near, {near_br, near_tr, near_bl});
-		this->_plane(PlanePosition::far, {far_bl, far_tl, far_tr});
+		this->_plane(PlanePosition::top, {near.tl, far.tr, far.tl});
+		this->_plane(PlanePosition::bottom, {near.br, far.bl, far.br});
+		this->_plane(PlanePosition::left, {near.bl, far.tl, far.bl});
+		this->_plane(PlanePosition::right, {near.br, far.br, far.tr});
+		this->_plane(PlanePosition::near, {near.br, near.tr, near.bl});
+		this->_plane(PlanePosition::far, {far.bl, far.tl, far.tr});
+	}
+
+	template<typename T>
+	mesh::Mesh Frustum<T>::mesh()
+	{
+		mesh::Mesh mesh{renderer::ContentKind::vertex, renderer::DrawMode::quads};
+		vec3d quads[] = {
+			near.tr, near.tl, near.bl, near.br, // near
+			far.bl, far.br, far.tr, far.tl,     // far
+			near.bl, near.tl, far.tl, far.bl,   // left
+			near.tr, near.br, far.br, far.tr,   // right
+			near.tl, near.tr, far.tr, far.tl,   // top
+			near.br, near.bl, far.tl, far.tr,   // bottom
+		};
+		for (vec3d& p: quads)
+		{
+			//p = p - pos;
+			mesh.append(vec3f{p.x, p.y, p.z});
+		}
+		return mesh;
 	}
 
 	template struct Frustum<float>;
@@ -129,5 +135,4 @@ namespace cube { namespace gl { namespace frustum {
 	//template struct Frustum<uint32_t>;
 	template struct Frustum<int64_t>;
 	//template struct Frustum<uint64_t>;
-
 }}}

@@ -18,7 +18,7 @@ BOOST_PYTHON_MODULE(frustum)
 
 #define EXPORT_FRUSTUM(__type, __suffix)                                      \
 	py::class_<Frustum<__type>>("Frustum" #__suffix, py::no_init)             \
-		.def(py::init<cube::units::Angle, float, __type, __type>())                        \
+		.def(py::init<cube::units::Angle, float, __type, __type>())           \
 		.def("update", &Frustum<__type>::update)                              \
 		.def(                                                                 \
 			"plane",                                                          \
@@ -26,7 +26,7 @@ BOOST_PYTHON_MODULE(frustum)
 			py::return_internal_reference<>()                                 \
 		)                                                                     \
 		.def("contains", &Frustum<__type>::contains)                          \
-		.def("intersect", &Frustum<__type>::intersect)                        \
+		.def("intersects", &Frustum<__type>::intersects)                      \
 	/**/
 
 	EXPORT_FRUSTUM(float, f);
