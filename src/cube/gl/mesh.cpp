@@ -1,6 +1,7 @@
 #include "mesh.hpp"
 
-#include <set>
+#include "renderer/VertexBuffer.hpp"
+
 #include <unordered_map>
 #include <vector>
 
@@ -12,20 +13,29 @@ namespace cube { namespace gl { namespace mesh {
 
 		typedef std::pair<etc::size_type, Mesh::vec3> ordered_vertex;
 
-		struct ordered_vertex_compare
+		struct vec3_hash
 		{
-			bool operator ()(ordered_vertex const& lhs,
-							 ordered_vertex const& rhs)
-			{ return lhs.first < rhs.first && lhs.second != rhs.second; }
+			size_t operator ()(Mesh::vec3 const* lhs) const
+			{
+				static std::hash<Mesh::vec3::value_type> h;
+				return h(lhs->x) + h(lhs->y) + h(lhs->z);
+			}
 		};
 
-		typedef
-			std::set<ordered_vertex, ordered_vertex_compare>
-			Vertices;
+		struct vec3_compare
+		{
+			bool operator ()(Mesh::vec3 const* lhs, Mesh::vec3 const* rhs) const
+			{
+				return *lhs == *rhs;
+			}
+		};
 
-		typedef
-			std::unordered_map<int, std::vector<etc::size_type>>
-			Indices;
+		struct enum_hash
+		{
+			template<typename T>
+			size_t operator ()(T const e) const
+			{ return static_cast<size_t>(e); }
+		};
 
 	} // !anonymous
 
@@ -35,15 +45,18 @@ namespace cube { namespace gl { namespace mesh {
 	{
 		Kind kind;
 		Mode mode;
-
-		Vertices vertices;
-		Indices indices;
+		std::unordered_map<
+		    Kind
+		  , std::unordered_map<vec3 const*, etc::size_type, vec3_hash, vec3_compare>
+		> vertice_map;
+		std::unordered_map<Kind, std::vector<vec3> vertice;
+		std::unordered_map<Mode, std::vector<etc::size_type>, enum_hash> indice;
 	};
 
 	//- Mesh class ------------------------------------------------------------
 
 	Mesh::Mesh(Kind const kind, Mode const mode)
-		: _this{new Impl{kind, mode, {}, {}}}
+		: _this{new Impl{kind, mode, {}, {}, {}}}
 	{}
 
 	Mesh::Mesh(Mesh&& other)
@@ -53,14 +66,34 @@ namespace cube { namespace gl { namespace mesh {
 	Mesh::~Mesh()
 	{}
 
+
+	std::unique_ptr<renderer::Drawable>
+	Mesh::view(renderer::Renderer& renderer) const
+	{
+		auto v = renderer::make_vertex_buffer_attribute(
+			Kind::vertex,
+			&_this->vertice[0],
+			_this->vertice.size()
+		);
+
+
+	}
+
 	void
 	Mesh::_push_vertex(Mode const mode,
 	                   vec3 const& vertex)
 	{
-		etc::size_type inserted_index = _this->vertices.insert(
-			ordered_vertex{_this->vertices.size(), vertex}
-		).first->first;
-		_this->indices[(int) mode].push_back(inserted_index);
+		auto it = _this->vertice_map.find(&vertex);
+		etc::size_type idx;
+		if (it == _this->vertice_map.end())
+		{
+			_this->vertice.push_back(vertex);
+			 idx = _this->vertice.size() - 1;
+			_this->vertice_map.insert({&_this->vertice[idx], idx});
+		}
+		else
+			idx = it->second;
+		_this->indice[mode].push_back(idx);
 	}
 
 	void

@@ -8,6 +8,7 @@
 namespace cube { namespace gl { namespace renderer {
 
 	class Bindable;
+	class Drawable;
 
 	class Painter;
 	class Renderer;

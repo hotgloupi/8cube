@@ -2,6 +2,7 @@
 # define CUBE_GL_MESH_HPP
 
 # include "renderer/constants.hpp"
+# include "renderer/fwd.hpp"
 # include "vector.hpp"
 
 # include <memory>
@@ -63,12 +64,18 @@ namespace cube { namespace gl { namespace mesh {
 
 		template<typename T>
 		inline
-		Mesh& extend(Mode const mode, std::initializer_list<T> l)
+		Mesh& extend(std::initializer_list<T> l)
 		{
 			for (vec3 const& vertex: l)
 				this->_push_vertex(mode, vertex);
 			return *this;
 		}
+
+		/**
+		 * @brief Drawable of the mesh.
+		 */
+		std::unique_ptr<renderer::Drawable>
+		view(renderer::Renderer& renderer) const;
 
 	protected:
 		void _push_vertex(Mode const mode, vec3 const& vertex);

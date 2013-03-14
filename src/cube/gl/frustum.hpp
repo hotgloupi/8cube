@@ -3,6 +3,7 @@
 
 # include "vector.hpp"
 # include "plane.hpp"
+# include "renderer/fwd.hpp"
 # include "sphere.hpp"
 
 # include <cube/units/angle.hpp>
@@ -57,8 +58,7 @@ namespace cube { namespace gl { namespace frustum {
 		        T const ndist,
 		        T const fdist);
 
-		void update(vec3 const& position,
-		            vec3f const& front,
+		void update(vec3f const& front,
 		            vec3f const& up);
 
 		inline
@@ -69,7 +69,13 @@ namespace cube { namespace gl { namespace frustum {
 		 * @brief Retreive a mesh representing the frustum according to the
 		 * last update.
 		 */
-		mesh::Mesh mesh();
+		mesh::Mesh mesh() const;
+
+		/**
+		 * @brief Drawable of the frustum.
+		 */
+		std::unique_ptr<renderer::Drawable>
+		view(renderer::Renderer& renderer) const;
 
 		/**
 		 * @brief Check whether or not a point is in the frustum.

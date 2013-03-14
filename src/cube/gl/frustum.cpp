@@ -1,6 +1,7 @@
 #include "frustum.hpp"
 
 #include "mesh.hpp"
+#include "renderer/Drawable.hpp"
 
 #include <etc/print.hpp>
 
@@ -64,11 +65,9 @@ namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
 	void
-	Frustum<T>::update(vec3 const& position_,
-	                   vec3f const& direction_,
+	Frustum<T>::update(vec3f const& direction_,
 	                   vec3f const& up_)
 	{
-		vec3d pos{position_.x, position_.y, position_.z};
 		vec3d dir = gl::vector::normalize(
 			vec3d{direction_.x, direction_.y, direction_.z}
 		);
@@ -76,8 +75,8 @@ namespace cube { namespace gl { namespace frustum {
 			vec3d{up_.x, up_.y, up_.z}
 		);
 
-		auto const near_center = pos + dir * this->near_distance;
-		auto const far_center = pos + dir * this->far_distance;
+		auto const near_center = dir * this->near_distance;
+		auto const far_center = dir * this->far_distance;
 		auto const right = gl::vector::normalize(vector::cross(dir, up));
 
 		// near points
@@ -110,9 +109,11 @@ namespace cube { namespace gl { namespace frustum {
 	}
 
 	template<typename T>
-	mesh::Mesh Frustum<T>::mesh()
+	mesh::Mesh
+	Frustum<T>::mesh() const
 	{
-		mesh::Mesh mesh{renderer::ContentKind::vertex, renderer::DrawMode::quads};
+		using mesh::Mesh;
+		Mesh mesh{Mesh::Kind::vertex, Mesh::Mode::quads};
 		vec3d quads[] = {
 			near.tr, near.tl, near.bl, near.br, // near
 			far.bl, far.br, far.tr, far.tl,     // far
@@ -122,11 +123,15 @@ namespace cube { namespace gl { namespace frustum {
 			near.br, near.bl, far.tl, far.tr,   // bottom
 		};
 		for (vec3d& p: quads)
-		{
-			//p = p - pos;
 			mesh.append(vec3f{p.x, p.y, p.z});
-		}
 		return mesh;
+	}
+
+	template<typename T>
+	std::unique_ptr<renderer::Drawable>
+	Frustum<T>::view(renderer::Renderer& renderer) const
+	{
+		return this->mesh().view(renderer);
 	}
 
 	template struct Frustum<float>;
