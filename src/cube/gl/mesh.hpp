@@ -4,6 +4,7 @@
 # include "renderer/constants.hpp"
 # include "renderer/fwd.hpp"
 # include "vector.hpp"
+# include "color.hpp"
 
 # include <memory>
 
@@ -12,7 +13,9 @@ namespace cube { namespace gl { namespace mesh {
 	class Mesh
 	{
 	public:
-		typedef vector::Vector3<float>  vec3;
+		typedef vector::Vector3<float>  vertex_t;
+		typedef vector::Vector2<float>  tex_coord_t;
+		typedef color::Color4<float>    color_t;
 		typedef renderer::DrawMode      Mode;
 		typedef renderer::ContentKind   Kind;
 
@@ -26,9 +29,14 @@ namespace cube { namespace gl { namespace mesh {
 		Mesh(Mesh&& other);
 		virtual ~Mesh();
 
+		Mesh& mode(Mode const mode);
+		Mesh& kind(Kind const kind);
+		Mode mode() const;
+		Kind kind() const;
+
 		template<typename... Args>
 		inline
-		Mesh& append(vec3 const& value, Args&&... args)
+		Mesh& append(vertex_t const& value, Args&&... args)
 		{
 			this->_push_vertex(value);
 			return this->append(std::forward<Args>(args)...);
@@ -57,7 +65,7 @@ namespace cube { namespace gl { namespace mesh {
 		inline
 		Mesh& extend(Mode const mode, Array&& arr)
 		{
-			for (vec3 const& vertex: arr)
+			for (vertex_t const& vertex: arr)
 				this->_push_vertex(mode, vertex);
 			return *this;
 		}
@@ -66,7 +74,7 @@ namespace cube { namespace gl { namespace mesh {
 		inline
 		Mesh& extend(std::initializer_list<T> l)
 		{
-			for (vec3 const& vertex: l)
+			for (vertex_t const& vertex: l)
 				this->_push_vertex(mode, vertex);
 			return *this;
 		}
@@ -78,12 +86,21 @@ namespace cube { namespace gl { namespace mesh {
 		view(renderer::Renderer& renderer) const;
 
 	protected:
-		void _push_vertex(Mode const mode, vec3 const& vertex);
+		template<typename T>
+		void _push(T const& el)
+		{ _push(this->kind(), this->mode(), el); }
 
-	private:
-		void _push_vertex(vec3 const& vertex);
-		void _set_mode(Mode const mode);
-		void _set_kind(Kind const kind);
+		template<typename T>
+		void _push(Kind const kind, T const& el)
+		{ _push(kind, this->mode(), el); }
+
+		template<typename T>
+		void _push(Mode const mode, T const& el)
+		{ _push(this->kind(), mode, el); }
+
+		void _push(Kind const kind, Mode const mode, vertex_t const& el);
+		void _push(Kind const kind, Mode const mode, tex_coord_t const& el);
+		void _push(Kind const kind, Mode const mode, color_t const& el);
 	};
 
 }}}
