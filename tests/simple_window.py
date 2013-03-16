@@ -32,7 +32,7 @@ void main(void)
 
 class App:
     def __init__(self):
-        self.window = cube.system.Window("Testing", 640, 480)
+        self.window = cube.system.create_window("Testing", 640, 480, cube.gl.renderer.Name.OpenGL)
         self.window.inputs.on_quit.connect(self._on_quit)
         self.window.inputs.on_resize.connect(self._on_resize)
         self.running = False
@@ -157,9 +157,9 @@ class App:
                 cube.gl.Vector3f(0, 1, 0),
             )
             with painter.bind([self.text_shader]):
-                painter.draw(self.text, self.text_shader.parameter('sampler0'))
+                self.text.draw(painter, self.text_shader.parameter('sampler0'))
 
-        r.swap_buffers()
+        self.window.swap_buffers()
 
 if __name__ == '__main__':
     cube.gui.FontManager.populate()
