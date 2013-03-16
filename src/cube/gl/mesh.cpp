@@ -275,20 +275,13 @@ namespace cube { namespace gl { namespace mesh {
 			)};
 	}
 
-	//template<typename T>
-	//void Mesh::_push(Kind const kind, Mode const mode, T const& el);
-	//{
-	//	auto it = _this->vertice_map.find(&vertex);
-	//	etc::size_type idx;
-	//	if (it == _this->vertice_map.end())
-	//	{
-	//		_this->vertice.push_back(vertex);
-	//		 idx = _this->vertice.size() - 1;
-	//		_this->vertice_map.insert({&_this->vertice[idx], idx});
-	//	}
-	//	else
-	//		idx = it->second;
-	//	_this->indice[mode].push_back(idx);
-	//}
+	std::ostream& operator <<(std::ostream& out, Mesh const& mesh)
+	{
+		out << "<Mesh "
+		    << mesh._this->vertice.data.size() << " vertice "
+			<< ">"
+		;
+		return out;
+	}
 
 }}}

@@ -74,5 +74,6 @@ BOOST_PYTHON_MODULE(mesh)
 			)
 		)
 		.def("append", py::raw_function(&Proxy::Mesh::append, 1))
+		.def("__str__", &py::stringof<Mesh>)
 	;
 }

@@ -6,6 +6,7 @@
 # include "vector.hpp"
 # include "color.hpp"
 
+# include <iosfwd>
 # include <memory>
 
 namespace cube { namespace gl { namespace mesh {
@@ -124,7 +125,12 @@ namespace cube { namespace gl { namespace mesh {
 		void _push(Kind const kind, Mode const mode, vertex_t const& el);
 		void _push(Kind const kind, Mode const mode, tex_coord_t const& el);
 		void _push(Kind const kind, Mode const mode, color_t const& el);
+
+		friend
+			std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
 	};
+
+	std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
 
 }}}
 
