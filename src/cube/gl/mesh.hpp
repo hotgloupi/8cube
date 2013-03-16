@@ -38,7 +38,23 @@ namespace cube { namespace gl { namespace mesh {
 		inline
 		Mesh& append(vertex_t const& value, Args&&... args)
 		{
-			this->_push_vertex(value);
+			this->_push(value);
+			return this->append(std::forward<Args>(args)...);
+		}
+
+		template<typename... Args>
+		inline
+		Mesh& append(color_t const& value, Args&&... args)
+		{
+			this->_push(value);
+			return this->append(std::forward<Args>(args)...);
+		}
+
+		template<typename... Args>
+		inline
+		Mesh& append(tex_coord_t const& value, Args&&... args)
+		{
+			this->_push(value);
 			return this->append(std::forward<Args>(args)...);
 		}
 
@@ -46,7 +62,7 @@ namespace cube { namespace gl { namespace mesh {
 		inline
 		Mesh& append(Mode const mode, Args&&... args)
 		{
-			_set_mode(mode);
+			this->mode(mode);
 			return this->append(std::forward<Args>(args)...);
 		}
 
@@ -54,7 +70,7 @@ namespace cube { namespace gl { namespace mesh {
 		inline
 		Mesh& append(Kind const kind, Args&&... args)
 		{
-			_set_kind(kind);
+			this->kind(kind);
 			return this->append(std::forward<Args>(args)...);
 		}
 
@@ -63,19 +79,23 @@ namespace cube { namespace gl { namespace mesh {
 
 		template<typename Array>
 		inline
-		Mesh& extend(Mode const mode, Array&& arr)
+		Mesh& extend(Array&& arr)
 		{
-			for (vertex_t const& vertex: arr)
-				this->_push_vertex(mode, vertex);
+			Mode const mode = this->mode();
+			Kind const kind = this->kind();
+			for (auto const& el: arr)
+				this->_push(kind, mode, el);
 			return *this;
 		}
 
 		template<typename T>
 		inline
-		Mesh& extend(std::initializer_list<T> l)
+		Mesh& extend(std::initializer_list<T> list)
 		{
-			for (vertex_t const& vertex: l)
-				this->_push_vertex(mode, vertex);
+			Mode const mode = this->mode();
+			Kind const kind = this->kind();
+			for (auto const& el: list)
+				this->_push(kind, mode, el);
 			return *this;
 		}
 
@@ -87,14 +107,17 @@ namespace cube { namespace gl { namespace mesh {
 
 	protected:
 		template<typename T>
+		inline
 		void _push(T const& el)
 		{ _push(this->kind(), this->mode(), el); }
 
 		template<typename T>
+		inline
 		void _push(Kind const kind, T const& el)
 		{ _push(kind, this->mode(), el); }
 
 		template<typename T>
+		inline
 		void _push(Mode const mode, T const& el)
 		{ _push(this->kind(), mode, el); }
 

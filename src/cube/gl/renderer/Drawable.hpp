@@ -1,6 +1,8 @@
 #ifndef  CUBE_GL_RENDERER_DRAWABLE_HPP
 # define CUBE_GL_RENDERER_DRAWABLE_HPP
 
+# include "fwd.hpp"
+
 namespace cube { namespace gl { namespace renderer {
 
 	class Drawable

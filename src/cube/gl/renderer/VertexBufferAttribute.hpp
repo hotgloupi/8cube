@@ -105,7 +105,7 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		template<typename T>
 		VertexBufferAttribute(ContentKind const kind,
-		                      T *data,
+		                      T const* data,
 		                      etc::size_type const nb_elements,
 		                      ContentHint const hint = ContentHint::static_content)
 			: kind{kind}
@@ -114,7 +114,7 @@ namespace cube { namespace gl { namespace renderer {
 			, arity{content_traits<T>::arity}
 			, nb_elements{nb_elements}
 			, buffer_size{nb_elements * sizeof(T)}
-			, _buffer{data}
+			, _buffer{const_cast<T*>(data)} // The data won't be deleted
 			, _deleter{}
 		{}
 

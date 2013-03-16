@@ -70,8 +70,8 @@ namespace cube { namespace gl { namespace renderer {
 		void __unbind()
 		{
 			if (__bound > 0)
-				__bound -= 1;
 			{
+				__bound -= 1;
 				if (__bound == 0)
 					_unbind();
 			}

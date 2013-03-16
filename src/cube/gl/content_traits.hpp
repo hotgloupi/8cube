@@ -14,8 +14,11 @@ namespace cube { namespace gl {
 	 *  @note Every types T that have an associated content_traits TR verify
 	 *        sizeof(T) == sizeof(TR::component_type) * TR::arity
 	 */
-	template<typename _T>
+	template<typename T>
 	struct content_traits;
+
+	template<typename T>
+	struct content_traits<T const> : content_traits<T> {};
 
 # define _CUBE_GL_CONTENT_TRAITS(__type)                                      \
 	template<>                                                                \

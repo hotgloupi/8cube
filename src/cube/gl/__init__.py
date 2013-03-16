@@ -15,6 +15,7 @@ Exported classes:
     Cube3{f,d,i,u,il,ul}
     Font
     Matrix44f
+    Mesh
     Plane{f,d,i,u,il,ul}
     Sphere{f,d,i,u,il,ul}
     Text
@@ -50,6 +51,7 @@ from .renderer import *
 from .text import Text
 from .font import Font
 from .matrix import Matrix44f
+from .mesh import Mesh
 from .plane import Planef, Planed, Planei, Planeu, Planeil, Planeul
 from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
