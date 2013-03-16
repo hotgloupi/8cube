@@ -1,0 +1,78 @@
+#include <wrappers/boost/python.hpp>
+#include <boost/python/raw_function.hpp>
+
+#include "mesh.hpp"
+
+#include <cube/gl/exception.hpp>
+
+namespace {
+
+	struct Proxy
+	{
+		struct Mesh
+		{
+			static
+			boost::python::object
+			append(boost::python::tuple args,
+			       boost::python::dict kwargs)
+			{
+				namespace py = boost::python;
+				using cube::gl::mesh::Mesh;
+				if (py::len(kwargs))
+					throw cube::gl::exception::Exception{
+						"Mesh.append() does not accept named arguments"
+					};
+				Mesh& mesh = py::extract<Mesh&>(args[0])();
+				for (int i = 1; i < py::len(args); ++i)
+				{
+					auto el = args[i];
+#define CHECK(__type) \
+					{ \
+						py::extract<__type> e(el); \
+						if (e.check()) \
+						{ \
+							mesh.append(e()); \
+							continue; \
+						} \
+					} \
+/**/
+					CHECK(Mesh::Mode);
+					CHECK(Mesh::Kind);
+					CHECK(Mesh::vertex_t);
+					CHECK(Mesh::color_t);
+					CHECK(Mesh::tex_coord_t);
+				}
+				return args[0];
+			}
+
+		};
+	};
+}
+
+BOOST_PYTHON_MODULE(mesh)
+{
+	using namespace cube::gl::mesh;
+	namespace py = boost::python;
+
+	py::class_<Mesh, boost::noncopyable>("Mesh")
+		.def(py::init<Mesh::Kind>())
+		.def(py::init<Mesh::Kind, Mesh::Mode>())
+		.add_property(
+			"mode",
+			static_cast<Mesh::Mode (Mesh::*)() const>(&Mesh::mode),
+			py::make_function(
+				static_cast<Mesh& (Mesh::*)(Mesh::Mode const)>(&Mesh::mode),
+				py::return_internal_reference<>()
+			)
+		)
+		.add_property(
+			"kind",
+			static_cast<Mesh::Kind (Mesh::*)() const>(&Mesh::kind),
+			py::make_function(
+				static_cast<Mesh& (Mesh::*)(Mesh::Kind const)>(&Mesh::kind),
+				py::return_internal_reference<>()
+			)
+		)
+		.def("append", py::raw_function(&Proxy::Mesh::append, 1))
+	;
+}
