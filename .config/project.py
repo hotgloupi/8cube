@@ -319,7 +319,7 @@ def configure(project, build):
         directory  = 'release/lib',
         libraries = base_libraries + boost.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
-        shared = True and not platform.IS_MACOSX #bug with tup on macosx
+        shared = True #and not platform.IS_MACOSX #bug with tup on macosx
     )
 
     libglew = compiler.link_static_library(
