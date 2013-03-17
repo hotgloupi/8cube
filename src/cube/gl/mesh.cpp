@@ -277,10 +277,20 @@ namespace cube { namespace gl { namespace mesh {
 
 	std::ostream& operator <<(std::ostream& out, Mesh const& mesh)
 	{
-		out << "<Mesh "
-		    << mesh._this->vertice.data.size() << " vertice "
-			<< ">"
-		;
+		out << "<Mesh " << mesh._this->vertice.data.size() << " vertice";
+
+		if (not mesh._this->normals.data.empty())
+			out << ", " << mesh._this->normals.data.size() << " normals";
+		if (not mesh._this->colors.data.empty())
+			out << ", " << mesh._this->colors.data.size() << " colors";
+		if (not mesh._this->tex_coords0.data.empty())
+			out << ", " << mesh._this->tex_coords0.data.size() << " tex_coords0";
+		if (not mesh._this->tex_coords1.data.empty())
+			out << ", " << mesh._this->tex_coords1.data.size() << " tex_coords1";
+		if (not mesh._this->tex_coords2.data.empty())
+			out << ", " << mesh._this->tex_coords2.data.size() << " tex_coords2";
+
+		out << ">";
 		return out;
 	}
 
