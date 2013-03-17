@@ -6,6 +6,9 @@ from cube.gl import Mesh, vec3f
 from cube.gl import Color3f as col3f
 
 
+import cube
+window = cube.system.create_window( "Test mesh",640, 480, cube.gl.renderer.Name.OpenGL)
+
 w = h = 16
 
 m = Mesh()
@@ -24,3 +27,4 @@ m.append(
     col3f('blue'),
 )
 print(m)
+view = m.view(window.renderer)
