@@ -93,6 +93,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	std::ostream& operator<<(std::ostream& out, DrawMode const mode);
 
 	enum class ContentType
 	{

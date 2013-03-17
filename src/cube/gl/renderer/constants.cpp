@@ -61,6 +61,32 @@ namespace cube { namespace gl { namespace renderer {
 		return out;
 	}
 
+	std::ostream& operator<<(std::ostream& out, DrawMode const mode)
+	{
+		switch (mode)
+		{
+#define _CASE(name)                                                           \
+		case DrawMode::name:                                                  \
+			out << "DrawMode::" #name;                                        \
+			break                                                             \
+/**/
+		_CASE(points);
+		_CASE(lines);
+		_CASE(line_strip);
+		_CASE(line_loop);
+		_CASE(triangles);
+		_CASE(triangle_strip);
+		_CASE(triangle_fan);
+		_CASE(quads);
+		_CASE(quad_strip);
+		_CASE(polygon);
+#undef _CASE
+		default:
+			out << "Unknown DrawMode";
+		}
+		return out;
+	}
+
 	std::ostream& operator <<(std::ostream& out, ContentType const type)
 	{
 		switch (type)
