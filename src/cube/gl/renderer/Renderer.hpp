@@ -208,7 +208,7 @@ namespace cube { namespace gl { namespace renderer {
 		                 etc::size_type count) = 0;
 
 		virtual
-		void clear(BufferBit flags) = 0;
+		void clear(BufferBit flags = BufferBit::color | BufferBit::depth | BufferBit::stencil) = 0;
 	};
   ////////////////////////////////////////////////////////////////////////////
   // RendererType class
