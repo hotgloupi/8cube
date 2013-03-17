@@ -62,11 +62,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	void ShaderProgram::_bind()
 	{
+		ETC_TRACE.debug("Binding shader program", _id);
 		gl::UseProgram(_id);
 	}
 
 	void ShaderProgram::_unbind()
 	{
+		ETC_TRACE.debug("Unbind current shader program", _id);
 		gl::UseProgram(0);
 	}
 

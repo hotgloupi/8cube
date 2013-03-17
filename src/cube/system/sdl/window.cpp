@@ -95,6 +95,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 	void Window::swap_buffers()
 	{
+        ETC_LOG.debug("Swapping buffers");
 		SDL_GL_SwapBuffers();
 	}
 

@@ -132,6 +132,7 @@ class App:
         r = self.window.renderer
         r.clear(cube.gl.BufferBit.color | cube.gl.BufferBit.depth)
 
+        cube.log.debug("Begin frame")
         with r.begin(cube.gl.mode_3d) as painter:
             painter.state.projection = self.projection_matrix
             painter.state.view = cube.gl.matrix.look_at(
@@ -159,6 +160,7 @@ class App:
             with painter.bind([self.text_shader]):
                 self.text.draw(painter, self.text_shader.parameter('sampler0'))
 
+        cube.log.debug("End of frame")
         self.window.swap_buffers()
 
 if __name__ == '__main__':

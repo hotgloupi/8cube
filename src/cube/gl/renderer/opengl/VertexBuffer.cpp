@@ -7,7 +7,7 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	ETC_LOG_COMPONENT("cube.gl.opengl.VertexBuffer");
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.VertexBuffer");
 
 	template<bool is_indices>
 	_VertexBuffer<is_indices>::_VertexBuffer(AttributePtr&& attribute)
