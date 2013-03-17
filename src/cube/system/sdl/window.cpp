@@ -79,6 +79,24 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		: cube::system::window::Window{title, width, height, renderer_name}
 		, _sdl_impl{new Impl{}}
 	{
+		SDL_version linked;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+		SDL_GetVersion(&linked);
+#else
+		SDL_version const* linked_ptr = SDL_Linked_Version();
+		std::memcpy(&linked, linked_ptr, sizeof(linked));
+#endif
+
+		SDL_version compiled;
+		SDL_VERSION(&compiled);
+		ETC_LOG(
+			"Compiled SDL version ", etc::iomanip::nosep(),
+			(int)compiled.major, '.', (int)compiled.minor, '-', (int)compiled.patch
+		);
+		ETC_LOG(
+			"Linked SDL version ", etc::iomanip::nosep(),
+			(int)linked.major, '.', (int)linked.minor, '-', (int)linked.patch
+		);
 		if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
 			throw Exception(std::string{"SDL_Init(): "} + SDL_GetError());
 		_sdl_impl->screen = nullptr;
