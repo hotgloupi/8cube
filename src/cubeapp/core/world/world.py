@@ -31,7 +31,6 @@ class World:
         print(self.__pos)
         self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,4)
         self.__frustum.update(
-            self.__pos,
             player.camera.front,
             player.camera.up
         )
@@ -69,7 +68,7 @@ class World:
             node.origin.z + node.size / 2,
         )
         s = gl.Sphered(center, node.size * 0.7071067811865476)
-        if not self.__frustum.intersect(s):
+        if not self.__frustum.intersects(s):
             #print("SKIP", node.level, gl.vector.distance(center, self.__pos) / 2**node.level)
             #print(node.level, node.origin, s)
             return tree.VisitAction.stop_and_clean
