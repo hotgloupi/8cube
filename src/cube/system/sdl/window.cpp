@@ -6,6 +6,7 @@
 #include <wrappers/sdl.hpp>
 
 #include <etc/log.hpp>
+#include <etc/platform.hpp>
 
 #include <cube/gl/renderer.hpp>
 
@@ -58,8 +59,12 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			throw Exception(std::string{"SDL_Init(): "} + SDL_GetError());
 		_sdl_impl->screen = nullptr;
 		_sdl_impl->video_info = nullptr;
-		_sdl_impl->flags = SDL_RESIZABLE | SDL_HWSURFACE | SDL_DOUBLEBUF;
-
+		_sdl_impl->flags = SDL_RESIZABLE;
+#ifdef ETC_PLATFORM_MACOSX
+		_sdl_impl->screen_bpp = 32;
+#else
+		_sdl_impl->screen_bpp = 16;
+#endif
 		::SDL_WM_SetCaption(title.c_str(), 0);
 
 		//SDL_EnableKeyRepeat(130, 35);
@@ -68,14 +73,11 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		switch (renderer_name)
 		{
 		case gl::renderer::Name::OpenGL:
+			_sdl_impl->flags |= SDL_OPENGL;
+			//_sdl_impl->flags |= SDL_GL_DOUBLEBUFFER;
 			::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 			//::SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-#ifdef __APPLE__
-			::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-#else
-			::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-#endif
-			_sdl_impl->flags |= SDL_OPENGL;
+			::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, _sdl_impl->screen_bpp);
 			break;
 		default:
 			throw Exception("Other renderer than OpenGL are not supported");
