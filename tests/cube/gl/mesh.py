@@ -14,7 +14,6 @@ void main()
 """
 
 fragment_shader = """
-uniform sampler2D sampler0;
 void main()
 {
     gl_FragColor = gl_Color;
@@ -30,20 +29,20 @@ class App:
         m.mode = Mode.quads
         m.append(
             Kind.vertex,
-            #vec3f(0, 0, 0),
-            #vec3f(w, 0, 0),
-            #vec3f(w, 0, h),
-            #vec3f(0, 0, h),
-            vec3f(w, h, 0),
-            vec3f(-w, h, 0),
-            vec3f(-w, -h, 0),
-            vec3f(w, -h, 0),
+            vec3f(0, 0, 0),
+            vec3f(w, 0, 0),
+            vec3f(w, 0, h),
+            vec3f(0, 0, h),
+            #vec3f(w, h, 0),
+            #vec3f(-w, h, 0),
+            #vec3f(-w, -h, 0),
+            #vec3f(w, -h, 0),
 
             Kind.color,
-            col3f('orange'),
-            col3f('green'),
-            col3f('gray'),
-            col3f('blue'),
+            col3f('whitesmoke'),
+            col3f('whitesmoke'),
+            col3f('whitesmoke'),
+            col3f('#000042'),
         )
         print(m)
         r = self.window.renderer
@@ -77,9 +76,9 @@ class App:
             with self.window.renderer.begin(cube.gl.mode_3d) as painter:
                 painter.state.projection = self.projection_matrix
                 painter.state.view = cube.gl.matrix.look_at(
-                    cube.gl.Vector3f(0, 0, -5),
+                    cube.gl.Vector3f(0, 3, 0),
                     cube.gl.Vector3f(0, 0, 0),
-                    cube.gl.Vector3f(0, 1, 0),
+                    cube.gl.Vector3f(0, 0, 1),
                 )
                 with painter.bind([self.shader]):
                     painter.draw([self.view])

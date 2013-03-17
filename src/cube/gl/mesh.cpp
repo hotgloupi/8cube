@@ -99,23 +99,34 @@ namespace cube { namespace gl { namespace mesh {
 		template<typename T>
 		void push(Mode const mode, T const& el, MeshData<T>& data_kind)
 		{
+			data_kind.data.push_back(el);
+			bool is_vertice = ((void*)&data_kind == (void*)&this->vertice);
+			if (is_vertice)
+				this->indice[mode].push_back(data_kind.data.size() - 1);
+			/*
 			etc::size_type idx;
-			auto it = data_kind.map.find(&el);
-			if (it == data_kind.map.end())
 			{
-				data_kind.data.push_back(el);
-				idx = data_kind.data.size() - 1;
-				ETC_LOG.debug("Adding new element", el, "at index", idx);
-				data_kind.map.insert({&data_kind.data[idx], idx});
+				auto it = data_kind.map.find(&el);
+				if (it == data_kind.map.end())
+				{
+					data_kind.data.push_back(el);
+					idx = data_kind.data.size() - 1;
+					ETC_LOG.debug("Adding new element", el, "at index", idx);
+					data_kind.map.insert({&data_kind.data[idx], idx});
+				}
+				else
+				{
+					idx = it->second;
+					ETC_LOG.debug("Element", el, "already stored at index", idx);
+					this->indice[mode].push_back(idx);
+				}
 			}
 			else
 			{
-				idx = it->second;
-				ETC_LOG.debug("Element", el, "already stored at index", idx);
-			}
-			// We add index for vertice only
-			if ((void*)&data_kind == (void*)&this->vertice)
-				this->indice[mode].push_back(idx);
+				data_kind.data.push_back(el);
+				idx = data_kind.data.size() - 1;
+				data_kind.map.insert({&data_kind.data[idx], idx});
+			}*/
 		}
 	};
 
