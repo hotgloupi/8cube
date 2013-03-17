@@ -7,6 +7,8 @@
 #include "renderer/Renderer.hpp"
 #include "renderer/Drawable.hpp"
 
+#include <etc/to_string.hpp>
+
 namespace {
 
 	struct Proxy
@@ -41,8 +43,13 @@ namespace {
 					CHECK(Mesh::Mode);
 					CHECK(Mesh::Kind);
 					CHECK(Mesh::vertex_t);
-					CHECK(Mesh::color_t);
+					CHECK(Mesh::color3_t);
+					CHECK(Mesh::color4_t);
 					CHECK(Mesh::tex_coord_t);
+					std::string s = py::extract<std::string>(py::str(el));
+					throw cube::gl::exception::Exception{
+						etc::to_string("Cannot add", s, "to a mesh")
+					};
 				}
 				return args[0];
 			}

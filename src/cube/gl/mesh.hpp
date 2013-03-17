@@ -16,7 +16,8 @@ namespace cube { namespace gl { namespace mesh {
 	public:
 		typedef vector::Vector3<float>  vertex_t;
 		typedef vector::Vector2<float>  tex_coord_t;
-		typedef color::Color4<float>    color_t;
+		typedef color::Color3<float>    color3_t;
+		typedef color::Color4<float>    color4_t;
 		typedef renderer::DrawMode      Mode;
 		typedef renderer::ContentKind   Kind;
 
@@ -45,7 +46,15 @@ namespace cube { namespace gl { namespace mesh {
 
 		template<typename... Args>
 		inline
-		Mesh& append(color_t const& value, Args&&... args)
+		Mesh& append(color3_t const& value, Args&&... args)
+		{
+			this->_push(value);
+			return this->append(std::forward<Args>(args)...);
+		}
+
+		template<typename... Args>
+		inline
+		Mesh& append(color4_t const& value, Args&&... args)
 		{
 			this->_push(value);
 			return this->append(std::forward<Args>(args)...);
@@ -124,7 +133,8 @@ namespace cube { namespace gl { namespace mesh {
 
 		void _push(Kind const kind, Mode const mode, vertex_t const& el);
 		void _push(Kind const kind, Mode const mode, tex_coord_t const& el);
-		void _push(Kind const kind, Mode const mode, color_t const& el);
+		void _push(Kind const kind, Mode const mode, color3_t const& el);
+		void _push(Kind const kind, Mode const mode, color4_t const& el);
 
 		friend
 			std::ostream& operator <<(std::ostream& out, Mesh const& mesh);

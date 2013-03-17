@@ -7,12 +7,15 @@
 #include "renderer/Renderer.hpp"
 #include "renderer/VertexBuffer.hpp"
 
+#include <etc/log.hpp>
 #include <etc/to_string.hpp>
 
 #include <unordered_map>
 #include <vector>
 
 namespace cube { namespace gl { namespace mesh {
+
+	ETC_LOG_COMPONENT("cube.gl.mesh.Mesh");
 
 	using exception::Exception;
 
@@ -81,7 +84,8 @@ namespace cube { namespace gl { namespace mesh {
 
 		MeshData<Mesh::vertex_t>    vertice;
 		MeshData<Mesh::vertex_t>    normals;
-		MeshData<Mesh::color_t>     colors;
+		MeshData<Mesh::color3_t>    colors3;
+		MeshData<Mesh::color4_t>    colors4;
 		MeshData<Mesh::tex_coord_t> tex_coords0;
 		MeshData<Mesh::tex_coord_t> tex_coords1;
 		MeshData<Mesh::tex_coord_t> tex_coords2;
@@ -101,10 +105,14 @@ namespace cube { namespace gl { namespace mesh {
 			{
 				data_kind.data.push_back(el);
 				idx = data_kind.data.size() - 1;
+				ETC_LOG.debug("Adding new element", el, "at index", idx);
 				data_kind.map.insert({&data_kind.data[idx], idx});
 			}
 			else
+			{
 				idx = it->second;
+				ETC_LOG.debug("Element", el, "already stored at index", idx);
+			}
 			// We add index for vertice only
 			if ((void*)&data_kind == (void*)&this->vertice)
 				this->indice[mode].push_back(idx);
@@ -172,6 +180,7 @@ namespace cube { namespace gl { namespace mesh {
 	std::unique_ptr<renderer::Drawable>
 	Mesh::view(renderer::Renderer& renderer) const
 	{
+		ETC_TRACE.debug("Prepare mesh view of", *this);
 		if (_this->vertice.data.empty())
 			throw Exception{"Cannot make a mesh view without vertice"};
 		renderer::VertexBuffer::AttributeList list;
@@ -188,12 +197,20 @@ namespace cube { namespace gl { namespace mesh {
 				_this->normals.data.size()
 			));
 		}
-		if (not _this->colors.data.empty())
+		if (not _this->colors3.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::color,
-				&_this->colors.data[0],
-				_this->colors.data.size()
+				&_this->colors3.data[0],
+				_this->colors3.data.size()
+			));
+		}
+		if (not _this->colors4.data.empty())
+		{
+			list.push_back(renderer::make_vertex_buffer_attribute(
+				Kind::color,
+				&_this->colors4.data[0],
+				_this->colors4.data.size()
 			));
 		}
 		if (not _this->tex_coords0.data.empty())
@@ -239,9 +256,10 @@ namespace cube { namespace gl { namespace mesh {
 	void
 	Mesh::_push(Kind const kind, Mode const mode, vertex_t const& el)
 	{
-		if (kind == Kind::normal)
+		ETC_TRACE.debug("Push", kind, mode, el);
+		if (kind == Kind::vertex)
 			_this->push(mode, el, _this->vertice);
-		else if (kind != Kind::vertex)
+		else if (kind == Kind::normal)
 			_this->push(mode, el, _this->normals);
 		else
 			throw Exception{etc::to_string(
@@ -252,6 +270,7 @@ namespace cube { namespace gl { namespace mesh {
 	void
 	Mesh::_push(Kind const kind, Mode const mode, tex_coord_t const& el)
 	{
+		ETC_TRACE.debug("Push", kind, mode, el);
 		if (kind == Kind::tex_coord0)
 			_this->push(mode, el, _this->tex_coords0);
 		else if (kind == Kind::tex_coord1)
@@ -265,10 +284,23 @@ namespace cube { namespace gl { namespace mesh {
 	}
 
 	void
-	Mesh::_push(Kind const kind, Mode const mode, color_t const& el)
+	Mesh::_push(Kind const kind, Mode const mode, color3_t const& el)
 	{
+		ETC_TRACE.debug("Push", kind, mode, el);
 		if (kind == Kind::color)
-			_this->push(mode, el, _this->colors);
+			_this->push(mode, el, _this->colors3);
+		else
+			throw Exception{etc::to_string(
+				"Cannot use type", ETC_TYPE_STRING(el), "for kind", kind
+			)};
+	}
+
+	void
+	Mesh::_push(Kind const kind, Mode const mode, color4_t const& el)
+	{
+		ETC_TRACE.debug("Push", kind, mode, el);
+		if (kind == Kind::color)
+			_this->push(mode, el, _this->colors4);
 		else
 			throw Exception{etc::to_string(
 				"Cannot use type", ETC_TYPE_STRING(el), "for kind", kind
@@ -281,8 +313,10 @@ namespace cube { namespace gl { namespace mesh {
 
 		if (not mesh._this->normals.data.empty())
 			out << ", " << mesh._this->normals.data.size() << " normals";
-		if (not mesh._this->colors.data.empty())
-			out << ", " << mesh._this->colors.data.size() << " colors";
+		if (not mesh._this->colors3.data.empty())
+			out << ", " << mesh._this->colors3.data.size() << " colors3";
+		if (not mesh._this->colors4.data.empty())
+			out << ", " << mesh._this->colors4.data.size() << " colors3";
 		if (not mesh._this->tex_coords0.data.empty())
 			out << ", " << mesh._this->tex_coords0.data.size() << " tex_coords0";
 		if (not mesh._this->tex_coords1.data.empty())
