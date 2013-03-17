@@ -312,4 +312,26 @@ namespace cube { namespace gl { namespace color {
 	template Color3<float> const& parse_color3(std::string const&);
 	template Color4<float> const& parse_color4(std::string const&);
 
+	template<typename T>
+	std::ostream&
+	operator <<(std::ostream& out, Color3<T> const& c)
+	{
+		out << "<Color3 " << c.r << ' ' << c.g << ' ' << c.b << '>';
+		return out;
+	}
+
+	template<typename T>
+	std::ostream&
+	operator <<(std::ostream& out, Color4<T> const& c)
+	{
+		out << "<Color4 " << c.r << ' ' << c.g << ' ' << c.b << ' '
+		    << c.a << '>';
+		return out;
+	}
+
+	template std::ostream& operator <<(std::ostream&, Color3<float> const&);
+	template std::ostream& operator <<(std::ostream&, Color4<float> const&);
+
+	template std::ostream& operator <<(std::ostream&, Color3<int> const&);
+	template std::ostream& operator <<(std::ostream&, Color4<int> const&);
 }}}

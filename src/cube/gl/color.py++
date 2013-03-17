@@ -22,6 +22,7 @@ namespace {
 			.def(py::init<std::string>("parse color string (color name or #0x0x0x)"))
 			.def(py::init<T, T, T>(py::args("r", "g", "b")))
 			.def(py::self == py::self)
+			.def("__str__", &py::stringof<Color3<T>>)
 		;
 
 		std::string name4 = "Color4" + suffix;
@@ -35,6 +36,7 @@ namespace {
 			.def(py::init<T, T, T>(py::args("r", "g", "b")))
 			.def(py::init<T, T, T, T>(py::args("r", "g", "b", "a")))
 			.def(py::self == py::self)
+			.def("__str__", &py::stringof<Color4<T>>)
 		;
 	}
 

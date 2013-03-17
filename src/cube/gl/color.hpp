@@ -1,11 +1,12 @@
 #ifndef  CUBE_GL_COLOR_HPP
 # define CUBE_GL_COLOR_HPP
 
-# include <string>
-# include <limits>
-
 # include "fwd.hpp"
 # include "content_traits.hpp"
+
+# include <iosfwd>
+# include <limits>
+# include <string>
 
 namespace cube { namespace gl { namespace color {
 
@@ -165,6 +166,12 @@ namespace cube { namespace gl { namespace color {
 
 #undef CUBE_GL_COLOR_DECLARE_TYPE
 
+	template<typename T>
+	std::ostream&
+	operator <<(std::ostream& out, Color3<T> const& c);
+	template<typename T>
+	std::ostream&
+	operator <<(std::ostream& out, Color4<T> const& c);
 
 }}} // !cube::gl::color
 
