@@ -18,7 +18,7 @@ class Label(widget.Widget):
             uniform sampler2D sampler0;
             void main(void) {
                 float c = texture2D(sampler0, vec2(gl_TexCoord[0])).r;
-                if (c == 0.0f) discard;
+                if (c == 0.0) discard;
                 gl_FragColor = vec4(vec3(.1,.1,.1) , c);
             }
         """]),
