@@ -1,7 +1,8 @@
 
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/main_proto.hpp>
 #include <cube/system/window.hpp>
 #include <cube/system/inputs.hpp>
-#include <cube/main_proto.hpp>
 
 #include <etc/path.hpp>
 #include <etc/print.hpp>
@@ -21,7 +22,10 @@ CUBE_MAIN_PROTO(int ac, char** av)
 	int i = 0;
 	while (running)
 	{
+		window->renderer().initialize(window->renderer().viewport());
+		window->renderer().clear();
 		window->poll();
+		window->swap_buffers();
 		usleep(1000);
 	}
 	slot.disconnect();

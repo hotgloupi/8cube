@@ -1,8 +1,26 @@
 # -*- encoding: utf-8 -*-
 
 
-import cube
+from cube.gl.renderer import ContentKind as Kind, DrawMode as Mode
+from cube.gl import Mesh, vec3f
+from cube.gl import Color3f as col3f
 
-m = cube.gl.Mesh()
 
+w = h = 16
+
+m = Mesh()
+m.mode = Mode.quads
+m.append(
+    Kind.vertex,
+    vec3f(0, 0, 0),
+    vec3f(w, 0, 0),
+    vec3f(w, 0, h),
+    vec3f(0, 0, h),
+
+    Kind.color,
+    col3f('orange'),
+    col3f('green'),
+    col3f('gray'),
+    col3f('blue'),
+)
 print(m)
