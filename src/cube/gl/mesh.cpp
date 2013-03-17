@@ -186,55 +186,48 @@ namespace cube { namespace gl { namespace mesh {
 		renderer::VertexBuffer::AttributeList list;
 		list.push_back(renderer::make_vertex_buffer_attribute(
 			Kind::vertex,
-			&_this->vertice.data[0],
-			_this->vertice.data.size()
+			_this->vertice.data
 		));
 		if (not _this->normals.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::normal,
-				&_this->normals.data[0],
-				_this->normals.data.size()
+				_this->normals.data
 			));
 		}
 		if (not _this->colors3.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::color,
-				&_this->colors3.data[0],
-				_this->colors3.data.size()
+				_this->colors3.data
 			));
 		}
 		if (not _this->colors4.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::color,
-				&_this->colors4.data[0],
-				_this->colors4.data.size()
+				_this->colors4.data
 			));
 		}
 		if (not _this->tex_coords0.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::tex_coord0,
-				&_this->tex_coords0.data[0],
-				_this->tex_coords0.data.size()
+				_this->tex_coords0.data
 			));
 		}
 		if (not _this->tex_coords1.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::tex_coord1,
-				&_this->tex_coords1.data[1],
-				_this->tex_coords1.data.size()
+				_this->tex_coords1.data
 			));
 		}
 		if (not _this->tex_coords2.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::tex_coord2,
-				&_this->tex_coords2.data[2],
-				_this->tex_coords2.data.size()
+				_this->tex_coords2.data
 			));
 		}
 		auto vb = renderer.new_vertex_buffer(std::move(list));
@@ -243,11 +236,12 @@ namespace cube { namespace gl { namespace mesh {
 		{
 			if (pair.second.empty())
 				continue;
-			ibs[pair.first] = renderer.new_index_buffer(renderer::make_vertex_buffer_attribute(
-				Kind::index,
-				&pair.second[0],
-				pair.second.size()
-			));
+			ibs[pair.first] = renderer.new_index_buffer(
+				renderer::make_vertex_buffer_attribute(
+					Kind::index,
+					pair.second
+				)
+			);
 		}
 
 		return std::unique_ptr<renderer::Drawable>{new View{std::move(vb), std::move(ibs)}};

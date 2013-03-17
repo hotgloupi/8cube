@@ -380,12 +380,12 @@ namespace cube { namespace gl { namespace font {
 			renderer::make_vertex_buffer_attribute(
 				renderer::ContentKind::vertex,
 				&vertices[0],
-				vertices.size()
+				static_cast<etc::size_type>(vertices.size())
 			),
 			renderer::make_vertex_buffer_attribute(
 				renderer::ContentKind::tex_coord0, // XXX should be configurable
 				&tex_coords[0],
-				tex_coords.size()
+				static_cast<etc::size_type>(tex_coords.size())
 			)
 		);
 		return vb;

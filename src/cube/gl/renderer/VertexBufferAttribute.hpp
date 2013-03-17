@@ -137,6 +137,24 @@ namespace cube { namespace gl { namespace renderer {
 		{}
 
 		/**
+		 * @brief Construct an attribute from a vector.
+		 *
+		 * @warning The memory is directly referenced from the vector content,
+		 *          so the vector must stay alive until the attribute is used
+		 */
+		template<typename T>
+		VertexBufferAttribute(ContentKind const kind,
+		                      std::vector<T> const& data,
+		                      ContentHint const hint = ContentHint::static_content)
+			: VertexBufferAttribute{
+				kind,
+				&data[0],
+				static_cast<etc::size_type>(data.size()),
+				hint,
+			}
+		{}
+
+		/**
 		 * @brief Reset the buffer to a new value.
 		 */
 	public:

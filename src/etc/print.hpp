@@ -6,6 +6,7 @@
 # include <boost/format.hpp>
 
 # include <iosfwd>
+# include <utility>
 
 /**
  * This module defines straightforward functions devoted to print or convert

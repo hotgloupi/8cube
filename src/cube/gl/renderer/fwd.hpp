@@ -22,6 +22,8 @@ namespace cube { namespace gl { namespace renderer {
 	class VertexBufferAttribute;
 
 
+	typedef std::unique_ptr<Bindable>               BindablePtr;
+	typedef std::unique_ptr<Drawable>               DrawablePtr;
 	typedef std::unique_ptr<Shader>                 ShaderPtr;
 	typedef std::unique_ptr<ShaderProgram>          ShaderProgramPtr;
 	typedef std::unique_ptr<Texture>                TexturePtr;

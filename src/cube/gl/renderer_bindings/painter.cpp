@@ -101,6 +101,24 @@ namespace {
 				//self.bind(o);
 				return new PainterBindProxy{self, bindables};
 			}
+
+			static
+			void draw_list(renderer::Painter& self,
+			               boost::python::list drawables)
+			{
+				namespace py = boost::python;
+				std::vector<renderer::Drawable*> extracted;
+				for (int i = 0, len = py::len(drawables); i < len; ++i)
+				{
+					py::extract<renderer::Drawable*> extractor{drawables[i]};
+					if (!extractor.check())
+						throw renderer::Exception{
+							"Cannot convert argument to Drawable instance"
+						};
+					extracted.push_back(extractor());
+				}
+				self.draw(extracted);
+			}
 		};
 
 		///////////////////////////////////////////////////////////////////////
@@ -147,6 +165,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 				"draw_elements",
 				&Painter::draw_elements
 			)
+			.def("draw", &Wrap::Painter::draw_list)
 			.add_property(
 				"state",
 				py::make_function(

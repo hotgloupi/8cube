@@ -14,10 +14,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ShaderProgram::ShaderProgram(std::vector<ShaderPtr>&& shaders)
 		: _id{0}
 	{
+		ETC_TRACE.debug("Creating a new program");
 		_id = gl::CreateProgram();
 
-
-		ETC_LOG.debug("Attaching shaders");
+		ETC_LOG.debug("Attaching shaders to the program", _id);
 		for (auto& shader: shaders)
 		{
 			Shader const* opengl_shader = static_cast<Shader const*>(shader.get());
@@ -27,7 +27,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			gl::AttachShader(_id, opengl_shader->id());
 		}
 
-		ETC_LOG.debug("Linking the program");
+		ETC_LOG.debug("Linking the program", _id);
 		gl::LinkProgram(_id);
 
 		GLint success = 0;
@@ -41,7 +41,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			};
 		}
 
-		ETC_LOG.debug("Validating the program");
+		ETC_LOG.debug("Validating the program", _id);
 		gl::ValidateProgram(_id);
 		success = 0;
 		glGetProgramiv(_id, GL_VALIDATE_STATUS, &success);
@@ -57,6 +57,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ShaderProgram::~ShaderProgram()
 	{
+		ETC_TRACE.debug("Delete the program", _id);
 		gl::DeleteProgram(_id);
 	}
 

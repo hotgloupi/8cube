@@ -3,6 +3,7 @@
 
 # include "fwd.hpp"
 # include "Bindable.hpp"
+# include "Drawable.hpp"
 # include "Exception.hpp"
 
 # include <etc/types.hpp>
@@ -68,6 +69,29 @@ namespace cube { namespace gl { namespace renderer {
 		                   etc::size_type start = 0,
 		                   etc::size_type count = -1);
 
+		/**
+		 * @brief Draw a variadic number of drawables.
+		 */
+		template<typename First, typename... Args>
+		Painter& draw(First&& view, Args&&... args)
+		{
+			this->_draw_dispatch(std::forward<First>(view));
+			return this->draw(std::forward<Args>(args)...);
+		}
+
+	private:
+		Painter& draw() { return *this; }
+		void _draw_dispatch(Drawable& view) { view._draw(*this); }
+		void _draw_dispatch(DrawablePtr& view) { if (view) view->_draw(*this); }
+		void _draw_dispatch(Drawable* view) { if (view) view->_draw(*this); }
+		template<typename Iterable>
+		void _draw_dispatch(Iterable&& drawables)
+		{
+			for (auto& view: drawables)
+				this->_draw_dispatch(view);
+		}
+
+	public:
 		/**
 		 * @brief Draw arrays.
 		 */

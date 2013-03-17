@@ -1,10 +1,11 @@
 #ifndef  ETC_PRINT_INL
 # define ETC_PRINT_INL
 
+# include "print.hpp"
+
 # include <iostream>
 # include <sstream>
-
-# include <etc/print.hpp>
+# include <utility>
 
 namespace etc {
 
