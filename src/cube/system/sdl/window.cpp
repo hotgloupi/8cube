@@ -21,6 +21,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		::SDL_Surface*          screen;
 		::SDL_VideoInfo const*  video_info;
 		int                     flags;
+		int                     screen_bpp;
 
 		Impl()
 		{
@@ -30,17 +31,40 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		void resize(etc::size_type const width,
 		            etc::size_type const height)
 		{
-			ETC_LOG.debug("Setting SDL video mode with", width, height, this->flags);
+			ETC_LOG.debug(
+				"Setting SDL video mode with",
+				width, height, this->screen_bpp, this->flags
+			);
+
 			if (this->video_info == nullptr)
-			{
 				this->video_info = SDL_GetVideoInfo();
-				if (this->video_info == nullptr)
-					throw Exception{
-							etc::to_string("Coudn't get video information!", SDL_GetError())
-					};
+			if (this->video_info == nullptr)
+				throw Exception{etc::to_string(
+					"Coudn't get video information!", SDL_GetError()
+				)};
+
+			if (this->screen == nullptr)
+			{
+				if (this->video_info->hw_available)
+					this->flags |= SDL_HWSURFACE;
+				else
+					this->flags |= SDL_SWSURFACE;
+
+				if (this->video_info->blit_hw)
+					this->flags |= SDL_HWACCEL;
 			}
-			// XXX use _video_info
-			this->screen = SDL_SetVideoMode(width, height, 0, this->flags);
+			else
+			{
+				//::SDL_FreeSurface(this->screen);
+				//this->screen = nullptr;
+			}
+
+			this->screen = SDL_SetVideoMode(
+				width, height, 0, this->flags
+			);
+
+			SDL_GL_SwapBuffers();
+
 			if (this->screen == nullptr)
 				throw Exception{
 					std::string{"SDL_SetVideoMode(): "} + SDL_GetError()
@@ -180,8 +204,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		if (has_resize)
 		{
 			ETC_TRACE.debug("Got resize event", _width, _height);
-			this->inputs().on_resize()(_width, _height);
 			_sdl_impl->resize(_width, _height);
+			this->inputs().on_resize()(_width, _height);
 		}
 		if (has_expose)
 		{
