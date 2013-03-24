@@ -1,3 +1,6 @@
 [submodule "src/greenlet"]
 	path = src/greenlet
 	url = https://github.com/python-greenlet/greenlet.git
+[submodule ".config/tupcfg"]
+	path = .config/tupcfg
+	url = git@github.com:hotgloupi/tupcfg.git
