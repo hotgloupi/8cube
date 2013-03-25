@@ -2,6 +2,9 @@
 
 #include "frustum.hpp"
 
+#include "renderer/Renderer.hpp"
+#include "renderer/Drawable.hpp"
+
 BOOST_PYTHON_MODULE(frustum)
 {
 	namespace py = boost::python;
@@ -27,6 +30,14 @@ BOOST_PYTHON_MODULE(frustum)
 		)                                                                     \
 		.def("contains", &Frustum<__type>::contains)                          \
 		.def("intersects", &Frustum<__type>::intersects)                      \
+		.def(                                                                 \
+				"view",                                                       \
+				&Frustum<__type>::view,                                       \
+				py::return_value_policy<                                      \
+				    py::return_by_value                                       \
+				  , py::with_custodian_and_ward_postcall<0, 2>                \
+				>()                                                           \
+		)                                                                     \
 	/**/
 
 	EXPORT_FRUSTUM(float, f);
