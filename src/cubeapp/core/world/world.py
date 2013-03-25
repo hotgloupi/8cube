@@ -21,6 +21,7 @@ class World:
         Chunk.prepare(renderer)
         self.referential = gl.Vector3il()
         self.__nodes_to_render2 = []
+        self.__frustum_view = None
 
     def update(self, delta, player, projection_matrix):
         self.__pos = gl.vec3d(
@@ -52,7 +53,7 @@ class World:
         #    return tree.VisitAction.stop
 
         self.__checked += 1
-        if self.__checked > 4000:
+        if self.__checked > 5000:
             print(".", end='')
             return tree.VisitAction.stop
 
@@ -88,6 +89,8 @@ class World:
 
     def _fix(self):
         self.__nodes_to_render2 = self.__nodes_to_render[:]
+        self.__frustum_view = self.__frustum.view(self.__renderer)
+
     def get_chunk(self, pos):
         chunk = self.__storage.get_chunk(pos)
         if chunk is None:
@@ -96,6 +99,25 @@ class World:
         return chunk
 
     def render(self, painter):
+        if self.__frustum_view is not None:
+            print("Binding sp")
+            with painter.bind([Chunk.sp]):
+                state = gl.State(painter.state)
+                state.model = gl.matrix.translate(
+                    state.model,
+                    -self.referential.x * Chunk.size,
+                    -self.referential.y * Chunk.size,
+                    -self.referential.z * Chunk.size,
+                )
+                state.model = gl.matrix.scale(
+                    state.model,
+                    Chunk.size, Chunk.size, Chunk.size
+                )
+                print("Update state")
+                Chunk.sp.update(state)
+                print("Draw frustum")
+                painter.draw([self.__frustum_view])
+                print("Done")
         with painter.bind([Chunk.sp, Chunk.vb]):
             ignored = 0
             for level, pos, chunk in self.__nodes_to_render2:
