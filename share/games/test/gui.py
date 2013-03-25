@@ -10,11 +10,12 @@ class MainMenu(Viewport):
         super(MainMenu, self).__init__(**kwargs)
 
     def _prepare(self, renderer):
-        layout = VerticalLayout()
-        self.add_child(layout)
-        layout.add_child(
-            Button("Game menu", x=10, y=100, w=400, h=90)
-        )
+        pass
+        #layout = VerticalLayout()
+        #self.add_child(layout)
+        #layout.add_child(
+        #    Button("Game menu", x=10, y=100, w=400, h=90)
+        #)
 
     def render(self, painter):
         if self.game is not None:

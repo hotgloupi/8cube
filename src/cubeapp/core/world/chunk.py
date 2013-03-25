@@ -56,7 +56,7 @@ class Chunk:
                 uniform mat4 cube_ModelViewProjectionMatrix;
                 void main(void)
                 {
-                   gl_FrontColor =  vec4(gl_Color.rgb, .5 + color.r);
+                   gl_FrontColor =  vec4(gl_Color.rgb, 1);
                    gl_Position = cube_ModelViewProjectionMatrix * gl_Vertex;
                 }
             """]),

@@ -120,7 +120,7 @@ namespace cube { namespace gl { namespace frustum {
 			near.bl, near.tl, far.tl, far.bl,   // left
 			near.tr, near.br, far.br, far.tr,   // right
 			near.tl, near.tr, far.tr, far.tl,   // top
-			near.br, near.bl, far.tl, far.tr,   // bottom
+			near.br, near.bl, far.bl, far.br,   // bottom
 		};
 		for (vec3d& p: quads)
 			mesh.append(vec3f{p.x, p.y, p.z});

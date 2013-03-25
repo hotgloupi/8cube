@@ -62,7 +62,8 @@ def configure(project, build):
     from tupcfg import path
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
-    status("Configuring project", project.env.NAME, 'in', build.directory, '(%s)' % build_type)
+    status("Configuring project", project.env.NAME, '(%s)' % project.env.VERSION_NAME,
+           'in', build.directory, '(%s)' % build_type)
 
     from tupcfg.lang import cxx
     if platform.IS_WINDOWS:

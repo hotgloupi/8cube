@@ -22,6 +22,44 @@ class World:
         self.referential = gl.Vector3il()
         self.__nodes_to_render2 = []
         self.__frustum_view = None
+        attr = gl.renderer.make_vertex_buffer_attribute
+        self.__frustum_colors_vb = renderer.new_vertex_buffer([
+            attr(
+                gl.ContentKind.color,
+                [
+                    gl.Color3f('#300'),
+                    gl.Color3f('#300'),
+                    gl.Color3f('#300'),
+                    gl.Color3f('#300'),
+
+                    gl.Color3f('#030'),
+                    gl.Color3f('#030'),
+                    gl.Color3f('#030'),
+                    gl.Color3f('#030'),
+
+                    gl.Color3f('#083'),
+                    gl.Color3f('#083'),
+                    gl.Color3f('#083'),
+                    gl.Color3f('#083'),
+
+                    gl.Color3f('violet'),
+                    gl.Color3f('violet'),
+                    gl.Color3f('violet'),
+                    gl.Color3f('violet'),
+
+                    gl.Color3f('purple'),
+                    gl.Color3f('purple'),
+                    gl.Color3f('purple'),
+                    gl.Color3f('purple'),
+
+                    gl.Color3f('#840'),
+                    gl.Color3f('#840'),
+                    gl.Color3f('#840'),
+                    gl.Color3f('#840'),
+                ],
+                gl.ContentHint.static_content
+            )
+        ])
 
     def update(self, delta, player, projection_matrix):
         self.__pos = gl.vec3d(
@@ -101,7 +139,7 @@ class World:
     def render(self, painter):
         if self.__frustum_view is not None:
             print("Binding sp")
-            with painter.bind([Chunk.sp]):
+            with painter.bind([Chunk.sp, self.__frustum_colors_vb]):
                 state = gl.State(painter.state)
                 state.model = gl.matrix.translate(
                     state.model,
