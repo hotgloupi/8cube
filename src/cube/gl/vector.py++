@@ -168,10 +168,15 @@ BOOST_PYTHON_MODULE(vector)
 	py::def("cross", &cross<__value_type>);                                   \
 	py::def(                                                                  \
 		"distance",                                                           \
-		static_cast<__value_type(*)(__type const&, __type const&)>(     \
+		static_cast<__value_type(*)(__type const&, __type const&)>(           \
 			&distance<__value_type>                                           \
 		)                                                                     \
 	);                                                                        \
+	/*py::def("transpose",                                                      \
+		static_cast<__type(*)(__type const&)>(                                \
+			&transpose<__value_type>                                          \
+		)                                                                     \
+	) */                                                                        \
 /**/
 
 #define EXPORT_VECTOR_FLOAT_METHODS(__value_type, __arity, __suffix)          \

@@ -10,12 +10,102 @@
 # include <limits>
 # include <tuple>
 # include <vector>
-
-# ifdef CUBEAPP_DEBUG
-#  include <iostream>
-# endif
+# include <iosfwd>
 
 namespace cubeapp { namespace core { namespace world { namespace tree {
+
+	/// Return type for the visitor.
+	enum class VisitAction
+	{
+		stop,
+		continue_,
+	};
+
+	template<
+		  typename size_type_
+		, typename vector_type_ = cube::gl::vector::Vector3<size_type>
+	>
+	struct Tree
+	{
+	public:
+		typedef size_type_                              size_type;
+		typedef std::make_unsigned<size_type>::type     usize_type;
+		typedef vector_type_                            vector_type;
+		typedef unsigned int                            level_type;
+
+		template<level_type level>
+		using level_to_size =
+			etc::meta::math::power<size_type, 2, level>::value;
+
+	private:
+		level_type _root_level;
+
+	public:
+		Tree(level_type const root_level)
+			: _root_level{root_level}
+		{}
+
+	public:
+		template<typename Visitor>
+		void visit(Visitor&& visitor)
+		{
+
+		}
+
+	private:
+		template<level_type level, typename Visitor>
+		typename std::enable_if<level != 0>::type
+		void _find_root(Visitor&& visitor)
+		{
+			if (level > _root_level)
+				_find_root<level - 1>(std::forward<Visitor>(visitor));
+			else
+			{
+				_visit_node<level>(_root_origin, std::forward<Visitor>(visitor));
+			}
+		}
+
+		template<level_type level, typename Visitor>
+		void _visit_node(vector_type const& origin,
+		                 Visitor&& visitor)
+		{
+			if (visitor(origin, level_to_size<level>::value) == VisitorAction::stop)
+				return;
+			_visit_children(origin, std::forward<Visitor>(visitor));
+		}
+
+		template<level_type level, typename Visitor>
+		typename std::enable_if<level != 0>::type
+		_visit_children(vector_type const& origin,
+		                Visitor&& visitor)
+		{
+			static size_type const child_size = level_to_size<level - 1>::value;
+			static vector_type const children_offsets[] = {
+				vector_type{0,          0,          0},
+				vector_type{0,          0,          child_size},
+				vector_type{0,          child_size, 0},
+				vector_type{0,          child_size, child_size},
+				vector_type{child_size, 0,          0},
+				vector_type{child_size, 0,          child_size},
+				vector_type{child_size, child_size, 0},
+				vector_type{child_size, child_size, child_size},
+			};
+			for (auto const& offset: children_offset)
+			{
+				vector_type child_origin = origin + children_offset;
+				_visit_node<level - 1>(
+					child_origin,
+					std::forward<Visitor>(visitor)
+				);
+			}
+		}
+
+		template<level_type level, typename Visitor>
+		typename std::enable_if<level == 0>::type
+		_visit_children(vector_type const&, Visitor&&)
+		{ /* level 0 has no children */ }
+	};
+
 
 	/// world coordinate type
 	typedef int64_t                                 size_type;
@@ -190,7 +280,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	/// Tree node
 	struct Tree
 	{
-		static level_type const max_exponent = sizeof(size_type) * 8 - 1;
+		static level_type const max_exponent = 7;//sizeof(size_type) * 8 - 1;
 	private:
 		Node<max_exponent>* _root;
 
