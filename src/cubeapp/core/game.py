@@ -29,6 +29,7 @@ class Game():
             45, 1, 0.005, 300.0
         )
         self.window.inputs.on_keydown.connect(self._on_keydown)
+        self.window.inputs.on_quit.connect(self._on_quit)
 
     @property
     def gui(self):
@@ -59,4 +60,6 @@ class Game():
         if key == ord('f'):
             self.world._fix()
 
+    def _on_quit(self):
+        self.world.stop()
 
