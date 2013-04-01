@@ -2,142 +2,30 @@
 
 #include "tree.hpp"
 
-#include <etc/memory.hpp>
-
-namespace py = boost::python;
-using namespace cubeapp::core::world;
-
 namespace {
 
-	struct Node
+	template<typename size_type>
+	void tree_visit(cubeapp::core::world::tree::Tree<size_type>& self,
+	                boost::python::object visitor)
 	{
-	public:
-		virtual
-		tree::level_type level() const = 0;
-
-		virtual
-		tree::vector_type origin() const = 0;
-
-		virtual
-		tree::usize_type size() const = 0;
-
-		virtual
-		bool contains(tree::vector_type const& point) const = 0;
-
-
-		virtual
-		~Node()
-		{}
-	};
-
-	template<tree::level_type level_>
-	struct NodeImplem
-		: Node
-	{
-	private:
-		tree::Node<level_> _node_implem;
-
-	public:
-		NodeImplem(tree::Node<level_> const& node)
-			: _node_implem{node.origin}
-		{}
-
-		tree::level_type level() const override
-		{
-			return level_;
-		}
-
-		tree::vector_type origin() const override
-		{
-			return _node_implem.origin;
-		}
-
-		tree::usize_type size() const override
-		{
-			return _node_implem.size;
-		}
-
-		bool contains(tree::vector_type const& point) const override
-		{
-			return _node_implem.contains(point);
-		}
-	};
-
-	struct NodeVisitor
-		: private boost::noncopyable
-	{
-		py::object visitor;
-
-		NodeVisitor(py::object v)
-			: visitor{v}
-		{}
-
-		template<tree::level_type level>
-		tree::VisitAction visit(tree::Node<level>& node)
-		{
-			std::auto_ptr<Node> ptr(new NodeImplem<level>{node});
-			return py::extract<tree::VisitAction>(
-				this->visitor(ptr)
-			);
-		}
-	};
-
-	struct NodeContentVisitor
-		: private boost::noncopyable
-	{
-		py::object visitor;
-
-		NodeContentVisitor(py::object v)
-			: visitor{v}
-		{}
-
-		template<tree::level_type level>
-		tree::VisitAction visit(tree::vector_type const& origin,
-		                        tree::size_type const size)
-		{
-			return py::extract<tree::VisitAction>(
-				this->visitor(level, origin, size)
-			);
-		}
-	};
-
-	inline
-	void visit_tree(tree::Tree& self, py::object visitor)
-	{
-		NodeContentVisitor static_visitor{visitor};
-
-		self.visit(static_visitor);
-	}
-
-	inline
-	void visit_nodes_tree(tree::Tree& self, py::object visitor)
-	{
-		NodeVisitor static_visitor{visitor};
-
-		self.visit_nodes(static_visitor);
+		self.visit(visitor);
 	}
 
 }
 
 BOOST_PYTHON_MODULE(tree)
 {
-	py::enum_<tree::VisitAction>("VisitAction")
-		.value("stop", tree::VisitAction::stop)
-		.value("continue_", tree::VisitAction::continue_)
-		.value("stop_and_clean", tree::VisitAction::stop_and_clean)
-		.value("continue_and_clean", tree::VisitAction::continue_and_clean)
+	namespace py = boost::python;
+	using namespace cubeapp::core::world::tree;
+
+	py::enum_<VisitorAction>("VisitorAction")
+		.value("stop", VisitorAction::stop)
+		.value("continue_", VisitorAction::continue_)
 	;
 
-	py::class_<Node, std::auto_ptr<Node>, boost::noncopyable>("Node", py::no_init)
-		.add_property("size", &Node::size)
-		.add_property("origin", &Node::origin)
-		.add_property("level", &Node::level)
-		.def("contains", &Node::contains)
-	;
-
-	py::class_<tree::Tree>("Tree")
-		.def("visit", &visit_tree)
-		.def("visit_nodes", &visit_nodes_tree)
+	py::class_<Tree<int64_t>>("Tree", py::no_init)
+		.def(py::init<unsigned int>())
+		.def("visit", &tree_visit<int64_t>)
 	;
 
 
