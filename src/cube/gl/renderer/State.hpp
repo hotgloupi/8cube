@@ -50,12 +50,12 @@ namespace cube { namespace gl { namespace renderer {
 		{
 			if (kind == MatrixKind::mvp && _mvp_dirty)
 			{
+				_mvp_dirty = false;
 				_matrices[(size_t) MatrixKind::mvp] =
 					_matrices[(size_t) MatrixKind::projection] *
 					_matrices[(size_t) MatrixKind::view] *
 					_matrices[(size_t) MatrixKind::model]
 				;
-				_mvp_dirty = false;
 			}
 			return _matrices[(size_t) kind];
 		}
