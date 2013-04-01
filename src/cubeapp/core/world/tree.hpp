@@ -37,10 +37,6 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		//template<level_type level>
 		//using level_to_size = etc::meta::math::power<size_type, 2, level>;
 
-
-
-	private:
-
 	public:
 		static level_type const max_level = sizeof(size_type) * 8 - 1;
 	private:
