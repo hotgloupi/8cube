@@ -14,15 +14,9 @@ namespace cube { namespace gl { namespace plane {
 	template<typename T>
 	Plane<T>::Plane(vec3 const& point,
 	                vec3 const& normal)
-		: _coef{normal.x, normal.y, normal.z, -vector::dot(normal, point)}
 	{
-		double magnitude = glm::sqrt(
-			_coef.x * _coef.x + _coef.y * _coef.y + _coef.z * _coef.z
-		);
-		if (magnitude == 0)
-			throw exception::Exception{"Null plane"};
-		for (etc::size_type i = 0; i < 4; ++i)
-			_coef[i] /= magnitude;
+		auto n = vector::normalize(normal);
+		_coef = vec4(n, -vector::dot(n, point));
 	}
 
 	template struct Plane<float>;
