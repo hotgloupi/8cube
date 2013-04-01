@@ -47,7 +47,9 @@ namespace cube { namespace gl { namespace frustum {
 		for (plane_t const& plane: _planes)
 		{
 			if (plane.distance(center) > radius)
+			{
 				return false;
+			}
 		}
 		return true;
 	}
