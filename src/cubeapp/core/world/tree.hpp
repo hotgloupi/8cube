@@ -2,6 +2,7 @@
 # define CUBEAPP_CORE_WORLD_TREE_HPP
 
 # include <cube/gl/vector.hpp>
+# include <cube/gl/fwd.hpp>
 
 # include <etc/meta/math/power.hpp>
 # include <etc/types.hpp>
@@ -48,13 +49,10 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 			: _root_level{root_level}
 			, _root_origin{
 				(std::numeric_limits<size_type>::max()
-				 - std::numeric_limits<size_type>::min()) / 2
+				- std::numeric_limits<size_type>::min()) / 2
 				- (size_type{1} << (root_level - 1)) // 2^(root_level - 1)
 			}
-		{
-			//auto ptr = [](vector_type const&, size_type const){};
-			//_find_visit_method<Tree::max_level - 1, decltype(ptr)>();
-		}
+		{}
 
 	private:
 		template<typename Visitor>
@@ -125,6 +123,23 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		_visit_children(vector_type const&, Visitor&&)
 		{ /* level 0 has no children */ }
 	};
+
+	template<
+		  typename size_type
+		, typename vector_type = typename Tree<size_type>::vector_type
+	>
+	struct Node
+	{
+		unsigned int const level;
+		vector_type const origin;
+		size_type const size;
+	};
+
+	template<typename size_type>
+	std::vector<Node<size_type>>
+	find_nodes(Tree<size_type> const& tree,
+	           cube::gl::vector::Vector3d const& pos,
+	           cube::gl::frustum::Frustumd const& frustum);
 
 }}}}
 

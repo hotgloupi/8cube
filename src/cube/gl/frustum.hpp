@@ -1,6 +1,8 @@
 #ifndef  CUBE_GL_FRUSTUM_HPP
 # define CUBE_GL_FRUSTUM_HPP
 
+# include "fwd.hpp"
+
 # include "vector.hpp"
 # include "plane.hpp"
 # include "renderer/fwd.hpp"
@@ -97,13 +99,6 @@ namespace cube { namespace gl { namespace frustum {
 		                  float const ratio,
 		                  T const distance);
 	};
-
-	typedef Frustum<float>    Frustumf;
-	typedef Frustum<double>   Frustumd;
-	typedef Frustum<int32_t>  Frustumi;
-	//typedef Frustum<uint32_t> Frustumu;
-	typedef Frustum<int64_t>  Frustumil;
-	//typedef Frustum<uint64_t> Frustumul;
 
 }}}
 

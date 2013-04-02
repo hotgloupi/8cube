@@ -87,11 +87,17 @@ class World:
     def _fix(self):
         self._search_nodes = True
         while self._search_nodes:
-            self.__nodes_to_render_found = []
-            self.__checked = 0
-            self.__tree.visit(self.__on_tree_node)
+            self.__nodes_to_render_found = tree.find_nodes(
+                self.__tree,
+                self.__pos,
+                self.__frustum
+            )
+            time.sleep(.01)
+            #self.__checked = 0
+            #self.__tree.visit(self.__on_tree_node)
             self.__nodes_to_render = self.__nodes_to_render_found
-            print("Found", len(self.__nodes_to_render_found), "nodes",  self.__checked, "checked")
+            print("Found", len(self.__nodes_to_render_found), "nodes")#,  self.__checked, "checked")
+
     def stop(self):
         print("Stopping world")
         self._search_nodes = False
@@ -100,7 +106,7 @@ class World:
     def __on_tree_node(self, level, origin, size):
         if not self._search_nodes:
             return
-        if self.__checked % 10000 == 0:
+        if self.__checked % 10 == 0:
             time.sleep(.0001)
         self.__checked += 1
         if self.__checked > 8000:
@@ -155,12 +161,12 @@ class World:
                 painter.draw([self.__frustum_view])
         with painter.bind([Chunk.sp, Chunk.vb]):
             ignored = 0
-            for level, pos, chunk in self.__nodes_to_render:
-                if level > 0:
+            for node in self.__nodes_to_render:
+                if node.level > 0:
                     ignored += 1
                     continue
                 try:
-                    chunk.render(pos - self.referential, painter)
+                    self.get_chunk(node.origin).render(node.origin - self.referential, painter)
                 except Exception as e:
-                    print(e, pos, self.referential, pos-self.referential)
+                    print(e, node.origin, self.referential, node.origin-self.referential)
 

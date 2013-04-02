@@ -2,6 +2,8 @@
 
 #include "tree.hpp"
 
+#include <cube/gl/frustum.hpp>
+
 namespace {
 
 	template<typename size_type>
@@ -9,6 +11,28 @@ namespace {
 	                boost::python::object visitor)
 	{
 		self.visit(visitor);
+	}
+
+	template<typename size_type>
+	boost::python::list
+	_find_nodes(cubeapp::core::world::tree::Tree<size_type> const& tree,
+	           cube::gl::vector::Vector3d const& pos,
+	           cube::gl::frustum::Frustumd const& frustum)
+	{
+		std::vector<cubeapp::core::world::tree::Node<size_type>> nodes;
+
+		Py_BEGIN_ALLOW_THREADS
+		nodes = cubeapp::core::world::tree::find_nodes<size_type>(
+			tree,
+			pos,
+			frustum
+		);
+		Py_END_ALLOW_THREADS
+
+		boost::python::list res;
+		for (auto const& node: nodes)
+			res.append(node);
+		return res;
 	}
 
 }
@@ -28,5 +52,11 @@ BOOST_PYTHON_MODULE(tree)
 		.def("visit", &tree_visit<int64_t>)
 	;
 
+	py::def("find_nodes", &_find_nodes<int64_t>);
 
+	py::class_<Node<int64_t>>("Node", py::no_init)
+		.def_readonly("level", &Node<int64_t>::level)
+		.def_readonly("origin", &Node<int64_t>::origin)
+		.def_readonly("size", &Node<int64_t>::size)
+	;
 }

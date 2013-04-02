@@ -30,6 +30,21 @@ namespace cube { namespace gl {
 
 	}
 
+	namespace frustum {
+
+		template<typename T>
+		struct Frustum;
+
+		typedef Frustum<float>    Frustumf;
+		typedef Frustum<double>   Frustumd;
+		typedef Frustum<int32_t>  Frustumi;
+		//typedef Frustum<uint32_t> Frustumu;
+		typedef Frustum<int64_t>  Frustumil;
+		//typedef Frustum<uint64_t> Frustumul;
+
+	}
+
+
 	namespace matrix {
 
 # ifdef BOOST_NO_CXX11_TEMPLATE_ALIASES
