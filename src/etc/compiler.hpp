@@ -11,4 +11,10 @@
 
 # define ETC_NOEXCEPT BOOST_NOEXCEPT
 
+# ifdef BOOST_MSVC
+#  define ETC_PRETTY_FUNCTION __FUNCTION__
+# else
+#  define ETC_PRETTY_FUNCTION __PRETTY_FUNCTION__
+# endif
+
 #endif
