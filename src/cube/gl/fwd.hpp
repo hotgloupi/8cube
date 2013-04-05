@@ -1,6 +1,8 @@
 #ifndef  CUBE_GL_FWD_HH
 # define CUBE_GL_FWD_HH
 
+# include <etc/types.hpp>
+
 # include <boost/config.hpp>
 
 namespace glm { namespace detail {
