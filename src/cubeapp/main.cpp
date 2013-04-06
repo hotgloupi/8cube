@@ -2,6 +2,7 @@
 #include "python/Interpreter.hpp"
 
 #include <cube/main_proto.hpp>
+#include <cube/debug/Performance.hpp>
 
 #include <etc/log.hpp>
 
@@ -74,7 +75,9 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 		"main(" + pyargs + ")\n"
 	;
 	try {
-		return !interpreter.exec(init_script);
+		int res = interpreter.exec(init_script);
+		cube::debug::Performance::instance().dump();
+		return res != 0;
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
 	} catch (...) {

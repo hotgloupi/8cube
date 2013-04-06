@@ -8,6 +8,8 @@
 #include "ShaderProgram.hpp"
 #include "Texture.hpp"
 
+#include <cube/debug/Performance.hpp>
+
 #include <etc/log.hpp>
 
 namespace cube { namespace gl { namespace renderer {
@@ -41,6 +43,7 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	Renderer::update_projection_matrix()
 	{
+		CUBE_DEBUG_PERFORMANCE_SECTION("cube.Renderer");
 		ETC_TRACE.debug("Update projection matrix with for ", _viewport,
 		                "in mode", this->current_state().mode);
 		switch (this->current_state().mode)
@@ -64,6 +67,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	Painter Renderer::begin(State&& state)
 	{
+		CUBE_DEBUG_PERFORMANCE_SECTION("cube.Renderer");
 		auto it = _states.rbegin(),
 		     end = _states.rend();
 		for (; it != end; ++it)

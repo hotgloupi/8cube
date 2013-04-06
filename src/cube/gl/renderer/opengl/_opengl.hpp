@@ -3,12 +3,13 @@
 
 # include "Exception.hpp"
 
+# include <cube/gl/renderer.hpp>
+# include <cube/debug/Performance.hpp>
+
 # include <wrappers/sdl.hpp>
 # include <wrappers/opengl.hpp>
 
 # include <etc/log.hpp>
-
-# include <cube/gl/renderer.hpp>
 
 # include <stdexcept>
 
@@ -43,13 +44,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 // values... is defined in the proto
 # define _CUBE_GL_OPENGL_LOG(gl_name)                                         \
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");                   \
-		ETC_TRACE.debug(#gl_name, '(', values..., ')');                       \
+		ETC_TRACE.debug(#gl_name, '(', values..., ')')                        \
 	/**/
 
 # define _CUBE_GL_OPENGL_CALL(name, gl_name)                                  \
 		_CUBE_GL_OPENGL_PROTO(name, void)                                     \
 		{                                                                     \
-			_CUBE_GL_OPENGL_LOG(gl_name)                                      \
+			_CUBE_GL_OPENGL_LOG(gl_name);                                     \
+			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer"); \
 			::gl_name(values...);                                             \
 			_check_error(#gl_name);                                           \
 		}
@@ -58,7 +60,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 # define _CUBE_GL_OPENGL_CALL_RET(name, gl_name, type)                        \
 		_CUBE_GL_OPENGL_PROTO(name, type)                                     \
 		{                                                                     \
-			_CUBE_GL_OPENGL_LOG(gl_name)                                      \
+			_CUBE_GL_OPENGL_LOG(gl_name);                                     \
+			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer"); \
 			type ret = ::gl_name(values...);                                  \
 			_check_error(#gl_name);                                           \
 			return ret;                                                       \
