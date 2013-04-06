@@ -3,33 +3,11 @@
 
 # include "Section.hpp"
 
-# include <etc/compiler.hpp>
-
-# include <boost/preprocessor/cat.hpp>
-
 # include <memory>
 # include <string>
 # include <unordered_set>
 
 namespace cube { namespace debug {
-
-	/**
-	 * @brief Compute a scope block performance statistics.
-	 *
-	 * Doing so in important parts of the code source give the ability to
-	 * measure hierarchically impact of the code.
-	 *
-	 * @see @a Performace class to retreive statistics.
-	 */
-# define CUBE_DEBUG_PERFORMANCE_SECTION(name)                                 \
-	::cube::debug::Section< ::cube::debug::Performance>                       \
-		BOOST_PP_CAT(__cube_debug_performance_section_, __LINE__){            \
-			name,                                                             \
-			__FILE__,                                                         \
-			__LINE__,                                                         \
-			ETC_PRETTY_FUNCTION                                               \
-		}                                                                     \
-/**/
 
 	class Performance
 	{

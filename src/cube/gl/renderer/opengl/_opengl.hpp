@@ -3,8 +3,8 @@
 
 # include "Exception.hpp"
 
+# include <cube/debug.hpp>
 # include <cube/gl/renderer.hpp>
-# include <cube/debug/Performance.hpp>
 
 # include <wrappers/sdl.hpp>
 # include <wrappers/opengl.hpp>

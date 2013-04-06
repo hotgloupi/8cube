@@ -1,6 +1,6 @@
 #include "tree.hpp"
 
-#include <cube/debug/Performance.hpp>
+#include <cube/debug.hpp>
 #include <cube/gl/frustum.hpp>
 #include <cube/gl/sphere.hpp>
 
@@ -12,7 +12,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	           cube::gl::vector::Vector3d const& pos,
 	           cube::gl::frustum::Frustumd const& frustum)
 	{
-		CUBE_DEBUG_PERFORMANCE_SECTION("app.Tree");
+		CUBE_DEBUG_PERFORMANCE_SECTION("app.WorldTree");
 		std::vector<Node<size_type>> res;
 		typedef typename Tree<size_type>::vector_type vector_type;
 		tree.visit(

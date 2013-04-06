@@ -8,7 +8,7 @@
 #include "ShaderProgram.hpp"
 #include "Texture.hpp"
 
-#include <cube/debug/Performance.hpp>
+#include <cube/debug.hpp>
 
 #include <etc/log.hpp>
 
