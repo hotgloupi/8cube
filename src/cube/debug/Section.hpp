@@ -16,7 +16,7 @@ namespace cube { namespace debug {
 		explicit
 		Section(Args&&... args)
 			: _id{Manager::instance().begin(
-				info_type{std::forward<Args>(args)...}
+				info_type(std::forward<Args>(args)...)
 			)}
 		{}
 

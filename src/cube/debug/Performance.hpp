@@ -22,8 +22,8 @@ namespace cube { namespace debug {
 	 * @see @a Performace class to retreive statistics.
 	 */
 # define CUBE_DEBUG_PERFORMANCE_SECTION(name)                                 \
-	auto BOOST_PP_CAT(__cube_debug_performance_section_, __LINE__) =          \
-		::cube::debug::Section<Performance>{                                  \
+	::cube::debug::Section< ::cube::debug::Performance>                       \
+		BOOST_PP_CAT(__cube_debug_performance_section_, __LINE__){            \
 			name,                                                             \
 			__FILE__,                                                         \
 			__LINE__,                                                         \
@@ -38,18 +38,18 @@ namespace cube { namespace debug {
 		struct Info
 		{
 		private:
-			std::unordered_set<Info const*> _childs;
+			std::unordered_set<Info const*> _children;
 		public:
 			char const* name;
 			char const* file;
-			unsigned int const line;
+			int const line;
 			char const* function;
 		public:
 			Info(char const* name,
 			     char const* file,
-			     unsigned int line,
+			     int line,
 			     char const* function)
-				: _childs{nullptr}
+				: _children{}
 				, name{name}
 				, file{file}
 				, line{line}
@@ -59,7 +59,7 @@ namespace cube { namespace debug {
 		private:
 			friend class Performance;
 			void add_child(Info const* info)
-			{ _childs.insert(info); }
+			{ _children.insert(info); }
 		};
 
 	private:
@@ -69,6 +69,16 @@ namespace cube { namespace debug {
 	public:
 		static
 		Performance& instance();
+
+	public:
+		void dump();
+		void dump_set(std::unordered_set<Info const*> const& set,
+		              unsigned int const max_name_len,
+		              unsigned int const indent);
+		void dump_info(Performance::Info const& info,
+		               unsigned int const max_name_len,
+		               unsigned int const indent = 0);
+
 	private:
 		Performance();
 		~Performance();

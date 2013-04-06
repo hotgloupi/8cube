@@ -1,7 +1,17 @@
 #include "Performance.hpp"
 
+#include <etc/print.hpp>
+
+#include <boost/thread/tss.hpp>
+#include <boost/thread/lockable_adapter.hpp>
+#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include <cassert>
 #include <chrono>
+#include <cstring>
+#include <list>
+#include <iomanip>
 #include <stack>
 #include <unordered_map>
 
@@ -13,7 +23,7 @@ namespace std {
 		size_t operator ()(cube::debug::Performance::Info const& info) const
 		{
 			static std::hash<std::string> h{};
-			return h(info.file) + info.line;
+			return h(std::string{info.file}) + info.line;
 		}
 	};
 
@@ -22,10 +32,10 @@ namespace std {
 	                 cube::debug::Performance::Info const& rhs)
 	{
 		return (
-			lhs.line == lhs.line and
-			lhs.function == lhs.function and
-			lhs.file == lhs.file and
-			lhs.name == rhs.name
+			lhs.line == rhs.line and
+			strcmp(lhs.function, rhs.function) == 0 and
+			strcmp(lhs.file, rhs.file) == 0 and
+			strcmp(lhs.name, rhs.name) == 0
 		);
 	}
 
@@ -62,21 +72,24 @@ namespace cube { namespace debug {
 	} //!anonymous
 
 	struct Performance::Impl
+		: public boost::basic_lockable_adapter<boost::mutex>
 	{
 		typedef std::unordered_map<Performance::Info, CallStat>     StatMap;
 		typedef std::unordered_map<Performance::id_type, Timer>     TimerMap;
 		typedef std::stack<Info*>                                   CallStack;
+		typedef std::unordered_set<Info const*>                     RootSet;
 
-		Performance::id_type    next_id;
-		StatMap                 stats;
-		TimerMap                timers;
-		CallStack               stack;
+		Performance::id_type                    next_id;
+		StatMap                                 stats;
+		TimerMap                                timers;
+		boost::thread_specific_ptr<CallStack>   stack;
+		RootSet                                 roots;
 	};
 
 	Performance&
 	Performance::instance()
 	{
-		static Performance manager{};
+		static Performance manager;
 		return manager;
 	}
 
@@ -92,37 +105,47 @@ namespace cube { namespace debug {
 	Performance::id_type
 	Performance::begin(Info&& info)
 	{
-		id_type const id = _this->next_id++;
+		if (_this->stack.get() == nullptr)
+			_this->stack.reset(new Impl::CallStack{});
+		Impl::CallStack& stack = *_this->stack.get();
 
-		// Insert a new CallStat if needed, but retreive info and stat ptr.
-		auto it = _this->stats.find(info);
 		CallStat* stat_ptr = nullptr;
 		Info const* info_ptr = nullptr;
-		if (it == _this->stats.end())
-		{
-			auto res = _this->stats.insert({std::move(info), CallStat{}});
-			info_ptr = &res.first->first;
-			stat_ptr = &res.first->second;
-		}
-		else
-		{
-			info_ptr = &it->first;
-			stat_ptr = &it->second;
-		}
-		assert(info_ptr != nullptr);
-		assert(stat_ptr != nullptr);
+		id_type id;
 
-		// Insert a new timer for the stat found earlier.
-		auto res = _this->timers.insert({id, Timer{stat_ptr}});
-		assert(res.second == true && "timers insert failed");
+		{ // locked section
 
-		// If the stack is not empty, add info as a child of the last call.
-		if (_this->stack.empty() == false)
-			_this->stack.top()->add_child(info_ptr);
+			boost::lock_guard<Impl> guard(*_this);
+			id = _this->next_id++;
+
+			// Insert a new CallStat if needed, but retreive info and stat ptr.
+			{
+				auto res = _this->stats.insert({std::move(info), CallStat{}});
+				assert(res.second == false or res.first->first._children.size() == 0);
+				info_ptr = &res.first->first;
+				stat_ptr = &res.first->second;
+			}
+
+			assert(info_ptr != nullptr);
+			assert(stat_ptr != nullptr);
+
+			// Insert a new timer for the stat found earlier.
+			{
+				auto res = _this->timers.insert({id, Timer{stat_ptr}});
+				assert(res.second == true && "timers insert failed");
+			}
+
+			// If the stack is not empty, add info as a child of the last call.
+			if (!stack.empty())
+				stack.top()->add_child(info_ptr);
+			else
+				_this->roots.insert(info_ptr);
+
+		} // end of locked section
 
 		// We do not alter the way info instance is hashed, but we'll need to
-		// reference children.
-		_this->stack.push(const_cast<Info*>(info_ptr));
+		// add children later if the scope has a subsection.
+		stack.push(const_cast<Info*>(info_ptr));
 
 		return id;
 	}
@@ -130,23 +153,113 @@ namespace cube { namespace debug {
 	void
 	Performance::end(id_type const id)
 	{
-		// Retreive the timer.
-		auto it = _this->timers.find(id);
-		assert(it != _this->timers.end());
-		auto& timer = it->second;
+		{ // locked section
+			boost::lock_guard<Impl> guard(*_this);
+			// Retreive the timer.
+			auto it = _this->timers.find(id);
+			assert(it != _this->timers.end());
+			auto& timer = it->second;
 
-		// Update stat
-		assert(timer.stat_ptr != nullptr);
-		timer.stat_ptr->total_time += clock_type::now() - timer.start;
-		timer.stat_ptr->count++;
+			// Update stat
+			assert(timer.stat_ptr != nullptr);
+			timer.stat_ptr->total_time += clock_type::now() - timer.start;
+			timer.stat_ptr->count++;
 
-		// Remove the timer from the map.
-		_this->timers.erase(it);
+			// Remove the timer from the map.
+			_this->timers.erase(it);
+		}
 
+		assert(_this->stack.get() != nullptr);
 		// Pop the last stack element.
-		assert(not _this->stack.empty());
-		assert(&_this->stats[*_this->stack.top()] == timer.stat_ptr);
-		_this->stack.pop();
+		assert(not _this->stack->empty());
+		_this->stack->pop();
 	}
 
+	void
+	Performance::dump()
+	{
+		etc::print("Performances stats:");
+		unsigned int max_name_len = 0;
+		for (auto const& pair: _this->stats)
+		{
+			auto len = strlen(pair.first.name);
+			if (len > max_name_len)
+				max_name_len = len;
+		}
+
+		this->dump_set(_this->roots, max_name_len, 0);
+	}
+
+	void
+	Performance::dump_set(std::unordered_set<Info const*> const& set,
+	                      unsigned int const max_name_len,
+	                      unsigned int const indent)
+	{
+		std::unordered_map<std::string, std::vector<Info const*>> by_name;
+		for (Info const* info: set)
+			by_name[info->name].push_back(info);
+		std::vector<std::string> names;
+		std::transform(
+			by_name.begin(), by_name.end(),
+			std::back_inserter(names),
+			[&] (decltype(by_name)::value_type const& pair) {return pair.first;}
+		);
+
+		auto duration_sum = [&] (std::vector<Info const*> const& first_list) -> clock_type::duration {
+			return std::accumulate(
+				first_list.begin(), first_list.end(),
+				clock_type::duration{},
+				[&] (clock_type::duration const& prev, Info const* info) -> clock_type::duration {
+					return prev + _this->stats[*info].total_time;
+				}
+			);
+		};
+		auto duration_greater = [&] (std::vector<Info const*> const& first_list,
+		                             std::vector<Info const*> const& second_list) -> bool {
+			return duration_sum(first_list) > duration_sum(second_list);
+		};
+
+		std::sort(
+			names.begin(), names.end(),
+			[&] (std::string const& first, std::string const& second) -> bool {
+				return duration_greater(by_name[first], by_name[second]);
+			}
+		);
+		for (auto const& name: names)
+		{
+			std::cout << std::setiosflags(std::ios::left) << std::setw(indent) << ' ' << name << std::endl;
+			auto& list = by_name[name];
+			std::sort(
+				list.begin(), list.end(),
+				[&] (Info const* first, Info const* second) -> bool {
+					return _this->stats[*first].total_time > _this->stats[*second].total_time;
+				}
+			);
+			for (Info const* info: list)
+				this->dump_info(*info, max_name_len, indent + 2);
+		}
+	}
+
+
+	void
+	Performance::dump_info(Performance::Info const& info,
+	                       unsigned int const max_name_len,
+	                       unsigned int const indent)
+	{
+
+		auto& stat = _this->stats[info];
+		std::cout << std::setiosflags(std::ios::left) << std::setfill(' ') << std::setw(indent + 2) << ' ' << info.function << std::endl;
+		std::cout << std::setw(indent+3) << ' ' << " -> ";
+		std::cout //<< std::setiosflags(std::ios::left) <<std::setw(10)
+		          << stat.count
+		          << " times, total: "
+		          //<< std::setw(10)
+		          << std::chrono::duration_cast<std::chrono::milliseconds>(stat.total_time).count()
+		          << " ms, avg: "
+		          << std::chrono::duration_cast<std::chrono::nanoseconds>(stat.total_time).count() / (stat.count ? stat.count : 1)
+		          << " ns"
+		          << std::endl;
+		;
+		this->dump_set(info._children, max_name_len, indent + 2);
+	}
 }}
