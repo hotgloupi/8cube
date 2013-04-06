@@ -116,7 +116,7 @@ def configure(project, build):
     status("CXX compiler is", compiler.binary)
     boost = cxxlib.BoostLibrary(
         compiler,
-        components=['system', 'filesystem', 'python3'],
+        components=['system', 'filesystem', 'python3', 'thread'],
         preferred_shared=False,
         python3_shared=True,
     )
