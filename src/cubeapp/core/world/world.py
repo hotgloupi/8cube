@@ -26,7 +26,7 @@ class World:
         self.referential = gl.Vector3il()
         self.__frustum_view = None
         attr = gl.renderer.make_vertex_buffer_attribute
-        self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,4)
+        self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,20)
         self.__frustum_colors_vb = renderer.new_vertex_buffer([
             attr(
                 gl.ContentKind.color,
