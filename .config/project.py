@@ -343,14 +343,23 @@ def configure(project, build):
         libraries=[libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
+
+    #boost_python_pch = compiler.generate_precompiled_header(
+    #    "src/wrappers/boost/python.hpp",
+    #    libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+    #)
+
     for binding in glob("cube/*.py++", dir_='src', recursive=True):
-        compiler.link_dynamic_library(
+        t = compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
         )
+        #t.additional_inputs.append(boost_python_pch)
+        #for object_target in t.dependencies[0].dependencies:
+        #    object_target.additional_inputs.append(boost_python_pch)
 
 ################### libcubeapp
 
