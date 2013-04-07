@@ -99,6 +99,7 @@ def configure(project, build):
             '/home/hotgloupi/sandbox/raspberry/root/usr/lib/arm-linux-gnueabihf',
         ],
         include_directories = [
+            path.join(build.directory, 'src'),
             '/home/hotgloupi/sandbox/raspberry/root/usr/include',
             '/home/hotgloupi/sandbox/raspberry/root/usr/include/arm-linux-gnueabihf',
             path.absolute(project.root_dir, 'src'),
