@@ -1,0 +1,61 @@
+#include <wrappers/boost/python.hpp>
+
+#include "Performance.hpp"
+
+namespace {
+
+
+	struct Section
+		: private boost::noncopyable
+	{
+		typedef cube::debug::Section<cube::debug::Performance> section_type;
+
+		std::unique_ptr<section_type>   section;
+		section_type::info_type         info;
+
+		Section(std::string const& name,
+		        std::string const& file,
+		        int const line,
+		        std::string const& function)
+			: info{
+				name.c_str(),
+				file.c_str(),
+				line,
+				function.c_str(),
+			}
+		{}
+
+		void __enter__()
+		{
+			this->section.reset(
+				new section_type(section_type::info_type(this->info))
+			);
+		}
+
+		void __exit__(PyObject*,
+		              PyObject*,
+		              PyObject*)
+		{
+			this->section.reset();
+		}
+	};
+
+}
+
+BOOST_PYTHON_MODULE(performance)
+{
+	namespace py = boost::python;
+
+	py::class_<Section, boost::noncopyable>("Section", py::no_init)
+		.def(
+			py::init<
+				  std::string const&
+				, std::string const&
+				, int const
+				, std::string const&
+			>()
+		)
+		.def("__enter__", &Section::__enter__)
+		.def("__exit__", &Section::__exit__)
+	;
+}

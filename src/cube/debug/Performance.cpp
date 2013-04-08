@@ -23,7 +23,7 @@ namespace std {
 		size_t operator ()(cube::debug::Performance::Info const& info) const
 		{
 			static std::hash<std::string> h{};
-			return h(std::string{info.file}) + info.line;
+			return h(info.file) + info.line + (size_t)info.parent();
 		}
 	};
 
@@ -32,10 +32,11 @@ namespace std {
 	                 cube::debug::Performance::Info const& rhs)
 	{
 		return (
+			lhs.parent() == rhs.parent() and
 			lhs.line == rhs.line and
-			strcmp(lhs.function, rhs.function) == 0 and
-			strcmp(lhs.file, rhs.file) == 0 and
-			strcmp(lhs.name, rhs.name) == 0
+			lhs.function == rhs.function and
+			lhs.file == rhs.file and
+			lhs.name == rhs.name
 		);
 	}
 
@@ -113,6 +114,10 @@ namespace cube { namespace debug {
 		Info const* info_ptr = nullptr;
 		id_type id;
 
+		// Set the info parent
+		if (!stack.empty())
+			info.set_parent(stack.top());
+
 		{ // locked section
 
 			boost::lock_guard<Impl> guard(*_this);
@@ -121,7 +126,6 @@ namespace cube { namespace debug {
 			// Insert a new CallStat if needed, but retreive info and stat ptr.
 			{
 				auto res = _this->stats.insert({std::move(info), CallStat{}});
-				assert(res.second == false or res.first->first._children.size() == 0);
 				info_ptr = &res.first->first;
 				stat_ptr = &res.first->second;
 			}
@@ -182,13 +186,20 @@ namespace cube { namespace debug {
 		unsigned int max_name_len = 0;
 		for (auto const& pair: _this->stats)
 		{
-			auto len = strlen(pair.first.name);
-			if (len > max_name_len)
-				max_name_len = len;
+			if (pair.first.name.size() > max_name_len)
+				max_name_len = pair.first.name.size();
 		}
 
 		this->dump_set(_this->roots, max_name_len, 0);
 	}
+
+#define DURATION_MS(d) \
+	std::chrono::duration_cast<std::chrono::milliseconds>(d).count() \
+/**/
+
+#define DURATION_NS(d) \
+	std::chrono::duration_cast<std::chrono::nanoseconds>(d).count() \
+/**/
 
 	void
 	Performance::dump_set(std::unordered_set<Info const*> const& set,
@@ -227,8 +238,12 @@ namespace cube { namespace debug {
 		);
 		for (auto const& name: names)
 		{
-			std::cout << std::setiosflags(std::ios::left) << std::setw(indent) << ' ' << name << std::endl;
 			auto& list = by_name[name];
+			std::cout << std::setiosflags(std::ios::left) << std::setw(indent) << ' '
+			          //<< std::setw(max_name_len + 1)
+			          << "    " << "---[ " << name << " ] "
+			          << DURATION_MS(duration_sum(list)) << " ms"
+			          << std::endl;
 			std::sort(
 				list.begin(), list.end(),
 				[&] (Info const* first, Info const* second) -> bool {
@@ -236,7 +251,7 @@ namespace cube { namespace debug {
 				}
 			);
 			for (Info const* info: list)
-				this->dump_info(*info, max_name_len, indent + 2);
+				this->dump_info(*info, max_name_len, indent + 4);
 		}
 	}
 
@@ -254,9 +269,9 @@ namespace cube { namespace debug {
 		          << stat.count
 		          << " times, total: "
 		          //<< std::setw(10)
-		          << std::chrono::duration_cast<std::chrono::milliseconds>(stat.total_time).count()
+		          << DURATION_MS(stat.total_time)
 		          << " ms, avg: "
-		          << std::chrono::duration_cast<std::chrono::nanoseconds>(stat.total_time).count() / (stat.count ? stat.count : 1)
+		          << DURATION_NS(stat.total_time) / (stat.count ? stat.count : 1)
 		          << " ns"
 		          << std::endl;
 		;

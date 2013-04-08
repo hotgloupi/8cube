@@ -3,7 +3,8 @@
 import threading
 import time
 
-from cube import gl, units
+from cube import gl, units, debug
+import cube
 
 from .storage import Storage
 from .generator import Generator
@@ -26,7 +27,7 @@ class World:
         self.referential = gl.Vector3il()
         self.__frustum_view = None
         attr = gl.renderer.make_vertex_buffer_attribute
-        self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,20)
+        self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,40)
         self.__frustum_colors_vb = renderer.new_vertex_buffer([
             attr(
                 gl.ContentKind.color,
@@ -65,8 +66,12 @@ class World:
             )
         ])
         self.__nodes_to_render = []
+        self.__nodes_to_render_found = []
         #self.__frustum_view = self.__frustum.view(self.__renderer)
 
+    def _update(self, delta, player, projection_matrix):
+        with cube.performance_section("app.WorldUpdate"):
+            pass
     def update(self, delta, player, projection_matrix):
         self.__player = player
         self.__pos = gl.vec3d(
@@ -87,15 +92,14 @@ class World:
     def _fix(self):
         self._search_nodes = True
         while self._search_nodes:
-            self.__nodes_to_render_found = tree.find_nodes(
+            self.__nodes_to_render_found = list(n for n in tree.find_nodes(
                 self.__tree,
                 self.__pos,
                 self.__frustum
-            )
-            time.sleep(.01)
+            ) if n.origin.y == -1)
+            time.sleep(.1)
             #self.__checked = 0
             #self.__tree.visit(self.__on_tree_node)
-            self.__nodes_to_render = self.__nodes_to_render_found
             print("Found", len(self.__nodes_to_render_found), "nodes")#,  self.__checked, "checked")
 
     def stop(self):
@@ -142,6 +146,11 @@ class World:
             self.__storage.set_chunk(pos, chunk)
         return chunk
 
+    #def _render(self, painter):
+    #    with cube.performance_section("app.WorldRender"):
+    #        self._render(painter)
+
+    @cube.check_performance("app.WorldRender")
     def render(self, painter):
         if self.__frustum_view is not None:
             assert False
@@ -159,6 +168,9 @@ class World:
                 )
                 Chunk.sp.update(state)
                 painter.draw([self.__frustum_view])
+
+        if self.__nodes_to_render != self.__nodes_to_render_found:
+            self.__nodes_to_render = self.__nodes_to_render_found[:]
         with painter.bind([Chunk.sp, Chunk.vb]):
             ignored = 0
             for node in self.__nodes_to_render:
