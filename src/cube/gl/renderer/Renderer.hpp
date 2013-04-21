@@ -60,6 +60,12 @@ namespace cube { namespace gl { namespace renderer {
 		State& current_state()
 		{ return _states.back(); }
 
+
+		/**
+		 *
+		 */
+		virtual
+		Painter begin(Mode mode) = 0;
 	protected:
 		/**
 		 * This method is meant to be used by the implementation sub class.
@@ -95,10 +101,6 @@ namespace cube { namespace gl { namespace renderer {
 		///
 		virtual
 		RendererType const& description() const = 0;
-
-		///
-		virtual
-		Painter begin(Mode mode) = 0;
 
 		/// Create a new vertex buffer.
 		virtual

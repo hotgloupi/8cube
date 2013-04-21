@@ -18,7 +18,8 @@ namespace cube { namespace gl { namespace renderer {
 	// Painter class
 	Painter::Painter(Renderer& renderer)
 		: _renderer(renderer)
-		, _current_state(_renderer.current_state())
+		, _current_state(&_renderer.current_state())
+		, _state_count{1}
 	{
 		ETC_TRACE.debug("New painter");
 	}
@@ -26,18 +27,44 @@ namespace cube { namespace gl { namespace renderer {
 	Painter::Painter(Painter&& other)
 		: _renderer(other._renderer)
 		, _current_state(other._current_state)
-		, _bound_drawables(std::move(other._bound_drawables))
+		, _state_count{other._state_count}
+		, _bound_drawables{}
 	{
-		// XXX invalidates all proxies !!!
+		if (not other._bound_drawables.empty())
+			throw Exception{
+				"A painter cannot be moved while it still has bound drawables"
+			};
+		other._state_count = 0;
 		ETC_TRACE.debug("Move painter");
 	}
 
 	Painter::~Painter()
 	{
 		ETC_TRACE.debug("Delete painter");
-		// XXX Should be empty !
 		assert(_bound_drawables.size() == 0);
-		_renderer._pop_state();
+		for (etc::size_type i = 0; i < _state_count; ++i)
+			_renderer._pop_state();
+	}
+
+	State& Painter::push_state()
+	{
+		_renderer._push_state(State(*_current_state));
+		_state_count += 1;
+		_current_state = &_renderer.current_state();
+		return *_current_state;
+	}
+
+	void Painter::pop_state()
+	{
+		if (_state_count > 1)
+		{
+			_renderer._pop_state();
+			_state_count -= 1;
+			_current_state = &_renderer.current_state();
+		}
+		else
+			ETC_LOG.debug("No more additional state to pop in this painter");
+
 	}
 
 	//void Painter::_update_parameters(BindableBase& bindable)

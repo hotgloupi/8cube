@@ -26,16 +26,27 @@ namespace cube { namespace gl { namespace renderer {
 	{
 	private:
 		Renderer&               _renderer;
-		State&                  _current_state;
+		State*                  _current_state;
+		etc::size_type          _state_count;
 		std::set<Bindable*>     _bound_drawables;
 
 	public:
 		Painter(Painter&& other);
 		~Painter();
 
+	private:
+		// used by the renderer begin method
+		Painter(Renderer& renderer);
+		friend class Renderer;
+
+	public:
 		inline
 		State& state()
-		{ return _current_state; }
+		{ return *_current_state; }
+
+		State& push_state();
+
+		void pop_state();
 
 		/**
 		 * @brief Proxy of a painter.
@@ -120,11 +131,6 @@ namespace cube { namespace gl { namespace renderer {
 		inline operator bool() const { return true; }
 
 	private:
-		// used by the renderer begin method
-		Painter(Renderer& renderer);
-		friend class Renderer;
-
-	private:
 		// For the proxy
 		void _new_guard(Bindable::Guard* mem, Bindable& bindable)
 		{
@@ -134,7 +140,7 @@ namespace cube { namespace gl { namespace renderer {
 					"The bindable is already bound to this painter"
 				};
 			}
-			new (mem) Bindable::Guard(bindable, _current_state);
+			new (mem) Bindable::Guard(bindable, *_current_state);
 			_bound_drawables.insert(&bindable);
 		}
 
