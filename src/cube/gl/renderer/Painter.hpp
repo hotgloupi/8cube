@@ -44,8 +44,19 @@ namespace cube { namespace gl { namespace renderer {
 		State& state()
 		{ return *_current_state; }
 
+		/**
+		 * Push a new state bound to this painter. When the painter is
+		 * destroyed all pushed states are poped, but you can call pop_state()
+		 * if you want to to handle it yourself.
+		 *
+		 * The returned new state is an exact copy of the current one.
+		 */
 		State& push_state();
 
+		/**
+		 * Pop a previously pushed state. If there is no more state to pop, an
+		 * exception will be thrown.
+		 */
 		void pop_state();
 
 		/**
