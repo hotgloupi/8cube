@@ -4,3 +4,6 @@
 [submodule ".config/tupcfg"]
 	path = .config/tupcfg
 	url = git@github.com:hotgloupi/tupcfg.git
+[submodule "deps/tinycc"]
+	path = deps/tinycc
+	url = http://repo.or.cz/r/tinycc.git
