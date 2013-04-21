@@ -86,10 +86,10 @@ class World:
         self.referential = self.__player.world_position
 
         if not hasattr(self, 'tree_thread'):
-            self.tree_thread = threading.Thread(target=self._fix)
+            self.tree_thread = threading.Thread(target=self._update_nodes)
             self.tree_thread.start()
 
-    def _fix(self):
+    def _update_nodes(self):
         self._search_nodes = True
         while self._search_nodes:
             self.__nodes_to_render_found = list(n for n in tree.find_nodes(
@@ -106,38 +106,6 @@ class World:
         print("Stopping world")
         self._search_nodes = False
         self.tree_thread.join()
-
-    def __on_tree_node(self, level, origin, size):
-        if not self._search_nodes:
-            return
-        if self.__checked % 10 == 0:
-            time.sleep(.0001)
-        self.__checked += 1
-        if self.__checked > 8000:
-            print(".", end='')
-            return tree.VisitorAction.stop
-
-        if len(self.__nodes_to_render_found) > 5000:
-            return tree.VisitorAction.stop
-
-        #if node.level > 60 and node.origin.y > 0:
-
-
-        center = gl.vec3d(
-            origin.x + size / 2 ,
-            origin.y + size / 2 ,
-            origin.z + size / 2 ,
-        )
-        s = gl.Sphered(center - self.__pos, size * 0.8660254037844386)
-        if not self.__frustum.intersects(s):
-            return tree.VisitorAction.stop
-
-        if level == 0:
-            self.__nodes_to_render_found.append(
-                (level, origin, self.get_chunk(origin))
-            )
-        return tree.VisitorAction.continue_
-
 
     def get_chunk(self, pos):
         chunk = self.__storage.get_chunk(pos)
@@ -171,6 +139,7 @@ class World:
 
         if self.__nodes_to_render != self.__nodes_to_render_found:
             self.__nodes_to_render = self.__nodes_to_render_found[:]
+
         with painter.bind([Chunk.sp, Chunk.vb]):
             ignored = 0
             for node in self.__nodes_to_render:
