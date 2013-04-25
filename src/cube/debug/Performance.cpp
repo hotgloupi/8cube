@@ -3,8 +3,10 @@
 #include <etc/print.hpp>
 
 #include <boost/thread/tss.hpp>
-#include <boost/thread/lockable_adapter.hpp>
-#include <boost/thread/lock_guard.hpp>
+// XXX boost 1.52
+//#include <boost/thread/lockable_adapter.hpp>
+//#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include <cassert>
@@ -73,12 +75,14 @@ namespace cube { namespace debug {
 	} //!anonymous
 
 	struct Performance::Impl
-		: public boost::basic_lockable_adapter<boost::mutex>
+//		: public boost::basic_lockable_adapter<boost::mutex>
 	{
 		typedef std::unordered_map<Performance::Info, CallStat>     StatMap;
 		typedef std::unordered_map<Performance::id_type, Timer>     TimerMap;
 		typedef std::stack<Info*>                                   CallStack;
 		typedef std::unordered_set<Info const*>                     RootSet;
+
+		boost::mutex mutex;
 
 		Performance::id_type                    next_id;
 		StatMap                                 stats;
@@ -120,7 +124,7 @@ namespace cube { namespace debug {
 
 		{ // locked section
 
-			boost::lock_guard<Impl> guard(*_this);
+			boost::lock_guard<boost::mutex> guard(_this->mutex);
 			id = _this->next_id++;
 
 			// Insert a new CallStat if needed, but retreive info and stat ptr.
@@ -158,7 +162,7 @@ namespace cube { namespace debug {
 	Performance::end(id_type const id)
 	{
 		{ // locked section
-			boost::lock_guard<Impl> guard(*_this);
+			boost::lock_guard<boost::mutex> guard(_this->mutex);
 			// Retreive the timer.
 			auto it = _this->timers.find(id);
 			assert(it != _this->timers.end());
