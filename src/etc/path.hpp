@@ -8,18 +8,39 @@
 
 namespace etc { namespace path {
 
-	ETC_API std::string absolute(std::string const& path);
+// Dump both version of function: one that accepts a path, and one that accepts
+// parts of a path.
+# define ETC_PATH_CALL(__ret, __name)                                         \
+	ETC_API __ret __name(std::string const& path);                            \
+	                                                                          \
+	template<typename T1, typename T2, typename... Args>                      \
+	inline                                                                    \
+	__ret __name(T1&& arg1, T2&& arg2, Args&&... args);                       \
+/**/
 
-	template<typename T1, typename T2, typename... Args>
-	inline
-	std::string absolute(T1&& arg1, T2&& arg2, Args&&... args);
+	/**
+	 * The absolute path.
+	 */
+	ETC_PATH_CALL(std::string, absolute);
 
-	ETC_API std::string directory_name(std::string const& path);
+	/**
+	 * Returns true if the path refers to a filesystem entity.
+	 */
+	ETC_PATH_CALL(bool, exists);
 
-	template<typename T1, typename T2, typename... Args>
-	inline
-	std::string directory_name(T1&& arg1, T2&& arg2, Args&&... args);
+	/**
+	 * Returns the path of the deepest directory.
+	 */
+	ETC_PATH_CALL(std::string, directory_name);
 
+	/**
+	 * Returns true if the path refers to a valid directory.
+	 */
+	ETC_PATH_CALL(bool, is_directory);
+
+	/**
+	 * Join parts of a path.
+	 */
 	ETC_API std::string join(std::vector<std::string> const& parts);
 
 	template<typename T1, typename T2, typename... Args>

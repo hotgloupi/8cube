@@ -19,6 +19,16 @@ namespace etc { namespace path {
 		return path.string();
 	}
 
+	bool is_directory(std::string const& path)
+	{
+		return fs::is_directory(path);
+	}
+
+	ETC_API bool exists(std::string const& path)
+	{
+		return fs::exists(path);
+	}
+
 	std::string join(std::vector<std::string> const& parts)
 	{
 		if (parts.size() == 0)
