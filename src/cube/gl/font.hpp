@@ -4,6 +4,8 @@
 # include "renderer/fwd.hpp"
 # include "renderer/Bindable.hpp"
 
+# include <cube/resource/Resource.hpp>
+
 # include <etc/compiler.hpp>
 # include <etc/types.hpp>
 
@@ -19,6 +21,7 @@ namespace cube { namespace gl { namespace font {
 	struct Infos;
 
 	class Font
+		: public resource::Resource
 	{
 	private:
 		struct Impl;
