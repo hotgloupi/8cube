@@ -16,7 +16,8 @@ namespace cube { namespace resource {
 		: public std::enable_shared_from_this<Resource>
 	{
 	private:
-		id_type _id;
+		id_type     _id;
+		Manager*    _manager;
 
 	public:
 		virtual
@@ -34,8 +35,9 @@ namespace cube { namespace resource {
 		{}
 
 	private:
-		void id(id_type const id)
-		{ _id = id; }
+		void manage(Manager& manager,
+		            id_type const id);
+		void manage();
 
 		friend Manager;
 	};
