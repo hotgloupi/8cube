@@ -1,0 +1,42 @@
+#include <wrappers/boost/python.hpp>
+
+#include "resource/Resource.hpp"
+#include "resource/Manager.hpp"
+
+BOOST_PYTHON_MODULE(resource)
+{
+	namespace py = boost::python;
+	using namespace cube::resource;
+
+	py::class_<
+		Resource,
+		boost::noncopyable,
+		boost::shared_ptr<Resource>
+	>(
+		"Resource",
+		py::no_init
+	)
+		.add_property("id", &Resource::id)
+		.add_property("managed", &Resource::managed)
+	;
+
+	py::class_<
+		Manager,
+		boost::noncopyable,
+		std::auto_ptr<Manager>
+	>(
+		"Manager"
+	)
+		.def(
+			"manage",
+			&Manager::manage,
+			py::return_internal_reference<>()
+		)
+		.def(
+			"forget",
+			&Manager::forget,
+			py::return_internal_reference<>()
+		)
+	;
+
+}
