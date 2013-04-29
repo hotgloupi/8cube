@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from .. import widget
+from .. import view
 
-class Container(widget.Widget):
+class Container(view.View):
 
     def __init__(self, **kwargs):
         self._childs = []
@@ -20,7 +20,7 @@ class Container(widget.Widget):
 
         # XXX setter property does not work with the super class wrapper.
         # the following is equivalent to `super(Container, self).parent = parent`
-        widget.Widget.parent.fset(self, parent)
+        view.View.parent.fset(self, parent)
 
         #if parent is not None:
         #    parent.add_child(self)

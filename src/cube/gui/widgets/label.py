@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
 
-from .. import widget
+from .. import view
 from cube import gl
 
-class Label(widget.Widget):
+class Label(view.View):
 
     def __init__(self, text, **kwargs):
         kwargs.setdefault('tag', 'label')
