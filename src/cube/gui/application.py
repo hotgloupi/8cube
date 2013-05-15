@@ -67,4 +67,4 @@ class Application(cube.Application):
         pass
 
     def _on_quit(self):
-        pass
+        self._running = False

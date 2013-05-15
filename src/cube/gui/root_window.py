@@ -65,6 +65,9 @@ class RootWindow:
             self._root_widget.render(painter)
         self.__window.swap_buffers()
 
+    def swap_buffers(self):
+        self.__window.swap_buffers()
+
     def _on_expose(self, w, h):
         cube.debug("Expose from window", w, h)
         self._new_viewport_size = (w, h)

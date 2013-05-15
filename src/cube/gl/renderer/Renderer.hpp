@@ -4,6 +4,7 @@
 # include "fwd.hpp"
 # include "Shader.hpp"
 # include "State.hpp"
+# include "ShaderGenerator.hpp"
 # include "VertexBufferAttribute.hpp"
 
 # include "../viewport.hpp"
@@ -38,6 +39,7 @@ namespace cube { namespace gl { namespace renderer {
 		cube::gl::viewport::Viewport    _viewport;
 	private:
 		std::vector<State>              _states;
+		ShaderGeneratorPtr              _shader_generator;
 
 	public:
 		Renderer();
@@ -112,7 +114,8 @@ namespace cube { namespace gl { namespace renderer {
 		VertexBufferPtr
 		new_index_buffer(VertexBufferAttributePtr&& attribute) = 0;
 
-		///
+		/// Create a new index buffer from an arbitrary number of
+		/// vertex buffer attributes.
 		template<typename... Args>
 		VertexBufferPtr
 		new_vertex_buffer(VertexBufferAttributePtr&& attribute1,
@@ -129,7 +132,14 @@ namespace cube { namespace gl { namespace renderer {
 			);
 		}
 
+		/// Generate a new shader with the default generator for this renderer.
+		/// @see @a ShaderGenerator class for usage of the returned proxy.
+		ShaderGenerator::ProxyPtr
+		generate_shader(ShaderType const type);
 
+		/// Create a shader of @a type.
+		ShaderPtr new_shader(ShaderType const type,
+		                     std::vector<std::string> const& sources);
 
 		/// Create a new vertex shader.
 		virtual

@@ -9,7 +9,10 @@ namespace cube { namespace gl { namespace renderer_bindings {
 
 	void export_bindable()
 	{
-		py::class_<Bindable, boost::noncopyable>("Bindable", py::no_init);
+		py::class_<Bindable, boost::noncopyable>(
+			"Bindable",
+			py::no_init
+		);
 	}
 
 }}}

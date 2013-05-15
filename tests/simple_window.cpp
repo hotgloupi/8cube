@@ -1,4 +1,3 @@
-
 #include <cube/gl/renderer/Renderer.hpp>
 #include <cube/main_proto.hpp>
 #include <cube/system/window.hpp>
@@ -11,15 +10,13 @@
 
 using cube::system::window::create_window;
 
-CUBE_MAIN_PROTO(int ac, char** av)
+CUBE_MAIN_PROTO(int, char**)
 {
-	etc::print("Dir:", etc::path::directory_name(av[0]));
 	auto window = create_window("SimpleWindow", 640, 480);
 	bool running = true;
 	auto slot = window->inputs().on_quit().connect(
 		[&running]() { etc::print("Stop app"); running = false; }
 	);
-	int i = 0;
 	while (running)
 	{
 		window->renderer().initialize(window->renderer().viewport());

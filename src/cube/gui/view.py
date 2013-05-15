@@ -142,6 +142,7 @@ class View:
             name, self._id, self._class, self._tag
         )
 
+    @property
     def styles(self):
         return self.__computed_styles
 

@@ -8,6 +8,8 @@
 #include "ShaderProgram.hpp"
 #include "Texture.hpp"
 
+#include "../renderer.hpp"
+
 #include <cube/debug.hpp>
 
 #include <etc/log.hpp>
@@ -30,6 +32,7 @@ namespace cube { namespace gl { namespace renderer {
 	Renderer::Renderer()
 		: _viewport{0,0,0,0}
 		, _states{}
+		, _shader_generator{nullptr} // lazily initialized.
 	{
 		_push_state(State(Mode::none));
 	}
@@ -112,6 +115,29 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		ETC_TRACE.debug("pop state");
 		_states.pop_back();
+	}
+
+	ShaderPtr
+	Renderer::new_shader(ShaderType const type,
+	                     std::vector<std::string> const& sources)
+	{
+		switch (type)
+		{
+		case ShaderType::vertex:
+			return this->new_vertex_shader(sources);
+		case ShaderType::fragment:
+			return this->new_fragment_shader(sources);
+		default:
+			throw Exception{"Unknown shader type."};
+		}
+	}
+
+	ShaderGenerator::ProxyPtr
+	Renderer::generate_shader(ShaderType const type)
+	{
+		if (_shader_generator == nullptr)
+			_shader_generator = create_shader_generator(*this);
+		return _shader_generator->begin(type);
 	}
 
 }}} // !cube::gl::renderer

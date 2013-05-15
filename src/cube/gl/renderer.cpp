@@ -4,6 +4,7 @@
 #include "renderer/VertexBuffer.hpp"
 
 #include "renderer/opengl/Renderer.hpp"
+#include "renderer/opengl/ShaderGenerator.hpp"
 
 #include <etc/memory.hpp>
 
@@ -23,7 +24,7 @@ namespace cube { namespace gl { namespace renderer {
 		return renderers;
 	}
 
-	std::unique_ptr<Renderer>
+	RendererPtr
 	create_renderer(cube::gl::viewport::Viewport const& vp,
 	                Name const name)
 	{
@@ -33,6 +34,20 @@ namespace cube { namespace gl { namespace renderer {
 				return description->create(vp);
 		}
 		throw Exception{"Cannot find any renderer with that name"};
+	}
+
+	ShaderGeneratorPtr
+	create_shader_generator(Renderer& renderer)
+	{
+		switch (renderer.description().name())
+		{
+		case Name::OpenGL:
+			return etc::make_unique<opengl::ShaderGenerator>(renderer);
+		case Name::DirectX:
+			throw Exception{"DirectX shader generator not implemented !"};
+		default:
+			throw Exception{"No shader generator for this renderer"};
+		}
 	}
 
 }}} // !cube::gl::renderer

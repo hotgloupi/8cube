@@ -56,7 +56,6 @@ class CopyFile(Command):
 #        tools.debug("Creating Python command script", script)
 
 def configure(project, build):
-    project.generators.append(generators.Makefile)
     import sys
     from tupcfg.tools import glob, status
     from tupcfg import path
@@ -418,7 +417,7 @@ def configure(project, build):
     )
 
     tests = [
-        'simple_window',
+        'simple_window', 'cube/gl/shader_generator',
     ]
 
     for test in tests:

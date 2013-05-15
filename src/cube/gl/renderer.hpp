@@ -1,6 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_HPP
 # define CUBE_GL_RENDERER_HPP
 
+# include "renderer/fwd.hpp"
 # include "renderer/constants.hpp"
 # include "renderer/Bindable.hpp"
 # include "renderer/Exception.hpp"
@@ -16,9 +17,17 @@ namespace cube { namespace gl { namespace renderer {
 	/**************************************************************************
 	 * Create a renderer.
 	 */
-	std::unique_ptr<Renderer>
+	RendererPtr
 	create_renderer(cube::gl::viewport::Viewport const& vp,
 	                Name const name = Name::OpenGL);
+
+	/**
+	 * Create a new shader generator.
+	 *
+	 * @note You should use this only if you need multiple shader generators.
+	 */
+	ShaderGeneratorPtr
+	create_shader_generator(Renderer& renderer);
 
 }}}
 
