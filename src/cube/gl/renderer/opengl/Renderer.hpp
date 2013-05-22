@@ -62,12 +62,16 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	struct RendererType
 		: public renderer::RendererType
 	{
-		std::unique_ptr<renderer::Renderer>
-		create(::cube::gl::viewport::Viewport const& vp) const override;
+	public:
+		struct { int major, minor; } opengl;
+		struct { int major, minor; } glsl;
 
+	public:
+		RendererType();
+		std::unique_ptr<renderer::Renderer>
+		create(::cube::gl::viewport::Viewport const& vp) override;
 		std::string
 		__str__() const override;
-
 		Name name() const override { return Name::OpenGL; }
 	};
 

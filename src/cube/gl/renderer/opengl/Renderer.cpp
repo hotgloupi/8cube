@@ -24,6 +24,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
 	{
 		ETC_TRACE.debug("GLRenderer::initialize(", vp, ")");
+		//int major, minor;
+		//glGetIntegerv(GL_MAJOR_VERSION, &major);
+		//glGetIntegerv(GL_MINOR_VERSION, &minor);
+		//std::cerr << "OpenGL " << major << "." << minor << std::endl;
 		::glewExperimental = GL_TRUE;
 		auto ret = ::glewInit();
 		if (ret != GLEW_OK)
@@ -179,11 +183,45 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	///////////////////////////////////////////////////////////////////////////
 	// RendererType
+
+	static void find_version(GLubyte const* str, int* major, int* minor)
+	{
+		assert(str != nullptr);
+		for (int* n = major;; n = minor)
+		{
+			*n = 0;
+			while (*str != '\0' && not std::isdigit(*str))
+				++str;
+			while (*str != '\0' && std::isdigit(*str))
+			{
+				*n = *n * 10 + (*str - '0');
+				++str;
+			}
+			if (n == minor)
+				break;
+		}
+	}
+
+	RendererType::RendererType()
+		: opengl{0, 0}
+		, glsl{0, 0}
+	{
+		int major, minor;
+		find_version(glGetString(GL_VERSION), &major, &minor);
+		this->opengl = {major, minor};
+		ETC_LOG.debug("OpenGL version", major, '.', minor);
+
+		find_version(glGetString(GL_SHADING_LANGUAGE_VERSION), &major, &minor);
+		this->glsl = {major, minor};
+		ETC_LOG.debug("GLSL version", major, '.', minor);
+	}
+
 	std::unique_ptr<renderer::Renderer>
-	RendererType::create(::cube::gl::viewport::Viewport const& vp) const
+	RendererType::create(::cube::gl::viewport::Viewport const& vp)
 	{
 		std::unique_ptr<renderer::Renderer> renderer(new GLRenderer);
 		renderer->initialize(vp);
+
 		ETC_LOG.info("GLEW version",    glewGetString(GLEW_VERSION));
 		ETC_LOG.info("OpenGL version",  (char*) glGetString(GL_VERSION));
 		ETC_LOG.info("OpenGL renderer", (char*) glGetString(GL_RENDERER));

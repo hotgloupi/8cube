@@ -70,7 +70,7 @@ namespace cube { namespace gl { namespace mesh {
 		};
 
 		typedef
-			std::unordered_map<Mesh::Mode, std::vector<etc::size_type>, enum_hash>
+			std::unordered_map<Mesh::Mode, std::vector<uint32_t>, enum_hash>
 			MeshIndice;
 
 	} // !anonymous

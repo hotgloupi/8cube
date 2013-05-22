@@ -230,7 +230,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual
 		std::unique_ptr<Renderer>
-		create(cube::gl::viewport::Viewport const& vp) const = 0;
+		create(cube::gl::viewport::Viewport const& vp) = 0;
 
 		virtual std::string __str__() const = 0;
 		virtual Name name() const = 0;

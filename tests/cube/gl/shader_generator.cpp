@@ -14,10 +14,15 @@ using namespace cube::gl::viewport;
 
 CUBE_MAIN_PROTO(int, char** av)
 {
-	etc::print("Dir:", etc::path::directory_name(av[0]));
+	//	Does not work, create_renderer requires a context
+	// auto renderer = create_renderer(Viewport{0, 0, 640, 480});
+	// auto sources = renderer->generate_shader(ShaderType::vertex)
+	// 	->sources();
+
 	auto window = create_window("SimpleWindow", 640, 480);
 	auto sources = window->renderer().generate_shader(ShaderType::vertex)
-		->sources();
+		->parameter(ShaderParameterType::vec3, "light_pos")
+		.sources();
 
 	int i = 0;
 	for (auto const& line: sources)

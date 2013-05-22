@@ -78,6 +78,26 @@ namespace cube { namespace gl { namespace renderer {
 	};
 	std::ostream& operator <<(std::ostream& out, ShaderType const type);
 
+	enum class ShaderParameterType
+	{
+		float_,
+		vec2, vec3, vec4,
+
+		int_,
+		ivec2, ivec3, ivec4,
+
+		bool_,
+		bvec2, bvec3, bvec4,
+
+		mat2, mat3, mat4,
+		sampler1d, sampler2d, sampler3d,
+		samplerCube,
+		sampler1DShadow, sampler2DShadow,
+	};
+	// XXX
+	// std::ostream&
+	// operator <<(std::ostream& out, ShaderParameterType const type);
+
 	enum class DrawMode
 	{
 		points,
