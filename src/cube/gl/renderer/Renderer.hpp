@@ -4,7 +4,6 @@
 # include "fwd.hpp"
 # include "Shader.hpp"
 # include "State.hpp"
-# include "ShaderGenerator.hpp"
 # include "VertexBufferAttribute.hpp"
 
 # include "../viewport.hpp"
@@ -134,7 +133,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		/// Generate a new shader with the default generator for this renderer.
 		/// @see @a ShaderGenerator class for usage of the returned proxy.
-		ShaderGenerator::ProxyPtr
+		ShaderGeneratorProxy
 		generate_shader(ShaderType const type);
 
 		/// Create a shader of @a type.

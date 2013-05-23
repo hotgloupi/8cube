@@ -1,4 +1,5 @@
 #include <cube/gl/renderer.hpp>
+#include <cube/gl/renderer/ShaderGenerator.hpp>
 #include <cube/gl/viewport.hpp>
 #include <cube/main_proto.hpp>
 #include <cube/system/window.hpp>
@@ -12,7 +13,7 @@ using cube::system::window::create_window;
 using namespace cube::gl::renderer;
 using namespace cube::gl::viewport;
 
-CUBE_MAIN_PROTO(int, char** av)
+CUBE_MAIN_PROTO(int, char**)
 {
 	//	Does not work, create_renderer requires a context
 	// auto renderer = create_renderer(Viewport{0, 0, 640, 480});
@@ -20,13 +21,19 @@ CUBE_MAIN_PROTO(int, char** av)
 	// 	->sources();
 
 	auto window = create_window("SimpleWindow", 640, 480);
-	auto sources = window->renderer().generate_shader(ShaderType::vertex)
-		->parameter(ShaderParameterType::vec3, "light_pos")
-		.sources();
+	auto generator = window->renderer().generate_shader(ShaderType::vertex);
+	generator
+		.parameter(ShaderParameterType::mat4, "cube_ModelViewPosition")
+		.in(ShaderParameterType::vec3, "cube_Vertex")
+		.out(ShaderParameterType::vec3, "cube_Position")
+	;
 
-	int i = 0;
-	for (auto const& line: sources)
-		etc::print(++i, line);
+
+	etc::print("----------- Generated shader:");
+	etc::print(generator.source());
+	etc::print("-----------");
+	auto shader = generator.shader();
+
 //	bool running = true;
 //	auto slot = window->inputs().on_quit().connect(
 //		[&running]() { etc::print("Stop app"); running = false; }

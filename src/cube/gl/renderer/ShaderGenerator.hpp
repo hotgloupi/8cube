@@ -9,6 +9,8 @@
 
 namespace cube { namespace gl { namespace renderer {
 
+	class ShaderGeneratorProxy;
+
 	class ShaderGenerator
 	{
 	protected:
@@ -21,55 +23,82 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ~ShaderGenerator();
 
 	public:
-		struct Proxy;
-		friend struct Proxy;
+		friend class ShaderGeneratorProxy;
+		typedef ShaderGeneratorProxy Proxy;
 		typedef std::unique_ptr<Proxy> ProxyPtr;
 
 	public:
+		Proxy begin(ShaderType const type);
+
 		virtual
-		ProxyPtr begin(ShaderType const type) = 0;
+		std::string source(Proxy const& p) const = 0;
 	};
 
-
-	struct ShaderGenerator::Proxy
+	class ShaderGeneratorProxy
 	{
+	public:
 		typedef std::pair<ShaderParameterType, std::string> Parameter;
 
+	public:
 		ShaderType const        type;
 		ShaderGenerator&        generator;
 		Renderer&               renderer;
 		std::vector<Parameter>  parameters;
+		std::vector<Parameter>  inputs;
+		std::vector<Parameter>  outputs;
 
-		Proxy(ShaderType const type,
-		      ShaderGenerator& generator,
-		      Renderer& renderer)
+	public:
+		ShaderGeneratorProxy(ShaderType const type,
+		                     ShaderGenerator& generator,
+		                     Renderer& renderer)
 			: type{type}
 			, generator(generator)
 			, renderer(renderer)
 			, parameters{}
+			, inputs{}
+			, outputs{}
 		{}
 
-		Proxy(Proxy&& other)
+		ShaderGeneratorProxy(ShaderGeneratorProxy&& other)
 			: type{std::move(other.type)}
 			, generator(other.generator)
 			, renderer(other.renderer)
 			, parameters{std::move(other.parameters)}
+			, inputs{std::move(other.inputs)}
+			, outputs{std::move(other.outputs)}
 		{}
 
-		virtual ~Proxy();
-
+		ShaderGeneratorProxy(ShaderGeneratorProxy const&) = delete;
+		ShaderGeneratorProxy& operator =(ShaderGeneratorProxy const&) = delete;
+	public:
 		ShaderPtr shader();
 
-		Proxy& parameter(ShaderParameterType const type,
-		                 std::string const& name)
+		ShaderGeneratorProxy& parameter(ShaderParameterType const type,
+		                                std::string const& name)
 		{
 			this->parameters.push_back({type, name});
 			return *this;
 		}
 
+		ShaderGeneratorProxy& in(ShaderParameterType const type,
+		                         std::string const& name)
+		{
+			this->inputs.push_back({type, name});
+			return *this;
+		}
+
+		ShaderGeneratorProxy& out(ShaderParameterType const type,
+		                          std::string const& name)
+		{
+			this->outputs.push_back({type, name});
+			return *this;
+		}
+
 	public:
-		virtual
-		std::vector<std::string> sources() = 0;
+		std::string source() const
+		{
+			return this->generator.source(*this);
+		}
 	};
 
 }}}

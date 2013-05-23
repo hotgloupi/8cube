@@ -7,13 +7,16 @@ namespace cube { namespace gl { namespace renderer {
 	ShaderGenerator::~ShaderGenerator()
 	{}
 
-	ShaderGenerator::Proxy::~Proxy()
-	{}
+	ShaderGeneratorProxy
+	ShaderGenerator::begin(ShaderType const type)
+	{
+		return {type, *this, _renderer};
+	}
 
 	ShaderPtr
-	ShaderGenerator::Proxy::shader()
+	ShaderGeneratorProxy::shader()
 	{
-		return this->renderer.new_shader(this->type, this->sources());
+		return this->renderer.new_shader(this->type, {this->source()});
 	}
 
 }}}

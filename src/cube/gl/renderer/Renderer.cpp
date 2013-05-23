@@ -6,6 +6,7 @@
 #include "VertexBuffer.hpp"
 #include "Shader.hpp"
 #include "ShaderProgram.hpp"
+#include "ShaderGenerator.hpp"
 #include "Texture.hpp"
 
 #include "../renderer.hpp"
@@ -132,7 +133,7 @@ namespace cube { namespace gl { namespace renderer {
 		}
 	}
 
-	ShaderGenerator::ProxyPtr
+	ShaderGeneratorProxy
 	Renderer::generate_shader(ShaderType const type)
 	{
 		if (_shader_generator == nullptr)
