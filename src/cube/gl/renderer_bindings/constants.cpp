@@ -38,6 +38,32 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.value("tex_coord2", ContentKind::tex_coord2)
 		;
 
+		py::enum_<ShaderType>("ShaderType")
+			.value("fragment", ShaderType::fragment)
+			.value("vertex", ShaderType::vertex)
+		;
+
+		py::enum_<ShaderParameterType>("ShaderParameterType")
+			.value("float", ShaderParameterType::float_)
+			.value("vec2", ShaderParameterType::vec2)
+			.value("vec3", ShaderParameterType::vec3)
+			.value("vec4", ShaderParameterType::vec4)
+			.value("int", ShaderParameterType::int_)
+			.value("ivec2", ShaderParameterType::ivec2)
+			.value("ivec3", ShaderParameterType::ivec3)
+			.value("ivec4", ShaderParameterType::ivec4)
+			.value("bool", ShaderParameterType::bool_)
+			.value("bvec2", ShaderParameterType::bvec2)
+			.value("bvec3", ShaderParameterType::bvec3)
+			.value("bvec4", ShaderParameterType::bvec4)
+			.value("mat2", ShaderParameterType::mat2)
+			.value("mat3", ShaderParameterType::mat3)
+			.value("mat4", ShaderParameterType::mat4)
+			.value("sampler1d", ShaderParameterType::sampler1d)
+			.value("sampler2d", ShaderParameterType::sampler2d)
+			.value("sampler3d", ShaderParameterType::sampler3d)
+		;
+
 		py::enum_<ContentHint>("ContentHint")
 			.value("stream_content", ContentHint::stream_content)
 			.value("static_content", ContentHint::static_content)

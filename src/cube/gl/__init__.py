@@ -14,6 +14,7 @@ Exported classes:
     Color{3,4}f
     Cube3{f,d,i,u,il,ul}
     Font
+    Material
     Matrix44f
     Mesh
     Plane{f,d,i,u,il,ul}
@@ -34,6 +35,7 @@ Exported enumerations:
     DrawMode (points, lines, line_strip, line_loop, triangles, triangle_strip,
               triangle_fan, quads, quad_strip, polygon)
     BufferBit (color, depth, stencil)
+    ShaderType (fragment, vertex)
     XAxis (left, right)
     YAxis (top, down)
     ZAxis (front, back)
@@ -50,6 +52,7 @@ from .cube import Cube3f, Cube3d, Cube3i, Cube3u, Cube3il, Cube3ul
 from .renderer import *
 from .text import Text
 from .font import Font
+from .material import Material
 from .matrix import Matrix44f
 from .mesh import Mesh
 from .plane import Planef, Planed, Planei, Planeu, Planeil, Planeul

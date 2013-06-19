@@ -34,6 +34,19 @@ namespace cube { namespace gl { namespace renderer {
 		std::string source(Proxy const& p) const = 0;
 	};
 
+	class ShaderRoutine
+	{
+	public:
+		virtual ~ShaderRoutine();
+
+		virtual
+		bool is_applicable(ShaderType type) const = 0;
+
+		virtual
+		std::string source(ShaderGeneratorProxy const& proxy,
+		                   std::string const& name) const = 0;
+	};
+
 	class ShaderGeneratorProxy
 	{
 	public:
@@ -50,55 +63,45 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		ShaderGeneratorProxy(ShaderType const type,
 		                     ShaderGenerator& generator,
-		                     Renderer& renderer)
-			: type{type}
-			, generator(generator)
-			, renderer(renderer)
-			, parameters{}
-			, inputs{}
-			, outputs{}
-		{}
+		                     Renderer& renderer);
 
-		ShaderGeneratorProxy(ShaderGeneratorProxy&& other)
-			: type{std::move(other.type)}
-			, generator(other.generator)
-			, renderer(other.renderer)
-			, parameters{std::move(other.parameters)}
-			, inputs{std::move(other.inputs)}
-			, outputs{std::move(other.outputs)}
-		{}
+		ShaderGeneratorProxy(ShaderGeneratorProxy&& other);
+		ShaderGeneratorProxy(ShaderGeneratorProxy const&);
 
-		ShaderGeneratorProxy(ShaderGeneratorProxy const&) = delete;
 		ShaderGeneratorProxy& operator =(ShaderGeneratorProxy const&) = delete;
 	public:
-		ShaderPtr shader();
+		/**
+		 * @brief Add a shader parameter.
+		 */
+		ShaderGeneratorProxy&
+		parameter(ShaderParameterType const type,
+		          std::string const& name);
 
-		ShaderGeneratorProxy& parameter(ShaderParameterType const type,
-		                                std::string const& name)
-		{
-			this->parameters.push_back({type, name});
-			return *this;
-		}
+		/**
+		 * @brief Add an input attribute.
+		 */
+		ShaderGeneratorProxy&
+		in(ShaderParameterType const type,
+		   std::string const& name);
 
-		ShaderGeneratorProxy& in(ShaderParameterType const type,
-		                         std::string const& name)
-		{
-			this->inputs.push_back({type, name});
-			return *this;
-		}
-
-		ShaderGeneratorProxy& out(ShaderParameterType const type,
-		                          std::string const& name)
-		{
-			this->outputs.push_back({type, name});
-			return *this;
-		}
+		/**
+		 * @brief Add an output attribute.
+		 */
+		ShaderGeneratorProxy&
+		out(ShaderParameterType const type,
+		    std::string const& name);
 
 	public:
-		std::string source() const
-		{
-			return this->generator.source(*this);
-		}
+		/**
+		 * @brief Retreive the generated source code.
+		 */
+		std::string source() const;
+
+		/**
+		 * @brief Create a new shader according to the current generated source
+		 * code.
+		 */
+		ShaderPtr shader();
 	};
 
 }}}

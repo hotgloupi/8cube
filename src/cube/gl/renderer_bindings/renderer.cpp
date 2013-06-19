@@ -3,10 +3,11 @@
 #include "PainterWithProxy.hpp"
 
 #include "../renderer/Renderer.hpp"
+#include "../renderer/ShaderGenerator.hpp"
 #include "../renderer/ShaderProgram.hpp"
 #include "../renderer/Texture.hpp"
-#include "../renderer/VertexBuffer.hpp"
 #include "../renderer/VertexBufferAttribute.hpp"
+#include "../renderer/VertexBuffer.hpp"
 
 #include "../exception.hpp"
 
@@ -76,6 +77,14 @@ namespace {
 				return self.new_shader_program(
 					_list_to_vector<renderer::Shader>(args)
 				);
+			}
+
+			static
+			renderer::ShaderGeneratorProxy
+			generate_shader(renderer::Renderer& self,
+			                renderer::ShaderType const type)
+			{
+				return self.generate_shader(type);
 			}
 
 			static
@@ -245,6 +254,14 @@ namespace cube { namespace gl { namespace renderer_bindings {
 					py::return_by_value,
 					py::with_custodian_and_ward_postcall<1,0>
 				>()
+			)
+			.def(
+				"generate_shader",
+				&Wrap::Renderer::generate_shader
+				//py::return_value_policy<
+				//	py::return_by_value,
+				//	py::with_custodian_and_ward_postcall<1,0>
+				//>()
 			)
 			.def(
 				"new_shader_program",

@@ -3,18 +3,23 @@
 
 # include "../ShaderGenerator.hpp"
 
+# include <memory>
+
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	class ShaderGenerator
 		: public renderer::ShaderGenerator
 	{
+	private:
+		struct Impl;
+		std::unique_ptr<Impl> _this;
 	protected:
 		typedef Proxy::Parameter Parameter;
+
 	public:
 		explicit
-		ShaderGenerator(Renderer& renderer)
-			: renderer::ShaderGenerator{renderer}
-		{}
+		ShaderGenerator(Renderer& renderer);
+		~ShaderGenerator();
 	public:
 		std::string source(Proxy const& p) const override;
 

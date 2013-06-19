@@ -3,6 +3,7 @@
 #include <cube/gl/viewport.hpp>
 #include <cube/main_proto.hpp>
 #include <cube/system/window.hpp>
+#include <cube/system/inputs.hpp>
 
 #include <etc/path.hpp>
 #include <etc/print.hpp>
@@ -21,31 +22,38 @@ CUBE_MAIN_PROTO(int, char**)
 	// 	->sources();
 
 	auto window = create_window("SimpleWindow", 640, 480);
-	auto generator = window->renderer().generate_shader(ShaderType::vertex);
-	generator
+	auto vs_gen = window->renderer().generate_shader(ShaderType::vertex);
+	auto fs_gen = window->renderer().generate_shader(ShaderType::fragment);
+	vs_gen
 		.parameter(ShaderParameterType::mat4, "cube_ModelViewPosition")
 		.in(ShaderParameterType::vec3, "cube_Vertex")
 		.out(ShaderParameterType::vec3, "cube_Position")
 	;
+	fs_gen
+		.in(ShaderParameterType::vec3, "cube_Position")
+		.out(ShaderParameterType::vec3, "cube_FragColor")
+	;
 
-
-	etc::print("----------- Generated shader:");
-	etc::print(generator.source());
+	etc::print("----------- Generated vertex shader:");
+	etc::print(vs_gen.source());
+	etc::print("----------- Generated fragment shader:");
+	etc::print(fs_gen.source());
 	etc::print("-----------");
-	auto shader = generator.shader();
+	auto vs = vs_gen.shader();
+	auto fs = fs_gen.shader();
 
-//	bool running = true;
-//	auto slot = window->inputs().on_quit().connect(
-//		[&running]() { etc::print("Stop app"); running = false; }
-//	);
-//	while (running)
-//	{
-//		window->renderer().initialize(window->renderer().viewport());
-//		window->renderer().clear();
-//		window->poll();
-//		window->swap_buffers();
-//		usleep(1000);
-//	}
-//	slot.disconnect();
+	bool running = true;
+	auto slot = window->inputs().on_quit().connect(
+		[&running]() { etc::print("Stop app"); running = false; }
+	);
+	while (running)
+	{
+		window->renderer().initialize(window->renderer().viewport());
+		window->renderer().clear();
+		window->poll();
+		window->swap_buffers();
+		usleep(1000);
+	}
+	slot.disconnect();
 	return 0;
 }

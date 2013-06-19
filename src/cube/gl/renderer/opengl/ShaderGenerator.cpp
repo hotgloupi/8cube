@@ -7,94 +7,133 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	std::string ShaderGenerator::version_source() const
+	struct ShaderGenerator::Impl
 	{
-		auto description = static_cast<RendererType const&>(
-			this->_renderer.description()
-		);
-		return etc::to_string(
-			etc::iomanip::nosep(),
-			"#version ",
-			description.glsl.major,
-			description.glsl.minor
-		);
-	}
+		RendererType const& description;
+		int glsl_version;
+		std::string in_qualifier;
+		std::string out_qualifier;
 
-	std::string
-	ShaderGenerator::parameter_type_source(ShaderParameterType const type) const
-	{
-		static std::string names[] = {
-			"float_",
-			"vec2",
-			"vec3",
-			"vec4",
-			"int_",
-			"ivec2",
-			"ivec3",
-			"ivec4",
-			"bool_",
-			"bvec2",
-			"bvec3",
-			"bvec4",
-			"mat2",
-			"mat3",
-			"mat4",
-			"sampler1d",
-			"sampler2d",
-			"sampler3d",
-			"samplerCube",
-			"sampler1DShadow",
-			"sampler2DShadow",
-		};
-		return names[static_cast<int>(type)];
-	}
+		Impl(RendererType const& description)
+			: description(description)
+			, glsl_version{
+				this->description.glsl.major * 100 +
+				this->description.glsl.minor
+			}
+		{
+			if (this->glsl_version > 120) // XXX check version
+			{
+				this->in_qualifier = "in";
+				this->out_qualifier = "out";
+			}
+			else
+			{
+				this->in_qualifier = "attribute";
+				this->out_qualifier = "varying";
+			}
+		}
 
-	std::string ShaderGenerator::parameter_source(Parameter const& p) const
-	{
-		return etc::to_string(
-			"uniform", parameter_type_source(p.first), p.second + ";"
-		);
-	}
+		std::string version_source() const
+		{
+			return etc::to_string(
+				etc::iomanip::nosep(), "#version ", this->glsl_version
+			);
+		}
 
-	std::string ShaderGenerator::input_source(Parameter const& p) const
-	{
-		return etc::to_string(
-			"in", parameter_type_source(p.first), p.second + ";"
-		);
-	}
+		std::string
+		parameter_type_source(ShaderParameterType const type) const
+		{
+			static std::string names[] = {
+				"float",
+				"vec2",
+				"vec3",
+				"vec4",
+				"int",
+				"ivec2",
+				"ivec3",
+				"ivec4",
+				"bool",
+				"bvec2",
+				"bvec3",
+				"bvec4",
+				"mat2",
+				"mat3",
+				"mat4",
+				"sampler1d",
+				"sampler2d",
+				"sampler3d",
+				"samplerCube",
+				"sampler1DShadow",
+				"sampler2DShadow",
+			};
+			return names[static_cast<int>(type)];
+		}
 
-	std::string ShaderGenerator::output_source(Parameter const& p) const
-	{
-		return etc::to_string(
-			"out", parameter_type_source(p.first), p.second + ";"
-		);
-	}
+		std::string
+		parameter_source(Proxy const&, Parameter const& p) const
+		{
+			return etc::to_string(
+				"uniform", this->parameter_type_source(p.first), p.second + ";"
+			);
+		}
+
+		std::string input_source(Proxy const& proxy, Parameter const& p) const
+		{
+			std::string prefix = "";
+			if (this->glsl_version <= 120 and
+				proxy.type != ShaderType::vertex) // XXX
+				prefix = "// ";
+			return etc::to_string(
+				prefix + this->in_qualifier,
+				this->parameter_type_source(p.first),
+				p.second + ";"
+			);
+		}
+
+		std::string output_source(Proxy const&, Parameter const& p) const
+		{
+			return etc::to_string(
+				this->out_qualifier,
+				this->parameter_type_source(p.first),
+				p.second + ";"
+			);
+		}
+	};
+
+	ShaderGenerator::ShaderGenerator(Renderer& renderer)
+		: renderer::ShaderGenerator{renderer}
+		, _this{new Impl{
+			dynamic_cast<RendererType const&>(this->_renderer.description())
+		}}
+	{}
+
+	ShaderGenerator::~ShaderGenerator()
+	{}
 
 	std::string ShaderGenerator::source(Proxy const& proxy) const
 	{
 #define CR "\n"
 		std::stringstream ss;
-		ss << this->version_source() << CR CR;
+		ss << _this->version_source() << CR CR;
 
 		ss << "// Parameters" << CR;
 		for (auto const& param: proxy.parameters)
-			ss << this->parameter_source(param) << CR;
+			ss << _this->parameter_source(proxy, param) << CR;
 		ss << CR;
 
 		ss << "// Inputs" << CR;
 		for (auto const& param: proxy.inputs)
-			ss << this->input_source(param) << CR;
+			ss << _this->input_source(proxy, param) << CR;
 		ss << CR;
 
 
 		ss << "// Outputs" << CR;
 		for (auto const& param: proxy.outputs)
-			ss << this->output_source(param) << CR;
+			ss << _this->output_source(proxy, param) << CR;
 		ss << CR;
 
 		return ss.str();
 #undef CR
 	}
-
 
 }}}}

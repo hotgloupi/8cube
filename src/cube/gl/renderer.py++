@@ -48,17 +48,18 @@ BOOST_PYTHON_MODULE(renderer)
 	using namespace cube::gl::renderer_bindings;
 	using namespace cube::gl::renderer;
 
-	export_constants();
 	export_bindable();
+	export_constants();
 	export_drawable();
-	export_state();
 	export_painter();
 	export_renderer();
+	export_shader();
+	export_shader_generator();
+	export_shader_program();
+	export_state();
+	export_texture();
 	export_vertex_buffer();
 	export_vertex_buffer_attribute();
-	export_shader();
-	export_shader_program();
-	export_texture();
 
 	///////////////////////////////////////////////////////////////////////////
 	// std::unique_ptr<T> to python converters.
