@@ -14,6 +14,7 @@
 #include <cstring>
 #include <list>
 #include <iomanip>
+#include <numeric>
 #include <stack>
 #include <unordered_map>
 
@@ -29,20 +30,7 @@ namespace std {
 		}
 	};
 
-
-	bool operator ==(cube::debug::Performance::Info const& lhs,
-	                 cube::debug::Performance::Info const& rhs)
-	{
-		return (
-			lhs.parent() == rhs.parent() and
-			lhs.line == rhs.line and
-			lhs.function == rhs.function and
-			lhs.file == rhs.file and
-			lhs.name == rhs.name
-		);
-	}
-
-}
+} //!std
 
 namespace cube { namespace debug {
 

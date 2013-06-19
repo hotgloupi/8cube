@@ -1,8 +1,6 @@
 #ifndef  CUBE_GL_OPENGL__VBO_HPP
 # define CUBE_GL_OPENGL__VBO_HPP
 
-# include "VertexBuffer.hpp"
-
 # include "Exception.hpp"
 # include "_opengl.hpp"
 

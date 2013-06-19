@@ -4,6 +4,7 @@
 # include "../VertexBuffer.hpp"
 
 # include "_opengl.hpp"
+# include "_VBO.hpp"
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 

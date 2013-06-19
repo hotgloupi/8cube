@@ -143,10 +143,14 @@ namespace etc {
 
 } // !etc
 
-ETC_API inline
-std::ostream& operator <<(std::ostream& out, std::nullptr_t)
-{
-	return out << "(nullptr)";
+namespace std {
+
+	ETC_API inline
+	std::ostream& operator <<(std::ostream& out, std::nullptr_t)
+	{
+		return out << "(nullptr)";
+	}
+
 }
 
 #endif
