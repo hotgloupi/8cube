@@ -11,8 +11,8 @@ from tupcfg import Source
 from tupcfg import Target
 from tupcfg import Command
 
-from tupcfg.lang.cxx import libraries as cxxlib
-from tupcfg.lang.c import libraries as clib
+from tupcfg.lang import cxx
+from tupcfg.lang import c
 
 class CopyFile(Command):
 
@@ -105,6 +105,7 @@ def configure(project, build):
             path.absolute(project.root_dir, 'src/glew'),
             path.absolute(project.root_dir, 'src/freetype-2.4.11/include'),
         ],
+        stdlib = platform.IS_MACOSX and 'libc++' or True,
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
@@ -114,22 +115,22 @@ def configure(project, build):
 #        }
     )
     status("CXX compiler is", compiler.binary)
-    boost = cxxlib.BoostLibrary(
+    boost = cxx.libraries.BoostLibrary(
         compiler,
         components=['system', 'filesystem', 'python3', 'thread'],
         preferred_shared=False,
         python3_shared=True,
     )
 
-    python = clib.PythonLibrary(compiler, shared=True)
+    python = c.libraries.PythonLibrary(compiler, shared=True)
 
-    sdl = clib.SDLLibrary(
+    sdl = c.libraries.SDLLibrary(
         compiler,
         components=['image'],
         shared=True
     )
 
-    opengl = clib.OpenGLLibrary(compiler)
+    opengl = c.libraries.OpenGLLibrary(compiler)
 
     freetype = compiler.link_static_library(
         'libfreetype2',
@@ -293,7 +294,7 @@ def configure(project, build):
         directory = 'release/lib',
         defines = ['FT2_BUILD_LIBRARY'],
     )
-    #freetype = clib.FreetypeLibrary(compiler, shared=True)
+    #freetype = c.libraries.FreetypeLibrary(compiler, shared=True)
 
     graphic_libraries = (
         sdl.libraries +
@@ -302,16 +303,16 @@ def configure(project, build):
         [freetype]
     )
     if not platform.IS_WINDOWS:
-        list(clib.simple(s, compiler) for s in ['png', 'jpeg'])
+        list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
 
     base_libraries = []
     if platform.IS_WINDOWS:
         base_libraries.extend(
-            clib.simple(name, compiler, shared=True) for name in ['Shlwapi',]
+            c.libraries.simple(name, compiler, shared=True) for name in ['Shlwapi',]
         )
     elif platform.IS_MACOSX:
         base_libraries.extend(
-            clib.simple(name, compiler, shared=True) for name in ['z', 'bz2',]
+            c.libraries.simple(name, compiler, shared=True) for name in ['z', 'bz2',]
         )
 
     libetc = compiler.link_library(
@@ -343,10 +344,10 @@ def configure(project, build):
     )
 
 
-    #boost_python_pch = compiler.generate_precompiled_header(
-    #    "src/wrappers/boost/python.hpp",
-    #    libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-    #)
+    boost_python_pch = compiler.generate_precompiled_header(
+        "src/wrappers/boost/python.hpp",
+        libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+    )
 
     for binding in glob("cube/*.py++", dir_='src', recursive=True):
         t = compiler.link_dynamic_library(
@@ -355,6 +356,7 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+            precompiled_headers = [boost_python_pch],
         )
         #t.additional_inputs.append(boost_python_pch)
         #for object_target in t.dependencies[0].dependencies:
@@ -395,12 +397,8 @@ def configure(project, build):
         libraries = python.libraries,
     )
 
-    build.add_targets(
-        Target(
-            'release/lib/python/' + src[4:],
-            CopyFile(Source(src))
-        ) for src in glob("src/cube/*.py", recursive=True)
-    )
+    for src in glob("src/cube/*.py", recursive=True):
+        build.fs.copy(src, 'release/lib/python/' + src[4:])
 
     build.add_targets(
         Target(
