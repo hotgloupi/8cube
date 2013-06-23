@@ -20,13 +20,13 @@ namespace cube { namespace gl { namespace text {
 	}
 
 	template
-	Text::Text<char>(font::Font&, std::basic_string<char> const&);
+	Text::Text/*<char>*/(font::Font&, std::basic_string<char> const&);
 	template
-	Text::Text<wchar_t>(font::Font&, std::basic_string<wchar_t> const&);
+	Text::Text/*<wchar_t>*/(font::Font&, std::basic_string<wchar_t> const&);
 	template
-	Text::Text<char16_t>(font::Font&, std::basic_string<char16_t> const&);
+	Text::Text/*<char16_t>*/(font::Font&, std::basic_string<char16_t> const&);
 	template
-	Text::Text<char32_t>(font::Font&, std::basic_string<char32_t> const&);
+	Text::Text/*<char32_t>*/(font::Font&, std::basic_string<char32_t> const&);
 
 	Text::~Text()
 	{

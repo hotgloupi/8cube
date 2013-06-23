@@ -71,6 +71,18 @@ namespace cube { namespace debug {
 
 		std::unordered_set<Info const*> const& children() const
 		{ return _children; }
+
+		inline
+		bool operator ==(cube::debug::Performance::Info const& rhs) const
+		{
+			return (
+				this->parent() == rhs.parent() and
+				this->line == rhs.line and
+				this->function == rhs.function and
+				this->file == rhs.file and
+				this->name == rhs.name
+			);
+		}
 	private:
 		friend class Performance;
 

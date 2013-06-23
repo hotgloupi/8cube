@@ -519,12 +519,12 @@ namespace cube { namespace gl { namespace font {
 			(face->family_name == nullptr ? "" : face->family_name),
 			(face->style_name == nullptr ? "" : face->style_name),
 			style,
-			FT_HAS_HORIZONTAL(face),
-			FT_HAS_VERTICAL(face),
-			FT_IS_FIXED_WIDTH(face),
-			FT_IS_SCALABLE(face),
-			FT_HAS_FIXED_SIZES(face),
-			FT_HAS_KERNING(face),
+			static_cast<bool>(FT_HAS_HORIZONTAL(face)),
+			static_cast<bool>(FT_HAS_VERTICAL(face)),
+			static_cast<bool>(FT_IS_FIXED_WIDTH(face)),
+			static_cast<bool>(FT_IS_SCALABLE(face)),
+			static_cast<bool>(FT_HAS_FIXED_SIZES(face)),
+			static_cast<bool>(FT_HAS_KERNING(face)),
 			face_index
 		}};
 	}

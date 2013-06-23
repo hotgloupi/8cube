@@ -206,8 +206,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		static GLenum _shader_type_map[(size_t)renderer::ShaderType::_max_value];
 		static GLenum _pixel_format_map[(size_t)renderer::PixelFormat::_max_value];
 
-    struct SubVBO;
-    template<bool> struct VBO;
+	public:
+		struct SubVBO;
+    	template<bool> struct VBO;
 	};
 
 }}}} // !cube::gl::opengl

@@ -6,6 +6,7 @@
 # include <etc/types.hpp>
 # include <etc/memory.hpp>
 
+# include <functional>
 # include <vector>
 
 namespace cube { namespace gl { namespace renderer {
@@ -46,17 +47,17 @@ namespace cube { namespace gl { namespace renderer {
 	 * @note This class is "unsafe" in some ways for performance reasons. @see
 	 *       each constructor for warnings about memory management.
 	 */
-	struct VertexBufferAttribute
+	class VertexBufferAttribute
 	{
 	public:
 		ContentKind const           kind;
 		ContentType const           type;
 		ContentHint const           hint;
 		etc::size_type const        arity;
-		etc::size_type const        nb_elements;
+		etc::size_type              nb_elements;
 
 		// size = nb_elements * sizeof(type)
-		size_t const                buffer_size;
+		size_t                      buffer_size;
 
 	private:
 		void*                       _buffer;
