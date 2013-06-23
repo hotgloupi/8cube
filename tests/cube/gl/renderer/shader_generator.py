@@ -14,17 +14,21 @@ gen = w.renderer.generate_shader(
     cube.gl.renderer.ShaderParameterType.vec3, "cube_TexCoord"
 ).output(
     cube.gl.renderer.ShaderParameterType.vec4, "cube_FragColor"
+).parameter(
+    cube.gl.renderer.ShaderParameterType.vec4, "cube_DiffuseColor"
 )
 
-class DiffuseRoutine(cube.gl.renderer.ShaderRoutine):
+class AmbiantRoutine(cube.gl.renderer.ShaderRoutine):
 
-    def __init__(self):pass
+    def __init__(self, color=cube.gl.Color3f("pink")):
+        super(AmbiantRoutine, self).__init__()
 
     def source(self, proxy, name):
-        super(DiffuseRoutine, self).source(proxy, name)
+        return super(AmbiantRoutine, self).source(proxy, name)
 
-d = DiffuseRoutine()
-d.source(gen, "oif")
+d = AmbiantRoutine()
+print("source =", d.source(gen, "oif"))
+print("is applicable =", d.is_applicable())
 
 print(gen.source())
 print(gen.shader())
