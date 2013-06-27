@@ -5,59 +5,19 @@ NAME = "8cube"
 # The version name (could be "alpha" for example)
 VERSION_NAME = "prototype"
 
-from tupcfg import tools, path, platform
-from tupcfg import generators
+from tupcfg import Command
+from tupcfg import Dependency
 from tupcfg import Source
 from tupcfg import Target
-from tupcfg import Command
+from tupcfg import generators
+from tupcfg import tools, path, platform
 
 from tupcfg.lang import cxx
 from tupcfg.lang import c
 
-class CopyFile(Command):
-
-    @property
-    def action(self):
-        return "Copying %s to" % self.dependencies[0]
-
-    def command(self, **kw):
-        return ['cp', self.dependencies, kw['target']]
-
-
-#class PythonCommandGenerator(Generator):
-#
-#    def __init__(self, **kw):
-#        Generator.__
-#
-#    def apply_rule(self,
-#                   action=None,
-#                   command=None,
-#                   inputs=None,
-#                   additional_inputs=None,
-#                   outputs=None,
-#                   additional_ouputs=None,
-#                   target=None):
-#        import pipes
-#        target_filename = target.shell_string(build=self.build,
-#                                              target=target)
-#        script = path.join(self.working_directory, target_filename + "_gen.py")
-#        with open(script, 'w') as f:
-#            write = lambda *args: print(*args, file=f)
-#            write("#!python")
-#            write("import os, pipes, sys, subprocess")
-#            write("print('in', %s)" % repr(self.working_directory))
-#            write("os.chdir(%s)" % repr(self.working_directory))
-#            write("cmd = [")
-#            for p in command:
-#                write("\t%s," % repr(p))
-#            write("]")
-#            write("print(' '.join(map(pipes.quote, cmd)))")
-#            write("subprocess.call(cmd, stdout=sys.stdout, stderr=subprocess.STDOUT)")
-#        tools.debug("Creating Python command script", script)
-
 def configure(project, build):
     import sys
-    from tupcfg.tools import glob, status
+    from tupcfg.tools import glob, rglob, status
     from tupcfg import path
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
@@ -105,7 +65,7 @@ def configure(project, build):
             path.absolute(project.root_dir, 'src/glew'),
             path.absolute(project.root_dir, 'src/freetype-2.4.11/include'),
         ],
-        stdlib = platform.IS_MACOSX and 'libc++' or True,
+        stdlib = True, #platform.IS_MACOSX and 'libc++' or True,
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
@@ -317,7 +277,7 @@ def configure(project, build):
 
     libetc = compiler.link_library(
         'libetc',
-        glob("src/etc/*.cpp", recursive=True),
+        rglob("src/etc/*.cpp"),
         directory  = 'release/lib',
         libraries = base_libraries + boost.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
@@ -338,7 +298,7 @@ def configure(project, build):
 
     libcube = compiler.link_dynamic_library(
         'libcube',
-        glob("src/cube/*.cpp", recursive=True),
+        rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
         libraries=[libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
@@ -349,7 +309,7 @@ def configure(project, build):
         libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
     )
 
-    for binding in glob("cube/*.py++", dir_='src', recursive=True):
+    for binding in rglob("cube/*.py++", dir='src'):
         t = compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
@@ -366,12 +326,12 @@ def configure(project, build):
 
     libcubeapp = compiler.link_static_library(
         'libcubeapp',
-        (src for src in glob("src/cubeapp/*.cpp", recursive=True) if not src.endswith('main.cpp')),
+        (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
         libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
-    for binding in glob("cubeapp/*.py++", dir_='src', recursive=True):
+    for binding in rglob("cubeapp/*.py++", dir='src'):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
@@ -387,32 +347,14 @@ def configure(project, build):
         libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
-#################### greenlet python module
-
-    compiler.link_dynamic_library(
-        "greenlet",
-        ['src/greenlet/greenlet.c'],
-        directory = 'release/lib/python',
-        ext = python.ext,
-        libraries = python.libraries,
-    )
-
-    for src in glob("src/cube/*.py", recursive=True):
+    for src in rglob("cube/*.py", dir = 'src'):
         build.fs.copy(src, 'release/lib/python/' + src[4:])
 
-    build.add_targets(
-        Target(
-            'release/lib/python/' + src[4:],
-            CopyFile(Source(src))
-        ) for src in glob("src/cubeapp/*.py", recursive=True)
-    )
+    for src in rglob("cubeapp/*.py", dir = 'src'):
+        build.fs.copy(src, 'release/lib/python/' + src[4:])
 
-    build.add_targets(
-        Target(
-            path.join('release/share/8cube', src[6:]),
-            CopyFile(Source(src))
-        ) for src in glob("share/games/*.py", recursive=True)
-    )
+    for src in rglob("games/*.py", dir = 'share'):
+        build.fs.copy(src, 'release/share/8cube/' + src[6:])
 
     tests = [
         'simple_window', 'cube/gl/shader_generator',
