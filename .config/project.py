@@ -5,59 +5,133 @@ NAME = "8cube"
 # The version name (could be "alpha" for example)
 VERSION_NAME = "prototype"
 
-from tupcfg import tools, path, platform
-from tupcfg import generators
+from tupcfg import Command
+from tupcfg.command import Shell as ShellCommand
+from tupcfg import Dependency
 from tupcfg import Source
 from tupcfg import Target
-from tupcfg import Command
+from tupcfg import generators
+from tupcfg import tools, path, platform
 
 from tupcfg.lang import cxx
 from tupcfg.lang import c
 
-class CopyFile(Command):
+class Assimp(Dependency):
+
+    def __init__(self, compiler, source_directory, shared = True):
+        super(Assimp, self).__init__(
+            "Open Asset Import Library",
+            "assimp",
+        )
+        self.source_directory = source_directory
+        self.compiler = compiler
+        self.shared = shared
+        ext = self.compiler.library_extension(shared)
+        self.library_filename = 'libassimp.%s' % ext
 
     @property
-    def action(self):
-        return "Copying %s to" % self.dependencies[0]
+    def targets(self):
+        configure_target = Target(
+            'assimp/Makefile',
+            ShellCommand(
+                "Configure Assimp",
+                ['cmake', path.absolute(self.source_directory)],
+                working_directory = self.build_path(),
+            )
+        )
+        build_target = Target(
+            path.join('assimp/code/', self.library_filename),
+            ShellCommand(
+                "Building Assimp",
+                ['make'],
+                working_directory = self.build_path(),
+                dependencies = [configure_target]
+            )
+        )
+        return [build_target]
 
-    def command(self, **kw):
-        return ['cp', self.dependencies, kw['target']]
+    @property
+    def libraries(self):
+        return [
+            cxx.Library(
+                'assimp',
+                self.compiler,
+                shared = self.shared,
+                search_binary_files = False,
+                include_directories = [
+                    path.join(self.source_directory, 'include')
+                ],
+                directories = [self.build_path()],
+                files = [self.build_path('code', self.library_filename)],
+                save_env_vars = False,
+            )
+        ]
 
+class FreeType2(Dependency):
+    def __init__(self, compiler, source_directory, shared = True):
+        super(FreeType2, self).__init__(
+            "FreeType2",
+            "freetype2",
+        )
+        self.source_directory = source_directory
+        self.compiler = compiler
+        self.shared = shared
+        ext = self.compiler.library_extension(shared)
+        self.library_filename = 'libfreetype.%s' % ext
 
-#class PythonCommandGenerator(Generator):
-#
-#    def __init__(self, **kw):
-#        Generator.__
-#
-#    def apply_rule(self,
-#                   action=None,
-#                   command=None,
-#                   inputs=None,
-#                   additional_inputs=None,
-#                   outputs=None,
-#                   additional_ouputs=None,
-#                   target=None):
-#        import pipes
-#        target_filename = target.shell_string(build=self.build,
-#                                              target=target)
-#        script = path.join(self.working_directory, target_filename + "_gen.py")
-#        with open(script, 'w') as f:
-#            write = lambda *args: print(*args, file=f)
-#            write("#!python")
-#            write("import os, pipes, sys, subprocess")
-#            write("print('in', %s)" % repr(self.working_directory))
-#            write("os.chdir(%s)" % repr(self.working_directory))
-#            write("cmd = [")
-#            for p in command:
-#                write("\t%s," % repr(p))
-#            write("]")
-#            write("print(' '.join(map(pipes.quote, cmd)))")
-#            write("subprocess.call(cmd, stdout=sys.stdout, stderr=subprocess.STDOUT)")
-#        tools.debug("Creating Python command script", script)
+    @property
+    def targets(self):
+        configure_target = Target(
+            'freetype2/build/Makefile',
+            ShellCommand(
+                "Configuring Freetype2",
+                [
+                    path.absolute(self.source_directory, 'configure'),
+                    '--prefix', self.build_path('install')
+                ],
+                working_directory = self.build_path('build')
+            )
+        )
+        build_target = Target(
+            'freetype2/build/freetype-config',
+            ShellCommand(
+                "Building FreeType2",
+                ['make'],
+                working_directory = self.build_path('build'),
+                dependencies = [configure_target]
+            )
+        )
+        install_target = Target(
+            path.join('freetype2/install/lib', self.library_filename),
+            ShellCommand(
+                "Installing FreeType2",
+                ['make', 'install'],
+                working_directory = self.build_path('build'),
+                dependencies = [build_target]
+            )
+        )
+        return [install_target]
+
+    @property
+    def libraries(self):
+        return [
+            cxx.Library(
+                'freetype2',
+                self.compiler,
+                shared = self.shared,
+                search_binary_files = False,
+                include_directories = [
+                    self.build_path('install', 'include', 'freetype2')
+                ],
+                directories = [self.build_path('install', 'lib')],
+                files = [self.build_path('install', 'lib', self.library_filename)],
+                save_env_vars = False,
+            )
+        ]
 
 def configure(project, build):
     import sys
-    from tupcfg.tools import glob, status
+    from tupcfg.tools import glob, rglob, status
     from tupcfg import path
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
@@ -103,9 +177,8 @@ def configure(project, build):
 #            '/home/hotgloupi/sandbox/raspberry/root/usr/include/arm-linux-gnueabihf',
             path.absolute(project.root_dir, 'src'),
             path.absolute(project.root_dir, 'src/glew'),
-            path.absolute(project.root_dir, 'src/freetype-2.4.11/include'),
         ],
-        stdlib = platform.IS_MACOSX and 'libc++' or True,
+        stdlib = True, #platform.IS_MACOSX and 'libc++' or True,
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
@@ -115,6 +188,10 @@ def configure(project, build):
 #        }
     )
     status("CXX compiler is", compiler.binary)
+
+    assimp = build.add_dependency(Assimp(compiler, 'deps/assimp'))
+    freetype2 = build.add_dependency(FreeType2(compiler, 'deps/freetype2'))
+
     boost = cxx.libraries.BoostLibrary(
         compiler,
         components=['system', 'filesystem', 'python3', 'thread'],
@@ -132,175 +209,11 @@ def configure(project, build):
 
     opengl = c.libraries.OpenGLLibrary(compiler)
 
-    freetype = compiler.link_static_library(
-        'libfreetype2',
-        (
-            f for f in glob('src/freetype-2.4.11/src/*.c', recursive=True)
-            if not any(
-                p in f for p in [
-                    "afpic.c",
-                    "afangles.c",
-                    "afglobal.c",
-                    "afhints.c",
-                    "afdummy.c",
-                    "aflatin.c",
-                    "aflatin2.c",
-                    "afcjk.c",
-                    "afindic.c",
-                    "afloader.c",
-                    "afmodule.c",
-                    "afwarp.c",
-                    "ftpic.c",
-                    "basepic.c",
-                    "ftadvanc.c",
-                    "ftcalc.c",
-                    "ftdbgmem.c",
-                    "ftgloadr.c",
-                    "ftobjs.c",
-                    "ftoutln.c",
-                    "ftrfork.c",
-                    "ftsnames.c",
-                    "ftstream.c",
-                    "fttrigon.c",
-                    "ftutil.c",
-                    "ftmac.c",
-                    "bdflib.c",
-                    "bdfdrivr.c",
-                    "ftcmru.c",
-                    "ftcmanag.c",
-                    "ftccache.c",
-                    "ftccmap.c",
-                    "ftcglyph.c",
-                    "ftcimage.c",
-                    "ftcsbits.c",
-                    "ftcbasic.c",
-                    "cffpic.c",
-                    "cffdrivr.c",
-                    "cffparse.c",
-                    "cffload.c",
-                    "cffobjs.c",
-                    "cffgload.c",
-                    "cffcmap.c",
-                    "cidparse.c",
-                    "cidload.c",
-                    "cidobjs.c",
-                    "cidriver.c",
-                    "cidgload.c",
-                    "gxvfeat.c",
-                    "gxvcommn.c",
-                    "gxvbsln.c",
-                    "gxvtrak.c",
-                    "gxvjust.c",
-                    "gxvmort.c",
-                    "gxvmort0.c",
-                    "gxvmort1.c",
-                    "gxvmort2.c",
-                    "gxvmort4.c",
-                    "gxvmort5.c",
-                    "gxvmorx.c",
-                    "gxvmorx0.c",
-                    "gxvmorx1.c",
-                    "gxvmorx2.c",
-                    "gxvmorx4.c",
-                    "gxvmorx5.c",
-                    "gxvkern.c",
-                    "gxvopbd.c",
-                    "gxvprop.c",
-                    "gxvlcar.c",
-                    "gxvmod.c",
-                    "zutil.c",
-                    "inftrees.c",
-                    "infutil.c",
-                    "infcodes.c",
-                    "infblock.c",
-                    "inflate.c",
-                    "adler32.c",
-                    "ftzopen.c",
-                    "otvbase.c",
-                    "otvcommn.c",
-                    "otvgdef.c",
-                    "otvgpos.c",
-                    "otvgsub.c",
-                    "otvjstf.c",
-                    "otvmath.c",
-                    "otvmod.c",
-                    "pcfutil.c",
-                    "pcfread.c",
-                    "pcfdrivr.c",
-                    "pfrload.c",
-                    "pfrgload.c",
-                    "pfrcmap.c",
-                    "pfrobjs.c",
-                    "pfrdrivr.c",
-                    "pfrsbit.c",
-                    "psobjs.c",
-                    "psauxmod.c",
-                    "t1decode.c",
-                    "t1cmap.c",
-                    "afmparse.c",
-                    "psconv.c",
-                    "pshpic.c",
-                    "pshrec.c",
-                    "pshglob.c",
-                    "pshalgo.c",
-                    "pshmod.c",
-                    "pspic.c",
-                    "psmodule.c",
-                    "rastpic.c",
-                    "ftraster.c",
-                    "ftrend1.c",
-                    "sfntpic.c",
-                    "ttload.c",
-                    "ttmtx.c",
-                    "ttcmap.c",
-                    "ttkern.c",
-                    "sfobjs.c",
-                    "sfdriver.c",
-                    "ttsbit.c",
-                    "ttpost.c",
-                    "ttbdf.c",
-                    "ttsbit0.c",
-                    "ftspic.c",
-                    "ftgrays.c",
-                    "ftsmooth.c",
-                    "ttpic.c",
-                    "ttdriver.c"   ,
-                    "ttpload.c"    ,
-                    "ttgload.c"    ,
-                    "ttobjs.c"     ,
-                    "ttinterp.c",
-                    "ttsubpix.c",
-                    "ttgxvar.c"    ,
-                    "t1parse.c",
-                    "t1load.c",
-                    "t1objs.c",
-                    "t1driver.c",
-                    "t1gload.c",
-                    "t1afm.c",
-                    "t42objs.c",
-                    "t42parse.c",
-                    "t42drivr.c",
-
-                    'gxvalid',
-                    'src/tools',
-                    #'src/pcf',
-                ]
-            )
-            #and not ('src/base' in f and not 'ftbase.c' in f)
-            #and not ('src/cache' in f and not 'ftcache.c' in f)
-            #and not ('src/autofit' in f and not 'autofit.c' in f)
-            #and not ('src/autofit' in f and not 'autofit.c' in f)
-        ),
-        directory = 'release/lib',
-        defines = ['FT2_BUILD_LIBRARY'],
-    )
-    #freetype = c.libraries.FreetypeLibrary(compiler, shared=True)
-
     graphic_libraries = (
         sdl.libraries +
         opengl.libraries +
-        #freetype.libraries
-        [freetype]
+        assimp.libraries +
+        freetype2.libraries
     )
     if not platform.IS_WINDOWS:
         list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
@@ -317,7 +230,7 @@ def configure(project, build):
 
     libetc = compiler.link_library(
         'libetc',
-        glob("src/etc/*.cpp", recursive=True),
+        rglob("src/etc/*.cpp"),
         directory  = 'release/lib',
         libraries = base_libraries + boost.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
@@ -338,7 +251,7 @@ def configure(project, build):
 
     libcube = compiler.link_dynamic_library(
         'libcube',
-        glob("src/cube/*.cpp", recursive=True),
+        rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
         libraries=[libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
@@ -349,7 +262,7 @@ def configure(project, build):
         libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
     )
 
-    for binding in glob("cube/*.py++", dir_='src', recursive=True):
+    for binding in rglob("cube/*.py++", dir='src'):
         t = compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
@@ -366,12 +279,12 @@ def configure(project, build):
 
     libcubeapp = compiler.link_static_library(
         'libcubeapp',
-        (src for src in glob("src/cubeapp/*.cpp", recursive=True) if not src.endswith('main.cpp')),
+        (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
         libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
-    for binding in glob("cubeapp/*.py++", dir_='src', recursive=True):
+    for binding in rglob("cubeapp/*.py++", dir='src'):
         compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
@@ -387,32 +300,14 @@ def configure(project, build):
         libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
     )
 
-#################### greenlet python module
-
-    compiler.link_dynamic_library(
-        "greenlet",
-        ['src/greenlet/greenlet.c'],
-        directory = 'release/lib/python',
-        ext = python.ext,
-        libraries = python.libraries,
-    )
-
-    for src in glob("src/cube/*.py", recursive=True):
+    for src in rglob("cube/*.py", dir = 'src'):
         build.fs.copy(src, 'release/lib/python/' + src[4:])
 
-    build.add_targets(
-        Target(
-            'release/lib/python/' + src[4:],
-            CopyFile(Source(src))
-        ) for src in glob("src/cubeapp/*.py", recursive=True)
-    )
+    for src in rglob("cubeapp/*.py", dir = 'src'):
+        build.fs.copy(src, 'release/lib/python/' + src[4:])
 
-    build.add_targets(
-        Target(
-            path.join('release/share/8cube', src[6:]),
-            CopyFile(Source(src))
-        ) for src in glob("share/games/*.py", recursive=True)
-    )
+    for src in rglob("games/*.py", dir = 'share'):
+        build.fs.copy(src, 'release/share/8cube/' + src[6:])
 
     tests = [
         'simple_window', 'cube/gl/shader_generator',

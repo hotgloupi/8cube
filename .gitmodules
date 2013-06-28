@@ -1,9 +1,9 @@
-[submodule "src/greenlet"]
-	path = src/greenlet
-	url = https://github.com/python-greenlet/greenlet.git
 [submodule ".config/tupcfg"]
 	path = .config/tupcfg
 	url = git@github.com:hotgloupi/tupcfg.git
-[submodule "deps/tinycc"]
-	path = deps/tinycc
-	url = http://repo.or.cz/r/tinycc.git
+[submodule "deps/assimp"]
+	path = deps/assimp
+	url = https://github.com/assimp/assimp.git
+[submodule "deps/freetype2"]
+	path = deps/freetype2
+	url = git://git.sv.nongnu.org/freetype/freetype2.git

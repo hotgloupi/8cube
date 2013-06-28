@@ -7,24 +7,6 @@ namespace cube { namespace gl { namespace renderer_bindings {
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
-	class BaseShaderRoutine
-		: public ShaderRoutine
-	{
-	public:
-		bool is_applicable(ShaderType type) const override
-		{
-			throw std::runtime_error("Not implemented");
-			return true;
-		}
-
-		std::string source(ShaderGeneratorProxy const& proxy,
-		                   std::string const& name) const override
-		{
-			throw std::runtime_error("Not implemented");
-			return "";
-		}
-	};
-
 	void export_shader_generator()
 	{
 		py::class_<
@@ -38,11 +20,9 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			ShaderGeneratorProxy
 		>("ShaderGeneratorProxy", py::no_init)
 			.def_readonly("type", &ShaderGeneratorProxy::type)
-			//.def_readonly("generator", &ShaderGeneratorProxy::generator)
-			//.def_readonly("renderer", &ShaderGeneratorProxy::renderer)
-			//.def_readonly("parameters", &ShaderGeneratorProxy::parameters)
-			//.def_readonly("inputs", &ShaderGeneratorProxy::inputs)
-			//.def_readonly("outputs", &ShaderGeneratorProxy::outputs)
+			.def_readonly("parameters", &ShaderGeneratorProxy::parameters)
+			.def_readonly("inputs", &ShaderGeneratorProxy::inputs)
+			.def_readonly("outputs", &ShaderGeneratorProxy::outputs)
 			.def("source", &ShaderGeneratorProxy::source)
 			.def("shader", &ShaderGeneratorProxy::shader)
 			.def("input", &ShaderGeneratorProxy::in, py::return_internal_reference<>())
@@ -50,12 +30,29 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.def("parameter", &ShaderGeneratorProxy::parameter, py::return_internal_reference<>())
 		;
 
+
+		struct ShaderRoutineWrap
+			: public ShaderRoutine
+			, public py::wrapper<ShaderRoutine>
+		{
+			std::string source(ShaderGeneratorProxy const& proxy,
+		                       std::string const& name) const override
+			{
+				return this->get_override("source")(proxy, name);
+			}
+
+			bool is_applicable(ShaderType type) const override
+			{
+				return this->get_override("is_applicable")(type);
+			}
+		};
+
 		py::class_<
-			BaseShaderRoutine,
+			ShaderRoutineWrap,
 			boost::noncopyable
 		>("ShaderRoutine")
-			.def("source", &ShaderRoutine::source)
-			.def("is_applicable", &ShaderRoutine::is_applicable)
+			.def("is_applicable", py::pure_virtual(&ShaderRoutine::is_applicable))
+			.def("source", py::pure_virtual(&ShaderRoutineWrap::source))
 		;
 	}
 
