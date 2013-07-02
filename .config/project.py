@@ -61,7 +61,7 @@ class Assimp(Dependency):
                 include_directories = [
                     path.join(self.source_directory, 'include')
                 ],
-                directories = [self.build_path()],
+                directories = [self.build_path('code')],
                 files = [self.build_path('code', self.library_filename)],
                 save_env_vars = False,
             )
