@@ -53,7 +53,7 @@ namespace cube { namespace gl { namespace renderer {
 			auto it = std::find_if(                                           \
 				map.begin(),                                                  \
 				map.end(),                                                    \
-				[&] (Parameter const& p) -> bool {return name == p.second;}); \
+				[&] (Parameter const& p) -> bool {return name == p.name;}); \
 		if (it != this->map.end())                                            \
 			throw Exception{                                                  \
 				"The variable '" + name + "' is already in " #map "."                             \
@@ -69,28 +69,31 @@ namespace cube { namespace gl { namespace renderer {
 
 	ShaderGeneratorProxy&
 	ShaderGeneratorProxy::parameter(ShaderParameterType const type,
-	                                std::string const& name)
+	                                std::string const& name,
+	                                ContentKind const content_kind)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->parameters.push_back({type, name});
+		this->parameters.push_back({type, name, content_kind});
 		return *this;
 	}
 
 	ShaderGeneratorProxy&
-	ShaderGeneratorProxy::in(ShaderParameterType const type,
-	                         std::string const& name)
+	ShaderGeneratorProxy::input(ShaderParameterType const type,
+	                            std::string const& name,
+	                            ContentKind const content_kind)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->inputs.push_back({type, name});
+		this->inputs.push_back({type, name, content_kind});
 		return *this;
 	}
 
 	ShaderGeneratorProxy&
-	ShaderGeneratorProxy::out(ShaderParameterType const type,
-	                          std::string const& name)
+	ShaderGeneratorProxy::output(ShaderParameterType const type,
+	                             std::string const& name,
+	                             ContentKind const content_kind)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->outputs.push_back({type, name});
+		this->outputs.push_back({type, name, content_kind});
 		return *this;
 	}
 

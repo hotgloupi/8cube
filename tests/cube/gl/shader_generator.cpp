@@ -26,12 +26,12 @@ CUBE_MAIN_PROTO(int, char**)
 	auto fs_gen = window->renderer().generate_shader(ShaderType::fragment);
 	vs_gen
 		.parameter(ShaderParameterType::mat4, "cube_ModelViewPosition")
-		.in(ShaderParameterType::vec3, "cube_Vertex")
-		.out(ShaderParameterType::vec3, "cube_Position")
+		.input(ShaderParameterType::vec3, "cube_Vertex")
+		.output(ShaderParameterType::vec3, "cube_Position")
 	;
 	fs_gen
-		.in(ShaderParameterType::vec3, "cube_Position")
-		.out(ShaderParameterType::vec3, "cube_FragColor")
+		.input(ShaderParameterType::vec3, "cube_Position")
+		.output(ShaderParameterType::vec3, "cube_FragColor")
 	;
 
 	etc::print("----------- Generated vertex shader:");

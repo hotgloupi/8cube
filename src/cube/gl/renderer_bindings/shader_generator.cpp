@@ -27,8 +27,8 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.def_readonly("outputs", &ShaderGeneratorProxy::outputs)
 			.def("source", &ShaderGeneratorProxy::source)
 			.def("shader", &ShaderGeneratorProxy::shader)
-			.def("input", &ShaderGeneratorProxy::in, py::return_internal_reference<>())
-			.def("output", &ShaderGeneratorProxy::out, py::return_internal_reference<>())
+			.def("input", &ShaderGeneratorProxy::input, py::return_internal_reference<>())
+			.def("output", &ShaderGeneratorProxy::output, py::return_internal_reference<>())
 			.def("parameter", &ShaderGeneratorProxy::parameter, py::return_internal_reference<>())
 		;
 

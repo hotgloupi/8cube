@@ -80,21 +80,24 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		ShaderGeneratorProxy&
 		parameter(ShaderParameterType const type,
-		          std::string const& name);
+		          std::string const& name,
+		          ContentKind const content_kind = ContentKind::_max_value);
 
 		/**
 		 * @brief Add an input attribute.
 		 */
 		ShaderGeneratorProxy&
-		in(ShaderParameterType const type,
-		   std::string const& name);
+		input(ShaderParameterType const type,
+		      std::string const& name,
+		      ContentKind const content_kind = ContentKind::_max_value);
 
 		/**
 		 * @brief Add an output attribute.
 		 */
 		ShaderGeneratorProxy&
-		out(ShaderParameterType const type,
-		    std::string const& name);
+		output(ShaderParameterType const type,
+		       std::string const& name,
+		       ContentKind const content_kind = ContentKind::_max_value);
 
 	public:
 		/**
