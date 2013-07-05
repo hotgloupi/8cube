@@ -1,15 +1,15 @@
-#include "exports.hpp"
 #include "PainterWithProxy.hpp"
 
-#include <wrappers/boost/python.hpp>
+#include <cube/api.hpp>
+#include <cube/gl/exception.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/renderer/ShaderGenerator.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/Texture.hpp>
+#include <cube/gl/renderer/VertexBufferAttribute.hpp>
+#include <cube/gl/renderer/VertexBuffer.hpp>
 
-#include "../exception.hpp"
-#include "../renderer/Renderer.hpp"
-#include "../renderer/ShaderGenerator.hpp"
-#include "../renderer/ShaderProgram.hpp"
-#include "../renderer/Texture.hpp"
-#include "../renderer/VertexBufferAttribute.hpp"
-#include "../renderer/VertexBuffer.hpp"
+#include <wrappers/boost/python.hpp>
 
 namespace {
 
@@ -184,6 +184,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 
 	using namespace ::cube::gl::renderer;
 
+	CUBE_API
 	void export_renderer()
 	{
 

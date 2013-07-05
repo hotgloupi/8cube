@@ -1,11 +1,11 @@
-#include "exports.hpp"
 #include "PainterWithProxy.hpp"
 
-#include "../renderer/Painter.hpp"
-#include "../renderer/State.hpp"
-#include "../renderer/ShaderProgram.hpp"
-#include "../renderer/VertexBuffer.hpp"
-#include "../renderer/VertexBufferAttribute.hpp"
+#include <cube/api.hpp>
+#include <cube/gl/renderer/Painter.hpp>
+#include <cube/gl/renderer/State.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/VertexBuffer.hpp>
+#include <cube/gl/renderer/VertexBufferAttribute.hpp>
 
 #include <wrappers/boost/python.hpp>
 
@@ -146,6 +146,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
+	CUBE_API
 	void export_painter()
 	{
 		py::class_<Painter, boost::noncopyable>(

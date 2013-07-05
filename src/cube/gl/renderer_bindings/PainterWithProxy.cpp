@@ -1,7 +1,7 @@
 #include "PainterWithProxy.hpp"
 
-#include "../renderer/Renderer.hpp"
-#include "../renderer/Painter.hpp"
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/renderer/Painter.hpp>
 
 #include <etc/log.hpp>
 

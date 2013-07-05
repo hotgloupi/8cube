@@ -1,8 +1,7 @@
-#include "exports.hpp"
-
-#include "../color.hpp"
-#include "../exception.hpp"
-#include "../renderer/VertexBufferAttribute.hpp"
+#include <cube/api.hpp>
+#include <cube/gl/color.hpp>
+#include <cube/gl/exception.hpp>
+#include <cube/gl/renderer/VertexBufferAttribute.hpp>
 
 #include <etc/to_string.hpp>
 
@@ -102,6 +101,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 
 	} // !anonymous
 
+	CUBE_API
 	void export_vertex_buffer_attribute()
 	{
 		py::class_<

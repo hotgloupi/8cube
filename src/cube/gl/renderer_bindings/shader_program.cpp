@@ -1,8 +1,7 @@
-#include "exports.hpp"
-
-#include "../renderer/ShaderProgram.hpp"
-#include "../renderer/State.hpp"
-#include "../renderer/Texture.hpp"
+#include <cube/api.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/State.hpp>
+#include <cube/gl/renderer/Texture.hpp>
 
 #include <wrappers/boost/python.hpp>
 
@@ -11,6 +10,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
+	CUBE_API
 	void export_shader_program()
 	{
 		{
