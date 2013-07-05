@@ -3,6 +3,8 @@
 
 # include "vector.hpp"
 
+# include <cube/api.hpp>
+
 # include <etc/meta/if.hpp>
 
 # include <iosfwd>
@@ -14,7 +16,7 @@ namespace cube { namespace gl { namespace cube {
 	enum class ZAxis { front = 1,  back = -1 };
 
 	template<typename T>
-	struct Cube3
+	struct CUBE_API Cube3
 	{
 	public:
 		typedef vector::Vector3<T>  vec3;
@@ -98,6 +100,7 @@ namespace cube { namespace gl { namespace cube {
 	typedef Cube3<uint64_t> Cube3ul;
 
 	template<typename T>
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, Cube3<T> const& cube);
 
 }}}

@@ -23,7 +23,7 @@ namespace cube { namespace gl { namespace renderer {
 	 * The renderer class is an abstract class that acts mostly like OpenGL
 	 * render state machine.
 	 */
-	class Renderer
+	class CUBE_API Renderer
 	{
 	public:
 		/*********************************************************************
@@ -224,7 +224,7 @@ namespace cube { namespace gl { namespace renderer {
   ////////////////////////////////////////////////////////////////////////////
   // RendererType class
 
-	class RendererType
+	class CUBE_API RendererType
 	{
 	public:
 		virtual
@@ -236,7 +236,8 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ~RendererType() {}
 	};
 
-  std::ostream& operator <<(std::ostream& out, RendererType const& descr);
+	CUBE_API
+	std::ostream& operator <<(std::ostream& out, RendererType const& descr);
 
 }}} // !cube::gl::renderer
 

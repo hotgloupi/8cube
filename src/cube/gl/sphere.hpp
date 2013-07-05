@@ -3,10 +3,12 @@
 
 # include "vector.hpp"
 
+# include <cube/api.hpp>
+
 namespace cube { namespace gl { namespace sphere {
 
 	template<typename T>
-	struct Sphere
+	struct CUBE_API Sphere
 	{
 	public:
 		typedef vector::Vector3<T> vec3;
@@ -30,6 +32,7 @@ namespace cube { namespace gl { namespace sphere {
 	typedef Sphere<uint64_t> Sphereul;
 
 	template<typename T>
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, Sphere<T> const& sphere);
 
 }}}

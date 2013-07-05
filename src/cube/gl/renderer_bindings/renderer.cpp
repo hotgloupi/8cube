@@ -1,15 +1,15 @@
-#include <wrappers/boost/python.hpp>
-
+#include "exports.hpp"
 #include "PainterWithProxy.hpp"
 
+#include <wrappers/boost/python.hpp>
+
+#include "../exception.hpp"
 #include "../renderer/Renderer.hpp"
 #include "../renderer/ShaderGenerator.hpp"
 #include "../renderer/ShaderProgram.hpp"
 #include "../renderer/Texture.hpp"
 #include "../renderer/VertexBufferAttribute.hpp"
 #include "../renderer/VertexBuffer.hpp"
-
-#include "../exception.hpp"
 
 namespace {
 

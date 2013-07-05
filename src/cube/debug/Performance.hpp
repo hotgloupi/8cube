@@ -3,6 +3,8 @@
 
 # include "Section.hpp"
 
+# include <cube/api.hpp>
+
 # include <cassert>
 # include <memory>
 # include <string>
@@ -10,7 +12,7 @@
 
 namespace cube { namespace debug {
 
-	class Performance
+	class CUBE_API Performance
 	{
 	public:
 		typedef unsigned int id_type;

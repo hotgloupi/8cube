@@ -21,7 +21,7 @@ namespace cube { namespace gl { namespace renderer {
 	 *
 	 * This is an abstract class that should be implemented per renderer basis.
 	 */
-	class Painter
+	class CUBE_API Painter
 		: private boost::noncopyable
 	{
 	private:
@@ -251,5 +251,3 @@ namespace cube { namespace gl { namespace renderer {
 }}}
 
 #endif
-
-

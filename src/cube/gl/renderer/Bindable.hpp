@@ -7,7 +7,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class Bindable
+	class CUBE_API Bindable
 	{
 	private:
 		etc::size_type __bound;

@@ -6,12 +6,14 @@
 # include "vector.hpp"
 # include "color.hpp"
 
+# include <cube/api.hpp>
+
 # include <iosfwd>
 # include <memory>
 
 namespace cube { namespace gl { namespace mesh {
 
-	class Mesh
+	class CUBE_API Mesh
 	{
 	public:
 		typedef vector::Vector3<float>  vertex_t;
@@ -140,6 +142,7 @@ namespace cube { namespace gl { namespace mesh {
 			std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
 	};
 
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
 
 }}}

@@ -15,7 +15,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class VertexBuffer
+	class CUBE_API VertexBuffer
 		: public Bindable
 	{
 	public:
@@ -246,4 +246,3 @@ namespace cube { namespace gl { namespace renderer {
 }}} // !cube::gl::renderer
 
 #endif
-

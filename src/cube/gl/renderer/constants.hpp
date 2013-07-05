@@ -1,6 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_CONSTANTS_HPP
 # define CUBE_GL_RENDERER_CONSTANTS_HPP
 
+# include <cube/api.hpp>
 # include <cube/gl/matrix.hpp>
 
 # include <cstdint>
@@ -29,6 +30,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, Mode mode);
 
 	/**
@@ -45,6 +47,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, MatrixKind kind);
 
 	enum class BufferBit : int
@@ -76,6 +79,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ShaderType const type);
 
 	enum class ShaderParameterType
@@ -95,6 +99,7 @@ namespace cube { namespace gl { namespace renderer {
 		sampler1DShadow, sampler2DShadow,
 	};
 	// XXX
+	// CUBE_API
 	// std::ostream&
 	// operator <<(std::ostream& out, ShaderParameterType const type);
 
@@ -113,6 +118,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
 	std::ostream& operator<<(std::ostream& out, DrawMode const mode);
 
 	enum class ContentType
@@ -127,6 +133,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value,
 	};
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ContentType const type);
 
 	enum class ContentPacking
@@ -162,6 +169,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ContentHint const hint);
 
 	enum class ContentKind
@@ -176,6 +184,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ContentKind const kind);
 
 	enum class PixelFormat

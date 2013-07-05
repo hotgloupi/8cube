@@ -9,7 +9,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	///////////////////////////////////////////////////////////////////////////
 	// State class
-	struct State
+	struct CUBE_API State
 	{
 	public:
 		Mode const mode;

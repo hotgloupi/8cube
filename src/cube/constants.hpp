@@ -1,6 +1,8 @@
 #ifndef  CUBE_CONSTANTS_HPP
 # define CUBE_CONSTANTS_HPP
 
+# include <cube/api.hpp>
+
 # include <string>
 
 namespace cube { namespace constants {
@@ -8,6 +10,7 @@ namespace cube { namespace constants {
 	namespace system {
 
 		/// Retrieve the current user home directory
+		CUBE_API
 		std::string const& home_directory();
 
 		/**
@@ -16,6 +19,7 @@ namespace cube { namespace constants {
 		 * This function will use the environment variable
 		 * `CUBE_CONFIG_DIRECTORY_NAME` if available.
 		 */
+		CUBE_API
 		std::string const& config_directory();
 
 	}
@@ -34,6 +38,7 @@ namespace cube { namespace constants {
 		 * @throw When you get the name while it has not been set, or if you
 		 *        try to set it twice.
 		 */
+		CUBE_API
 		std::string const& name(std::string const& name = "");
 
 		/**
@@ -41,6 +46,7 @@ namespace cube { namespace constants {
 		 *
 		 * @note Rely on `system::config_directory()` and `application::name()`.
 		 */
+		CUBE_API
 		std::string const& config_directory();
 
 	}

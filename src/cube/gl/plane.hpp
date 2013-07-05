@@ -3,6 +3,8 @@
 
 # include <iosfwd>
 
+# include <cube/api.hpp>
+
 # include "vector.hpp"
 
 namespace cube { namespace gl { namespace plane {
@@ -24,7 +26,7 @@ namespace cube { namespace gl { namespace plane {
 	 * @note that the magnitude is never zero, even for a null plane.
 	 */
 	template<typename T>
-	struct Plane
+	struct CUBE_API Plane
 	{
 	public:
 		typedef vector::Vector3<T>      vec3;
@@ -88,6 +90,7 @@ namespace cube { namespace gl { namespace plane {
 	typedef Plane<uint64_t> Planeul;
 
 	template<typename T>
+	CUBE_API
 	std::ostream& operator <<(std::ostream& out, Plane<T> const& plane);
 
 }}}

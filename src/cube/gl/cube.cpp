@@ -1,5 +1,7 @@
 #include "cube.hpp"
 
+#include <cube/api.hpp>
+
 #include <iostream>
 
 namespace cube { namespace gl { namespace cube {

@@ -1,6 +1,8 @@
-#include <wrappers/boost/python.hpp>
+#include "exports.hpp"
 
 #include "../renderer/Drawable.hpp"
+
+#include <wrappers/boost/python.hpp>
 
 namespace cube { namespace gl { namespace renderer_bindings {
 
@@ -16,4 +18,3 @@ namespace cube { namespace gl { namespace renderer_bindings {
 	}
 
 }}}
-

@@ -5,7 +5,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class Drawable
+	class CUBE_API Drawable
 	{
 	public:
 		virtual ~Drawable();

@@ -4,6 +4,8 @@
 # include "fwd.hpp"
 # include "vector.hpp"
 
+# include <cube/api.hpp>
+
 # include <etc/types.hpp>
 
 # include <glm/glm.hpp>
@@ -71,6 +73,7 @@ namespace cube { namespace gl { namespace matrix {
 
 }}}
 
+CUBE_API
 std::ostream&
 operator <<(std::ostream& out,
             cube::gl::matrix::Matrix44f const& m);

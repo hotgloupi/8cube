@@ -1,3 +1,5 @@
+#include <cube/api.hpp>
+
 #include <wrappers/boost/python.hpp>
 
 namespace cube { namespace units {

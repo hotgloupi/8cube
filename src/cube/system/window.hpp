@@ -1,6 +1,7 @@
 #ifndef  CUBE_SYSTEM_WINDOW_HPP
 # define CUBE_SYSTEM_WINDOW_HPP
 
+# include <cube/api.hpp>
 # include <cube/gl/fwd.hpp>
 # include <cube/gl/renderer/fwd.hpp>
 # include <cube/system/fwd.hpp>
@@ -12,13 +13,14 @@ namespace cube { namespace system { namespace window {
 
 	class Window;
 
+	CUBE_API
 	std::unique_ptr<Window>
 	create_window(std::string const& title,
 	              etc::size_type const width,
 	              etc::size_type const height,
 	              gl::renderer::Name const name = gl::renderer::Name::OpenGL);
 
-	class Window
+	class CUBE_API Window
 	{
 	private:
 		struct Impl;

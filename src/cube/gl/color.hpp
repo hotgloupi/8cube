@@ -4,6 +4,8 @@
 # include "fwd.hpp"
 # include "content_traits.hpp"
 
+# include <cube/api.hpp>
+
 # include <iosfwd>
 # include <limits>
 # include <string>
@@ -11,9 +13,11 @@
 namespace cube { namespace gl { namespace color {
 
 	template<typename T>
+	CUBE_API
 	Color3<T> const& parse_color3(std::string const& s);
 
 	template<typename T>
+	CUBE_API
 	Color4<T> const& parse_color4(std::string const& s);
 
 	template<typename T>
@@ -40,7 +44,7 @@ namespace cube { namespace gl { namespace color {
 
 
 
-	template<typename T> struct Color3
+	template<typename T> struct CUBE_API Color3
 	{
 		typedef T component_t;
 		static unsigned int const arity = 3;
@@ -109,7 +113,7 @@ namespace cube { namespace gl { namespace color {
 	};
 
 
-	template<typename T> struct Color4
+	template<typename T> struct CUBE_API Color4
 	{
 		typedef T component_t;
 		static unsigned int const arity = 4;
@@ -156,9 +160,9 @@ namespace cube { namespace gl { namespace color {
 		}
 	};
 
-#define CUBE_GL_COLOR_DECLARE_TYPE(type, suffix)                             \
-    typedef Color3<type> Color3 ## suffix;                                   \
-    typedef Color4<type> Color4 ## suffix;                                   \
+#define CUBE_GL_COLOR_DECLARE_TYPE(type, suffix)                              \
+    typedef Color3<type> Color3 ## suffix;                                    \
+    typedef Color4<type> Color4 ## suffix;                                    \
   /**/
 
 	CUBE_GL_COLOR_DECLARE_TYPE(float, f);
@@ -167,9 +171,12 @@ namespace cube { namespace gl { namespace color {
 #undef CUBE_GL_COLOR_DECLARE_TYPE
 
 	template<typename T>
+	CUBE_API
 	std::ostream&
 	operator <<(std::ostream& out, Color3<T> const& c);
+
 	template<typename T>
+	CUBE_API
 	std::ostream&
 	operator <<(std::ostream& out, Color4<T> const& c);
 

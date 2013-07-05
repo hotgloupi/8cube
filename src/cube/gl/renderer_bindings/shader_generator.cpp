@@ -1,7 +1,9 @@
-#include <wrappers/boost/python.hpp>
+#include "exports.hpp"
 
 #include "../renderer/ShaderGenerator.hpp"
 #include "../renderer/Shader.hpp"
+
+#include <wrappers/boost/python.hpp>
 
 namespace cube { namespace gl { namespace renderer_bindings {
 	namespace py = boost::python;

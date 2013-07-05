@@ -1,5 +1,4 @@
-#include <wrappers/boost/python.hpp>
-
+#include "exports.hpp"
 #include "PainterWithProxy.hpp"
 
 #include "../renderer/Painter.hpp"
@@ -7,6 +6,8 @@
 #include "../renderer/ShaderProgram.hpp"
 #include "../renderer/VertexBuffer.hpp"
 #include "../renderer/VertexBufferAttribute.hpp"
+
+#include <wrappers/boost/python.hpp>
 
 namespace {
 

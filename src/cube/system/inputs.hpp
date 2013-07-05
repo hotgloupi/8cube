@@ -1,7 +1,9 @@
 #ifndef  CUBE_SYSTEM_INPUTS_HPP
 # define CUBE_SYSTEM_INPUTS_HPP
 
-# include <boost/signals2.hpp>
+# include <cube/api.hpp>
+
+# include <wrappers/boost/signals2.hpp>
 
 # include <iosfwd>
 
@@ -176,7 +178,7 @@ namespace cube { namespace system { namespace inputs {
 	};
 
 
-    struct Inputs : private boost::noncopyable
+    struct CUBE_API Inputs : private boost::noncopyable
     {
 # define CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(name, ...)                          \
 	public:                                                                   \
@@ -202,10 +204,12 @@ namespace cube { namespace system { namespace inputs {
 
 }}} // !cube::system::inputs
 
+CUBE_API
 std::ostream&
 operator <<(std::ostream& out,
             cube::system::inputs::KeyMod const mod);
 
+CUBE_API
 std::ostream&
 operator <<(std::ostream& out,
             cube::system::inputs::KeySym const mod);

@@ -11,14 +11,10 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class ShaderProgram;
-
-	typedef std::unique_ptr<ShaderProgram> ShaderProgramPtr;
-
 	/**
 	 * Represent a shader parameter.
 	 */
-	class ShaderProgramParameter
+	class CUBE_API ShaderProgramParameter
 	{
 	protected:
 		ShaderProgram&  _program;
@@ -55,7 +51,7 @@ namespace cube { namespace gl { namespace renderer {
 		void operator =(Texture& texture);
 	};
 
-	class ShaderProgram
+	class CUBE_API ShaderProgram
 		: public Bindable
 	{
 	public:

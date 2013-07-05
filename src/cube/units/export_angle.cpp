@@ -1,9 +1,12 @@
-#include <wrappers/boost/python.hpp>
-
 #include "angle.hpp"
+
+#include <cube/api.hpp>
+
+#include <wrappers/boost/python.hpp>
 
 namespace cube { namespace units {
 
+	CUBE_API
 	void export_angle()
 	{
 		namespace py = boost::python;

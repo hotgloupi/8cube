@@ -8,6 +8,7 @@
 # include "renderer/fwd.hpp"
 # include "sphere.hpp"
 
+# include <cube/api.hpp>
 # include <cube/units/angle.hpp>
 
 namespace cube { namespace gl { namespace frustum {
@@ -23,7 +24,7 @@ namespace cube { namespace gl { namespace frustum {
 	};
 
 	template<typename T>
-	struct Frustum
+	struct CUBE_API Frustum
 	{
 	public:
 		typedef vector::Vector2d      vec2d;

@@ -11,7 +11,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	class ShaderGeneratorProxy;
 
-	class ShaderGenerator
+	class CUBE_API ShaderGenerator
 	{
 	protected:
 		Renderer& _renderer;
@@ -34,7 +34,7 @@ namespace cube { namespace gl { namespace renderer {
 		std::string source(Proxy const& p) const = 0;
 	};
 
-	class ShaderRoutine
+	class CUBE_API ShaderRoutine
 	{
 	public:
 		virtual ~ShaderRoutine();
@@ -47,10 +47,15 @@ namespace cube { namespace gl { namespace renderer {
 		                   std::string const& name) const = 0;
 	};
 
-	class ShaderGeneratorProxy
+	class CUBE_API ShaderGeneratorProxy
 	{
 	public:
-		typedef std::pair<ShaderParameterType, std::string> Parameter;
+		struct Parameter
+		{
+			ShaderParameterType type;
+			std::string name;
+			ContentKind content_kind;
+		};
 
 	public:
 		ShaderType const        type;

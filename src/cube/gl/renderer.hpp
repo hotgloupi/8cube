@@ -9,6 +9,8 @@
 # include "renderer/Renderer.hpp"
 # include "renderer/VertexBuffer.hpp"
 
+# include <cube/api.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	///////////////////////////////////////////////////////////////////////////
@@ -17,6 +19,7 @@ namespace cube { namespace gl { namespace renderer {
 	/**************************************************************************
 	 * Create a renderer.
 	 */
+	CUBE_API
 	RendererPtr
 	create_renderer(cube::gl::viewport::Viewport const& vp,
 	                Name const name = Name::OpenGL);
@@ -26,6 +29,7 @@ namespace cube { namespace gl { namespace renderer {
 	 *
 	 * @note You should use this only if you need multiple shader generators.
 	 */
+	CUBE_API
 	ShaderGeneratorPtr
 	create_shader_generator(Renderer& renderer);
 

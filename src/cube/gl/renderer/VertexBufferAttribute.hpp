@@ -47,7 +47,7 @@ namespace cube { namespace gl { namespace renderer {
 	 * @note This class is "unsafe" in some ways for performance reasons. @see
 	 *       each constructor for warnings about memory management.
 	 */
-	class VertexBufferAttribute
+	class CUBE_API VertexBufferAttribute
 	{
 	public:
 		ContentKind const           kind;
@@ -224,4 +224,3 @@ namespace cube { namespace gl { namespace renderer {
 }}}
 
 #endif
-

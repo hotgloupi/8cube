@@ -3,6 +3,8 @@
 
 # include "fwd.hpp"
 
+# include <cube/api.hpp>
+
 # include <memory>
 
 namespace cube { namespace resource {
@@ -12,7 +14,7 @@ namespace cube { namespace resource {
 	/**
 	 * @brief Base class for all resource kind.
 	 */
-	class Resource
+	class CUBE_API Resource
 		: public std::enable_shared_from_this<Resource>
 	{
 	private:

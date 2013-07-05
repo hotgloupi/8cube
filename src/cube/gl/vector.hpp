@@ -4,6 +4,8 @@
 # include "fwd.hpp"
 # include "content_traits.hpp"
 
+# include <cube/api.hpp>
+
 # include <glm/glm.hpp>
 # include <glm/core/func_geometric.hpp>
 # include <glm/core/type_vec2.hpp>
@@ -83,6 +85,7 @@ namespace cube { namespace gl { namespace vector {                            \
 	typedef Vector ## __arity<__type> Vector ## __arity ## __suffix;          \
 }}}                                                                           \
 namespace glm { namespace detail {                                            \
+	CUBE_API                                                                  \
 	std::ostream& operator <<(std::ostream& out,                              \
 	                          tvec ## __arity<__type> const& value);          \
 }}                                                                            \

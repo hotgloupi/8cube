@@ -1,10 +1,12 @@
-#include <wrappers/boost/python.hpp>
+#include "exports.hpp"
 
 #include "../color.hpp"
 #include "../exception.hpp"
 #include "../renderer/VertexBufferAttribute.hpp"
 
 #include <etc/to_string.hpp>
+
+#include <wrappers/boost/python.hpp>
 
 namespace cube { namespace gl { namespace renderer_bindings {
 

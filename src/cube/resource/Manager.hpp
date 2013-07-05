@@ -3,12 +3,14 @@
 
 # include "Resource.hpp"
 
+# include <cube/api.hpp>
+
 # include <memory>
 # include <string>
 
 namespace cube { namespace resource {
 
-	class Manager
+	class CUBE_API Manager
 	{
 	private:
 		struct Impl;

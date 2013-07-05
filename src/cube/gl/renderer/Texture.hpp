@@ -8,7 +8,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	class Texture
+	class CUBE_API Texture
 		: public Bindable
 	{
 	public:

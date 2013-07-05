@@ -3,15 +3,12 @@
 
 # include "vector.hpp"
 
+# include <cube/api.hpp>
 # include <cube/units/angle.hpp>
-
-//XXX
-#include <boost/units/io.hpp>
-#include <iostream>
 
 namespace cube { namespace gl { namespace camera {
 
-	struct Camera
+	struct CUBE_API Camera
 	{
 	public:
 		typedef vector::Vector3f vec3;

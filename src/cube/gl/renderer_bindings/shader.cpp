@@ -1,6 +1,8 @@
-#include <wrappers/boost/python.hpp>
+#include "exports.hpp"
 
 #include "../renderer/Shader.hpp"
+
+#include <wrappers/boost/python.hpp>
 
 namespace cube { namespace gl { namespace renderer_bindings {
 

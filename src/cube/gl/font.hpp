@@ -4,6 +4,7 @@
 # include "renderer/fwd.hpp"
 # include "renderer/Bindable.hpp"
 
+# include <cube/api.hpp>
 # include <cube/resource/Resource.hpp>
 
 # include <etc/compiler.hpp>
@@ -20,7 +21,7 @@ namespace cube { namespace gl { namespace font {
 
 	struct Infos;
 
-	class Font
+	class CUBE_API Font
 		: public resource::Resource
 	{
 	private:
@@ -63,12 +64,14 @@ namespace cube { namespace gl { namespace font {
 	 *
 	 * @note This function will silently ignore any errors and return 0.
 	 */
+	CUBE_API
 	etc::size_type
 	get_faces_count(std::string const& path) ETC_NOEXCEPT;
 
 	/**
 	 * @brief Returns wether or not the file should be loadable.
 	 */
+	CUBE_API
 	inline
 	bool is_valid(std::string const& path) ETC_NOEXCEPT
 	{
@@ -80,6 +83,7 @@ namespace cube { namespace gl { namespace font {
 	 *
 	 * This function only return a valid Infos struct, or throws on any error.
 	 */
+	CUBE_API
 	std::unique_ptr<Infos>
 	get_face_infos(std::string const& path,
 	               etc::size_type face_index = 0);
@@ -90,6 +94,7 @@ namespace cube { namespace gl { namespace font {
 	 * This function does return a valid list of Infos structures or throws on
 	 * any error.
 	 */
+	CUBE_API
 	std::list<std::unique_ptr<Infos>>
 	get_infos(std::string const& path);
 
@@ -104,7 +109,7 @@ namespace cube { namespace gl { namespace font {
 		bold_italic = 3,
 	};
 
-	struct Infos
+	struct CUBE_API Infos
 	{
 	public:
 		std::string const   path;
@@ -157,12 +162,14 @@ namespace cube { namespace gl { namespace font {
 	/**
 	 * @brief print operator on Font.
 	 */
+	CUBE_API
 	std::ostream&
 	operator <<(std::ostream& out, Infos const& rhs);
 
 	/**
 	 * @brief print operator on Style enum.
 	 */
+	CUBE_API
 	std::ostream&
 	operator <<(std::ostream& out, Style const rhs);
 

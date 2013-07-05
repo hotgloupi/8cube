@@ -4,6 +4,8 @@
 # include "fwd.hpp"
 # include "renderer/fwd.hpp"
 
+# include <cube/api.hpp>
+
 # include <etc/types.hpp>
 
 # include <boost/noncopyable.hpp>
@@ -12,7 +14,7 @@
 
 namespace cube { namespace gl { namespace text {
 
-	class Text
+	class CUBE_API Text
 		: private boost::noncopyable
 	{
 	private:

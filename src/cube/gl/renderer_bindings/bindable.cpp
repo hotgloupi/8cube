@@ -1,3 +1,5 @@
+#include "exports.hpp"
+
 #include <wrappers/boost/python.hpp>
 
 #include "../renderer/Bindable.hpp"
