@@ -228,15 +228,6 @@ def configure(project, build):
             c.libraries.simple(name, compiler, shared=True) for name in ['z', 'bz2',]
         )
 
-    libetc = compiler.link_library(
-        'libetc',
-        rglob("src/etc/*.cpp"),
-        directory  = 'release/lib',
-        libraries = base_libraries + boost.libraries,
-        defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
-        shared = True #and not platform.IS_MACOSX #bug with tup on macosx
-    )
-
     libglew = compiler.link_static_library(
         'libglew',
         ['src/glew/glew.c'],
@@ -247,20 +238,42 @@ def configure(project, build):
 
     graphic_libraries.insert(0, libglew)
 
+
+    stl_pch = compiler.generate_precompiled_header(
+        "src/wrappers/stl.hpp",
+        force_include = True,
+    )
+
+    libetc = compiler.link_library(
+        'libetc',
+        rglob("src/etc/*.cpp"),
+        directory  = 'release/lib',
+        libraries = base_libraries + boost.libraries,
+        defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
+        shared = True,
+        precompiled_headers = [stl_pch]
+    )
 ################### libcube
+    boost_python_pch = compiler.generate_precompiled_header(
+        "src/wrappers/boost/python.hpp",
+        libraries = boost.libraries + python.libraries,
+    )
+
+    boost_signals2_pch = compiler.generate_precompiled_header(
+        "src/wrappers/boost/signals2.hpp",
+        libraries = boost.libraries
+    )
 
     libcube = compiler.link_dynamic_library(
         'libcube',
         rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
         libraries=[libetc] + graphic_libraries + boost.libraries + python.libraries,
+        precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
+        defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
     )
 
 
-    boost_python_pch = compiler.generate_precompiled_header(
-        "src/wrappers/boost/python.hpp",
-        libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-    )
 
     for binding in rglob("cube/*.py++", dir='src'):
         t = compiler.link_dynamic_library(
@@ -269,11 +282,8 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-            precompiled_headers = [boost_python_pch],
+            precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
         )
-        #t.additional_inputs.append(boost_python_pch)
-        #for object_target in t.dependencies[0].dependencies:
-        #    object_target.additional_inputs.append(boost_python_pch)
 
 ################### libcubeapp
 
@@ -282,6 +292,7 @@ def configure(project, build):
         (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
         libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
+        precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
     )
 
     for binding in rglob("cubeapp/*.py++", dir='src'):
@@ -291,6 +302,7 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+            precompiled_headers = [boost_python_pch, stl_pch],
         )
 
     infinit_cube = compiler.link_executable(
@@ -319,6 +331,7 @@ def configure(project, build):
             [path.join('tests', test + '.cpp')],
             directory = 'tests',
             libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+            precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
         )
 
 
