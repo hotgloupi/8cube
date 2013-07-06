@@ -1,10 +1,10 @@
-#include <wrappers/boost/python.hpp>
-
 #include "font.hpp"
 #include "renderer/Texture.hpp"
 #include "renderer/Renderer.hpp"
 #include "renderer.hpp"
 #include "renderer/VertexBuffer.hpp"
+
+#include <wrappers/boost/python.hpp>
 
 namespace py = boost::python;
 using namespace cube::gl;

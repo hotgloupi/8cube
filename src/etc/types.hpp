@@ -4,7 +4,7 @@
 # include "api.hpp"
 
 # include <cstddef>
-# include <stdint.h>
+# include <cstdint>
 # include <string>
 # include <typeinfo>
 

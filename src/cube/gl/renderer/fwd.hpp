@@ -18,6 +18,7 @@ namespace cube { namespace gl { namespace renderer {
 	class ShaderGeneratorProxy;
 	class ShaderProgram;
 	class ShaderProgramParameter;
+	class ShaderRoutine;
 	struct State;
 	class Texture;
 	class VertexBuffer;
@@ -31,6 +32,7 @@ namespace cube { namespace gl { namespace renderer {
 	typedef std::unique_ptr<ShaderGenerator>        ShaderGeneratorPtr;
 	typedef std::unique_ptr<ShaderGeneratorProxy>   ShaderGeneratorProxyPtr;
 	typedef std::unique_ptr<ShaderProgram>          ShaderProgramPtr;
+	typedef std::unique_ptr<ShaderRoutine>          ShaderRoutinePtr;
 	typedef std::unique_ptr<Texture>                TexturePtr;
 	typedef std::unique_ptr<VertexBuffer>           VertexBufferPtr;
 	typedef std::unique_ptr<VertexBufferAttribute>  VertexBufferAttributePtr;

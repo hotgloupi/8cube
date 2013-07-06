@@ -43,6 +43,7 @@ namespace cube { namespace resource {
 		if (not etc::path::is_directory(abs))
 			throw Exception{"The path '" + path + "' does not refer to a valid directory"};
 		_this->paths.push_back(abs);
+		return *this;
 	}
 
 	void

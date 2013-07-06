@@ -1,4 +1,3 @@
-
 #include <wrappers/boost/python.hpp>
 
 #include "vector.hpp"

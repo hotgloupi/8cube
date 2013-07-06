@@ -1,5 +1,5 @@
-#ifndef  _PYTHON_BOOST_HPP
-# define _PYTHON_BOOST_HPP
+#ifndef  WRAPPERS_PYTHON_BOOST_HPP
+# define WRAPPERS_PYTHON_BOOST_HPP
 
 /**
  * This Macro can be used to link statically with python. Unfortunatly,
@@ -21,6 +21,16 @@
 int swprintf (wchar_t *, size_t, const wchar_t *, ...);
 
 # endif
+
+// Workaround to remove silly macros defined somewhere by Python
+# include <Python.h>
+# undef toupper
+# undef tolower
+# undef isspace
+# undef islower
+# undef isupper
+# undef isalpha
+# undef isalnum
 
 # include <boost/python.hpp>
 
