@@ -1,1 +1,5 @@
-set ts=4 sts=4 sw=4 noexpandtab
+let g:clang_user_options .= ' -I' . getcwd() . '/src'
+
+
+au BufNewFile,BufRead *.[ch]pp,*.cc,*.hh,*.hxx set syntax=cpp11 ts=4 sts=4 sw=4 noexpandtab
+au BufNewFile,BufRead *.py set syntax=python ts=4 sts=4 sw=4 expandtab
