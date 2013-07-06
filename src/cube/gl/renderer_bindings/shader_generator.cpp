@@ -53,7 +53,7 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			ShaderRoutineWrap,
 			boost::noncopyable
 		>("ShaderRoutine")
-			.def("is_applicable", py::pure_virtual(&ShaderRoutine::is_applicable))
+			.def("is_applicable", py::pure_virtual(&ShaderRoutineWrap::is_applicable))
 			.def("source", py::pure_virtual(&ShaderRoutineWrap::source))
 		;
 	}

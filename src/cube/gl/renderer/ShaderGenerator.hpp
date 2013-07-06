@@ -99,6 +99,11 @@ namespace cube { namespace gl { namespace renderer {
 		       std::string const& name,
 		       ContentKind const content_kind = ContentKind::_max_value);
 
+		/**
+		 * @brief Add a routine.
+		 */
+		ShaderGeneratorProxy&
+		routine(ShaderRoutinePtr routine);
 	public:
 		/**
 		 * @brief Retreive the generated source code.
