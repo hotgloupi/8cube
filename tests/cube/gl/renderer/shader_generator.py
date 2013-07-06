@@ -24,11 +24,25 @@ class AmbiantRoutine(cube.gl.renderer.ShaderRoutine):
         super(AmbiantRoutine, self).__init__()
 
     def source(self, proxy, name):
-        return super(AmbiantRoutine, self).source(proxy, name)
+        return """void %(routine_name)s()
+{
+    cube_FragColor = %(var_name)s
+}
+        """ % {
+            'routine_name': name,
+            'var_name': 'cube_AmbiantColor',
+        }
+
+    def is_applicable(self, shader_type):
+        return shader_type in [
+            cube.gl.renderer.ShaderType.vertex,
+        ]
+
+
 
 d = AmbiantRoutine()
 print("source =", d.source(gen, "oif"))
-print("is applicable =", d.is_applicable())
+print("is applicable =", d.is_applicable(cube.gl.renderer.ShaderType.vertex))
 
 print(gen.source())
 print(gen.shader())

@@ -103,6 +103,17 @@ namespace cube { namespace gl { namespace renderer {
 	// std::ostream&
 	// operator <<(std::ostream& out, ShaderParameterType const type);
 
+	enum class ShaderLanguage
+	{
+		glsl = 0,
+		hlsl,
+		cg,
+
+		_max_value
+	};
+	// XXX
+	//std::ostream& operator <<(std::ostream& out, ShaderLanguage const lang);
+
 	enum class DrawMode
 	{
 		points,
