@@ -81,32 +81,56 @@ class FreeType2(Dependency):
 
     @property
     def targets(self):
+        copy_target = Target(
+            'freetype2/source/autogen.sh',
+            ShellCommand(
+                "Copy Freetype2 sources",
+                [
+                    'cp', '-r', path.absolute(self.source_directory) + '/',
+                    self.build_path('source')
+                ]
+            )
+        )
+
+        autogen_target = Target(
+            'freetype2/source/configure',
+            ShellCommand(
+                "Generating configure script",
+                ['./autogen.sh'],
+                working_directory = self.build_path('source'),
+                dependencies = [copy_target]
+            ),
+        )
+
         configure_target = Target(
-            'freetype2/build/Makefile',
+            'freetype2/source/Makefile',
             ShellCommand(
                 "Configuring Freetype2",
                 [
-                    path.absolute(self.source_directory, 'configure'),
+                    self.build_path('source/configure'),
                     '--prefix', self.build_path('install')
                 ],
-                working_directory = self.build_path('build')
-            )
+                working_directory = self.build_path('source'),
+                dependencies = [autogen_target]
+            ),
         )
+
         build_target = Target(
-            'freetype2/build/freetype-config',
+            'freetype2/source/freetype-config',
             ShellCommand(
                 "Building FreeType2",
                 ['make'],
-                working_directory = self.build_path('build'),
+                working_directory = self.build_path('source'),
                 dependencies = [configure_target]
-            )
+            ),
         )
+
         install_target = Target(
             path.join('freetype2/install/lib', self.library_filename),
             ShellCommand(
                 "Installing FreeType2",
                 ['make', 'install'],
-                working_directory = self.build_path('build'),
+                working_directory = self.build_path('source'),
                 dependencies = [build_target]
             )
         )
