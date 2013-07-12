@@ -11,6 +11,19 @@ namespace cube { namespace gl { namespace renderer {
 
 	class ShaderGeneratorProxy;
 
+	/**
+	 * @brief Abstract shader generator class.
+	 *
+	 * This class is responsible for generating shaders according to the
+	 * current renderer and shader language. The end user should not manipulate
+	 * this class directly but through the renderer method `generate_shader()`,
+	 *
+	 * The shader generator itself holds no state, it just convert a `Proxy` to
+	 * the shader language. Thus, this class is implemented for each supported
+	 * shading language.
+	 *
+	 * @see ShaderGeneratorProxy for shader generation.
+	 */
 	class CUBE_API ShaderGenerator
 	{
 	protected:
@@ -28,12 +41,18 @@ namespace cube { namespace gl { namespace renderer {
 		typedef std::unique_ptr<Proxy> ProxyPtr;
 
 	public:
+		/**
+		 * Create a new `Proxy` to generate a shader of type `type`.
+		 */
 		Proxy begin(ShaderType const type);
 
 		virtual
 		std::string source(Proxy const& p) const = 0;
 	};
 
+	/**
+	 * XXX doc
+	 */
 	class CUBE_API ShaderRoutine
 	{
 	public:
@@ -47,6 +66,9 @@ namespace cube { namespace gl { namespace renderer {
 		                   std::string const& name) const = 0;
 	};
 
+	/**
+	 * XXX doc
+	 */
 	class CUBE_API ShaderGeneratorProxy
 	{
 	public:
@@ -84,6 +106,9 @@ namespace cube { namespace gl { namespace renderer {
 
 		/**
 		 * @brief Add an input attribute.
+		 *
+		 * @note Some input attributes are required depending on the shader
+		 * type. XXX
 		 */
 		ShaderGeneratorProxy&
 		input(ShaderParameterType const type,
@@ -92,6 +117,9 @@ namespace cube { namespace gl { namespace renderer {
 
 		/**
 		 * @brief Add an output attribute.
+		 *
+		 * @note Some input attributes are required depending on the shader
+		 * type. XXX
 		 */
 		ShaderGeneratorProxy&
 		output(ShaderParameterType const type,
