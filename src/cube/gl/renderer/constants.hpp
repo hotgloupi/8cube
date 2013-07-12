@@ -342,8 +342,6 @@ namespace cube { namespace gl { namespace renderer {
 		}
 	}
 
-
 }}} // !cube::gl::renderer
 
 #endif
-

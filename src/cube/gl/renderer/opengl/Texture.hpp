@@ -54,4 +54,3 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 }}}}
 
 #endif
-
