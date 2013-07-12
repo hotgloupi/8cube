@@ -52,9 +52,9 @@ class AmbiantRoutine(cube.gl.renderer.ShaderRoutine):
 
 
 
-d = AmbiantRoutine()
-print("source =", d.source(gen, "oif"))
-print("is applicable =", d.is_applicable(cube.gl.renderer.ShaderType.vertex))
+#d = AmbiantRoutine()
+#print("source =", d.source(gen, "oif"))
+#print("is applicable =", d.is_applicable(cube.gl.renderer.ShaderType.vertex))
 
 print(gen.source())
-print(gen.shader())
+#print(gen.shader())
