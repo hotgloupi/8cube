@@ -18,6 +18,17 @@ namespace cube { namespace gl { namespace renderer_bindings {
 		>("ShaderGenerator", py::no_init)
 		;
 
+		typedef
+			ShaderGeneratorProxy&
+			(ShaderGeneratorProxy::*set_param_t)(ShaderParameterType const,
+			                                     std::string const&);
+
+		typedef
+			ShaderGeneratorProxy&
+			(ShaderGeneratorProxy::*set_param_kind_t)(ShaderParameterType const,
+			                                          std::string const&,
+			                                          ContentKind const);
+
 		py::class_<
 			ShaderGeneratorProxy
 		>("ShaderGeneratorProxy", py::no_init)
@@ -27,9 +38,31 @@ namespace cube { namespace gl { namespace renderer_bindings {
 			.def_readonly("outputs", &ShaderGeneratorProxy::outputs)
 			.def("source", &ShaderGeneratorProxy::source)
 			.def("shader", &ShaderGeneratorProxy::shader)
-			.def("input", &ShaderGeneratorProxy::input, py::return_internal_reference<>())
-			.def("output", &ShaderGeneratorProxy::output, py::return_internal_reference<>())
-			.def("parameter", &ShaderGeneratorProxy::parameter, py::return_internal_reference<>())
+			.def(
+				"input",
+				static_cast<set_param_t>(&ShaderGeneratorProxy::input),
+				py::return_internal_reference<>()
+			)
+			.def(
+				"input",
+				static_cast<set_param_kind_t>(&ShaderGeneratorProxy::input),
+				py::return_internal_reference<>()
+			)
+			.def(
+				"output",
+				static_cast<set_param_t>(&ShaderGeneratorProxy::output),
+				py::return_internal_reference<>()
+			)
+			.def(
+				"output",
+				static_cast<set_param_kind_t>(&ShaderGeneratorProxy::output),
+				py::return_internal_reference<>()
+			)
+			.def(
+				"parameter",
+				static_cast<set_param_t>(&ShaderGeneratorProxy::parameter),
+				py::return_internal_reference<>()
+			)
 		;
 
 

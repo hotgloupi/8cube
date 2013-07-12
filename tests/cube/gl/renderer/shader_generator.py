@@ -7,15 +7,27 @@ w = cube.system.create_window(
 )
 
 gen = w.renderer.generate_shader(
-    cube.gl.renderer.ShaderType.vertex
-).input(
-    cube.gl.renderer.ShaderParameterType.vec3, "cube_Position"
-).input(
-    cube.gl.renderer.ShaderParameterType.vec3, "cube_TexCoord"
-).output(
-    cube.gl.renderer.ShaderParameterType.vec4, "cube_FragColor"
+    cube.gl.renderer.ShaderType.fragment
 ).parameter(
-    cube.gl.renderer.ShaderParameterType.vec4, "cube_DiffuseColor"
+    cube.gl.renderer.ShaderParameterType.vec4,
+    "cube_AmbiantColor"
+).parameter(
+    cube.gl.renderer.ShaderParameterType.vec4,
+    "cube_DiffuseColor"
+).parameter(
+    cube.gl.renderer.ShaderParameterType.vec4,
+    "cube_SpecularColor"
+).input(
+    cube.gl.renderer.ShaderParameterType.vec3,
+    "cube_VertexPosition",
+    cube.gl.renderer.ContentKind.vertex,
+).input(
+    cube.gl.renderer.ShaderParameterType.vec3,
+    "cube_TexCoord",
+    cube.gl.renderer.ContentKind.tex_coord0
+).output(
+    cube.gl.renderer.ShaderParameterType.vec4,
+    "cube_VertexColor"
 )
 
 class AmbiantRoutine(cube.gl.renderer.ShaderRoutine):
