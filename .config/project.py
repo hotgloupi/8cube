@@ -35,7 +35,11 @@ class Assimp(Dependency):
             'assimp/Makefile',
             ShellCommand(
                 "Configure Assimp",
-                ['cmake', path.absolute(self.source_directory)],
+                [
+                    'cmake',
+                    path.absolute(self.source_directory),
+                    '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary
+                ],
                 working_directory = self.build_path(),
             )
         )
