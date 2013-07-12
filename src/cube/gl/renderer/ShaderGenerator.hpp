@@ -113,7 +113,15 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderGeneratorProxy&
 		input(ShaderParameterType const type,
 		      std::string const& name,
-		      ContentKind const content_kind = ContentKind::_max_value);
+		      ContentKind const content_kind);
+
+		inline
+		ShaderGeneratorProxy&
+		input(ShaderParameterType const type,
+		      std::string const& name)
+		{
+			return this->input(type, name, ContentKind::_max_value);
+		}
 
 		/**
 		 * @brief Add an output attribute.
@@ -124,13 +132,22 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderGeneratorProxy&
 		output(ShaderParameterType const type,
 		       std::string const& name,
-		       ContentKind const content_kind = ContentKind::_max_value);
+		       ContentKind const content_kind);
+
+		inline
+		ShaderGeneratorProxy&
+		output(ShaderParameterType const type,
+		       std::string const& name)
+		{
+			return this->output(type, name, ContentKind::_max_value);
+		}
 
 		/**
 		 * @brief Add a routine.
 		 */
 		ShaderGeneratorProxy&
 		routine(ShaderRoutinePtr routine);
+
 	public:
 		/**
 		 * @brief Retreive the generated source code.
