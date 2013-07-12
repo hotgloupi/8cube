@@ -69,11 +69,10 @@ namespace cube { namespace gl { namespace renderer {
 
 	ShaderGeneratorProxy&
 	ShaderGeneratorProxy::parameter(ShaderParameterType const type,
-	                                std::string const& name,
-	                                ContentKind const content_kind)
+	                                std::string const& name)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->parameters.push_back({type, name, content_kind});
+		this->parameters.push_back({type, name, ContentKind::_max_value});
 		return *this;
 	}
 
