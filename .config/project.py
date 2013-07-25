@@ -16,6 +16,9 @@ from tupcfg import tools, path, platform
 from tupcfg.lang import cxx
 from tupcfg.lang import c
 
+from tupcfg.tools import glob, rglob, status
+from tupcfg import path
+
 class Assimp(Dependency):
 
     def __init__(self, compiler, source_directory, shared = True):
@@ -63,114 +66,21 @@ class Assimp(Dependency):
                 shared = self.shared,
                 search_binary_files = False,
                 include_directories = [
-                    path.join(self.source_directory, 'include')
+                    path.join(self.source_directory, 'include', abs = True)
                 ],
-                directories = [self.build_path('code')],
-                files = [self.build_path('code', self.library_filename)],
-                save_env_vars = False,
-            )
-        ]
-
-class FreeType2(Dependency):
-    def __init__(self, compiler, source_directory, shared = True):
-        super(FreeType2, self).__init__(
-            "FreeType2",
-            "freetype2",
-        )
-        self.source_directory = source_directory
-        self.compiler = compiler
-        self.shared = shared
-        ext = self.compiler.library_extension(shared)
-        self.library_filename = 'libfreetype.%s' % ext
-
-    @property
-    def targets(self):
-        copy_target = Target(
-            'freetype2/source/autogen.sh',
-            ShellCommand(
-                "Copy Freetype2 sources",
-                [
-                    'cp', '-r', path.absolute(self.source_directory) + '/',
-                    self.build_path('source')
-                ]
-            )
-        )
-
-        autogen_target = Target(
-            'freetype2/source/configure',
-            ShellCommand(
-                "Generating configure script",
-                ['./autogen.sh'],
-                working_directory = self.build_path('source'),
-                dependencies = [copy_target]
-            ),
-        )
-
-        configure_target = Target(
-            'freetype2/source/Makefile',
-            ShellCommand(
-                "Configuring Freetype2",
-                [
-                    self.build_path('source/configure'),
-                    '--prefix', self.build_path('install')
-                ],
-                working_directory = self.build_path('source'),
-                dependencies = [autogen_target]
-            ),
-        )
-
-        build_target = Target(
-            'freetype2/source/freetype-config',
-            ShellCommand(
-                "Building FreeType2",
-                ['make'],
-                working_directory = self.build_path('source'),
-                dependencies = [configure_target]
-            ),
-        )
-
-        install_target = Target(
-            path.join('freetype2/install/lib', self.library_filename),
-            ShellCommand(
-                "Installing FreeType2",
-                ['make', 'install'],
-                working_directory = self.build_path('source'),
-                dependencies = [build_target]
-            )
-        )
-        return [install_target]
-
-    @property
-    def libraries(self):
-        return [
-            cxx.Library(
-                'freetype2',
-                self.compiler,
-                shared = self.shared,
-                search_binary_files = False,
-                include_directories = [
-                    self.build_path('install', 'include', 'freetype2')
-                ],
-                directories = [self.build_path('install', 'lib')],
-                files = [self.build_path('install', 'lib', self.library_filename)],
+                directories = [self.build_path('code', abs = True)],
+                files = [self.build_path('code', self.library_filename, abs = True)],
                 save_env_vars = False,
             )
         ]
 
 def configure(project, build):
-    import sys
-    from tupcfg.tools import glob, rglob, status
-    from tupcfg import path
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
     status("Configuring project", project.env.NAME, '(%s)' % project.env.VERSION_NAME,
            'in', build.directory, '(%s)' % build_type)
 
     from tupcfg.lang import cxx
-    if platform.IS_WINDOWS:
-        Compiler = cxx.msvc.Compiler
-    else:
-        Compiler = cxx.gcc.Compiler
 
     if project.env.BUILD_TYPE == 'DEBUG':
         defines = [
@@ -188,25 +98,26 @@ def configure(project, build):
     if platform.IS_LINUX:
         defines += ['CUBE_WITH_GLX']
 
-    compiler = Compiler(
+    library_directories = [
+        #'/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib',
+        #'/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib/arm-linux-gnueabihf',
+        #'/home/hotgloupi/sandbox/raspberry/root/usr/lib',
+        #'/home/hotgloupi/sandbox/raspberry/root/usr/lib/arm-linux-gnueabihf',
+    ]
+    include_directories = [
+        path.join(build.directory, 'src'),
+#        '/home/hotgloupi/sandbox/raspberry/root/usr/include',
+#        '/home/hotgloupi/sandbox/raspberry/root/usr/include/arm-linux-gnueabihf',
+        path.absolute(project.root_dir, 'src'),
+        path.absolute(project.root_dir, 'src/glew'),
+    ]
+    compiler = cxx.find_compiler(
         project, build,
         position_independent_code = True,
         standard = 'c++11',
         defines = defines,
-#        library_directories = [
-#            '/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib',
-#            '/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib/arm-linux-gnueabihf',
-#            '/home/hotgloupi/sandbox/raspberry/root/usr/lib',
-#            '/home/hotgloupi/sandbox/raspberry/root/usr/lib/arm-linux-gnueabihf',
-#        ],
-        include_directories = [
-            path.join(build.directory, 'src'),
-#            '/home/hotgloupi/sandbox/raspberry/root/usr/include',
-#            '/home/hotgloupi/sandbox/raspberry/root/usr/include/arm-linux-gnueabihf',
-            path.absolute(project.root_dir, 'src'),
-            path.absolute(project.root_dir, 'src/glew'),
-        ],
-        stdlib = True, #platform.IS_MACOSX and 'libc++' or True,
+        library_directories = library_directories,
+        include_directories = include_directories,
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
@@ -215,19 +126,36 @@ def configure(project, build):
 #            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
 #        }
     )
-    status("CXX compiler is", compiler.binary)
+
+    c_compiler = c.find_compiler(project, build)
+
+    status("Using %s as C++ compiler" % compiler)
+    status("Using %s as C compiler" % c_compiler)
 
     assimp = build.add_dependency(Assimp(compiler, 'deps/assimp'))
-    freetype2 = build.add_dependency(FreeType2(compiler, 'deps/freetype2'))
+    freetype2 = build.add_dependency(c.libraries.FreetypeDependency(c_compiler, 'deps/freetype2'))
+    python = build.add_dependency(c.libraries.PythonDependency(
+        c_compiler,
+        'deps/cPython-3.3',
+        shared = True,
+        version = (3, 3)
+    ))
 
-    boost = cxx.libraries.BoostLibrary(
-        compiler,
-        components=['system', 'filesystem', 'python3', 'thread'],
-        preferred_shared=False,
-        python3_shared=True,
+    boost = build.add_dependency(
+        cxx.libraries.BoostDependency(
+            compiler,
+            'deps/Boost-1.54',
+            version = (1, 54),
+            python = python,
+            components = ['system', 'filesystem', 'python', 'thread'],
+            #preferred_shared = False,
+            #        python3_shared = True,
+        )
     )
+    compiler.include_directories.extend(tools.unique(
+        sum((l.include_directories for l in boost.libraries),  [])
+    ))
 
-    python = c.libraries.PythonLibrary(compiler, shared=True)
 
     sdl = c.libraries.SDLLibrary(
         compiler,
