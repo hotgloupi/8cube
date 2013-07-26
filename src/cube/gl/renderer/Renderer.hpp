@@ -76,7 +76,10 @@ namespace cube { namespace gl { namespace renderer {
 
 	// Internal methods to manipulate the state stack.
 	private:
+		CUBE_API_INTERNAL
 		void _push_state(State&& state);
+
+		CUBE_API_INTERNAL
 		void _pop_state();
 
 	/*************************************************************************

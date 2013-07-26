@@ -1,9 +1,9 @@
 #ifndef  CUBE_GL_FWD_HH
 # define CUBE_GL_FWD_HH
 
-# include <etc/types.hpp>
+# include <cube/api.hpp>
 
-# include <boost/config.hpp>
+# include <etc/types.hpp>
 
 namespace glm { namespace detail {
 
@@ -18,8 +18,8 @@ namespace cube { namespace gl {
 
 	namespace color {
 
-		template<typename T> struct Color3;
-		template<typename T> struct Color4;
+		template<typename T> struct CUBE_API Color3;
+		template<typename T> struct CUBE_API Color4;
 
 		typedef Color3<float> Color3f;
 		typedef Color4<float> Color4f;
@@ -28,14 +28,14 @@ namespace cube { namespace gl {
 
 	namespace font {
 
-		class Font;
+		class CUBE_API Font;
 
 	}
 
 	namespace frustum {
 
 		template<typename T>
-		struct Frustum;
+		struct CUBE_API Frustum;
 
 		typedef Frustum<float>    Frustumf;
 		typedef Frustum<double>   Frustumd;
@@ -49,15 +49,8 @@ namespace cube { namespace gl {
 
 	namespace matrix {
 
-# ifdef BOOST_NO_CXX11_TEMPLATE_ALIASES
-		template<typename T>
-		struct Matrix44
-			: public ::glm::detail::tmat4x4<T>
-		{};
-# else
 		template<typename T>
 		using Matrix44 = ::glm::detail::tmat4x4<T>;
-# endif
 
 		typedef Matrix44<float>    Matrix44f;
 		typedef Matrix44<double>   Matrix44d;
@@ -66,7 +59,7 @@ namespace cube { namespace gl {
 
 	namespace mesh {
 
-		class Mesh;
+		class CUBE_API Mesh;
 
 	}
 
@@ -79,7 +72,7 @@ namespace cube { namespace gl {
 
 	namespace text {
 
-		class Text;
+		class CUBE_API Text;
 
 	}
 
@@ -97,7 +90,7 @@ namespace cube { namespace gl {
 
 	namespace viewport {
 
-		struct Viewport;
+		struct CUBE_API Viewport;
 
 	}
 

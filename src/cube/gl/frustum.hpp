@@ -88,6 +88,7 @@ namespace cube { namespace gl { namespace frustum {
 		bool intersects(sphere_t const& sphere) const;
 
 	private:
+		CUBE_API_INTERNAL
 		inline
 		void _plane(PlanePosition const pos, plane_t const& p)
 		{
@@ -95,6 +96,7 @@ namespace cube { namespace gl { namespace frustum {
 		}
 
 	private:
+		CUBE_API_INTERNAL
 		static
 		vec2d _plane_size(units::Angle const fov,
 		                  float const ratio,
