@@ -3,6 +3,8 @@
 
 #include "Interpreter.hpp"
 
+#include <etc/log.hpp>
+
 #include <wrappers/boost/filesystem.hpp>
 
 #include <cassert>
@@ -12,6 +14,8 @@
 namespace py = boost::python;
 namespace fs = boost::filesystem;
 
+ETC_LOG_COMPONENT("cubeapp.python.Interpreter");
+
 namespace cubeapp { namespace python {
 
 	struct Interpreter::Impl
@@ -20,9 +24,12 @@ namespace cubeapp { namespace python {
 		py::object main_namespace;
 
 		Impl()
-			: main_module(boost::python::import("__main__"))
-			, main_namespace{main_module.attr("__dict__")}
-		{}
+			: main_module{}
+			, main_namespace{}
+		{
+			this->main_module = boost::python::import("__main__");
+			this->main_namespace = main_module.attr("__dict__");
+		}
 	};
 
 
@@ -70,7 +77,9 @@ namespace cubeapp { namespace python {
 
 		if (_interpreter == nullptr)
 		{
+			ETC_LOG("Compiled with python", PY_VERSION);
 			::Py_Initialize();
+			ETC_LOG("Linked with python", ::Py_GetVersion());
 			_interpreter = new Interpreter;
 		}
 		assert(_interpreter != nullptr);

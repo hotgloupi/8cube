@@ -85,7 +85,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			if (this->glsl_version <= 120 and
 				proxy.type != ShaderType::vertex)
 			{
-				static std::unordered_map<ContentKind, std::string> builtin_names{
+				static std::unordered_map<ContentKind, std::string, etc::enum_hash> builtin_names{
 					{ContentKind::color, "gl_Color"},
 					{ContentKind::vertex, "gl_VertexPosition"},
 					{ContentKind::tex_coord0, "gl_TexCoord0"},
@@ -125,6 +125,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 					);
 				}
 			}
+			return result;
 		}
 	};
 

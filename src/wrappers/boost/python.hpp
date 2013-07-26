@@ -34,6 +34,8 @@ int swprintf (wchar_t *, size_t, const wchar_t *, ...);
 
 # include <boost/python.hpp>
 
+# include <memory>
+
 namespace boost { namespace python {
 
 	// Register std::unique_ptr as an HelderType

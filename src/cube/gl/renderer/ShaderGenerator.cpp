@@ -56,7 +56,7 @@ namespace cube { namespace gl { namespace renderer {
 				[&] (Parameter const& p) -> bool {return name == p.name;}); \
 		if (it != this->map.end())                                            \
 			throw Exception{                                                  \
-				"The variable '" + name + "' is already in " #map "."                             \
+				"The variable '" + name + "' is already in " #map "."         \
 			};                                                                \
 		}                                                                     \
 /**/
