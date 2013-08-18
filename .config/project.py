@@ -21,7 +21,7 @@ from tupcfg import path
 
 class Assimp(Dependency):
 
-    def __init__(self, compiler, source_directory, shared = True):
+    def __init__(self, compiler, source_directory, boost = None, shared = True):
         super(Assimp, self).__init__(
             "Open Asset Import Library",
             "assimp",
@@ -29,6 +29,7 @@ class Assimp(Dependency):
         self.source_directory = source_directory
         self.compiler = compiler
         self.shared = shared
+        self.boost = boost
         ext = self.compiler.library_extension(shared)
         self.library_filename = 'libassimp.%s' % ext
 
@@ -41,9 +42,20 @@ class Assimp(Dependency):
                 [
                     'cmake',
                     path.absolute(self.source_directory),
-                    '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary
+                    '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
+                    '-DBoost_DEBUG=TRUE',
+                    '-DBoost_DETAILED_FAILURE_MSG=TRUE',
+                    '-DBoost_NO_SYSTEM_PATHS=TRUE',
+                    '-DBoost_NO_CMAKE=TRUE',
+                    '-DBoost_ADDITIONAL_VERSIONS=1.55',
                 ],
                 working_directory = self.build_path(),
+                env = {
+                    'BOOST_ROOT': self.boost.root_directory,
+                    'BOOST_INCLUDEDIR': self.boost.include_directory,
+                    'BOOST_LIBRARYDIR': self.boost.library_directory,
+                },
+                dependencies = self.boost.targets,
             )
         )
         build_target = Target(
@@ -132,7 +144,6 @@ def configure(project, build):
     status("Using %s as C++ compiler" % compiler)
     status("Using %s as C compiler" % c_compiler)
 
-    assimp = build.add_dependency(Assimp(compiler, 'deps/assimp'))
     freetype2 = build.add_dependency(c.libraries.FreetypeDependency(c_compiler, 'deps/freetype2'))
     python = build.add_dependency(c.libraries.PythonDependency(
         c_compiler,
@@ -144,10 +155,18 @@ def configure(project, build):
     boost = build.add_dependency(
         cxx.libraries.BoostDependency(
             compiler,
-            'deps/Boost-1.54',
-            version = (1, 54),
+            'deps/boost',
+            version = (1, 55),
             python = python,
-            components = ['system', 'filesystem', 'python', 'thread'],
+            components = [
+                'format',
+                'timer',
+                'system',
+                'filesystem',
+                'python',
+                'signals2',
+                'thread'
+            ],
             #preferred_shared = False,
             #        python3_shared = True,
         )
@@ -156,6 +175,9 @@ def configure(project, build):
         sum((l.include_directories for l in boost.libraries),  [])
     ))
 
+    assimp = build.add_dependency(
+        Assimp(compiler, 'deps/assimp', boost = boost)
+    )
 
     sdl = c.libraries.SDLLibrary(
         compiler,
