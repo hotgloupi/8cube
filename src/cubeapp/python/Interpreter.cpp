@@ -4,6 +4,7 @@
 #include "Interpreter.hpp"
 
 #include <etc/log.hpp>
+#include <etc/sys/environ.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
 
@@ -77,10 +78,16 @@ namespace cubeapp { namespace python {
 
 		if (_interpreter == nullptr)
 		{
+			// If this variable is present, python might use the wrong
+			// PYTHONHOME value.
+			std::string old_path = etc::sys::environ::set("PATH", "");
+
 			ETC_LOG("Compiled with python", PY_VERSION);
 			::Py_Initialize();
 			ETC_LOG("Linked with python", ::Py_GetVersion());
 			_interpreter = new Interpreter;
+
+			etc::sys::environ::set("PATH", old_path);
 		}
 		assert(_interpreter != nullptr);
 		return *_interpreter;
