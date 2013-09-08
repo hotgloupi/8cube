@@ -4,7 +4,7 @@
 
 #include <etc/path.hpp>
 #include <etc/platform.hpp>
-#include <etc/sys/getenv.hpp>
+#include <etc/sys/environ.hpp>
 
 #ifdef ETC_WINDOWS
 # include <wrappers/windows.hpp>
@@ -30,13 +30,13 @@ namespace {
 		if (res == S_OK)
 			return std::string{path};
 		else
-			return etc::sys::getenv("HOMEPATH");
+			return etc::sys::environ::get("HOMEPATH");
 #else
 		struct passwd* pw = ::getpwuid(getuid());
 		if (pw != nullptr && pw->pw_dir != nullptr)
 			return std::string{pw->pw_dir};
 		else
-			return etc::sys::getenv("HOME", "/tmp");
+			return etc::sys::environ::get("HOME", "/tmp");
 #endif
 	}
 
@@ -48,7 +48,7 @@ namespace {
 #else
 		return etc::path::join(
 			_home_directory(),
-			etc::sys::getenv(
+			etc::sys::environ::get(
 				"CUBE_CONFIG_DIRECTORY_NAME",
 				".config"
 			)

@@ -1,10 +1,10 @@
-#include "getenv.hpp"
+#include "environ.hpp"
 
 #include <cstdlib>
 
-namespace etc { namespace sys {
+namespace etc { namespace sys { namespace environ {
 
-	std::string getenv(std::string const& key)
+	std::string get(std::string const& key)
 	{
 #ifdef _WIN32
 		char val[512];
@@ -22,8 +22,8 @@ namespace etc { namespace sys {
 		return std::string(val);
 	}
 
-	std::string getenv(std::string const& key,
-	                   std::string const& default_value)
+	std::string get(std::string const& key,
+	                std::string const& default_value)
 	{
 #ifdef _WIN32
 		char val[512];
@@ -42,4 +42,23 @@ namespace etc { namespace sys {
 			return std::string(val);
 	}
 
-}}
+	std::string set(std::string const& key,
+	                std::string const& value)
+	{
+		std::string old = get(key, "");
+		::setenv(key.c_str(), value.c_str(), 1);
+		return old;
+	}
+
+	/**
+	 * @brief Set a value into the environment if not already present and
+	 * returns the final value.
+	 */
+	std::string set_default(std::string const& key,
+	                        std::string const& value)
+	{
+		::setenv(key.c_str(), value.c_str(), 0);
+		return get(key);
+	}
+
+}}}

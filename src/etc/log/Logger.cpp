@@ -1,7 +1,7 @@
 #include "Logger.hpp"
 
 #include <etc/meta/enum.hpp>
-#include <etc/sys/getenv.hpp>
+#include <etc/sys/environ.hpp>
 
 #include <boost/algorithm/string.hpp>
 
@@ -37,7 +37,7 @@ namespace etc { namespace log {
 
 		std::vector<Pattern> get_patterns()
 		{
-			std::string envvar = etc::sys::getenv("ETC_LOG_COMPONENTS", "*");
+			std::string envvar = etc::sys::environ::get("ETC_LOG_COMPONENTS", "*");
 			std::vector<std::string> patterns;
 			boost::algorithm::split(
 				patterns,
@@ -88,7 +88,7 @@ namespace etc { namespace log {
 
 		Level default_level()
 		{
-			static std::string level_string = etc::sys::getenv("ETC_LOG_LEVEL", "INFO");
+			static std::string level_string = etc::sys::environ::get("ETC_LOG_LEVEL", "INFO");
 			std::unordered_map<std::string, Level> map{
 				{"DEBUG", Level::debug},
 				{"INFO", Level::info},
@@ -112,8 +112,6 @@ namespace etc { namespace log {
 		}
 
 	} // !anonymous
-
-
 
 	Logger& logger(std::string const& name)
 	{
