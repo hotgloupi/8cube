@@ -5,6 +5,7 @@
 SCRIPTCMD="$0"
 SCRIPT=`basename "$0"`
 SCRIPT_DIR=`python -c "import os;print(os.path.abspath(os.path.dirname('$0')))"`
+cd "${SCRIPT_DIR}"
 
 abspath()
 {
@@ -28,73 +29,83 @@ usage()
 	fatal "Usage: $SCRIPTCMD"
 }
 
-[ ! -d "$SCRIPT_DIR"/boost ] && fatal "You should update submodules first"
+[ -z "`which hg 2> /dev/null`" ] && fatal "Mercurial not installed (hg command not found)"
+[ -z "`which svn 2> /dev/null`" ] && fatal "Subversion not installed (svn command not found)"
 
-### Boost ---------------------------------------------------------------------
-debug "Updating Boost"
-BOOST_COMPONENTS="
-any
-array
-asio
-atomic
-algorithm
-bind
-chrono
-config
-concept_check
-container
-conversion
-date_time
-detail
-exception
-filesystem
-foreach
-format
-function
-functional
-graph
-integer
-io
-iterator
-math
-mpl
-move
-multi_index
-numeric
-optional
-parameter
-predef
-preprocessor
-property_map
-python
-range
-ratio
-signals2
-serialization
-smart_ptr
-static_assert
-system
-thread
-timer
-tuple
-typeof
-type_traits
-units
-unordered
-utility
-variant
-"
+#[ ! -d "$SCRIPT_DIR"/boost ] && fatal "You should update submodules first"
+#
+#### Boost ---------------------------------------------------------------------
+#debug "Updating Boost"
+#BOOST_COMPONENTS="
+#any
+#array
+#asio
+#atomic
+#algorithm
+#bind
+#chrono
+#config
+#concept_check
+#container
+#conversion
+#date_time
+#detail
+#exception
+#filesystem
+#foreach
+#format
+#function
+#functional
+#graph
+#integer
+#io
+#iterator
+#math
+#mpl
+#move
+#multi_index
+#numeric
+#optional
+#parameter
+#predef
+#preprocessor
+#property_map
+#python
+#range
+#ratio
+#signals2
+#serialization
+#smart_ptr
+#static_assert
+#system
+#thread
+#timer
+#tuple
+#typeof
+#type_traits
+#units
+#unordered
+#utility
+#variant
+#"
+#
+#cd "$SCRIPT_DIR"/boost
+#for component in $BOOST_COMPONENTS
+#do
+#	git submodule update --init --recursive "libs/$component" || \
+#		fatal "Cannot update boost component $component"
+#done
+#cd "$SCRIPT_DIR"
 
-cd "$SCRIPT_DIR"/boost
-for component in $BOOST_COMPONENTS
-do
-	git submodule update --init --recursive "libs/$component" || \
-		fatal "Cannot update boost component $component"
-done
-cd "$SCRIPT_DIR"
+debug "Updating boost"
+if [ ! -d boost ]
+then
+	svn co http://svn.boost.org/svn/boost/trunk boost
+else
+	( cd boost && svn update )
+fi
 
 ### SDL -----------------------------------------------------------------------
 debug "Updating SDL"
-[ -z "`which hg 2> /dev/null`" ] && fatal "Mercurial not installed (hg command not found)"
 [ ! -d SDL ] && hg clone http://hg.libsdl.org/SDL
 
