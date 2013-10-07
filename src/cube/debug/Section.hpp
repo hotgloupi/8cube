@@ -5,6 +5,9 @@
 
 namespace cube { namespace debug {
 
+	/*
+	 * A Section instance lifetime defines a new performance statistic.
+	 */
 	template<typename Manager>
 	struct Section
 	{

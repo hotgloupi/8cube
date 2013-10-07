@@ -11,7 +11,13 @@ namespace {
 		      std::string const& component,
 		      std::string const& msg)
 	{
-		etc::log::Log{level, file, line, function, component}.send(msg);
+		etc::log::Log{
+			level,
+			file.c_str(),
+			line,
+			function.c_str(),
+			component.c_str(),
+		}.send(msg);
 	}
 
 }

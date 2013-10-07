@@ -12,6 +12,10 @@
 
 namespace cube { namespace debug {
 
+	/**
+	 * The performance class stores performance statistics over time. You must
+	 * use the Section class in order to insert new values.
+	 */
 	class CUBE_API Performance
 	{
 	public:
@@ -59,7 +63,7 @@ namespace cube { namespace debug {
 		Info(char const* name,
 			 char const* file,
 			 int line,
-			 char const* function)
+			 char const* function) noexcept
 			: _parent{nullptr}
 			, _children{}
 			, name{name}
@@ -68,14 +72,14 @@ namespace cube { namespace debug {
 			, function{function}
 		{}
 
-		Info const* parent() const
+		Info const* parent() const noexcept
 		{ return _parent; }
 
-		std::unordered_set<Info const*> const& children() const
+		std::unordered_set<Info const*> const& children() const noexcept
 		{ return _children; }
 
 		inline
-		bool operator ==(cube::debug::Performance::Info const& rhs) const
+		bool operator ==(cube::debug::Performance::Info const& rhs) const noexcept
 		{
 			return (
 				this->parent() == rhs.parent() and
@@ -91,7 +95,7 @@ namespace cube { namespace debug {
 		void add_child(Info const* info)
 		{ _children.insert(info); }
 
-		void set_parent(Info const* info)
+		void set_parent(Info const* info) noexcept
 		{
 			assert(info != nullptr);
 			assert(_parent == nullptr);

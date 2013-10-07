@@ -2,20 +2,21 @@
 
 #include <etc/print.hpp>
 
-#include <boost/thread/tss.hpp>
-// XXX boost 1.52
-//#include <boost/thread/lockable_adapter.hpp>
-//#include <boost/thread/lock_guard.hpp>
-#include <boost/thread/locks.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/thread/lockable_adapter.hpp>
+#include <boost/thread/lock_guard.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/tss.hpp>
 
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <cstring>
-#include <list>
 #include <iomanip>
+#include <list>
 #include <numeric>
 #include <stack>
+#include <thread>
 #include <unordered_map>
 
 namespace std {
@@ -54,29 +55,61 @@ namespace cube { namespace debug {
 			CallStat*               stat_ptr;
 			clock_type::time_point  start;
 
-			Timer(CallStat* ptr)
+			Timer(CallStat* ptr, clock_type::time_point now)
 				: stat_ptr{ptr}
-				, start{clock_type::now()}
+				, start{now}
 			{}
 		};
+
+		std::string
+		human_duration(clock_type::duration const& d)
+		{
+			using namespace std::chrono;
+			if (duration_cast<seconds>(d).count() > 1)
+				return std::to_string(
+					duration_cast<milliseconds>(d).count() / 1000.0f
+				) + " seconds";
+			else if (duration_cast<milliseconds>(d).count() > 1)
+				return std::to_string(
+					duration_cast<microseconds>(d).count() / 1000.0f
+				) + " milliseconds";
+			return std::to_string(
+				duration_cast<nanoseconds>(d).count()
+			) + " nanoseconds";
+		}
 
 	} //!anonymous
 
 	struct Performance::Impl
-//		: public boost::basic_lockable_adapter<boost::mutex>
 	{
-		typedef std::unordered_map<Performance::Info, CallStat>     StatMap;
-		typedef std::unordered_map<Performance::id_type, Timer>     TimerMap;
-		typedef std::stack<Info*>                                   CallStack;
-		typedef std::unordered_set<Info const*>                     RootSet;
+		typedef std::unordered_map<Performance::Info, CallStat> StatMap;
+		typedef std::unordered_map<Performance::id_type, Timer> TimerMap;
+		typedef std::stack<Info*>                               CallStack;
+		typedef std::unordered_map<std::thread::id, CallStack>  ThreadStackMap;
+		typedef std::unordered_set<Info const*>                 RootSet;
 
-		boost::mutex mutex;
-
-		Performance::id_type                    next_id;
+		std::atomic<Performance::id_type>       next_id;
 		StatMap                                 stats;
 		TimerMap                                timers;
-		boost::thread_specific_ptr<CallStack>   stack;
+		ThreadStackMap                          stacks;
 		RootSet                                 roots;
+
+		boost::asio::io_service                 service;
+		boost::asio::io_service::work           work;
+		std::thread                             worker_thread;
+
+		Impl()
+			: next_id{1}
+			, stats{}
+			, timers{}
+			, stacks{}
+			, roots{}
+			, service{}
+			, work{service}
+			, worker_thread{
+				[this] { this->service.run(); }
+			}
+		{}
 	};
 
 	Performance&
@@ -88,36 +121,36 @@ namespace cube { namespace debug {
 
 	Performance::Performance()
 		: _this{new Impl}
-	{
-		_this->next_id = 1;
-	}
+	{}
 
 	Performance::~Performance()
-	{}
+	{
+		_this->service.stop();
+		_this->worker_thread.join();
+	}
 
 	Performance::id_type
 	Performance::begin(Info&& info)
 	{
-		if (_this->stack.get() == nullptr)
-			_this->stack.reset(new Impl::CallStack{});
-		Impl::CallStack& stack = *_this->stack.get();
+		auto const thread_id = std::this_thread::get_id();
+		id_type const id = _this->next_id++;
+		auto start_time = clock_type::now();
 
-		CallStat* stat_ptr = nullptr;
-		Info const* info_ptr = nullptr;
-		id_type id;
+		_this->service.post([thread_id, id, start_time, this, info_copy = info] {
 
-		// Set the info parent
-		if (!stack.empty())
-			info.set_parent(stack.top());
+			Impl::CallStack& stack = _this->stacks[thread_id];
+			auto info = info_copy;
 
-		{ // locked section
+			CallStat* stat_ptr = nullptr;
+			Info const* info_ptr = nullptr;
 
-			boost::lock_guard<boost::mutex> guard(_this->mutex);
-			id = _this->next_id++;
+			// Set the info parent
+			if (!stack.empty())
+				info.set_parent(stack.top());
 
 			// Insert a new CallStat if needed, but retreive info and stat ptr.
 			{
-				auto res = _this->stats.insert({std::move(info), CallStat{}});
+				auto res = _this->stats.insert({std::move(info), {}});
 				info_ptr = &res.first->first;
 				stat_ptr = &res.first->second;
 			}
@@ -127,7 +160,7 @@ namespace cube { namespace debug {
 
 			// Insert a new timer for the stat found earlier.
 			{
-				auto res = _this->timers.insert({id, Timer{stat_ptr}});
+				auto res = _this->timers.insert({id, Timer{stat_ptr, start_time}});
 				assert(res.second == true && "timers insert failed");
 			}
 
@@ -137,11 +170,10 @@ namespace cube { namespace debug {
 			else
 				_this->roots.insert(info_ptr);
 
-		} // end of locked section
-
-		// We do not alter the way info instance is hashed, but we'll need to
-		// add children later if the scope has a subsection.
-		stack.push(const_cast<Info*>(info_ptr));
+			// We do not alter the way info instance is hashed, but we'll need to
+			// add children later if the scope has a subsection.
+			stack.push(const_cast<Info*>(info_ptr));
+		});
 
 		return id;
 	}
@@ -149,8 +181,10 @@ namespace cube { namespace debug {
 	void
 	Performance::end(id_type const id)
 	{
-		{ // locked section
-			boost::lock_guard<boost::mutex> guard(_this->mutex);
+		auto const thread_id = std::this_thread::get_id();
+		auto end_time = clock_type::now();
+
+		_this->service.post([id, thread_id, end_time, this] {
 			// Retreive the timer.
 			auto it = _this->timers.find(id);
 			assert(it != _this->timers.end());
@@ -158,17 +192,16 @@ namespace cube { namespace debug {
 
 			// Update stat
 			assert(timer.stat_ptr != nullptr);
-			timer.stat_ptr->total_time += clock_type::now() - timer.start;
+			timer.stat_ptr->total_time += end_time - timer.start;
 			timer.stat_ptr->count++;
 
 			// Remove the timer from the map.
 			_this->timers.erase(it);
-		}
 
-		assert(_this->stack.get() != nullptr);
-		// Pop the last stack element.
-		assert(not _this->stack->empty());
-		_this->stack->pop();
+			// Pop the last stack element.
+			assert(not _this->stacks[thread_id].empty());
+			_this->stacks[thread_id].pop();
+		});
 	}
 
 	void
@@ -234,7 +267,7 @@ namespace cube { namespace debug {
 			std::cout << std::setiosflags(std::ios::left) << std::setw(indent) << ' '
 			          //<< std::setw(max_name_len + 1)
 			          << "    " << "---[ " << name << " ] "
-			          << DURATION_MS(duration_sum(list)) << " ms"
+			          << human_duration(duration_sum(list))
 			          << std::endl;
 			std::sort(
 				list.begin(), list.end(),
@@ -261,10 +294,9 @@ namespace cube { namespace debug {
 		          << stat.count
 		          << " times, total: "
 		          //<< std::setw(10)
-		          << DURATION_MS(stat.total_time)
-		          << " ms, avg: "
-		          << DURATION_NS(stat.total_time) / (stat.count ? stat.count : 1)
-		          << " ns"
+		          << human_duration(stat.total_time)
+		          << ", avg: "
+		          << human_duration(stat.total_time / (stat.count ? stat.count : 1))
 		          << std::endl;
 		;
 		this->dump_set(info._children, max_name_len, indent + 2);
