@@ -21,30 +21,30 @@ namespace cube { namespace gl { namespace camera {
 		units::Angle    _vrot;
 
 	public:
-		Camera()
+		Camera() noexcept
 		{ this->rotate(0.0_rad, 0.0_rad); }
 
 		inline
-		vec3 const& position() const
+		vec3 const& position() const noexcept
 		{ return _position; }
 
 		inline
-		vec3 const& front() const
+		vec3 const& front() const noexcept
 		{ return _front; }
 
 		inline
-		vec3 const& up() const
+		vec3 const& up() const noexcept
 		{ return _up; }
 
 		inline
-		vec3 right() const
+		vec3 right() const noexcept
 		{ return vector::normalize(vector::cross(this->_front, this->_up)); }
 
 		Camera& rotate(units::Angle const horizontal_angle,
-		               units::Angle const vertical_angle);
+		               units::Angle const vertical_angle) noexcept;
 
 		inline
-		Camera& move(vec3 const& v)
+		Camera& move(vec3 const& v) noexcept
 		{
 			_position += v;
 			return *this;

@@ -7,13 +7,13 @@
 namespace cube { namespace gl { namespace plane {
 
 	template<typename T>
-	Plane<T>::Plane(vec3 const& p0, vec3 const& p1, vec3 const& p2)
+	Plane<T>::Plane(vec3 const& p0, vec3 const& p1, vec3 const& p2) noexcept
 		: Plane{p0, vector::cross(p1 - p0, p2 - p0)}
 	{}
 
 	template<typename T>
 	Plane<T>::Plane(vec3 const& point,
-	                vec3 const& normal)
+	                vec3 const& normal) noexcept
 	{
 		auto n = vector::normalize(normal);
 		_coef = vec4(n, -vector::dot(n, point));

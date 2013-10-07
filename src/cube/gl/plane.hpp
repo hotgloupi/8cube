@@ -40,7 +40,7 @@ namespace cube { namespace gl { namespace plane {
 		/**
 		 * @brief Construct a null plane.
 		 */
-		Plane()
+		Plane() noexcept
 			: _coef{}
 		{}
 
@@ -49,32 +49,32 @@ namespace cube { namespace gl { namespace plane {
 		 */
 		Plane(vec3 const& p0,
 		      vec3 const& p1,
-		      vec3 const& p2);
+		      vec3 const& p2) noexcept;
 
 		/**
 		 * @brief Construct a plane from a point and a normal.
 		 */
-		Plane(vec3 const& point, vec3 const& normal);
+		Plane(vec3 const& point, vec3 const& normal) noexcept;
 
 		/**
 		 * @brief Retreive plane equation coefficients.
 		 */
 		inline
-		vec4d const& coef() const
+		vec4d const& coef() const noexcept
 		{ return _coef; }
 
 		/**
 		 * @brief Retreive a normal of this plane
 		 */
 		inline
-		vec3 normal() const
+		vec3 normal() const noexcept
 		{ return vec3{_coef[0], _coef[1], _coef[2]}; }
 
 		/**
 		 * @brief Compute the algebraic distance to a point.
 		 */
 		inline
-		double distance(vec3 const& p) const
+		double distance(vec3 const& p) const noexcept
 		{
 			return (
 				p.x * _coef[0] + p.y * _coef[1] + p.z * _coef[2] + _coef[3]

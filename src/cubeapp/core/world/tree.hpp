@@ -45,7 +45,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		vector_type const _root_origin;
 
 	public:
-		Tree(level_type const root_level)
+		Tree(level_type const root_level) noexcept
 			: _root_level{root_level}
 			, _root_origin{
 				(std::numeric_limits<size_type>::max()
@@ -61,7 +61,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	public:
 		template<typename Visitor>
 		inline
-		void visit(Visitor&& visitor) const
+		void visit(Visitor&& visitor) const noexcept
 		{
 			static auto visit_method = _find_visit_method<Tree::max_level - 1, Visitor>();
 			visit_method(_root_origin, std::forward<Visitor>(visitor));
@@ -70,7 +70,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	private:
 		template<level_type level, typename Visitor>
 		typename std::enable_if<level != 0, void(*)(vector_type const&, Visitor&&)>::type
-		_find_visit_method() const
+		_find_visit_method() const noexcept
 		{
 			if (_root_level == level)
 				return &Tree::_visit_node<level, Visitor>;
@@ -80,12 +80,12 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 
 		template<level_type level, typename Visitor>
 		typename std::enable_if<level == 0, void(*)(vector_type const&, Visitor&&)>::type
-		_find_visit_method() const { std::abort(); return nullptr; }
+		_find_visit_method() const noexcept { std::abort(); return nullptr; }
 
 		template<level_type level, typename Visitor>
 		static inline
 		void _visit_node(vector_type const& origin,
-		                 Visitor&& visitor)
+		                 Visitor&& visitor) noexcept
 		{
 			if (visitor(level, origin, LEVEL_TO_SIZE(size_type, level)) == VisitorAction::continue_)
 				_visit_children<level>(origin, std::forward<Visitor>(visitor));
@@ -95,7 +95,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		static inline
 		typename std::enable_if<level != 0>::type
 		_visit_children(vector_type const& origin,
-		                Visitor&& visitor)
+		                Visitor&& visitor) noexcept
 		{
 			static size_type const child_size = LEVEL_TO_SIZE(size_type, level - 1);
 			static vector_type const children_offsets[] = {
@@ -120,7 +120,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		template<level_type level, typename Visitor>
 		static inline
 		typename std::enable_if<level == 0>::type
-		_visit_children(vector_type const&, Visitor&&)
+		_visit_children(vector_type const&, Visitor&&) noexcept
 		{ /* level 0 has no children */ }
 	};
 
@@ -139,7 +139,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	std::vector<Node<size_type>>
 	find_nodes(Tree<size_type> const& tree,
 	           cube::gl::vector::Vector3d const& pos,
-	           cube::gl::frustum::Frustumd const& frustum);
+	           cube::gl::frustum::Frustumd const& frustum) noexcept;
 
 }}}}
 

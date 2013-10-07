@@ -14,29 +14,27 @@ namespace cube { namespace gl { namespace color {
 
 	template<typename T>
 	CUBE_API
-	Color3<T> const& parse_color3(std::string const& s);
+	Color3<T> const& parse_color3(std::string const& s) noexcept;
 
 	template<typename T>
 	CUBE_API
-	Color4<T> const& parse_color4(std::string const& s);
+	Color4<T> const& parse_color4(std::string const& s) noexcept;
 
 	template<typename T>
 	struct traits
 	{
 		template<typename K = T>
-		static typename std::enable_if<
-			    std::is_integral<K>::value
-			,   K
-		>::type max_component_value()
+		static constexpr
+		typename std::enable_if<std::is_integral<K>::value, K>::type
+		max_component_value() noexcept
 		{
 			return std::numeric_limits<K>::max();
 		}
 
 		template<typename K = T>
-		static typename std::enable_if<
-			    std::is_floating_point<K>::value
-			,   K
-		>::type max_component_value()
+		static constexpr
+		typename std::enable_if<std::is_floating_point<K>::value, K>::type
+		max_component_value() noexcept
 		{
 			return 1;
 		}
@@ -56,53 +54,25 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
-# ifdef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
-		Color3(Color3<T> const& other)
-			: r(other.r)
-			, g(other.g)
-			, b(other.b)
-		{}
+		Color3(Color3<T> const&) noexcept = default;
+		Color3& operator =(Color3<T> const&) noexcept = default;
+		Color3(Color3<T>&&) noexcept = default;
+		Color3& operator =(Color3<T>&&) noexcept = default;
 
-		Color3& operator =(Color3<T> const& other)
-		{
-			this->r = other.r;
-			this->g = other.g;
-			this->b = other.b;
-		}
-
-		Color3(Color3<T>&& other)
-			: r(std::move(other.r))
-			, g(std::move(other.g))
-			, b(std::move(other.b))
-		{}
-
-		Color3& operator =(Color3<T>&& other)
-		{
-			this->r = std::move(other.r);
-			this->g = std::move(other.g);
-			this->b = std::move(other.b);
-		}
-# else
-		Color3(Color3<T> const&) = default;
-		Color3& operator =(Color3<T> const&) = default;
-		Color3(Color3<T>&&) = default;
-		Color3& operator =(Color3<T>&&) = default;
-#endif
-
-		Color3()
+		Color3() noexcept
 			: r(), g(), b()
 		{}
 
-		Color3(T r, T g, T b)
+		Color3(T r, T g, T b) noexcept
 			: r(r), g(g), b(b)
 		{}
 
-		Color3(std::string const& s)
+		Color3(std::string const& s) noexcept
 		{
 			*this = parse_color3<T>(s);
 		}
 
-		bool operator ==(Color3<T> const& other) const
+		bool operator ==(Color3<T> const& other) const noexcept
 		{
 			return (
 				this->r == other.r &&
@@ -125,31 +95,31 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
-		Color4(Color4<T> const&) = default;
-		Color4& operator =(Color4<T> const&) = default;
-		Color4(Color4<T>&&) = default;
-		Color4& operator =(Color4<T>&&) = default;
-		Color4()
+		Color4(Color4<T> const&) noexcept = default;
+		Color4& operator =(Color4<T> const&) noexcept = default;
+		Color4(Color4<T>&&) noexcept = default;
+		Color4& operator =(Color4<T>&&) noexcept = default;
+		Color4() noexcept
 			: r{}, g{}, b{}, a{}
 		{}
 
-		Color4(T r, T g, T b, T a = traits<T>::max_component_value())
+		Color4(T r, T g, T b, T a = traits<T>::max_component_value()) noexcept
 			: r(r), g(g), b(b), a(a)
 		{}
 
-		Color4(Color3<T> const& c)
+		Color4(Color3<T> const& c) noexcept
 			: r(c.r)
 			, g(c.g)
 			, b(c.b)
 			, a(traits<T>::max_component_value())
 		{}
 
-		Color4(std::string const& s)
+		Color4(std::string const& s) noexcept
 		{
 			*this = parse_color4<T>(s);
 		}
 
-		bool operator ==(Color4<T> const& other) const
+		bool operator ==(Color4<T> const& other) const noexcept
 		{
 			return (
 				this->r == other.r &&
