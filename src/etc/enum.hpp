@@ -5,14 +5,18 @@
 
 namespace etc {
 
+	// Cast any enums to integer.
 	template <typename To = size_t, typename E>
 	inline constexpr
 	typename std::enable_if<std::is_enum<E>::value, To>::type
 	enum_cast(E const value)
 	{
+		static_assert(sizeof(E) <= sizeof(To),
+		              "Destination type is too short.");
 		return static_cast<To>(value);
 	}
 
+	// Hash enums in an unordered container easily.
 	struct enum_hash
 	{
 		template <typename E>
