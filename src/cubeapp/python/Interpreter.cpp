@@ -1,12 +1,11 @@
 #include <wrappers/boost/python.hpp>
 #include <boost/python/import.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Interpreter.hpp"
 
 #include <etc/log.hpp>
 #include <etc/sys/environ.hpp>
-
-#include <wrappers/boost/filesystem.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -72,12 +71,38 @@ namespace cubeapp { namespace python {
 	///////////////////////////////////////////////////////////////////////////
 	// Initialization section
 
-	Interpreter& Interpreter::instance()
+	static
+	bool contains_libpython(fs::path lib_dir, std::string filename)
+	{
+		fs::directory_iterator dir(lib_dir), end;
+		for (; dir != end; ++dir)
+		{
+			fs::path p(*dir);
+			if (boost::algorithm::starts_with(p.filename().string(), filename))
+				return true;
+			etc::print(p.string(), filename);
+		}
+		return false;
+	}
+
+	Interpreter& Interpreter::instance(boost::filesystem::path lib_dir)
 	{
 		static Interpreter* _interpreter = nullptr;
 
 		if (_interpreter == nullptr)
 		{
+			// If python has been relocated, we want to use the new PYTHONHOME.
+			std::string libname =
+				"libpython" + std::to_string(PY_MAJOR_VERSION) + "." +
+				std::to_string(PY_MINOR_VERSION);
+			if (contains_libpython(lib_dir, libname))
+			{
+				auto prefix = lib_dir.parent_path().string();
+				ETC_LOG("Setting PYTHONHOME prefix to", prefix);
+				etc::sys::environ::set("PYTHONHOME", prefix + ":" + prefix);
+			}
+
+			etc::sys::environ::set("PYTHONPATH", "");
 			// If this variable is present, python might use the wrong
 			// PYTHONHOME value.
 			std::string old_path = etc::sys::environ::set("PATH", "");

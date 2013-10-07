@@ -1,6 +1,9 @@
 #ifndef  CUBEAPP_PYTHON_INTERPRETER_HPP
 # define CUBEAPP_PYTHON_INTERPRETER_HPP
 
+# include <wrappers/boost/filesystem.hpp>
+
+
 # include <string>
 
 namespace cubeapp { namespace python {
@@ -21,7 +24,7 @@ namespace cubeapp { namespace python {
 		~Interpreter();
 
 	public:
-		static Interpreter& instance();
+		static Interpreter& instance(boost::filesystem::path lib_dir);
 	};
 
 }} // !app::python
