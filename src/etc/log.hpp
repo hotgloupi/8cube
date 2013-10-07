@@ -41,10 +41,10 @@ namespace etc { namespace log {
 		 * They are copiable and movable by construction, but not by assignment.
 		 */
 		ETC_API Log(Level level,
-		            std::string const& file,
+		            char const* file,
 		            size_type line,
-		            std::string const& function,
-		            std::string const& component);
+		            char const* function,
+		            char const* component);
 		ETC_API Log(Log const& o);
 		ETC_API Log(Log&& o);
 		ETC_API ~Log();

@@ -14,18 +14,18 @@ namespace etc { namespace log {
 	{
 	public:
 		Level           level;
-		std::string     file;
+		char const*     file;
 		etc::size_type  line;
-		std::string     function;
-		std::string     component;
+		char const*     function;
+		char const*     component;
 		etc::size_type  indent;
 
 	public:
 		Line(Level level,
-		     std::string const& file,
+		     char const* file,
 		     etc::size_type line,
-		     std::string const& function,
-		     std::string const& component,
+		     char const* function,
+		     char const* component,
 			 etc::size_type indent)
 			: level{level}
 			, file{file}

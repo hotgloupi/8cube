@@ -12,10 +12,10 @@ namespace etc { namespace log {
 	//} // !anonymous
 
 	ETC_API Log::Log(Level level,
-	                 std::string const& file,
+	                 char const* file,
 	                 size_type line,
-	                 std::string const& function,
-	                 std::string const& component)
+	                 char const* function,
+	                 char const* component)
 		: _line{
 			level,
 			file,
