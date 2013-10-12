@@ -43,6 +43,7 @@ RELEASE_DATE_FILE="$DEST_DIR/share/8cube/.release"
 
 rm -rf "$DEST_DIR"
 mkdir -p "`dirname $RELEASE_DATE_FILE`" 2>&1 > /dev/null
+date > "$RELEASE_DATE_FILE"
 RELEASE_LOG="${DEST_DIR}"/.release.log
 
 echo "Starting release log file at `date`" > "${RELEASE_LOG}"
@@ -175,7 +176,7 @@ def is_binary(path):
 
 BINARIES = [
     binary.strip() for binary in cmd(
-        'find', DEST_DIR, '-executable', '-and', '-type', 'f', '-print'
+        'find', DEST_DIR, '-type', 'f', '-print'
     ).decode('utf8').split('\n')
     if binary.strip() and is_binary(binary) and 'lib-dynload' not in binary
 ]
@@ -185,19 +186,20 @@ def to_add(dep):
     return not (
         dep.startswith('/usr') or
         dep.startswith('/lib') or
+        dep.startswith('/System') or
         dep.startswith(DEST_DIR)
     )
 
 def fill_dependencies(dependencies, binary_path, indent=1):
-    #print('-' * indent, binary_path)
+    print('-' * indent, binary_path)
     children = dependencies.setdefault(binary_path, set())
     l_dep = list(get_binary_dependencies(binary_path))
     for dependency in l_dep:
-        if '@executable_path' in dependency:
+        if dependency.startswith('@'):
             continue
-        #print('-'*indent + '> dep', dependency)
+        print('-'*indent + '> dep', dependency)
         if not to_add(dependency):
-            #print('-'*indent + '> IGNORE', dependency)
+            print('-'*indent + '> IGNORE', dependency)
             continue
         children.add(dependency)
         if dependency not in dependencies:
@@ -217,29 +219,67 @@ for k in DEPENDENCIES.keys():
         SHIPPED_DEPENDENCIES[k] = dest
         cmd('cp', '-fv', k, dest)
 
-#pprint(SHIPPED_DEPENDENCIES)
+pprint(SHIPPED_DEPENDENCIES)
 
-for dep in DEPENDENCIES:
-    if dep in SHIPPED_DEPENDENCIES:
-        dep = SHIPPED_DEPENDENCIES[dep]
-    reldir = os.path.relpath(DEST_LIB_DIR, start = os.path.dirname(dep))
-    cmd(
-        'patchelf',
-        #'--debug',
-        '--set-rpath', os.path.join('$' + 'ORIGIN', reldir),
-        dep
-    )
+if sys.platform.lower().startswith("darwin"):
+    for dep in DEPENDENCIES:
+        if dep in SHIPPED_DEPENDENCIES:
+            dep = SHIPPED_DEPENDENCIES[dep]
+        cmd('chmod', 'u+w', dep)
+        reldir = os.path.relpath(DEST_LIB_DIR, start = os.path.dirname(dep))
+        if dep.endswith('.so') or dep.endswith('.dylib'):
+            cmd('install_name_tool', '-id', '@rpath/' + os.path.basename(dep), dep)
+    for dep in DEPENDENCIES:
+        print("Working on", dep)
+        deps = DEPENDENCIES[dep]
+        if dep in SHIPPED_DEPENDENCIES:
+            dep = SHIPPED_DEPENDENCIES[dep]
+            print("Which is copied at", dep)
+        print(dep, "has the follwing deps", deps)
+        for subdep in deps:
+            buildpath = SHIPPED_DEPENDENCIES[subdep]
+            reldir = os.path.relpath(os.path.dirname(buildpath), start = os.path.dirname(dep))
+            print(dep, 'subdep', dep, 'at', buildpath)
+            cmd(
+                'install_name_tool',
+                '-change',
+                subdep,
+                '@rpath/' + os.path.basename(subdep),
+                dep
+            )
+            try:
+                cmd('install_name_tool', '-add_rpath', reldir, dep)
+            except:
+                print("Couldn't add rpath", reldir, "to", dep)
+else:
+    for dep in DEPENDENCIES:
+        if dep in SHIPPED_DEPENDENCIES:
+            dep = SHIPPED_DEPENDENCIES[dep]
+        cmd(
+            'patchelf',
+            #'--debug',
+            '--set-rpath', os.path.join('$' + 'ORIGIN', reldir),
+            dep
+        )
 
 TO_STRIP = list(
     binary.strip() for binary in cmd(
-        'find', DEST_DIR, '-executable', '-and', '-type', 'f', '-print'
+        'find', DEST_DIR, '-type', 'f', '-print'
     ).decode('utf8').split('\n')
     if binary.strip() and is_binary(binary)
 )
 
+if sys.platform.lower().startswith('darwin'):
+    def strip(bin):
+        cmd('strip', '-S', '-x', bin)
+else:
+    def strip(bin):
+        cmd('chmod', 'u+w', bin)
+        cmd('strip', '-s', bin)
+
 for bin in TO_STRIP:
     try:
-        cmd('strip', '-s', bin)
+        strip(bin)
     except:
         print("Couldn't strip", bin)
 EOF
@@ -249,7 +289,7 @@ cmd patch_libs
 
 
 log "Ending release at `date`"
-date > "$RELEASE_DATE_FILE"
+date >> "$RELEASE_DATE_FILE"
 
 echo "-- Release built at `cat $RELEASE_DATE_FILE`"
 
