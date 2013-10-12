@@ -1,10 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from cube import gl
-
-from .inputs import Inputs
-
-def load_game(games_path, name, window, client):
+def load(games_path, name, window, client):
     import sys
     old_python_path = sys.path
     sys.path = [games_path] + sys.path
@@ -13,7 +9,6 @@ def load_game(games_path, name, window, client):
     finally:
         sys.path = old_python_path
     return game_module.Game(window, client)
-
 
 class Game():
     """Base class for every games
@@ -62,4 +57,3 @@ class Game():
 
     def _on_quit(self):
         self.world.stop()
-
