@@ -80,7 +80,6 @@ namespace cubeapp { namespace python {
 			fs::path p(*dir);
 			if (boost::algorithm::starts_with(p.filename().string(), filename))
 				return true;
-			etc::print(p.string(), filename);
 		}
 		return false;
 	}

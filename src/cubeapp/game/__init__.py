@@ -1,5 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+from . import event
+from .event.manager import Manager as EventManager
+from . import input
+
+from cube import gl
+
 def load(games_path, name, window, client):
     import sys
     old_python_path = sys.path
@@ -19,11 +25,11 @@ class Game():
         self.renderer = window.renderer
         self.client = client
         self.world = world
-        self.inputs = Inputs(window, bindings)
+        self.event_manager = EventManager()
+        self.input_translator = input.Translator(window, bindings)
         self.projection_matrix = gl.matrix.perspective(
             45, 1, 0.005, 300.0
         )
-        self.window.inputs.on_keydown.connect(self._on_keydown)
         self.window.inputs.on_quit.connect(self._on_quit)
 
     @property
@@ -48,12 +54,6 @@ class Game():
         """
         self.player.update(delta)
         self.world.update(delta, self.player, self.projection_matrix)
-
-
-    def _on_keydown(self, mod, sym, key):
-        print(key, sym, mod)
-        if key == ord('f'):
-            self.world._fix()
 
     def _on_quit(self):
         self.world.stop()

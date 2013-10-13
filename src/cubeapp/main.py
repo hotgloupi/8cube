@@ -66,16 +66,19 @@ def main(args):
                 cube.fatal("Cannot find the file '%s'" % args.script)
                 return
             import runpy
-            runpy.run_path(args.script, run_name='__main__')
+            runpy.run_path(args.script, run_name = '__main__')
             return
 
         if not args.game:
-            print("No game specified on the command line", file=sys.stderr)
+            print("No game specified on the command line", file = sys.stderr)
             parser.print_usage()
             sys.exit(1)
 
         from . import application
-        app = application.Application(game_directories=args.games_dir, game=args.game)
+        app = application.Application(
+            game_directories = args.games_dir,
+            game_name = args.game
+        )
         return app.run()
     except KeyboardInterrupt:
         return

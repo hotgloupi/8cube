@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
 
-from cubeapp import core
+from cubeapp import player
 from cube import gl, units
 
-class Player(core.Player):
+class Player(player.Player):
     velocity = 200
     rot_velocity = .05
 
@@ -28,5 +28,5 @@ class Player(core.Player):
 
         if move.x or move.y or move.z:
             self.camera.move(self.velocity * delta * gl.vector.normalize(move))
-        super(Player, self).update(delta)
+        super().update(delta)
 

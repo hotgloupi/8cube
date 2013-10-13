@@ -5,36 +5,38 @@ import time
 
 import cube
 
-from . import core
+from . import game
+from .client import Client
 
 class Application(cube.gui.Application):
 
-    def __init__(self, game_directories=[], game=None):
-        super(Application, self).__init__(
-            name="8cube",
-        )
+    def __init__(self, game_directories = [], game_name = None):
         cube.debug("New application")
         game_dir = None
         for dir_ in game_directories:
-            if os.path.isdir(os.path.join(dir_, game)):
+            if os.path.isdir(os.path.join(dir_, game_name)):
                 game_dir = dir_
                 break
         if game_dir is None:
             raise Exception("Couldn't find a game named '%s'" % str(game))
 
-        self._client = core.Client()
-        self._game = core.load_game(game_dir, game,
-                                    self.window,
-                                    self._client)
+        super().__init__(name = "cubeapp - %s" % game_name)
+        self._client = Client()
+        self._game = game.load(
+            game_dir,
+            game_name,
+            self.window,
+            self._client
+        )
         self.window.confine_mouse(True)
         self.__prepare()
 
     def __prepare(self):
 
         self._main_menu = cube.gui.widgets.VerticalLayout(
-            renderer=self.window.renderer
+            renderer = self.window.renderer
         ).add_child(
-            cube.gui.widgets.Button("New game", x=10, y=100, w=400, h=90)
+            cube.gui.widgets.Button("New game", x = 10, y = 100, w = 400, h = 90)
         )
         self._game_menu = self._game.gui
         self.viewport.add_child(

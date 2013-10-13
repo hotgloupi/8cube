@@ -2,7 +2,7 @@
 
 class EventResponder:
 
-    def __init__(self)
+    def __init__(self):
         self.__next_id = 0
         self.__callbacks = {}
 

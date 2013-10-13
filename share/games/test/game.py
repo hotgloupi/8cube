@@ -1,21 +1,24 @@
 # -*- encoding: utf-8 -*-
 
 from cube import gl
-from cubeapp import core
+from cubeapp.game import Game as GameBase
+from cubeapp.world import World, Storage, Generator
 
 from .bindings import BINDINGS
 from .gui import MainMenu
 from .player import Player
 
-class Game(core.Game):
+class Game(GameBase):
 
     def __init__(self, window, client):
-        self._menu = MainMenu(renderer=window.renderer, game=self)
-        world = core.World(core.world.Storage(),
-                           core.world.Generator(),
-                           window.renderer)
-        super(Game, self).__init__(window, client, BINDINGS, world)
-        self._player = Player(client, self.inputs)
+        self._menu = MainMenu(renderer = window.renderer, game = self)
+        world = World(
+            storage = Storage(),
+            generator = Generator(),
+            renderer = window.renderer
+        )
+        super().__init__(window, client, BINDINGS, world)
+        self._player = Player(client, self.input_translator)
 
     @property
     def gui(self):
