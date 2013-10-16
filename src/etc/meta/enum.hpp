@@ -1,6 +1,8 @@
 #ifndef  ETC_META_ENUM_HPP
 # define ETC_META_ENUM_HPP
 
+# include <etc/types.hpp>
+
 /// Best signed integer type for the enum.
 # define ETC_META_ENUM_STORAGE(__type)                                        \
 	typename ::etc::meta::enum_detail::StorageType<sizeof(__type)>::type      \

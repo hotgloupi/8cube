@@ -6,7 +6,7 @@
 #include <etc/platform.hpp>
 #include <etc/sys/environ.hpp>
 
-#ifdef ETC_WINDOWS
+#ifdef ETC_PLATFORM_WINDOWS
 # include <wrappers/windows.hpp>
 #else
 # include <unistd.h>        /* getuid() */
@@ -18,7 +18,7 @@ namespace {
 
 	std::string _home_directory()
 	{
-#ifdef ETC_WINDOWS
+#ifdef ETC_PLATFORM_WINDOWS
 		TCHAR path[MAX_PATH];
 		auto res = SHGetFolderPath(
 			nullptr,
@@ -40,10 +40,9 @@ namespace {
 #endif
 	}
 
-
 	std::string _config_directory()
 	{
-#ifdef ETC_WINDOWS
+#ifdef ETC_PLATFORM_WINDOWS
 # error "Not implemented"
 #else
 		return etc::path::join(

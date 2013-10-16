@@ -8,16 +8,16 @@
 namespace cube { namespace gl { namespace viewport {
 
 	struct CUBE_API Viewport
-		: public cube::gl::rectangle::Rectangle2f
+		: public rectangle::Rectangle2f
 	{
 		Viewport(float x, float y, float w, float h)
-			: cube::gl::rectangle::Rectangle2f{x, y, w, h}
+			: rectangle::Rectangle2f{x, y, w, h}
 		{}
 
 		inline
 		Viewport& operator =(Viewport const& other)
 		{
-			this->cube::gl::rectangle::Rectangle2f::operator =(other);
+			this->rectangle::Rectangle2f::operator =(other);
 			return *this;
 		}
 	};

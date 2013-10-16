@@ -41,13 +41,13 @@ namespace etc {
 		inline constexpr
 		StaticString(StaticString const&) = default;
 
-		inline constexpr
+		inline
 		StaticString& operator =(StaticString const&) = delete;
 
 		inline constexpr
 		StaticString(StaticString&&) = default;
 
-		inline constexpr
+		inline
 		StaticString& operator =(StaticString&&) = delete;
 
 		template<typename T,
