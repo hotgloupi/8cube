@@ -2,6 +2,7 @@
 
 from cube import gl
 from cubeapp.game import Game as GameBase
+from cubeapp.game.event import Event
 from cubeapp.world import World, Storage, Generator
 
 from .bindings import BINDINGS
@@ -18,7 +19,13 @@ class Game(GameBase):
             renderer = window.renderer
         )
         super().__init__(window, client, BINDINGS, world)
-        self._player = Player(client, self.input_translator)
+        self._player = Player(client, self.event_manager)
+        self.input_translator.keyboard.move_forward.key_held.connect(
+            lambda i: self.event_manager.push(Event(self._player.move_forward)),
+        )
+        self.input_translator.keyboard.move_backward.key_held.connect(
+            lambda i: self.event_manager.push(Event(self._player.move_backward)),
+        )
 
     @property
     def gui(self):

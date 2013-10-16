@@ -52,7 +52,8 @@ class Game():
 
         @note should be overridden.
         """
-        self.player.update(delta)
+        self.input_translator.poll()
+        self.event_manager.poll(delta)
         self.world.update(delta, self.player, self.projection_matrix)
 
     def _on_quit(self):

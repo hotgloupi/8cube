@@ -6,16 +6,29 @@ from .keyboard import KeyboardInput
 from .mouse import MouseInput
 
 class Translator:
-    """Provide signals and state for given bindings.
+    """Connects to input devices such as keyboard and mouse, and translate them
+    to events according to the binding configuration.
+
+    Bindings consist of a dictionnary that contains mapping for each device
+    kind:
+        >>> bindings = {
+        ...     'mouse': {...},
+        ...     'keyboard': {...},
+        ...     'joystick': {...},
+        ... }
     """
 
     def __init__(self, window, bindings):
-        self.__map = {}
-        for name, key in bindings.items():
-            key_input = KeyboardInput(name)
+        self.__keyboard_map = {}
+        class Keyboard:
+            """Namespace for keyboard connectors"""
+            pass
+        self.keyboard = Keyboard()
+        for name, key in bindings.get('keyboard', {}).items():
             key, mod = self.__translate_key(name, key)
-            setattr(self, name, key_input)
-            self.__map[(mod, key)] = key_input
+            key_input = KeyboardInput(name)
+            setattr(self.keyboard, name, key_input)
+            self.__keyboard_map[(mod, key)] = key_input
 
         self.mouse = MouseInput()
 
@@ -24,6 +37,8 @@ class Translator:
             window.inputs.on_keyup.connect(self.__on_keyup),
             window.inputs.on_mousemove.connect(self.__on_mousemove),
         ]
+        self.__events = []
+        self.__held = set()
 
     def __translate_key(self, name, key):
         mod = KeyMod.none
@@ -50,21 +65,34 @@ class Translator:
 
     def __get_keyboard_input(self, keymod, keysym, keycode):
         keymod = KeyMod(keymod & ~KeyMod.num)
-        i = self.__map.get((keymod, keysym))
+        i = self.__keyboard_map.get((keymod, keysym))
         if i is None:
-            i = self.__map.get((keymod, keycode))
+            i = self.__keyboard_map.get((keymod, keycode))
         return i
 
     def __on_keydown(self, keymod, keysym, keycode):
         i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
-            i.keydown()
+            self.__events.append(i.key_pressed)
+            self.__held.add(i)
 
     def __on_keyup(self, keymod, keysym, keycode):
         i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
-            i.keyup()
+            self.__events.append(i.key_released)
+            self.__held.remove(i)
 
     def __on_mousemove(self, xrel, yrel):
         self.mouse.xrel += xrel
         self.mouse.yrel += yrel
+
+    def poll(self):
+        to_fire = self.__events
+        self.__events = []
+        for func in to_fire:
+            func()
+        for key in self.__held:
+            key.key_held()
+
+
+

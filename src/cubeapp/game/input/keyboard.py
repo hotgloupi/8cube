@@ -13,7 +13,7 @@ class Connector:
         self.__callbacks = []
 
     def connect(self, cb):
-        hdlr = Handler(self)
+        hdlr = self.Handler(self)
         self.__callbacks.append((hdlr, cb))
         return hdlr
 
@@ -35,15 +35,7 @@ class KeyboardInput:
     def __init__(self, name):
         self.name = name
         self.held = False
-        self.on_keydown = Connector(self)
-        self.on_keyup = Connector(self)
-
-    def keydown(self):
-        self.held = True
-        self.on_keydown()
-
-    def keyup(self):
-        self.held = False
-        self.on_keyup()
-
+        self.key_pressed = Connector(self)
+        self.key_released = Connector(self)
+        self.key_held = Connector(self)
 

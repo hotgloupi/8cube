@@ -4,12 +4,12 @@ from cube import gl
 from .world import world, chunk
 
 class Player:
-    def __init__(self, client, inputs):
+    def __init__(self, client, event_manager):
         self.camera = gl.Camera()
         self.world_position = world.coord_type(0, 0, 0)
         self.client = client
-        self.inputs = inputs
-        self.update(0)
+        self.event_manager = event_manager
+        self._update_pos()
 
     @property
     def fov(self):
@@ -19,7 +19,7 @@ class Player:
     def position(self):
         return self.camera.position
 
-    def update(self, delta):
+    def _update_pos(self):
         """
         @brief Update the player state according to the elapsed time since last
                update. base method set correct world position.
