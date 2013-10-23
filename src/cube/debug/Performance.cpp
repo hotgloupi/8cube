@@ -218,14 +218,6 @@ namespace cube { namespace debug {
 		this->dump_set(_this->roots, max_name_len, 0);
 	}
 
-#define DURATION_MS(d) \
-	std::chrono::duration_cast<std::chrono::milliseconds>(d).count() \
-/**/
-
-#define DURATION_NS(d) \
-	std::chrono::duration_cast<std::chrono::nanoseconds>(d).count() \
-/**/
-
 	void
 	Performance::dump_set(std::unordered_set<Info const*> const& set,
 	                      unsigned int const max_name_len,
@@ -280,7 +272,6 @@ namespace cube { namespace debug {
 		}
 	}
 
-
 	void
 	Performance::dump_info(Performance::Info const& info,
 	                       unsigned int const max_name_len,
@@ -301,4 +292,5 @@ namespace cube { namespace debug {
 		;
 		this->dump_set(info._children, max_name_len, indent + 2);
 	}
+
 }}
