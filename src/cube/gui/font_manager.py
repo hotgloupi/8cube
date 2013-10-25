@@ -119,6 +119,7 @@ class FontManager:
                 '~/.fonts',
                 '/opt/share/fonts',
                 '/opt/local/share/fonts',
+                'c:/Windows/Fonts',
             ] if os.path.isdir(os.path.expanduser(p))
         )
 
