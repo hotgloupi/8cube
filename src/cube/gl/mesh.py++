@@ -27,7 +27,7 @@ namespace {
 						"Mesh.append() does not accept named arguments"
 					};
 				Mesh& mesh = py::extract<Mesh&>(args[0])();
-				for (int i = 1; i < py::len(args); ++i)
+				for (int i = 1, len = py::len(args); i < len; ++i)
 				{
 					auto el = args[i];
 #define CHECK(__type) \
