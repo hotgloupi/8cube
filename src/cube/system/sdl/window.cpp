@@ -18,15 +18,17 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	struct Window::Impl
 		: private boost::noncopyable
 	{
-		::SDL_Surface*          screen;
-		::SDL_VideoInfo const*  video_info;
+		::SDL_Window*           screen;
+		//::SDL_VideoInfo const*  video_info;
 		int                     flags;
 		int                     screen_bpp;
 
 		Impl()
-		{
-			bzero(this, sizeof(*this));
-		}
+			: screen{nullptr}
+			//, video_info{nullptr}
+			, flags{0}
+			, screen_bpp{0}
+		{}
 
 		void resize(etc::size_type const width,
 		            etc::size_type const height)
@@ -36,6 +38,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				width, height, this->screen_bpp, this->flags
 			);
 
+			/*
 			if (this->video_info == nullptr)
 				this->video_info = SDL_GetVideoInfo();
 			if (this->video_info == nullptr)
@@ -65,10 +68,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 			SDL_GL_SwapBuffers();
 
-			if (this->screen == nullptr)
-				throw Exception{
-					std::string{"SDL_SetVideoMode(): "} + SDL_GetError()
-				};
+			*/
+
 		}
 	};
 
@@ -80,9 +81,9 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		, _sdl_impl{new Impl{}}
 	{
 		SDL_version linked;
-#if SDL_VERSION_ATLEAST(1, 3, 0)
+#if 1
 		SDL_GetVersion(&linked);
-#else
+#else // old SDL 1.2
 		SDL_version const* linked_ptr = SDL_Linked_Version();
 		std::memcpy(&linked, linked_ptr, sizeof(linked));
 #endif
@@ -99,19 +100,30 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		);
 		if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
 			throw Exception(std::string{"SDL_Init(): "} + SDL_GetError());
-		_sdl_impl->screen = nullptr;
-		_sdl_impl->video_info = nullptr;
-		_sdl_impl->flags = SDL_RESIZABLE;
+
+		_sdl_impl->screen = SDL_CreateWindow(
+			title.c_str(),
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			width,
+			height,
+			SDL_WINDOW_OPENGL
+		);
+		if (_sdl_impl->screen == nullptr)
+			throw Exception{
+				std::string{"SDL_CreateWindow(): "} + SDL_GetError()
+			};
+		SDL_GL_CreateContext(_sdl_impl->screen);
 #ifdef ETC_PLATFORM_MACOSX
 		_sdl_impl->screen_bpp = 32;
 #else
 		_sdl_impl->screen_bpp = 16;
 #endif
-		::SDL_WM_SetCaption(title.c_str(), 0);
+		//::SDL_WM_SetCaption(title.c_str(), 0);
 
 		//SDL_EnableKeyRepeat(130, 35);
-		::SDL_EnableUNICODE(SDL_ENABLE);
-
+		//::SDL_EnableUNICODE(SDL_ENABLE);
+/*
 		switch (renderer_name)
 		{
 		case gl::renderer::Name::OpenGL:
@@ -124,7 +136,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		default:
 			throw Exception("Other renderer than OpenGL are not supported");
 		}
-		_sdl_impl->resize(width, height);
+		_sdl_impl->resize(width, height); */
 		gl::viewport::Viewport vp{
 			.0f, .0f,
 			static_cast<float>(width),
@@ -140,7 +152,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	void Window::swap_buffers()
 	{
         ETC_LOG.debug("Swapping buffers");
-		SDL_GL_SwapBuffers();
+		SDL_GL_SwapWindow(_sdl_impl->screen);
 	}
 
 	//Window::Window(std::string const& title,
@@ -178,41 +190,49 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
-			switch (e.type)
+			if (e.type == SDL_WINDOWEVENT)
 			{
-			case SDL_VIDEORESIZE:
-				_width = e.resize.w;
-				_height = e.resize.h;
-				has_resize = true;
-				break;
-			case SDL_VIDEOEXPOSE:
-				has_expose = true;
-				break;
-			case SDL_QUIT:
-				this->inputs().on_quit()();
-				break;
-			case SDL_KEYDOWN:
+				switch (e.window.event)
+				{
+				case SDL_WINDOWEVENT_RESIZED:
+					_width = e.window.data1;
+					_height = e.window.data2;
+					has_resize = true;
+					break;
+				case SDL_WINDOWEVENT_EXPOSED:
+					has_expose = true;
+					break;
+				case SDL_WINDOWEVENT_CLOSE:
+					this->inputs().on_quit()();
+					break;
+				default:
+					ETC_LOG.debug("Ignore window event", e.window.event);
+				}
+			}
+			else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
+			{
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 				{
 					this->inputs().on_quit()();
 					break;
 				}
-				/* no break here, continue in KEYUP case */
-			case SDL_KEYUP:
 #define MOD(e) static_cast<inputs::KeyMod>(static_cast<int>(e.key.keysym.mod))
 #define SYM(e) static_cast<inputs::KeySym>(static_cast<int>(e.key.keysym.sym))
+/*
 #define CHR(e) (                                                              \
 		((e.key.keysym.unicode & 0xFF80) == 0)                                \
 		? e.key.keysym.unicode & 0x7F                                         \
 		: e.key.keysym.unicode                                                \
 	)                                                                         \
-/**/
+*/
+#define CHR(e) 0
 				if (e.type == SDL_KEYDOWN)
 					this->inputs().on_keydown()(MOD(e), SYM(e), CHR(e));
 				else
 					this->inputs().on_keyup()(MOD(e), SYM(e), CHR(e));
-				break;
-			case SDL_MOUSEMOTION:
+			}
+			else if (e.type == SDL_MOUSEMOTION)
+			{
 				this->inputs().on_mousemove()(e.motion.xrel, e.motion.yrel);
 			}
 			if (++count >= max)
@@ -239,6 +259,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 	void Window::confine_mouse(bool mode)
 	{
+#if 0
 		SDL_GrabMode input_mode = mode ? SDL_GRAB_ON : SDL_GRAB_OFF;
 		::SDL_WM_GrabInput(input_mode);
 		if (input_mode != ::SDL_WM_GrabInput(SDL_GRAB_QUERY))
@@ -249,6 +270,9 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 		if (mode)
 			SDL_WarpMouse(_width / 2, _height / 2);
+#endif
+
+		SDL_SetRelativeMouseMode(mode ? SDL_TRUE : SDL_FALSE);
 		SDL_Event e;
 		SDL_PumpEvents();
 
@@ -276,10 +300,10 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	              "inputs::KeyMod::lalt    == KMOD_LALT");
 	static_assert((int) inputs::KeyMod::ralt    == KMOD_RALT,
 	              "inputs::KeyMod::ralt    == KMOD_RALT");
-	static_assert((int) inputs::KeyMod::lmeta   == KMOD_LMETA,
-	              "inputs::KeyMod::lmeta   == KMOD_LMETA");
-	static_assert((int) inputs::KeyMod::rmeta   == KMOD_RMETA,
-	              "inputs::KeyMod::rmeta   == KMOD_RMETA");
+	static_assert((int) inputs::KeyMod::lmeta   == KMOD_LGUI,
+	              "inputs::KeyMod::lmeta   == KMOD_LGUI");
+	static_assert((int) inputs::KeyMod::rmeta   == KMOD_RGUI,
+	              "inputs::KeyMod::rmeta   == KMOD_RGUI");
 	static_assert((int) inputs::KeyMod::num     == KMOD_NUM,
 	              "inputs::KeyMod::num     == KMOD_NUM");
 	static_assert((int) inputs::KeyMod::caps    == KMOD_CAPS,
@@ -292,7 +316,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	              "inputs::KeyMod::shift   == KMOD_SHIFT");
 	static_assert((int) inputs::KeyMod::alt     == KMOD_ALT,
 	              "inputs::KeyMod::alt     == KMOD_ALT");
-	static_assert((int) inputs::KeyMod::meta    == KMOD_META,
-	              "inputs::KeyMod::meta    == KMOD_META");
+	static_assert((int) inputs::KeyMod::meta    == KMOD_GUI,
+	              "inputs::KeyMod::meta    == KMOD_GUI");
 
 }}}} // !cube::system::sdl::window

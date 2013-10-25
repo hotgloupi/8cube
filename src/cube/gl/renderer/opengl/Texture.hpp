@@ -5,7 +5,7 @@
 
 # include "_opengl.hpp"
 
-# include <SDL/SDL_image.h>
+# include <SDL_image.h>
 
 # include <string>
 

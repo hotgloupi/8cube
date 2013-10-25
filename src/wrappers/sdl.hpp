@@ -1,1 +1,2 @@
-#include <SDL/SDL.h>
+
+#include <SDL.h>
