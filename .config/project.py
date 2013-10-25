@@ -21,13 +21,14 @@ from tupcfg import path
 
 class Assimp(Dependency):
 
-    def __init__(self, compiler, source_directory, boost = None, shared = True):
+    def __init__(self, compiler, source_directory, boost = None, shared = True, c_compiler = None):
         super(Assimp, self).__init__(
             "Open Asset Import Library",
             "assimp",
         )
         self.source_directory = source_directory
         self.compiler = compiler
+        self.c_compiler = c_compiler
         self.shared = shared
         self.boost = boost
         ext = self.compiler.library_extension(shared)
@@ -43,11 +44,14 @@ class Assimp(Dependency):
                     'cmake',
                     path.absolute(self.source_directory),
                     '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
+                    '-DCMAKE_C_COMPILER=%s' % self.c_compiler.binary,
+                    '-DCMAKE_MAKE_PROGRAM=%s' % self.compiler.build.make_program,
                     '-DBoost_DEBUG=TRUE',
                     '-DBoost_DETAILED_FAILURE_MSG=TRUE',
                     '-DBoost_NO_SYSTEM_PATHS=TRUE',
                     '-DBoost_NO_CMAKE=TRUE',
                     '-DBoost_ADDITIONAL_VERSIONS=1.55',
+                    '-G', 'MinGW Makefiles',
                 ],
                 working_directory = self.build_path(),
                 env = {
@@ -85,6 +89,172 @@ class Assimp(Dependency):
                 save_env_vars = False,
             )
         ]
+
+class SDLDependency(Dependency):
+    def __init__(self, compiler, source_directory, shared = True):
+        super().__init__("SDL Library", "SDL")
+        self.source_directory = source_directory
+        self.shared = shared
+        self.compiler = compiler
+        ext = self.compiler.library_extension(shared)
+        if platform.IS_WINDOWS:
+            prefix = ''
+        else:
+            prefix = 'lib'
+        self.library_filename = '%sSDL2.%s' % (prefix, ext)
+        self.__libraries = None
+
+    @property
+    def targets(self):
+        configure_script = path.absolute(self.source_directory, 'configure')
+        configure_target = Target(
+            self.build_path('build/Makefile'),
+            ShellCommand(
+                "Configure libSDL",
+                [
+                    configure_script,
+                    '--prefix', self.build_path('install', abs=True),
+                ],
+                working_directory = self.build_path('build'),
+                env = {
+                    'CC': self.compiler.binary,
+                },
+            )
+        )
+        install_target = Target(
+            self.library_path,
+            ShellCommand(
+                "Installing %s" % self.name,
+                [self.resolved_build.make_program, 'install'],
+                working_directory = self.build_path('build'),
+                dependencies = [configure_target]
+            )
+        )
+        return [install_target]
+
+    @property
+    def libraries(self):
+        if self.__libraries is not None:
+            return self.__libraries
+        self.__libraries =  [
+            c.Library(
+                self.name,
+                self.compiler,
+                shared = self.shared,
+                search_binary_files = False,
+                include_directories = [
+                    self.build_path('install/include/SDL2', abs = True)
+                ],
+                directories = [self.library_directory],
+                files = [self.library_path],
+                save_env_vars = False,
+            )
+        ]
+        return self.__libraries
+
+    @property
+    def install_directory(self):
+        return self.build_path('install', abs = True)
+
+    @property
+    def library_directory(self):
+        if self.shared and platform.IS_WINDOWS:
+            return self.build_path('install/bin', abs = True)
+        else:
+            return self.build_path('install/lib', abs = True)
+
+    @property
+    def library_path(self):
+        if self.shared and platform.IS_WINDOWS:
+            return self.build_path('install/bin', self.library_filename, abs = True)
+        else:
+            return self.build_path('install/lib', self.library_filename, abs = True)
+
+class SDLImageDependency(Dependency):
+    def __init__(self, compiler, source_directory, sdl, shared = True):
+        super().__init__("SDL_image Library", "SDL_image")
+        self.source_directory = source_directory
+        self.shared = shared
+        self.compiler = compiler
+        ext = self.compiler.library_extension(shared)
+        if platform.IS_WINDOWS:
+            prefix = ''
+        else:
+            prefix = 'lib'
+        self.library_filename = '%sSDL2_image.%s' % (prefix, ext)
+        self.__sdl = sdl
+        self.__libraries = None
+
+    @property
+    def targets(self):
+        configure_script = path.absolute(self.source_directory, 'configure')
+        configure_target = Target(
+            self.build_path('build/Makefile'),
+            ShellCommand(
+                "Configure libSDL_image",
+                [
+                    configure_script,
+                    '--prefix', self.build_path('install', abs=True),
+                    '--with-sdl-prefix=%s' % self.__sdl.install_directory,
+                    '--disable-sdltest',
+                ],
+                working_directory = self.build_path('build'),
+                env = {
+                    'CC': self.compiler.binary,
+                    'MAKE': self.compiler.build.make_program,
+                },
+                dependencies = self.__sdl.targets,
+            )
+        )
+        install_target = Target(
+            self.library_path,
+            ShellCommand(
+                "Installing %s" % self.name,
+                [self.resolved_build.make_program, 'install'],
+                working_directory = self.build_path('build'),
+                dependencies = [configure_target]
+            )
+        )
+        return [install_target]
+
+    @property
+    def libraries(self):
+        if self.__libraries is not None:
+            return self.__libraries
+        self.__libraries =  [
+            c.Library(
+                self.name,
+                self.compiler,
+                shared = self.shared,
+                search_binary_files = False,
+                include_directories = [
+                    self.build_path('install/include/SDL2', abs = True)
+                ],
+                directories = [self.library_directory],
+                files = [self.library_path],
+                save_env_vars = False,
+            )
+        ]
+        return self.__libraries
+
+
+    @property
+    def install_directory(self):
+        return self.build_path('install', abs = True)
+
+    @property
+    def library_directory(self):
+        if self.shared and platform.IS_WINDOWS:
+            return self.build_path('install/bin', abs = True)
+        else:
+            return self.build_path('install/lib', abs = True)
+
+    @property
+    def library_path(self):
+        if self.shared and platform.IS_WINDOWS:
+            return self.build_path('install/bin', self.library_filename, abs = True)
+        else:
+            return self.build_path('install/lib', self.library_filename, abs = True)
 
 def configure(project, build):
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
@@ -133,24 +303,29 @@ def configure(project, build):
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
-#        force_architecture = False,
+        force_architecture = False,
+        target_architecture = '32bit',
 #        additional_link_flags = {
 #            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
 #        }
     )
 
-    c_compiler = c.find_compiler(project, build)
+    c_compiler = c.find_compiler(project, build, force_architecture = False)
 
     status("Using %s as C++ compiler" % compiler)
     status("Using %s as C compiler" % c_compiler)
 
     freetype2 = build.add_dependency(c.libraries.FreetypeDependency(c_compiler, 'deps/freetype2'))
-    python = build.add_dependency(c.libraries.PythonDependency(
-        c_compiler,
-        'deps/cPython-3.3',
-        shared = True,
-        version = (3, 3)
-    ))
+
+    if platform.IS_WINDOWS:
+        python = c.libraries.PythonLibrary(c_compiler, shared = False)
+    else:
+        python = build.add_dependency(c.libraries.PythonDependency(
+            c_compiler,
+            'deps/cPython-3.3',
+            shared = True,
+            version = (3, 3)
+        ))
 
     boost = build.add_dependency(
         cxx.libraries.BoostDependency(
@@ -171,26 +346,31 @@ def configure(project, build):
             #        python3_shared = True,
         )
     )
-    compiler.include_directories.extend(tools.unique(
-        sum((l.include_directories for l in boost.libraries),  [])
-    ))
 
-    assimp = build.add_dependency(
-        Assimp(compiler, 'deps/assimp', boost = boost)
+    #assimp = build.add_dependency(
+    #    Assimp(compiler, 'deps/assimp', boost = boost, c_compiler = c_compiler)
+    #)
+
+    sdl = build.add_dependency(
+        SDLDependency(c_compiler, 'deps/SDL')
     )
-
-    sdl = c.libraries.SDLLibrary(
-        compiler,
-        components=['image'],
-        shared=True
+    sdl_image = build.add_dependency(
+        SDLImageDependency(c_compiler, 'deps/SDL_image', sdl = sdl)
     )
+    #sdl = c.libraries.SDLLibrary(
+    #    compiler,
+    #    components=['image'],
+    #    shared=True
+    #)
 
-    opengl = c.libraries.OpenGLLibrary(compiler)
+
+    opengl = c.libraries.OpenGLLibrary(compiler, system = True)
 
     graphic_libraries = (
         sdl.libraries +
+        sdl_image.libraries +
         opengl.libraries +
-        assimp.libraries +
+        #assimp.libraries +
         freetype2.libraries
     )
     if not platform.IS_WINDOWS:
@@ -199,7 +379,12 @@ def configure(project, build):
     base_libraries = []
     if platform.IS_WINDOWS:
         base_libraries.extend(
-            c.libraries.simple(name, compiler, shared=True) for name in ['Shlwapi',]
+            c.libraries.simple(name, compiler, system = True) for name in [
+                'Shlwapi',
+                'ws2_32',
+                'Gdi32',
+                'mswsock',
+            ]
         )
     elif platform.IS_MACOSX:
         base_libraries.extend(
@@ -246,7 +431,7 @@ def configure(project, build):
         'libcube',
         rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
-        libraries=[libetc] + graphic_libraries + boost.libraries + python.libraries,
+        libraries = base_libraries + [libetc] + graphic_libraries + boost.libraries + python.libraries,
         precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
         defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
     )
@@ -283,12 +468,31 @@ def configure(project, build):
             precompiled_headers = [boost_python_pch, stl_pch],
         )
 
+
+    infinit_cube_libraries = [
+        libcubeapp,
+        libcube,
+        libetc,
+    ] + graphic_libraries + boost.libraries + python.libraries
+
     infinit_cube = compiler.link_executable(
         "8cube",
         ["src/cubeapp/main.cpp"],
         directory = "release/bin",
-        libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
+        libraries = infinit_cube_libraries,
     )
+
+    if platform.IS_WINDOWS:
+        for lib in infinit_cube_libraries:
+            if not isinstance(lib, Target):
+                if lib.shared and not lib.system:
+                    for f in lib.files:
+                        print("Copy",f )
+                        build.fs.copy(f, dest_dir = 'release/bin')
+            else:
+                if lib.dependencies[0].shared:
+                    build.fs.copy(lib, dest_dir = 'release/bin')
+
 
     for src in rglob("cube/*.py", dir = 'src'):
         build.fs.copy(src, 'release/lib/python/' + src[4:])
