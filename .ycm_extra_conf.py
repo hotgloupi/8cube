@@ -1,21 +1,53 @@
 # -*- encoding: utf-8 -*-
-import os
+import os, sys
 import ycm_core
 
 #SCRIPT_FILE = os.path.abspath(__file___)
+#SCRIPT_DIR = os.path.dirname(SCRIPT_FILE)
+SCRIPT_DIR = os.getcwd()
 
 # These are the compilation flags that will be used in case there's no
 # compilation database set (by default, one is not set).
 # CHANGE THIS LIST OF FLAGS. YES, THIS IS THE DROID YOU HAVE BEEN LOOKING FOR.
+
+
+include_dirs = [
+    'build/src',
+    'src',
+    'src/glew',
+    'deps/SDL/include',
+    'deps/boost',
+    'deps/freetype2/include',
+    'build/dependencies/sdl/install/include',
+]
+
+if sys.platform.startswith('win32'):
+    include_dirs.extend([
+        'c:/Python33/Include',
+        "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\lib\\gcc\\i686-w64-mingw32\\4.8.1\\include\\c++\\i686-w64-mingw32",
+        "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\lib\\gcc\\i686-w64-mingw32\\4.8.1\\include\\c++",
+        "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\lib\\gcc\\i686-w64-mingw32\\4.8.1\\include",
+        "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\i686-w64-mingw32\\include",
+        "c:\\LLVM-3.4.svn\\lib\\clang\\3.4\\include",
+    ])
+elif sys.platform.startswith('darwin'):
+    include_dirs.extend([
+        '/Users/hotgloupi/local/lib/c++/v1',
+    ])
+
 flags = [
     '-Wall',
     '-Wextra',
-    '-Werror',
     '-std=c++11',
+    '-DGLM_FORCE_CXX11',
     '-x', 'c++',
-    '-I', '/Users/hotgloupi/local/lib/c++/v1',
-    '-I','src',
 ]
+
+for d in include_dirs:
+    if not os.path.isabs(d):
+        d = os.path.join(SCRIPT_DIR, d)
+    flags.append('-I')
+    flags.append(os.path.realpath(d))
 
 
 # Set this to the absolute path to the folder (NOT the file!) containing the
