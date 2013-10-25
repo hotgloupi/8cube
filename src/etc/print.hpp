@@ -83,7 +83,7 @@ namespace etc {
 		}
 
 		/// no separator
-		ETC_API inline
+		inline
 		Separator const& nosep()
 		{
 			static Separator const sep("");
@@ -91,7 +91,7 @@ namespace etc {
 		}
 
 		/// space separator (default)
-		ETC_API inline
+		inline
 		Separator const& spacesep()
 		{
 			static Separator const sep(' ');
@@ -99,7 +99,7 @@ namespace etc {
 		}
 
 		/// tabulation separator
-		ETC_API inline
+		inline
 		Separator const& tabsep()
 		{
 			static Separator const sep('\t');
@@ -107,7 +107,7 @@ namespace etc {
 		}
 
 		/// linefeed separator
-		ETC_API inline
+		inline
 		Separator const& newlinesep()
 		{
 			static Separator const sep('\n');
@@ -133,7 +133,7 @@ namespace etc {
 		};
 
 		/// line feed end of line character
-		ETC_API inline
+		inline
 		EndOfLine const& newline()
 		{
 			static EndOfLine const endl('\n');
@@ -141,7 +141,7 @@ namespace etc {
 		}
 
 		/// no new line
-		ETC_API inline
+		inline
 		EndOfLine const& nonewline()
 		{
 			static EndOfLine const endl("");

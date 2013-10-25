@@ -83,7 +83,7 @@ namespace etc {
 			sprint(out, flags, is_first, std::forward<U>(values)...);
 		}
 
-		ETC_API inline
+		inline
 		void sprintf(std::ostream& out,
 		             boost::format& fmt)
 		{
@@ -145,7 +145,7 @@ namespace etc {
 
 namespace std {
 
-	ETC_API inline
+	inline
 	std::ostream& operator <<(std::ostream& out, std::nullptr_t)
 	{
 		return out << "(nullptr)";
