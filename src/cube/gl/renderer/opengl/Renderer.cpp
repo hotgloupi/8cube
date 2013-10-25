@@ -186,6 +186,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	static void find_version(GLubyte const* str, int* major, int* minor)
 	{
+		if (str == nullptr)
+		{
+			ETC_LOG.warn("GL version couldn't be found");
+			*major = *minor = 0;
+			return;
+		}
 		assert(str != nullptr);
 		for (int* n = major;; n = minor)
 		{
