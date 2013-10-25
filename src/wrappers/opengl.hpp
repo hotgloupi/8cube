@@ -5,7 +5,7 @@
 
 # ifdef _WIN32
 #  include <GL/glew.h>
-#  include <GL/wglew.h>
+//#  include <GL/wglew.h>
 # else
 #  include <GL/glew.h>
 //#  include <GL/glxew.h>

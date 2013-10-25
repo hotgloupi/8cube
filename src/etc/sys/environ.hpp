@@ -1,8 +1,13 @@
 #ifndef  ETC_SYS_ENVIRON_HPP
 # define ETC_SYS_ENVIRON_HPP
 
-# include "../api.hpp"
-# include "../exception.hpp"
+# include <etc/api.hpp>
+# include <etc/exception.hpp>
+
+# ifdef environ
+#  warning "environ" macros conflicts with namespace
+#  undef environ
+# endif
 
 namespace etc { namespace sys { namespace environ {
 

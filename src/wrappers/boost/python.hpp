@@ -18,7 +18,9 @@
 // workaround a mingw bug
 // http://sourceforge.net/tracker/index.php?func=detail&aid=2373234&group_id=2435&atid=102435
 #  include <cstddef> // std:size_t
-int swprintf (wchar_t *, size_t, const wchar_t *, ...);
+
+// not needed in the last version of mingw
+//int swprintf (wchar_t *, size_t, const wchar_t *, ...);
 
 # endif
 

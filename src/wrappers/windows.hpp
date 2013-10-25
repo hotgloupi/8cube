@@ -4,9 +4,11 @@
 # ifdef _WIN32
 #  include <Windows.h>
 #  include <Winbase.h>
+#  include <Shlobj.h>
 #  undef DELETE
 #  undef far
 #  undef near
+#  undef environ
 # endif
 
 #endif

@@ -45,9 +45,6 @@ namespace {
 
 	std::string _config_directory()
 	{
-#ifdef ETC_PLATFORM_WINDOWS
-# error "Not implemented"
-#else
 		return etc::path::join(
 			_home_directory(),
 			etc::sys::environ::get(
@@ -55,7 +52,6 @@ namespace {
 				".config"
 			)
 		);
-#endif
 	}
 
 } //!anonymous
