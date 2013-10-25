@@ -392,18 +392,22 @@ namespace cube { namespace gl { namespace font {
 	}
 
 	template
+	CUBE_API
 	std::unique_ptr<renderer::VertexBuffer>
 	Font::generate_text<char>(std::basic_string<char> const& str);
 
 	template
+	CUBE_API
 	std::unique_ptr<renderer::VertexBuffer>
 	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str);
 
 	template
+	CUBE_API
 	std::unique_ptr<renderer::VertexBuffer>
 	Font::generate_text<char16_t>(std::basic_string<char16_t> const& str);
 
 	template
+	CUBE_API
 	std::unique_ptr<renderer::VertexBuffer>
 	Font::generate_text<char32_t>(std::basic_string<char32_t> const& str);
 

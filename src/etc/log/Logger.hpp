@@ -76,7 +76,7 @@ namespace etc { namespace log {
 		Logger(std::string const& name,
 		       Level lvl = Level::debug,
 		       Flag const flags = Flag::level | Flag::component);
-		friend Logger& logger(std::string const&);
+		friend ETC_API Logger& logger(std::string const&);
 
 	public:
 		template<typename... T>
