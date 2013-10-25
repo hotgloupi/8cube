@@ -4,6 +4,9 @@
 
 #include <etc/path.hpp>
 #include <etc/platform.hpp>
+#ifdef environ
+# undef environ
+#endif
 #include <etc/sys/environ.hpp>
 
 #ifdef ETC_PLATFORM_WINDOWS
