@@ -7,3 +7,5 @@ build
 .config/.project_vars
 .config/tup/
 deps/boost
+deps/SDL
+deps/SDL_image
