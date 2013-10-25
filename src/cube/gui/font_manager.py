@@ -98,6 +98,8 @@ class FontManager:
                             except:
                                 cube.error("ignoring font file", path)
 
+        if not cls.fonts:
+            raise Exception("Couldn't find any font on your system !")
         cube.info(len(cls.fonts), "font infos fetched in %f seconds" % (time.time() - start))
 
         cube.debug("Saving fonts into cache file '%s'" % fonts_file)
