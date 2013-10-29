@@ -3,7 +3,9 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Interpreter.hpp"
-
+#ifdef environ
+# undef environ
+#endif
 #include <etc/log.hpp>
 #include <etc/platform.hpp>
 #include <etc/sys/environ.hpp>
@@ -107,7 +109,6 @@ namespace cubeapp { namespace python {
 					";" + python_path + "\\DLLs" +
 					";" + python_path + "\\Lib"
 				);
-				}
 #else
 				auto prefix = lib_dir.parent_path().string();
 				etc::sys::environ::set("PYTHONHOME", prefix + ":" + prefix);
@@ -128,8 +129,8 @@ namespace cubeapp { namespace python {
 			etc::sys::environ::set("PATH", old_path);
 		}
 		assert(_interpreter != nullptr);
-		return *_interpreter;
 
+		return *_interpreter;
 	}
 
 }} // !app::python
