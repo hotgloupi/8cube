@@ -9,6 +9,7 @@
 #include "window.hpp"
 
 #include "sdl/window.hpp"
+#define CUBE_SYSTEM_WINDOW_TYPE cube::system::sdl::window::Window
 
 #ifdef CUBE_WITH_GLX
 # include "glx/window.hpp"
@@ -19,51 +20,46 @@ namespace cube { namespace system { namespace window {
 	ETC_LOG_COMPONENT("cube.system.window.Window");
 
 	struct Window::Impl
-		: private boost::noncopyable
 	{
-	public:
-		typedef std::unique_ptr<gl::renderer::Renderer> RendererPtr;
+		std::string        title;
+		etc::size_type     width;
+		etc::size_type     height;
+		Flags              flags;
+		RendererContextPtr context;
+		InputsPtr          inputs;
+		RendererPtr        renderer;
 
-	public:
-		RendererPtr     renderer;
-		inputs::Inputs  inputs;
-
-	public:
-		Impl(gl::renderer::Name const name)
-			: renderer{}
-			, inputs{}
-		{
-			ETC_LOG.debug("SDL has been initialized, creating the renderer");
-			// SDL_SetVideoMode has been called before (with resize()), we can
-			// create the renderer safely.
-			//this->renderer = std::move(gl::renderer::create_renderer(vp, name));
-		}
-
-		~Impl()
-		{
-			ETC_LOG.debug("Deleting Window impl");
-			this->renderer.reset();
-		}
+		Impl(std::string const& title,
+		     etc::size_type const width,
+		     etc::size_type const height,
+		     Flags const flags,
+		     RendererContextPtr context,
+		     InputsPtr inputs)
+			: title{title}
+			, width{width}
+			, height{height}
+			, flags{flags}
+			, context{std::move(context)}
+			, inputs{std::move(inputs)}
+			, renderer{
+				gl::renderer::create_renderer(
+					gl::viewport::Viewport{0, 0, (float) width, (float) height},
+					cube::gl::renderer::Name::OpenGL
+				)
+			}
+		{}
 	};
 
-	Window::Window(std::string const& title,
-	               etc::size_type const width,
-	               etc::size_type const height,
-	               gl::renderer::Name const renderer_name)
-		: _impl(nullptr)
-		, _title(title)
-		, _width(width)
-		, _height(height)
+	Window::Window(ImplPtr&& impl) noexcept
+		: _impl{std::move(impl)}
 	{
-		ETC_LOG.debug("New window", title, width, height);
-		_impl.reset(new Impl{renderer_name});
+		ETC_LOG.debug("New window", _impl->title, _impl->width, _impl->height);
 	}
 
 	Window::~Window()
 	{
-		ETC_LOG.debug("Deleting window", _title, _width, _height);
-		if (_impl->renderer)
-			_impl->renderer->shutdown();
+		ETC_LOG.debug("Deleting window", _impl->title);
+		_impl->renderer->shutdown();
 	}
 
 	etc::size_type Window::poll()
@@ -72,30 +68,67 @@ namespace cube { namespace system { namespace window {
 	}
 
 	gl::renderer::Renderer& Window::renderer()
-	{
-		if (!_impl->renderer)
-			throw Exception{"No renderer has been created yet"};
-		return *_impl->renderer;
-	}
+	{ return *_impl->renderer; }
 
 	inputs::Inputs& Window::inputs()
-	{
-		return _impl->inputs;
-	}
+	{ return *_impl->inputs; }
+
+	RendererContext& Window::renderer_context()
+	{ return *_impl->context; }
+
+	etc::size_type Window::width() const noexcept
+	{ return _impl->width; }
+
+	etc::size_type Window::height() const noexcept
+	{ return _impl->height; }
+
+	Window::Flags Window::flags() const noexcept
+	{ return _impl->flags; }
+
+	std::string const& Window::title() const noexcept
+	{ return _impl->title; }
+
+	void Window::width(etc::size_type const w) noexcept
+	{ _impl->width = w; }
+
+	void Window::height(etc::size_type const h) noexcept
+	{ _impl->height = h; }
 
 	std::unique_ptr<Window>
-	create_window(std::string const& title,
-	              etc::size_type const width,
-	              etc::size_type const height,
-	              gl::renderer::Name const name)
+	Window::create(std::string const& title,
+	               etc::size_type const width,
+	               etc::size_type const height,
+	               Flags const flags,
+	               gl::renderer::Name const name)
 	{
-		auto ptr =  std::unique_ptr<Window>{
-			new sdl::window::Window{title, width, height, name}
+		auto impl_ptr = std::unique_ptr<Window::Impl>{
+			new Impl{
+				title,
+				width,
+				height,
+				flags,
+				create_renderer_context(name),
+				etc::make_unique<inputs::Inputs>(),
+			}
 		};
-		gl::viewport::Viewport vp{0, 0, (float)width, (float)height};
-		ptr->_impl->renderer = gl::renderer::create_renderer(vp, name);
+		auto ptr =  std::unique_ptr<Window>{
+			new CUBE_SYSTEM_WINDOW_TYPE{
+				std::move(impl_ptr)
+			}
+		};
 		ETC_LOG.debug("Successfully created window and renderer");
 		return ptr;
+	}
+
+	Window::RendererContextPtr
+	Window::create_renderer_context(gl::renderer::Name const name)
+	{
+		return CUBE_SYSTEM_WINDOW_TYPE::create_renderer_context(name);
+	}
+
+	RendererContext::~RendererContext()
+	{
+
 	}
 
 }}} // !cube::system::window

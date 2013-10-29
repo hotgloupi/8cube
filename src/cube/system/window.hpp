@@ -12,35 +12,58 @@
 namespace cube { namespace system { namespace window {
 
 	class Window;
-
-	CUBE_API
-	std::unique_ptr<Window>
-	create_window(std::string const& title,
-	              etc::size_type const width,
-	              etc::size_type const height,
-	              gl::renderer::Name const name = gl::renderer::Name::OpenGL);
+	class RendererContext;
 
 	class CUBE_API Window
 	{
-	private:
-		struct Impl;
-		std::unique_ptr<Impl> _impl;
+	public:
+		enum class Flags
+		{
+			none               = 0,
+			borderless         = (1 << 0),
+			fullscreen         = (1 << 1),
+			fullscreen_desktop = (1 << 2),
+			hidden             = (1 << 3),
+		};
+		typedef std::unique_ptr<RendererContext> RendererContextPtr;
+		typedef std::unique_ptr<cube::gl::renderer::Renderer> RendererPtr;
+		typedef std::unique_ptr<inputs::Inputs> InputsPtr;
 
-	private:
-		std::string     _title;
 	protected:
-		etc::size_type  _width;
-		etc::size_type  _height;
+		struct Impl;
+		typedef std::unique_ptr<Impl> ImplPtr;
+		ImplPtr _impl;
 
 	public:
 		gl::renderer::Renderer& renderer();
+		RendererContext& renderer_context();
 		inputs::Inputs& inputs();
+		std::string const& title() const noexcept;
+		etc::size_type width() const noexcept;
+		etc::size_type height() const noexcept;
+		Flags flags() const noexcept;
 
+	protected:
+		void width(etc::size_type const w) noexcept;
+		void height(etc::size_type const h) noexcept;
+
+	protected:
+		Window(ImplPtr&& impl) noexcept;
 	public:
-		Window(std::string const& title,
+		static
+		std::unique_ptr<Window>
+		create(std::string const& title,
 		       etc::size_type const width,
 		       etc::size_type const height,
-		       gl::renderer::Name const renderer_name);
+		       Flags const flags = Flags::none,
+		       gl::renderer::Name const name  = gl::renderer::Name::OpenGL);
+
+	public:
+		static
+		RendererContextPtr
+		create_renderer_context(gl::renderer::Name const name);
+
+	public:
 		virtual ~Window();
 
 		virtual
@@ -55,14 +78,22 @@ namespace cube { namespace system { namespace window {
 		virtual
 		void swap_buffers() = 0;
 
-	private:
-		friend
-		std::unique_ptr<Window>
-		create_window(std::string const& title,
-		              etc::size_type const width,
-		              etc::size_type const height,
-		              gl::renderer::Name const name);
 	};
+
+	struct RendererContext
+	{
+		virtual
+		~RendererContext();
+	};
+
+	inline
+	Window::Flags operator |(Window::Flags const lhs,
+	                         Window::Flags const rhs) noexcept
+	{ return (Window::Flags) (((int) lhs) | ((int) rhs)); }
+
+	inline
+	bool operator &(Window::Flags const lhs, Window::Flags const rhs) noexcept
+	{ return (bool) (((int) lhs) & ((int) rhs)); }
 
 }}} // !cube::system::window
 
