@@ -61,10 +61,9 @@ namespace etc { namespace log {
 		 */
 	public:
 		/// Nothing happens for an empty call.
-		Log& send()
-		{
-			return *this;
-		}
+		inline
+		Log& send() noexcept
+		{ return *this; }
 
 		/// Send values to the logger.
 		template<typename... T>
@@ -119,24 +118,24 @@ namespace etc { namespace log {
 		_ETC_LOG_LEVEL_PRINTER(fatal)
 # undef _ETC_LOG_LEVEL_PRINTER
 
-		operator bool() const {return false;}
+		operator bool() const noexcept {return false;}
 
 	private:
 		static
 		etc::size_type _current_indent();
 	};
 
-		struct Indent
-		{
-			private:
-				static size_type _indent;
-			public:
-				static inline size_type increment() { return ++_indent; }
-				static inline size_type decrement() { return --_indent; }
-				static inline size_type get() { return _indent; }
-		};
+	struct Indent
+	{
+		private:
+			static size_type _indent;
+		public:
+			static inline size_type increment() { return ++_indent; }
+			static inline size_type decrement() { return --_indent; }
+			static inline size_type get() { return _indent; }
+	};
 
-		extern Indent indent;
+	extern Indent indent;
 
 }}
 

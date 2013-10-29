@@ -44,6 +44,8 @@ namespace etc { namespace log {
 	/// Factory for loggers
 	ETC_API Logger& logger(std::string const& name = "");
 
+	ETC_API void shutdown();
+
 	class ETC_API Logger
 		: private boost::noncopyable
 	{

@@ -4,14 +4,15 @@
 #include <etc/sys/environ.hpp>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include <cassert>
-#include <vector>
+#include <thread>
 #include <unordered_map>
+#include <vector>
 
 #ifdef _WIN32
-# include <Shlwapi.h>
-# pragma comment(lib, "shlwapi.lib")
+# include <wrappers/windows.hpp>
 #else
 # include <fnmatch.h>
 #endif
@@ -111,6 +112,57 @@ namespace etc { namespace log {
 			return it->second;
 		}
 
+		struct io_service_runner
+		{
+			boost::asio::io_service                        service;
+			std::unique_ptr<boost::asio::io_service::work> work;
+			bool                                           stopped;
+#ifdef ETC_DEBUG
+			size_t                                         dropped;
+#endif
+			std::thread                                    thread;
+
+			io_service_runner()
+				: service{}
+				, work{new boost::asio::io_service::work{service}}
+				, stopped{false}
+#ifdef ETC_DEBUG
+				, dropped{0}
+#endif
+				, thread{[this] { this->service.run(); }}
+			{}
+
+			template<typename Fn>
+			inline
+			void post(Fn&& fn)
+			{
+#ifdef ETC_DEBUG
+				this->service.post([=] {
+					if (!this->stopped)
+						fn();
+					else
+						this->dropped++;
+				});
+#else
+				this->service.post(std::forward<Fn>(fn));
+#endif
+			}
+
+			void stop()
+			{
+				this->stopped = true;
+				//this->io_service.stop();
+				this->work.reset();
+				this->thread.join();
+			}
+		};
+
+		io_service_runner& runner()
+		{
+			static io_service_runner runner;
+			return runner;
+		}
+
 	} // !anonymous
 
 	Logger& logger(std::string const& name)
@@ -121,6 +173,14 @@ namespace etc { namespace log {
 		if (it != loggers.end())
 			return *it->second;
 		return *((loggers[name] = new Logger{name, level}));
+	}
+
+	void shutdown()
+	{
+		runner().stop();
+#ifdef ETC_DEBUG
+		std::cerr << "WARNING: Dropped logs: " << runner().dropped << std::endl;
+#endif
 	}
 
 	Logger::Logger(std::string const& name,
@@ -142,83 +202,86 @@ namespace etc { namespace log {
 		if (line.level < _level || !component_enabled(line.component))
 			return;
 
-		// every fields are strings.
-		struct {
-			std::string const   level;
-			std::string const&  file;
-			std::string const   line;
-			std::string const&  function;
-			std::string const&  component;
-		} string = {
-			etc::to_string(line.level),
-			line.file,
-			etc::to_string(line.line),
-			line.function,
-			line.component,
-		};
+		runner().post([=] {
 
-		// Statically store max string size of each part.
-		static struct {
-			size_t level;
-			size_t file;
-			size_t line;
-			size_t function;
-			size_t component;
-		} max_size = {0, 0, 0, 0, 0};
+			// every fields are strings.
+			struct {
+				std::string const   level;
+				std::string const&  file;
+				std::string const   line;
+				std::string const&  function;
+				std::string const&  component;
+			} string = {
+				etc::to_string(line.level),
+				line.file,
+				etc::to_string(line.line),
+				line.function,
+				line.component,
+			};
 
-		// And update them.
+			// Statically store max string size of each part.
+			static struct {
+				size_t level;
+				size_t file;
+				size_t line;
+				size_t function;
+				size_t component;
+			} max_size = {0, 0, 0, 0, 0};
+
+			// And update them.
 #define _UPDATE_SIZE(__name)                                                  \
-		if (max_size.__name < string.__name.size())                           \
-			max_size.__name = string.__name.size()                            \
-/**/
+			if (max_size.__name < string.__name.size())                       \
+				max_size.__name = string.__name.size()                        \
+	/**/
 
-		_UPDATE_SIZE(level);
-		_UPDATE_SIZE(file);
-		_UPDATE_SIZE(line);
-		_UPDATE_SIZE(function);
-		_UPDATE_SIZE(component);
+			_UPDATE_SIZE(level);
+			_UPDATE_SIZE(file);
+			_UPDATE_SIZE(line);
+			_UPDATE_SIZE(function);
+			_UPDATE_SIZE(component);
 #undef _UPDATE_SIZE
 
-		// Fetch the out stream.
-		assert(meta::enum_<Level>::valid_index(line.level));
-		unsigned int idx = meta::enum_<Level>::indexof(line.level);
-		std::ostream* out = _streams[idx].out;
-		assert(out != nullptr);
+			// Fetch the out stream.
+			assert(meta::enum_<Level>::valid_index(line.level));
+			unsigned int idx = meta::enum_<Level>::indexof(line.level);
+			std::ostream* out = _streams[idx].out;
+			assert(out != nullptr);
 
-		switch (line.level)
-		{
-		case Level::warn:
-			break;
-			*out << "[33;01;33m";
-		case Level::error:
-			*out << "[33;03;31m";
-			break;
-		default:
-			break;
-		}
-		// Print each part
+			switch (line.level)
+			{
+			case Level::warn:
+				break;
+				*out << "[33;01;33m";
+			case Level::error:
+				*out << "[33;03;31m";
+				break;
+			default:
+				break;
+			}
+			// Print each part
 #define _PRINT_PART(__name, __flag) \
-		if (_flags & Flag::__flag) \
-		{ \
-			size_t delta = max_size.__name - string.__name.size(); \
-			*out << '[' << std::string( \
-						(delta / 2) + (delta % 2), \
-						' ' \
-					) \
-				 << string.__name \
-				 << std::string(delta / 2, ' ') << ']' \
-			; \
-		} \
-/**/
-		_PRINT_PART(level, level);
-		_PRINT_PART(file, location);
-		_PRINT_PART(line, location);
-		_PRINT_PART(function, function);
-		_PRINT_PART(component, component);
+			if (_flags & Flag::__flag) \
+			{ \
+				size_t delta = max_size.__name - string.__name.size(); \
+				*out << '[' << std::string( \
+							(delta / 2) + (delta % 2), \
+							' ' \
+						) \
+					 << string.__name \
+					 << std::string(delta / 2, ' ') << ']' \
+				; \
+			} \
+	/**/
+			_PRINT_PART(level, level);
+			_PRINT_PART(file, location);
+			_PRINT_PART(line, location);
+			_PRINT_PART(function, function);
+			_PRINT_PART(component, component);
 #undef _PRINT_PART
 
-		*out <<  std::string(line.indent * 2, ' ') << message
-		     << "[0m" << std::endl;
+			*out <<  std::string(line.indent * 2, ' ') << message
+				 << "[0m\n";
+		});
 	}
 
 }} // !etc::log

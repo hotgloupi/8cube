@@ -76,6 +76,7 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	;
 	try {
 		int res = interpreter.exec(init_script);
+		etc::log::shutdown();
 		cube::debug::Performance::instance().dump();
 		return res != 0;
 	} catch (std::exception const& err) {
