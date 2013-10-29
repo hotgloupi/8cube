@@ -5,18 +5,16 @@
 
 namespace cube { namespace system { namespace sdl { namespace window {
 
+	class SDLRendererContext;
+
 	class Window
 		: public cube::system::window::Window
 	{
-	private:
-		struct Impl;
-		std::unique_ptr<Impl> _sdl_impl;
+	public:
+		typedef cube::system::window::Window Super;
 
 	public:
-		Window(std::string const& title,
-		       etc::size_type const width,
-		       etc::size_type const height,
-		       gl::renderer::Name const renderer_name);
+		Window(ImplPtr&& impl);
 
 		virtual
 		~Window();
@@ -24,6 +22,14 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		etc::size_type poll(etc::size_type const max) override;
 		void confine_mouse(bool mode) override;
 		void swap_buffers() override;
+
+	public:
+		static
+		RendererContextPtr
+		create_renderer_context(gl::renderer::Name const name);
+
+	private:
+		SDLRendererContext& _context();
 	};
 
 }}}}

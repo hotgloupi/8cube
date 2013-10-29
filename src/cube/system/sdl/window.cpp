@@ -15,168 +15,115 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 	ETC_LOG_COMPONENT("cube.system.sdl.window.Window");
 
-	struct Window::Impl
-		: private boost::noncopyable
-	{
-		::SDL_Window*           screen;
-		//::SDL_VideoInfo const*  video_info;
-		int                     flags;
-		int                     screen_bpp;
+	namespace {
 
-		Impl()
-			: screen{nullptr}
-			//, video_info{nullptr}
-			, flags{0}
-			, screen_bpp{0}
-		{}
-
-		void resize(etc::size_type const width,
-		            etc::size_type const height)
+		class SDLException : public Exception
 		{
-			ETC_LOG.debug(
-				"Setting SDL video mode with",
-				width, height, this->screen_bpp, this->flags
+		public:
+			SDLException(std::string const& funcname)
+				: Exception{"SDL_" + funcname + ": " + SDL_GetError()}
+			{}
+		};
+
+	}
+
+	class SDLRendererContext
+		: public cube::system::window::RendererContext
+	{
+	public:
+		SDL_version   linked;
+		SDL_version   compiled;
+		SDL_Window*   window;
+		SDL_GLContext gl_context;
+		SDL_SysWMinfo wm;
+
+	public:
+		SDLRendererContext()
+		{
+			SDL_GetVersion(&linked);
+			SDL_VERSION(&compiled);
+
+			ETC_LOG(
+				"Compiled SDL version ", etc::iomanip::nosep(),
+				(int)this->compiled.major, '.', (int)this->compiled.minor, '-',
+				(int)this->compiled.patch
+			);
+			ETC_LOG(
+				"Linked SDL version ", etc::iomanip::nosep(),
+				(int)this->linked.major, '.', (int)this->linked.minor, '-',
+				(int)this->linked.patch
+			);
+			if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+				throw SDLException("Init");
+			this->window = SDL_CreateWindow(
+				"Default name",
+				SDL_WINDOWPOS_CENTERED,
+				SDL_WINDOWPOS_CENTERED,
+				640,
+				480,
+				SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN
+			);
+			if (this->window == nullptr)
+				throw SDLException{"CreateWindow"};
+
+			this->gl_context = SDL_GL_CreateContext(this->window);
+			if (this->gl_context == nullptr)
+				throw SDLException{"GL_CreateContext"};
+
+			SDL_VERSION(&this->wm.version);
+			if (SDL_GetWindowWMInfo(this->window, &this->wm) == SDL_FALSE)
+				throw SDLException{"GetWindowWMInfo"};
+/*
+			SDL_WindowShapeMode shape_mode;
+			shape_mode.mode = ShapeModeDefault;
+			//shape_mode.parameters.colorKey = {
+			//	255, 0, 0, 0
+			//};
+			SDL_Surface* shape = SDL_CreateRGBSurface(
+				0,   // flags,
+				640, // width,
+				480, // height,
+				32,   //  depth,
+				0, 0, 0, 0 //Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask);
 			);
 
-			/*
-			if (this->video_info == nullptr)
-				this->video_info = SDL_GetVideoInfo();
-			if (this->video_info == nullptr)
-				throw Exception{etc::to_string(
-					"Coudn't get video information!", SDL_GetError()
-				)};
 
-			if (this->screen == nullptr)
-			{
-				if (this->video_info->hw_available)
-					this->flags |= SDL_HWSURFACE;
-				else
-					this->flags |= SDL_SWSURFACE;
-
-				if (this->video_info->blit_hw)
-					this->flags |= SDL_HWACCEL;
-			}
-			else
-			{
-				//::SDL_FreeSurface(this->screen);
-				//this->screen = nullptr;
-			}
-
-			this->screen = SDL_SetVideoMode(
-				width, height, 0, this->flags
-			);
-
-			SDL_GL_SwapBuffers();
-
-			*/
-
+			if (SDL_SetWindowShape(_context().window, SDL_GetWindowSurface(_context().window), &shape_mode))
+				throw SDLException{"SetWindowShape"};
+*/
 		}
 	};
 
-	Window::Window(std::string const& title,
-	               etc::size_type const width,
-	               etc::size_type const height,
-	               gl::renderer::Name const renderer_name)
-		: cube::system::window::Window{title, width, height, renderer_name}
-		, _sdl_impl{new Impl{}}
+	Window::Window(ImplPtr&& impl)
+		: Super{std::move(impl)}
 	{
-		SDL_version linked;
-#if 1
-		SDL_GetVersion(&linked);
-#else // old SDL 1.2
-		SDL_version const* linked_ptr = SDL_Linked_Version();
-		std::memcpy(&linked, linked_ptr, sizeof(linked));
-#endif
+		SDL_SetWindowTitle(_context().window, this->title().c_str());
+		SDL_SetWindowSize(_context().window, this->width(), this->height());
 
-		SDL_version compiled;
-		SDL_VERSION(&compiled);
-		ETC_LOG(
-			"Compiled SDL version ", etc::iomanip::nosep(),
-			(int)compiled.major, '.', (int)compiled.minor, '-', (int)compiled.patch
-		);
-		ETC_LOG(
-			"Linked SDL version ", etc::iomanip::nosep(),
-			(int)linked.major, '.', (int)linked.minor, '-', (int)linked.patch
-		);
-		if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-			throw Exception(std::string{"SDL_Init(): "} + SDL_GetError());
-
-		_sdl_impl->screen = SDL_CreateWindow(
-			title.c_str(),
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			width,
-			height,
-			SDL_WINDOW_OPENGL
-		);
-		if (_sdl_impl->screen == nullptr)
-			throw Exception{
-				std::string{"SDL_CreateWindow(): "} + SDL_GetError()
-			};
-		SDL_GL_CreateContext(_sdl_impl->screen);
-#ifdef ETC_PLATFORM_MACOSX
-		_sdl_impl->screen_bpp = 32;
-#else
-		_sdl_impl->screen_bpp = 16;
-#endif
-		//::SDL_WM_SetCaption(title.c_str(), 0);
-
-		//SDL_EnableKeyRepeat(130, 35);
-		//::SDL_EnableUNICODE(SDL_ENABLE);
-/*
-		switch (renderer_name)
-		{
-		case gl::renderer::Name::OpenGL:
-			_sdl_impl->flags |= SDL_OPENGL;
-			//_sdl_impl->flags |= SDL_GL_DOUBLEBUFFER;
-			::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-			//::SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-			::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, _sdl_impl->screen_bpp);
-			break;
-		default:
-			throw Exception("Other renderer than OpenGL are not supported");
-		}
-		_sdl_impl->resize(width, height); */
-		gl::viewport::Viewport vp{
-			.0f, .0f,
-			static_cast<float>(width),
-			static_cast<float>(height),
-		};
-
-		ETC_LOG.debug("SDL has been initialized, creating the renderer");
-		// SDL_SetVideoMode has been called before (with resize()), we can
-		// create the renderer safely.
-		//this->renderer = std::move(gl::renderer::create_renderer(vp, name));
+		if (this->flags() & Flags::borderless)
+			SDL_SetWindowBordered(_context().window, SDL_FALSE);
+		if (not (this->flags() & Flags::hidden))
+			SDL_ShowWindow(_context().window);
 	}
 
 	void Window::swap_buffers()
 	{
         ETC_LOG.debug("Swapping buffers");
-		SDL_GL_SwapWindow(_sdl_impl->screen);
+		SDL_GL_SwapWindow(_context().window);
 	}
-
-	//Window::Window(std::string const& title,
-	//               uint32_t const width,
-	//               uint32_t const height)
-	//	: _sdl_impl(nullptr)
-	//	, _title(title)
-	//	, _width(width)
-	//	, _height(height)
-	//{
-	//	ETC_TRACE.debug("Creating a window", title, "(", width, 'x', height, ')');
-	//	if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-	//		throw Exception(std::string{"SDL_Init(): "} + SDL_GetError());
-	//	_sdl_impl = new Impl{
-	//		title,
-	//		width,
-	//		height,
-	//		gl::renderer::RendererType::OpenGL,
-	//	};
-	//}
 
 	Window::~Window()
 	{
 		::SDL_Quit();
+	}
+
+	SDLRendererContext& Window::_context()
+	{
+#ifdef CUBE_DEBUG
+		return dynamic_cast<SDLRendererContext&>(this->renderer_context());
+#else
+		return static_cast<SDLRendererContext&>(this->renderer_context());
+#endif
 	}
 
 	etc::size_type
@@ -195,8 +142,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				switch (e.window.event)
 				{
 				case SDL_WINDOWEVENT_RESIZED:
-					_width = e.window.data1;
-					_height = e.window.data2;
+					this->width(e.window.data1);
+					this->height(e.window.data2);
 					has_resize = true;
 					break;
 				case SDL_WINDOWEVENT_EXPOSED:
@@ -241,14 +188,14 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 		if (has_resize)
 		{
-			ETC_TRACE.debug("Got resize event", _width, _height);
-			_sdl_impl->resize(_width, _height);
-			this->inputs().on_resize()(_width, _height);
+			ETC_TRACE.debug("Got resize event", this->width(), this->height());
+//_sdl_impl->resize(_impl->width, _impl->height);
+			this->inputs().on_resize()(this->width(), this->height());
 		}
 		if (has_expose)
 		{
 			ETC_TRACE.debug("Got expose event");
-			this->inputs().on_expose()(_width, _height);
+			this->inputs().on_expose()(this->width(), this->height());
 		}
 
 		if (count == 0)
@@ -283,6 +230,15 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0
 #endif
 		) { /* Dry the queue of mouse motion events */ }
+	}
+
+
+	Window::RendererContextPtr
+	Window::create_renderer_context(gl::renderer::Name const name)
+	{
+		return RendererContextPtr{
+			new SDLRendererContext{}
+		};
 	}
 
 	// Check that SDL implem won't change
