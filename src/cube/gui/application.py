@@ -5,11 +5,11 @@ import cube
 
 class Application(cube.Application):
     def __init__(self, name="Cube app", width=640, height=480):
-        self._window = cube.gui.RootWindow(name, width, height)
         events = [
             'idle', 'quit',
         ]
         self._handlers = {}
+        self._window = cube.gui.RootWindow(name, width, height)
         for event in events:
             connection = getattr(
                 self._window.inputs, 'on_' + event
@@ -60,7 +60,6 @@ class Application(cube.Application):
         for ev, hdlr in self._handlers.items():
             hdlr['connection'].disconnect()
         self._handlers = {}
-        self._window = None
 
 
     def _on_idle(self):

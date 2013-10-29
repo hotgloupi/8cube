@@ -5,12 +5,19 @@ from cube.gl.renderer import Renderer
 from cube import gl
 from cube import system
 from cube.gui.widgets.viewport import Viewport
+from cube.gui.view import View
 
 class RootWindow:
 
     def __init__(self, title, width, height):
-        self.__window = system.create_window(title, width, height, gl.renderer.Name.OpenGL)
-        self._root_widget = Viewport(
+        self.__window = system.create_window(
+            title,
+            width,
+            height,
+            system.WindowFlags.none,
+            gl.renderer.Name.OpenGL
+        )
+        self.root_widget = Viewport(
             renderer=self.renderer,
             x=0, y=0, w=width, h=height,
         )
@@ -41,13 +48,13 @@ class RootWindow:
 
     @property
     def root_widget(self):
-        return self._root_widget
+        return self.__root_widget
 
     @root_widget.setter
     def root_widget(self, w):
-        assert isinstance(w, Widget)
-        self._root_widget = widget
-        self._root_widget.parent = self
+        assert isinstance(w, View)
+        self.__root_widget = w
+        self.__root_widget.parent = self
 
     def render(self, painter):
         self.renderer.clear(
@@ -58,11 +65,11 @@ class RootWindow:
             w, h = self._new_viewport_size
             cube.debug("Updating viewport size")
             self.renderer.viewport(0, 0, w, h);
-            if self._root_widget:
-                self._root_widget.on_resize(w, h)
+            if self.__root_widget:
+                self.__root_widget.on_resize(w, h)
             self._new_viewport_size = None
-        if self._root_widget is not None:
-            self._root_widget.render(painter)
+        if self.__root_widget is not None:
+            self.__root_widget.render(painter)
         self.__window.swap_buffers()
 
     def swap_buffers(self):
