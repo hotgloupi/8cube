@@ -187,6 +187,8 @@ class SDLImageDependency(Dependency):
 
     @property
     def targets(self):
+        if platform.IS_WINDOWS and tools.which('make') is None:
+            raise Exception("SDL_image cannot install properly without a make program available :/")
         configure_script = path.absolute(self.source_directory, 'configure')
         configure_target = Target(
             self.build_path('build/Makefile'),
@@ -201,7 +203,8 @@ class SDLImageDependency(Dependency):
                 working_directory = self.build_path('build'),
                 env = {
                     'CC': self.compiler.binary,
-                    'MAKE': self.compiler.build.make_program,
+                    # on windows, passing MAKE env var generate errorneous makefiles...
+                    #'MAKE': path.basename(self.compiler.build.make_program),
                 },
                 dependencies = self.__sdl.targets,
             )
@@ -212,7 +215,7 @@ class SDLImageDependency(Dependency):
                 "Installing %s" % self.name,
                 [self.resolved_build.make_program, 'install'],
                 working_directory = self.build_path('build'),
-                dependencies = [configure_target]
+                dependencies = [configure_target],
             )
         )
         return [install_target]
@@ -507,13 +510,13 @@ def configure(project, build):
         'simple_window', 'cube/gl/shader_generator',
     ]
 
-    for test in tests:
-        compiler.link_executable(
-            test,
-            [path.join('tests', test + '.cpp')],
-            directory = 'tests',
-            libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-            precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
-        )
+    #for test in tests:
+    #    compiler.link_executable(
+    #        test,
+    #        [path.join('tests', test + '.cpp')],
+    #        directory = 'tests',
+    #        libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+    #        precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
+    #    )
 
 
