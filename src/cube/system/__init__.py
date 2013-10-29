@@ -2,4 +2,5 @@
 
 from .inputs import Inputs
 from .window import create_window
+from .window import WindowFlags
 

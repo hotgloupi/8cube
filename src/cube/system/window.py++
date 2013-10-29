@@ -17,12 +17,13 @@ namespace {
 		create_window(std::string const& title,
 		              etc::size_type const width,
 		              etc::size_type const height,
+		              cube::system::window::Window::Flags const flags,
 					  cube::gl::renderer::Name const name)
 		{
 			std::auto_ptr<cube::system::window::Window> ptr;
 			ptr.reset(
-				cube::system::window::create_window(
-					title, width, height, name
+				cube::system::window::Window::create(
+					title, width, height, flags, name
 				).release()
 			);
 			return ptr;
@@ -39,6 +40,11 @@ BOOST_PYTHON_MODULE(window)
 	using namespace cube::system::window;
 
 	py::import("cube.gl.renderer")["Name"];
+
+	py::enum_<Window::Flags>("WindowFlags")
+		.value("none", Window::Flags::none)
+		.value("borderless", Window::Flags::borderless)
+	;
 
 	py::class_<Window, std::auto_ptr<Window>, boost::noncopyable>(
 			"Window",
