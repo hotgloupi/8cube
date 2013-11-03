@@ -108,4 +108,4 @@ fi
 ### SDL -----------------------------------------------------------------------
 debug "Updating SDL"
 [ ! -d SDL ] && hg clone http://hg.libsdl.org/SDL
-[ ! -d SDL_image ] hg clone http://hg.libsdl.org/SDL_image
+[ ! -d SDL_image ] && hg clone http://hg.libsdl.org/SDL_image
