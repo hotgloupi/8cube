@@ -10,7 +10,7 @@
  * requires on startup initialization done in SDLMain library. In that case,
  * we have to name our main function after SDL's requirement.
  */
-# if ETC_PLATFORM_MACOSX // XXX and SDLMain
+# if 0 //ETC_PLATFORM_MACOSX // XXX and SDLMain
 #  define CUBE_MAIN_FUNC_NAME SDL_main
 # else
 #  define CUBE_MAIN_FUNC_NAME main
