@@ -17,7 +17,7 @@ Exported classes:
     Material
     Matrix44f
     Mesh
-    Plane{f,d,i,u,il,ul}
+    Plane{f,d}
     Sphere{f,d,i,u,il,ul}
     Text
     Vector{2,3,4}{f,d,i,u,il,ul} (and aliases vec*)
@@ -55,7 +55,7 @@ from .font import Font
 from .material import Material
 from .matrix import Matrix44f
 from .mesh import Mesh
-from .plane import Planef, Planed, Planei, Planeu, Planeil, Planeul
+from .plane import Planef, Planed
 from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul

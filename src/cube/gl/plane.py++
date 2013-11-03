@@ -32,8 +32,8 @@ BOOST_PYTHON_MODULE(plane)
 
 	EXPORT_PLANE(float, f);
 	EXPORT_PLANE(double, d);
-	EXPORT_PLANE(int32_t, i);
+/*	EXPORT_PLANE(int32_t, i);
 	EXPORT_PLANE(uint32_t, u);
 	EXPORT_PLANE(int64_t, il);
-	EXPORT_PLANE(uint64_t, ul);
+	EXPORT_PLANE(uint64_t, ul);*/
 }

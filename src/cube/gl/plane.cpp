@@ -21,11 +21,11 @@ namespace cube { namespace gl { namespace plane {
 
 	template struct Plane<float>;
 	template struct Plane<double>;
-	template struct Plane<int32_t>;
+/*	template struct Plane<int32_t>;
 	template struct Plane<uint32_t>;
 	template struct Plane<int64_t>;
 	template struct Plane<uint64_t>;
-
+*/
 	template<typename T>
 	std::ostream& operator <<(std::ostream& out, Plane<T> const& plane)
 	{
@@ -56,6 +56,7 @@ namespace cube { namespace gl { namespace plane {
 	std::ostream& operator <<<float>(std::ostream& out, Plane<float> const& plane);
 	template
 	std::ostream& operator <<<double>(std::ostream& out, Plane<double> const& plane);
+	/*
 	template
 	std::ostream& operator <<<int32_t>(std::ostream& out, Plane<int32_t> const& plane);
 	template
@@ -64,5 +65,5 @@ namespace cube { namespace gl { namespace plane {
 	std::ostream& operator <<<int64_t>(std::ostream& out, Plane<int64_t> const& plane);
 	template
 	std::ostream& operator <<<uint64_t>(std::ostream& out, Plane<uint64_t> const& plane);
-
+*/
 }}}
