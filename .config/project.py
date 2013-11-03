@@ -6,7 +6,7 @@ NAME = "8cube"
 VERSION_NAME = "prototype"
 
 from tupcfg import Command
-from tupcfg.command import Shell as ShellCommand
+from tupcfg.command import Command
 from tupcfg import Dependency
 from tupcfg import Source
 from tupcfg import Target
@@ -21,12 +21,12 @@ from tupcfg import path
 
 class Assimp(Dependency):
 
-    def __init__(self, compiler, source_directory, boost = None, shared = True, c_compiler = None):
+    def __init__(self, build, compiler, source_directory, boost = None, shared = True, c_compiler = None):
         super(Assimp, self).__init__(
-            "Open Asset Import Library",
-            "assimp",
+            build,
+            "Assimp",
+            source_directory = source_directory
         )
-        self.source_directory = source_directory
         self.compiler = compiler
         self.c_compiler = c_compiler
         self.shared = shared
@@ -36,41 +36,44 @@ class Assimp(Dependency):
 
     @property
     def targets(self):
-        configure_target = Target(
-            'assimp/Makefile',
-            ShellCommand(
-                "Configure Assimp",
-                [
-                    'cmake',
-                    path.absolute(self.source_directory),
-                    '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
-                    '-DCMAKE_C_COMPILER=%s' % self.c_compiler.binary,
-                    '-DCMAKE_MAKE_PROGRAM=%s' % self.compiler.build.make_program,
-                    '-DBoost_DEBUG=TRUE',
-                    '-DBoost_DETAILED_FAILURE_MSG=TRUE',
-                    '-DBoost_NO_SYSTEM_PATHS=TRUE',
-                    '-DBoost_NO_CMAKE=TRUE',
-                    '-DBoost_ADDITIONAL_VERSIONS=1.55',
-                    '-G', 'MinGW Makefiles',
-                ],
-                working_directory = self.build_path(),
-                env = {
-                    'BOOST_ROOT': self.boost.root_directory,
-                    'BOOST_INCLUDEDIR': self.boost.include_directory,
-                    'BOOST_LIBRARYDIR': self.boost.library_directory,
-                },
-                dependencies = self.boost.targets,
-            )
-        )
-        build_target = Target(
-            path.join('assimp/code/', self.library_filename),
-            ShellCommand(
-                "Building Assimp",
-                ['make'],
-                working_directory = self.build_path(),
-                dependencies = [configure_target]
-            )
-        )
+        cmake_cmd = [
+            'cmake',
+            path.relative(
+                self.absolute_source_path(),
+                start = self.absolute_build_path()
+            ),
+            '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
+            '-DCMAKE_C_COMPILER=%s' % self.c_compiler.binary,
+            '-DCMAKE_MAKE_PROGRAM=%s' % self.compiler.build.make_program,
+            '-DBoost_DEBUG=TRUE',
+            '-DBoost_DETAILED_FAILURE_MSG=TRUE',
+            '-DBoost_NO_SYSTEM_PATHS=TRUE',
+            '-DBoost_NO_CMAKE=TRUE',
+            '-DBoost_ADDITIONAL_VERSIONS=1.55',
+        ]
+        if platform.IS_WINDOWS:
+            cmake_cmd.extend([
+                '-G', 'MinGW Makefiles',
+            ])
+        configure_target = Command(
+            action = "Configure Assimp",
+            target = Target(self.build, 'assimp/Makefile'),
+            command = cmake_cmd,
+            working_directory = self.absolute_build_path(),
+            env = {
+                'BOOST_ROOT': self.boost.root_directory,
+                'BOOST_INCLUDEDIR': self.boost.include_directory,
+                'BOOST_LIBRARYDIR': self.boost.library_directory,
+            },
+            inputs = self.boost.targets,
+        ).target
+        build_target = Command(
+            action = "Building Assimp",
+            target = Target(self.build, path.join('Assimp/code', self.library_filename)),
+            command = ['make'],
+            working_directory = self.absolute_build_path(),
+            inputs = [configure_target]
+        ).target
         return [build_target]
 
     @property
@@ -82,10 +85,10 @@ class Assimp(Dependency):
                 shared = self.shared,
                 search_binary_files = False,
                 include_directories = [
-                    path.join(self.source_directory, 'include', abs = True)
+                    self.absolute_source_path('include')
                 ],
-                directories = [self.build_path('code', abs = True)],
-                files = [self.build_path('code', self.library_filename, abs = True)],
+                directories = [self.absolute_build_path('code')],
+                files = [self.absolute_build_path('code', self.library_filename)],
                 save_env_vars = False,
             )
         ]
@@ -318,41 +321,52 @@ def configure(project, build):
     status("Using %s as C++ compiler" % compiler)
     status("Using %s as C compiler" % c_compiler)
 
-    freetype2 = build.add_dependency(c.libraries.FreetypeDependency(c_compiler, 'deps/freetype2'))
-
+    freetype2 = build.add_dependency(
+        c.libraries.FreetypeDependency,
+        c_compiler,
+        'deps/freetype2'
+    )
     if platform.IS_WINDOWS:
         python = c.libraries.PythonLibrary(c_compiler, shared = False)
     else:
-        python = build.add_dependency(c.libraries.PythonDependency(
+        python = build.add_dependency(
+            c.libraries.PythonDependency,
             c_compiler,
             'deps/cPython-3.3',
             shared = True,
             version = (3, 3)
-        ))
+        )
 
     boost = build.add_dependency(
-        cxx.libraries.BoostDependency(
-            compiler,
-            'deps/boost',
-            version = (1, 55),
-            python = python,
-            components = [
-                'format',
-                'timer',
-                'system',
-                'filesystem',
-                'python',
-                'signals2',
-                'thread'
-            ],
-            #preferred_shared = False,
-            #        python3_shared = True,
-        )
+        cxx.libraries.BoostDependency,
+        compiler,
+        'deps/boost',
+        version = (1, 55),
+        python = python,
+        components = [
+            'format',
+            'timer',
+            'system',
+            'filesystem',
+            'python',
+            'signals2',
+            'thread'
+        ],
+        #preferred_shared = False,
+        #        python3_shared = True,
     )
 
-    #assimp = build.add_dependency(
-    #    Assimp(compiler, 'deps/assimp', boost = boost, c_compiler = c_compiler)
-    #)
+    # XXX needed ?
+    compiler.include_directories.extend(tools.unique(
+        sum((l.include_directories for l in boost.libraries),  [])
+    ))
+
+    assimp = build.add_dependency(
+        Assimp,
+        compiler,
+        'deps/assimp',
+        boost = boost
+    )
 
     sdl = build.add_dependency(
         SDLDependency(c_compiler, 'deps/SDL')
