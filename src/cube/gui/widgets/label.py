@@ -34,6 +34,15 @@ class Label(view.View):
         ])
         self.__text = gl.Text(self.font, self.__str);
 
+    @property
+    def text(self):
+        return self.__str
+
+    @text.setter
+    def text(self, value):
+        self.__str = value
+        self.__text = gl.Text(self.font, self.__str);
+
     def render(self, painter):
         with painter.bind([self.__sp]):
             self.__text.draw(painter, self.__sp.parameter("sampler0"))
