@@ -18,9 +18,9 @@ namespace cube { namespace gl { namespace text {
 		: private boost::noncopyable
 	{
 	private:
-		font::Font&             _font;
-		etc::size_type          _size;
-		renderer::VertexBuffer* _vertices;
+		font::Font&               _font;
+		etc::size_type            _size;
+		renderer::VertexBufferPtr _vertices;
 
 	public:
 		template<typename CharType>

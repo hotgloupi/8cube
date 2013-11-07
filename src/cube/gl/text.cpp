@@ -14,10 +14,8 @@ namespace cube { namespace gl { namespace text {
 	           std::basic_string<CharType> const& str)
 		: _font(font)
 		, _size(str.size())
-		, _vertices{nullptr}
-	{
-		_vertices = _font.generate_text(str).release();
-	}
+		, _vertices{_font.generate_text(str)}
+	{}
 
 	template
 	CUBE_API
@@ -33,10 +31,7 @@ namespace cube { namespace gl { namespace text {
 	Text::Text/*<char32_t>*/(font::Font&, std::basic_string<char32_t> const&);
 
 	Text::~Text()
-	{
-		delete _vertices;
-		_vertices = nullptr;
-	}
+	{}
 
 	void Text::draw(renderer::Painter& painter,
 	                renderer::ShaderProgramParameter& sampler)
