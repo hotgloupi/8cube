@@ -37,6 +37,7 @@ namespace cube { namespace resource {
 		inline
 		Resource() noexcept
 			: _id{0}
+			, _manager{nullptr}
 		{}
 
 	private:
