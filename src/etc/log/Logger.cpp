@@ -22,24 +22,61 @@ namespace etc { namespace log {
 
 	namespace {
 
+		template<typename... Args>
+		void logger_log(Args&&... args)
+		{
+			etc::sprint(std::cerr, std::forward<Args>(args)...);
+		}
+
+		Level level_from_string(std::string const& str, Level default_value)
+		{
+			std::unordered_map<std::string, Level> map{
+				{"DEBUG", Level::debug},
+				{"INFO", Level::info},
+				{"WARN", Level::warn},
+				{"WARNING", Level::warn},
+				{"ERROR", Level::error},
+				{"FATAL", Level::fatal},
+			};
+			auto it = map.find(str);
+			if (it == map.end())
+			{
+				logger_log(
+					"Unkwnown log level '" + str + "':",
+					"defaulting to", default_value
+				);
+				return default_value;
+			}
+			return it->second;
+		}
+
+		Level default_level()
+		{
+			static std::string level_string = etc::sys::environ::get("ETC_LOG_LEVEL", "INFO");
+			static Level value = level_from_string(level_string, Level::info);
+			return value;
+		}
+
 		struct Pattern
 		{
 			enum Operation
 			{
-				add_match,
-				remove_match,
+				add_match = 1,
+				remove_match = -1,
 			} op;
 			std::string str;
+			Level level;
 
-			Pattern(Operation op, std::string str)
+			Pattern(Operation op, std::string str, Level level)
 				: op(op)
 				, str(str)
+				, level{level}
 			{}
 		};
 
 		std::vector<Pattern> get_patterns()
 		{
-			std::string envvar = etc::sys::environ::get("ETC_LOG_COMPONENTS", "*");
+			std::string envvar = etc::sys::environ::get("ETC_LOG", "*");
 			std::vector<std::string> patterns;
 			boost::algorithm::split(
 				patterns,
@@ -51,31 +88,59 @@ namespace etc { namespace log {
 			for (auto& pattern: patterns)
 			{
 				boost::algorithm::trim(pattern);
-				if (pattern.size() == 0 ||
-						(pattern.size() == 1 && (
-							pattern[0] == '+' ||
-							pattern[0] == '-')))
+				std::vector<std::string> parts;
+				boost::algorithm::split(
+					parts,
+					pattern,
+					boost::algorithm::is_any_of(":"),
+					boost::algorithm::token_compress_on
+				);
+				if (parts.size() == 0)
+				{
+					logger_log("Ignoring empty log pattern");
 					continue;
-				if (pattern[0] == '+')
-					res.push_back(Pattern(Pattern::add_match, pattern.substr(1)));
-				else if (pattern[0] == '-')
-					res.push_back(Pattern(Pattern::remove_match, pattern.substr(1)));
+				}
+				else if (parts.size() > 2)
+				{
+					logger_log("Ignoring invalid log pattern:", "'" + pattern + "'");
+					continue;
+				}
+				std::string match = parts[0];
+				Level level = (
+					parts.size() == 2 ?
+					level_from_string(parts[1], default_level()) :
+					default_level()
+				);
+				etc::print("match:", match, "level:", level);
+
+				if (match.size() == 0 ||
+						(match.size() == 1 && (
+							match[0] == '+' ||
+							match[0] == '-')))
+				{
+					logger_log("Invalid match expression:", "'" + match + "'");
+					continue;
+				}
+				if (match[0] == '+')
+					res.push_back(Pattern(Pattern::add_match, match.substr(1), level));
+				else if (match[0] == '-')
+					res.push_back(Pattern(Pattern::remove_match, match.substr(1), level));
 				else
-					res.push_back(Pattern(Pattern::add_match, pattern));
+					res.push_back(Pattern(Pattern::add_match, match, level));
 			}
+			for (auto const& p: res)
+				etc::print("Pattern:", p.level, p.str, p.op);
 			return res;
 		}
 
-		bool component_enabled(std::string const& name)
+		std::pair<Level, bool> const& component_config(std::string const& name)
 		{
-			if (name.size() == 0)
-				return true;
-			static std::unordered_map<std::string, bool> components;
+			static std::unordered_map<std::string, std::pair<Level, bool>> components;
 			auto it = components.find(name);
 			if (it != components.end())
 				return it->second;
 			static std::vector<Pattern> patterns = get_patterns();
-			bool enabled = false;
+			std::pair<Level, bool> res = {default_level(), false};
 			for (auto const& pattern: patterns)
 			{
 #ifdef _WIN32
@@ -83,35 +148,12 @@ namespace etc { namespace log {
 #else
 				if (::fnmatch(pattern.str.c_str(), name.c_str(), 0) == 0)
 #endif
-					enabled = (pattern.op == Pattern::add_match);
+					res = {pattern.level, (pattern.op == Pattern::add_match)};
 			}
-			return components[name] = enabled;
+			etc::print("Component", name, "config:", res.first, res.second);
+			return components[name] = res;
 		}
 
-		Level default_level()
-		{
-			static std::string level_string = etc::sys::environ::get("ETC_LOG_LEVEL", "INFO");
-			std::unordered_map<std::string, Level> map{
-				{"DEBUG", Level::debug},
-				{"INFO", Level::info},
-				{"WARN", Level::warn},
-				{"WARNING", Level::warn},
-				{"ERROR", Level::error},
-				{"FATAL", Level::fatal},
-			};
-			auto it = map.find(level_string);
-			if (it == map.end())
-			{
-				if (!level_string.empty())
-				{
-					std::cerr << "WARNING: Unkwnown log level '"
-					          << level_string << "', defaults to INFO\n";
-				}
-				level_string = "INFO";
-				return Level::info;
-			}
-			return it->second;
-		}
 
 		struct io_service_runner
 		{
