@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from cube.system.inputs import KeyMod, KeySym
+from cube import log
 
 from .keyboard import KeyboardInput
 from .mouse import MouseInput
@@ -71,6 +72,7 @@ class Translator:
         return i
 
     def __on_keydown(self, keymod, keysym, keycode):
+        log.debug("Got keyboard input:", keymod, keysym, keycode)
         i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
             self.__events.append(i.key_pressed)
