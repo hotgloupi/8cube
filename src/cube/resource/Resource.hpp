@@ -25,14 +25,17 @@ namespace cube { namespace resource {
 		virtual
 		~Resource();
 
-		id_type id() const
+		inline
+		id_type id() const noexcept
 		{ return _id; }
 
-		bool managed() const
+		inline
+		bool managed() const noexcept
 		{ return _id != 0; }
 
 	protected:
-		Resource()
+		inline
+		Resource() noexcept
 			: _id{0}
 		{}
 
