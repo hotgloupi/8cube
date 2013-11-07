@@ -85,8 +85,6 @@ namespace etc { namespace log {
 		inline
 		void message(Line const& line, T const&... values)
 		{
-			if (line.level < _level)
-				return;
 			this->_message(line, etc::to_string(values...));
 		}
 

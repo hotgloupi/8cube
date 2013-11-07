@@ -240,45 +240,37 @@ namespace etc { namespace log {
 			stream = OutStream(&std::cerr, false);
 	}
 
-	void Logger::_message(Line const& line,
-	                      std::string const& message)
-	{
-		//std::cerr << line.component << ": " << std::boolalpha << component_enabled(line.component) << std::endl;
-		if (line.level < _level || !component_enabled(line.component))
-			return;
+	namespace {
 
-		runner().post([=] {
+		// every fields are strings.
+		struct StringLine
+		{
+			std::string const   level;
+			std::string const   file;
+			std::string const   line;
+			std::string const   function;
+			std::string const   component;
+		};
 
-			// every fields are strings.
-			struct {
-				std::string const   level;
-				std::string const&  file;
-				std::string const   line;
-				std::string const&  function;
-				std::string const&  component;
-			} string = {
-				etc::to_string(line.level),
-				line.file,
-				etc::to_string(line.line),
-				line.function,
-				line.component,
-			};
-
-			// Statically store max string size of each part.
+		static void SendLine(std::ostream* out,
+		                     Flag flags,
+		                     Level level,
+		                     unsigned int indent,
+		                     StringLine string,
+		                     std::string message)
+		{
 			static struct {
 				size_t level;
 				size_t file;
 				size_t line;
 				size_t function;
 				size_t component;
-			} max_size = {0, 0, 0, 0, 0};
-
-			// And update them.
+			} max_size = {8, 0, 0, 0, 40};
+		// And update them.
 #define _UPDATE_SIZE(__name)                                                  \
 			if (max_size.__name < string.__name.size())                       \
 				max_size.__name = string.__name.size()                        \
 	/**/
-
 			_UPDATE_SIZE(level);
 			_UPDATE_SIZE(file);
 			_UPDATE_SIZE(line);
@@ -286,13 +278,8 @@ namespace etc { namespace log {
 			_UPDATE_SIZE(component);
 #undef _UPDATE_SIZE
 
-			// Fetch the out stream.
-			assert(meta::enum_<Level>::valid_index(line.level));
-			unsigned int idx = meta::enum_<Level>::indexof(line.level);
-			std::ostream* out = _streams[idx].out;
-			assert(out != nullptr);
 
-			switch (line.level)
+			switch (level)
 			{
 			case Level::warn:
 				break;
@@ -305,15 +292,15 @@ namespace etc { namespace log {
 			}
 			// Print each part
 #define _PRINT_PART(__name, __flag) \
-			if (_flags & Flag::__flag) \
+			if (flags & Flag::__flag) \
 			{ \
 				size_t delta = max_size.__name - string.__name.size(); \
 				*out << '[' << std::string( \
-							(delta / 2) + (delta % 2), \
-							' ' \
-						) \
-					 << string.__name \
-					 << std::string(delta / 2, ' ') << ']' \
+				            (delta / 2) + (delta % 2), \
+				            ' ' \
+				        ) \
+				     << string.__name \
+				     << std::string(delta / 2, ' ') << ']' \
 				; \
 			} \
 	/**/
@@ -324,9 +311,44 @@ namespace etc { namespace log {
 			_PRINT_PART(component, component);
 #undef _PRINT_PART
 
-			*out <<  std::string(line.indent * 2, ' ') << message
-				 << "[0m\n";
-		});
+			*out <<  std::string(indent * 2, ' ') << message
+			     << "[0m\n";
+		}
+
+	}
+
+	void Logger::_message(Line const& line,
+	                      std::string const& message)
+	{
+		auto config = component_config(line.component);
+		if (line.level < config.first || !config.second)
+			return;
+
+		StringLine string{
+			etc::to_string(line.level),
+			line.file,
+			etc::to_string(line.line),
+			line.function,
+			line.component,
+		};
+
+		// Fetch the out stream.
+		assert(meta::enum_<Level>::valid_index(line.level));
+		unsigned int idx = meta::enum_<Level>::indexof(line.level);
+		std::ostream* out = _streams[idx].out;
+		assert(out != nullptr);
+
+		runner().post(
+			std::bind(
+				&SendLine,
+				out,
+				_flags,
+				line.level,
+				line.indent,
+				string,
+				message
+			)
+		);
 	}
 
 }} // !etc::log
