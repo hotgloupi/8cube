@@ -334,6 +334,8 @@ operator <<(std::ostream& out,
 		out << "mode"; break;
 	case KeySym::compose:
 		out << "compose"; break;
+	default:
+		out << "invalid: " << (int) sym; break;
 	}
 	return out << ')';
 }
