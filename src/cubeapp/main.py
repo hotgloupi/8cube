@@ -104,9 +104,10 @@ def main(args):
             return
 
         if not args.game:
-            print("No game specified on the command line", file = sys.stderr)
-            parser.print_usage()
-            sys.exit(1)
+            args.game = 'test'
+            #print("No game specified on the command line", file = sys.stderr)
+            #parser.print_usage()
+            #sys.exit(1)
 
         from . import application
         app = application.Application(
