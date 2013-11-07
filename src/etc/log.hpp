@@ -9,7 +9,13 @@
 # include <boost/preprocessor/cat.hpp>
 
 # define ETC_LOG_COMPONENT(__name)                                            \
-	static BOOST_CONSTEXPR char const* _etc_log_component_name = __name       \
+	static constexpr char const* _etc_log_component = __name;                 \
+/**/
+# define ETC_LOG_SUB_COMPONENT(__name)                                        \
+	static auto BOOST_PP_CAT(log, __LINE__) =                                 \
+		std::string{_etc_log_component} + "#" __name;                         \
+	static char const* _etc_log_component =                                   \
+		BOOST_PP_CAT(log, __LINE__).c_str()                                   \
 /**/
 
 # define ETC_LOG                                                              \
@@ -18,7 +24,7 @@
 		__FILE__,                                                             \
 		__LINE__,                                                             \
 		_ETC_LOG_FUNCTION,                                                    \
-		_etc_log_component_name                                               \
+		_etc_log_component                                                    \
 	)                                                                         \
 /**/
 
