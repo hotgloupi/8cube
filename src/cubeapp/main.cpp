@@ -5,6 +5,7 @@
 #include <cube/debug/Performance.hpp>
 
 #include <etc/log.hpp>
+#include <etc/sys/environ.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
 
@@ -27,6 +28,8 @@ static std::string safe_path(std::string const& path)
 	return res;
 }
 
+ETC_LOG_COMPONENT("cubeapp.main");
+
 CUBE_MAIN_PROTO(int argc, char** argv)
 {
 	if (argc < 1 || argv[0] == nullptr)
@@ -45,8 +48,6 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 #else
 	(void)load_libraries;
 #endif
-
-	ETC_LOG_COMPONENT("cubeapp.main");
 
 	ETC_LOG("Starting 8cube");
 
@@ -75,17 +76,18 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 		"main(" + pyargs + ")\n"
 	;
 	try {
-		int res = interpreter.exec(init_script);
+		bool success = interpreter.exec(init_script);
 		etc::log::shutdown();
-		cube::debug::Performance::instance().dump();
-		return res != 0;
+		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
+			cube::debug::Performance::instance().dump();
+		return (success ? EXIT_SUCCESS : EXIT_FAILURE);
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
 	} catch (...) {
 		std::cerr << "Fatal error: exiting badly...\n";
 	}
 	std::cerr << "The 'impossible' happened, you should report this to contact@8cube.io\n";
-	return 1;
+	return EXIT_FAILURE;
 }
 
 #ifdef _WIN32
