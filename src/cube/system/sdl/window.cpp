@@ -10,6 +10,7 @@
 
 #include <cube/gl/renderer.hpp>
 
+#include <unordered_map>
 
 namespace cube { namespace system { namespace sdl { namespace window {
 
@@ -131,7 +132,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	etc::size_type
 	Window::poll(etc::size_type const max)
 	{
-		ETC_TRACE.debug("Polling events");
+		ETC_LOG_SUB_COMPONENT("Poll");
 		uint32_t count = 0;
 		bool has_expose = false;
 		bool has_resize = false;
@@ -139,6 +140,10 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
+			if (e.type == SDL_QUIT)
+			{
+				ETC_LOG.debug("Got quit event");
+			}
 			if (e.type == SDL_WINDOWEVENT)
 			{
 				switch (e.window.event)
@@ -166,24 +171,28 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					break;
 				}
 #define MOD(e) static_cast<inputs::KeyMod>(static_cast<int>(e.key.keysym.mod))
-#define SYM(e) static_cast<inputs::KeySym>(static_cast<int>(e.key.keysym.sym))
-/*
-#define CHR(e) (                                                              \
-		((e.key.keysym.unicode & 0xFF80) == 0)                                \
-		? e.key.keysym.unicode & 0x7F                                         \
-		: e.key.keysym.unicode                                                \
-	)                                                                         \
-*/
-#define CHR(e) 0
+				ETC_LOG.debug(
+					"Got key event",
+					e.key.keysym.mod,"=", MOD(e),
+					e.key.keysym.sym, "=", to_keysym(e.key.keysym.sym)
+				);
 				if (e.type == SDL_KEYDOWN)
-					this->inputs().on_keydown()(MOD(e), SYM(e), CHR(e));
+					this->inputs().on_keydown()(MOD(e), to_keysym(e.key.keysym.sym), 0);
 				else
-					this->inputs().on_keyup()(MOD(e), SYM(e), CHR(e));
+					this->inputs().on_keyup()(MOD(e), to_keysym(e.key.keysym.sym), 0);
 			}
 			else if (e.type == SDL_MOUSEMOTION)
 			{
+				ETC_LOG.debug("Mouse motion event");
 				this->inputs().on_mousemove()(e.motion.xrel, e.motion.yrel);
 			}
+			else if (e.type == SDL_FINGERMOTION)
+			{
+				ETC_LOG.debug("Finger motion event");
+				this->inputs().on_mousemove()(e.motion.xrel, e.motion.yrel);
+			}
+			else
+				ETC_LOG.debug("Ignore event", e.type, SDL_MOUSEMOTION);
 			if (++count >= max)
 				break;
 		}
