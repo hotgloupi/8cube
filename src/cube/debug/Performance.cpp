@@ -130,16 +130,14 @@ namespace cube { namespace debug {
 	}
 
 	Performance::id_type
-	Performance::begin(Info&& info)
+	Performance::begin(Info&& info_)
 	{
 		auto const thread_id = std::this_thread::get_id();
 		id_type const id = _this->next_id++;
 		auto start_time = clock_type::now();
-
-		_this->service.post([thread_id, id, start_time, this, info_copy = info] {
-
+		_this->service.post([=] {
+			Info info{std::move(info_)};
 			Impl::CallStack& stack = _this->stacks[thread_id];
-			auto info = info_copy;
 
 			CallStat* stat_ptr = nullptr;
 			Info const* info_ptr = nullptr;
