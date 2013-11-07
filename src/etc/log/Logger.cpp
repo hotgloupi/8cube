@@ -5,6 +5,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/deadline_timer.hpp>
 
 #include <cassert>
 #include <thread>
@@ -147,14 +148,6 @@ namespace etc { namespace log {
 				this->service.post(std::forward<Fn>(fn));
 #endif
 			}
-
-			void stop()
-			{
-				this->stopped = true;
-				//this->io_service.stop();
-				this->work.reset();
-				this->thread.join();
-			}
 		};
 
 		io_service_runner& runner()
@@ -177,9 +170,19 @@ namespace etc { namespace log {
 
 	void shutdown()
 	{
-		runner().stop();
+		runner().work.reset();
 #ifdef ETC_DEBUG
-		std::cerr << "WARNING: Dropped logs: " << runner().dropped << std::endl;
+		boost::asio::io_service s;
+		boost::asio::deadline_timer timer(s, boost::posix_time::seconds(2));
+		timer.async_wait([] (boost::system::error_code const& ec) {
+			logger_log("Force all remaining logs to be dropped");
+			runner().stopped = true;
+		});
+#endif
+		runner().thread.join();
+#ifdef ETC_DEBUG
+		if (runner().dropped > 0)
+			logger_log("Dropped logs:", runner().dropped);
 #endif
 	}
 
