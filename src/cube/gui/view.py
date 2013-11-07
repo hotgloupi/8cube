@@ -35,7 +35,7 @@ class ComputedStyles:
 def _make_default_stylesheet():
     stylesheet = Stylesheet()
     stylesheet.set_styles([
-        ("font-size", "48px"),
+        ("font-size", "16px"),
         ("font-family", 'Helvetica, Arial, Times, Courier, Droid'),
         ("font-style", "regular"),
         ("color", "black"),
