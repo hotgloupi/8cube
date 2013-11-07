@@ -23,24 +23,34 @@ def console():
 def parse_args(args):
     import argparse
     parser = argparse.ArgumentParser(
-        description="Launch a cube game",
-        prog="8cube",
+        description = "Launch a cube game",
+        prog = "8cube",
     )
     parser.add_argument(
-        'game', help="Specify a game's name",
-        nargs='?',
+        'game',
+        help = "Specify a game's name",
+        nargs = '?',
     )
     parser.add_argument(
-        '--games-dir', '-G', action="append", default=[],
-        help="Specify additional search directories for games",
+        '--games-dir', '-G',
+        action = "append",
+        default = [],
+        help = "Specify additional search directories for games",
     )
     parser.add_argument(
-        '--console', '-c', action="store_true",
-        help="Start a python console instead of launching a game",
+        '--console', '-c',
+        action = "store_true",
+        help = "Start a python console instead of launching a game",
     )
     parser.add_argument(
-        '--script', '-s', action="store",
-        help="Eval a script file"
+        '--script', '-s',
+        action = "store",
+        help = "Eval a script file"
+    )
+    parser.add_argument(
+        '--unittests',
+        help = "Launch unit tests",
+        action = 'store_true'
     )
     return parser, parser.parse_args(args=args)
 
@@ -57,6 +67,30 @@ def main(args):
     cube.gui.FontManager.populate()
     try:
         parser, args = parse_args(args)
+        if args.unittests:
+            import unittest
+            lib_dir = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    '..'
+                )
+            )
+            for lib in ['cube', 'cubeapp']:
+                runner = unittest.TestProgram(
+                    argv = [
+                        'cubeapp.main',
+                        'discover',
+                        '-s', os.path.join(lib_dir, lib),
+                        '-t', lib_dir,
+                        '-p', '*.py',
+                        '-v',
+                    ],
+                    exit = False
+                )
+                if not runner.result.wasSuccessful():
+                    sys.exit(1)
+            cube.info("All tests passed")
+            return
         if args.console:
             console()
             return
