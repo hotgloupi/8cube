@@ -32,7 +32,10 @@ namespace cube { namespace resource {
 	{}
 
 	Manager::~Manager()
-	{}
+	{
+		for (auto& pair: _this->resources)
+			pair.second->manage();
+	}
 
 	Manager&
 	Manager::add_path(std::string const& path)
