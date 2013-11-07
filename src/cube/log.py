@@ -5,7 +5,11 @@ import inspect
 
 def _send(level, *msgs):
     frame = inspect.stack(3)[2]
-    module = inspect.getmodule(frame[0].f_code).__name__
+    module = inspect.getmodule(frame[0].f_code)
+    if module is not None:
+        module = module.__name__
+    else:
+        module = '<unknown>'
     args_infos = inspect.getargvalues(frame[0])
     file_, line, function = frame[1], frame[2], frame[3]
     if args_infos.args and args_infos.args[0] == 'self':
