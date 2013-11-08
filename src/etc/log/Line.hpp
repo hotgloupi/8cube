@@ -52,7 +52,6 @@ namespace etc { namespace log {
 			, component(std::move(o.component))
 			, indent{o.indent}
 		{}
-
 	};
 
 }}
