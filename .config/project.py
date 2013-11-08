@@ -165,7 +165,9 @@ def configure(project, build):
             c_compiler,
             'deps/cPython-3.3',
             shared = True,
-            version = (3, 3)
+            version = (3, 3),
+            pymalloc = True,
+            with_valgrind_support = False,
         )
 
     boost = build.add_dependency(
