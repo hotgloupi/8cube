@@ -258,11 +258,16 @@ namespace etc { namespace log {
 
 		static void SendLine(std::ostream* out,
 		                     Flag flags,
-		                     Level level,
-		                     unsigned int indent,
-		                     StringLine string,
+		                     Line line,
 		                     std::string message)
 		{
+			StringLine string{
+				etc::to_string(line.level),
+				line.file,
+				etc::to_string(line.line),
+				line.function,
+				line.component,
+			};
 			static struct {
 				size_t level;
 				size_t file;
@@ -283,7 +288,7 @@ namespace etc { namespace log {
 #undef _UPDATE_SIZE
 
 
-			switch (level)
+			switch (line.level)
 			{
 			case Level::warn:
 				break;
@@ -315,44 +320,41 @@ namespace etc { namespace log {
 			_PRINT_PART(component, component);
 #undef _PRINT_PART
 
-			*out <<  std::string(indent * 2, ' ') << message
+			*out <<  std::string(line.indent * 2, ' ') << message
 			     << "[0m\n";
 		}
 
 	}
 
 	void Logger::_message(Line const& line,
-	                      std::string const& message)
+	                      std::string&& message) noexcept
 	{
-		auto config = component_config(line.component);
-		if (line.level < config.first || !config.second)
-			return;
+		try
+		{
+			auto config = component_config(line.component);
+			if (line.level < config.first || !config.second)
+				return;
 
-		StringLine string{
-			etc::to_string(line.level),
-			line.file,
-			etc::to_string(line.line),
-			line.function,
-			line.component,
-		};
+			// Fetch the out stream.
+			assert(meta::enum_<Level>::valid_index(line.level));
+			unsigned int idx = meta::enum_<Level>::indexof(line.level);
+			std::ostream* out = _streams[idx].out;
+			assert(out != nullptr);
 
-		// Fetch the out stream.
-		assert(meta::enum_<Level>::valid_index(line.level));
-		unsigned int idx = meta::enum_<Level>::indexof(line.level);
-		std::ostream* out = _streams[idx].out;
-		assert(out != nullptr);
-
-		runner().post(
-			std::bind(
-				&SendLine,
-				out,
-				_flags,
-				line.level,
-				line.indent,
-				string,
-				message
-			)
-		);
+			runner().post(
+				std::bind(
+					&SendLine,
+					out,
+					_flags,
+					line,
+					std::move(message)
+				)
+			);
+		}
+		catch (...)
+		{
+			// XXX do something smart here
+		}
 	}
 
 }} // !etc::log

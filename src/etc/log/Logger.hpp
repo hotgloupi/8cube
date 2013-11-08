@@ -81,15 +81,19 @@ namespace etc { namespace log {
 		friend ETC_API Logger& logger(std::string const&);
 
 	public:
+		inline
+		void message(Line const& line, std::string msg) noexcept
+		{ this->_message(line, std::move(msg)); }
+
 		template<typename... T>
 		inline
-		void message(Line const& line, T const&... values)
+		void message(Line const& line, T const&... values) noexcept
 		{
 			this->_message(line, etc::to_string(values...));
 		}
 
 	protected:
-		void _message(Line const& line, std::string const& message);
+		void _message(Line const& line, std::string&& message) noexcept;
 	};
 
 }} // !etc::log
