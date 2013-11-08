@@ -41,9 +41,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		type name(T... values)                                                \
 	/**/
 
+	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");
+
 // values... is defined in the proto
 # define _CUBE_GL_OPENGL_LOG(gl_name)                                         \
-		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");                   \
 		ETC_TRACE.debug(#gl_name, '(', values..., ')')                        \
 	/**/
 

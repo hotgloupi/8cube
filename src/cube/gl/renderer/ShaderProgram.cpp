@@ -17,7 +17,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void ShaderProgramParameter::operator =(Texture& texture)
 	{
-		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgramParameter");
+		ETC_LOG_SUB_COMPONENT("Parameter");
 		ETC_TRACE.debug("Bind a texture to a shader program parameter");
 		_program.bind_texture_unit(texture, *this);
 	}
