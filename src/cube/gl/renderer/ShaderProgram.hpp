@@ -98,7 +98,7 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		/**
 		 * Bindable::_bind(State const&) method is implemented here.
-		 * It forward to _bind() and update all parameters from the state.
+		 * It forwards to _bind() and update all parameters from the state.
 		 */
 		void _bind(State const& state) override
 		{
