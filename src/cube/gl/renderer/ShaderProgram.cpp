@@ -53,12 +53,11 @@ namespace cube { namespace gl { namespace renderer {
 			auto list = _fetch_parameters();
 			_parameters_map.reset(new ParameterMap{});
 			for (auto& param : list)
-				_parameters_map->insert(
-					std::make_pair(
-						param->name(),
-						std::move(param)
-					)
-				);
+			{
+				assert(param.get() != nullptr);
+				std::string name = param->name();
+				_parameters_map->emplace(std::move(name), std::move(param));
+			}
 		}
 		return *(_parameters_map.get());
 	}
