@@ -22,11 +22,15 @@ namespace etc { namespace log {
 
 	namespace {
 
+#if 0 // Set this to 1 to debug the logger itself
 		template<typename... Args>
 		void logger_log(Args&&... args)
 		{
-			etc::sprint(std::cerr, std::forward<Args>(args)...);
+			etc::sprint(std::cerr, "[LOGGER]", std::forward<Args>(args)...);
 		}
+#else
+# define logger_log(...)
+#endif
 
 		Level level_from_string(std::string const& str, Level default_value)
 		{
@@ -111,7 +115,7 @@ namespace etc { namespace log {
 					level_from_string(parts[1], default_level()) :
 					default_level()
 				);
-				etc::print("match:", match, "level:", level);
+				logger_log("match:", match, "level:", level);
 
 				if (match.size() == 0 ||
 						(match.size() == 1 && (
@@ -129,7 +133,7 @@ namespace etc { namespace log {
 					res.push_back(Pattern(Pattern::add_match, match, level));
 			}
 			for (auto const& p: res)
-				etc::print("Pattern:", p.level, p.str, p.op);
+				logger_log("Pattern:", p.level, p.str, p.op);
 			return res;
 		}
 
@@ -150,7 +154,7 @@ namespace etc { namespace log {
 #endif
 					res = {pattern.level, (pattern.op == Pattern::add_match)};
 			}
-			etc::print("Component", name, "config:", res.first, res.second);
+			logger_log("Component", name, "config:", res.first, res.second);
 			return components[name] = res;
 		}
 
