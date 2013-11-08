@@ -9,3 +9,4 @@ build
 deps/boost
 deps/SDL
 deps/SDL_image
+.DS_Store
