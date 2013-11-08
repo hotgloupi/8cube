@@ -2,22 +2,30 @@
 
 #include <etc/log.hpp>
 
+#include <unordered_set>
+
 namespace {
 
+	char const* static_storage(std::string&& str)
+	{
+		static std::unordered_set<std::string> storage;
+		return storage.emplace(std::move(str)).first->c_str();
+	}
+
 	void send(etc::log::Level level,
-		      std::string const& file,
+		      std::string file,
 		      etc::size_type line,
-		      std::string const& function,
-		      std::string const& component,
-		      std::string const& msg)
+		      std::string function,
+		      std::string component,
+		      std::string msg)
 	{
 		etc::log::Log{
 			level,
-			file.c_str(),
+			static_storage(std::move(file)),
 			line,
-			function.c_str(),
-			component.c_str(),
-		}.send(msg);
+			static_storage(std::move(function)),
+			static_storage(std::move(component)),
+		}.send(std::move(msg));
 	}
 
 }
