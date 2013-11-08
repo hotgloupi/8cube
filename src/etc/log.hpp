@@ -46,9 +46,9 @@ namespace etc { namespace log {
 		 * Log object should not be built directly, but with macros ETC_LOG*.
 		 * They are copiable and movable by construction, but not by assignment.
 		 */
-		ETC_API Log(Level level,
+		ETC_API Log(Level const level,
 		            char const* file,
-		            size_type line,
+		            size_type const line,
 		            char const* function,
 		            char const* component);
 		ETC_API Log(Log const& o);

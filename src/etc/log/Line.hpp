@@ -21,12 +21,13 @@ namespace etc { namespace log {
 		etc::size_type  indent;
 
 	public:
-		Line(Level level,
+		Line() = delete;
+		Line(Level const level,
 		     char const* file,
-		     etc::size_type line,
+		     etc::size_type const line,
 		     char const* function,
 		     char const* component,
-			 etc::size_type indent)
+			 etc::size_type indent) noexcept
 			: level{level}
 			, file{file}
 			, line{line}
@@ -35,7 +36,7 @@ namespace etc { namespace log {
 			, indent(indent)
 		{}
 
-		Line(Line const& o)
+		Line(Line const& o) noexcept
 			: level{o.level}
 			, file{o.file}
 			, line{o.line}
@@ -44,7 +45,7 @@ namespace etc { namespace log {
 			, indent{o.indent}
 		{}
 
-		Line(Line&& o)
+		Line(Line&& o) noexcept
 			: level{o.level}
 			, file(std::move(o.file))
 			, line{o.line}
