@@ -100,7 +100,7 @@ class World:
             time.sleep(.1)
             #self.__checked = 0
             #self.__tree.visit(self.__on_tree_node)
-            print("Found", len(self.__nodes_to_render_found), "nodes")#,  self.__checked, "checked")
+            #print("Found", len(self.__nodes_to_render_found), "nodes")#,  self.__checked, "checked")
 
     def stop(self):
         print("Stopping world")
