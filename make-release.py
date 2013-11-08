@@ -56,23 +56,27 @@ with open(RELEASE_DATE_FILE, 'w') as f:
 ###############################################################################
 # Utilities.
 RELEASE_LOG = join(DEST_DIR, ".release.log")
-def log(*args):
-    print(*args)
+def log(*args, silent = False):
+    if not silent:
+        print(*args)
     with open(RELEASE_LOG, "a") as f:
         print("->", *args, file = f)
 
+def debug(*args):
+    log(*args, silent = True)
+
 def cmd_output(*args, **kwargs):
-    log('[COMMAND]', *args)
+    debug('[COMMAND]', *args)
     with open(RELEASE_LOG, "a") as f:
         return subprocess.check_output(list(args), **kwargs).decode('utf8')
 
 def cmd(*args, **kwargs):
-    log('[COMMAND]', *args)
+    debug('[COMMAND]', *args)
     with open(RELEASE_LOG, "a") as f:
         return subprocess.check_call(
             list(args),
             stdout = f,
-            stderr = subprocess.PIPE,
+            stderr = subprocess.STDOUT,
             **kwargs
         )
 
@@ -137,7 +141,8 @@ for d in os.listdir(BUILD_RELEASE_DIR):
 ###############################################################################
 # Find python home and copy it in the release
 for PYTHON_HOME in [
-    join(BUILD_DIR, 'dependencies/python3.3/install/lib/python3.3'),
+    join(BUILD_DIR, 'dependencies/Python33/gcc/release/install/lib/python3.3'),
+    join(BUILD_DIR, 'dependencies/Python33/clang/release/install/lib/python3.3'),
     "c:/Python33",
     None
 ]:
@@ -156,8 +161,8 @@ remove_packages = [
     'lib2to3',
 ]
 log("Copying python files in", DEST_PYTHON_HOME)
-os.makedirs(DEST_PYTHON_HOME)
 if IS_WINDOWS:
+    os.makedirs(DEST_PYTHON_HOME)
     for d in ['DLLs', 'Lib']:
         log(" - Copying", join(PYTHON_HOME, d), "in", join(DEST_PYTHON_HOME, d))
         shutil.copytree(
@@ -169,7 +174,11 @@ if IS_WINDOWS:
         log(" - Removing package", p)
         shutil.rmtree(p, ignore_errors = True)
 else:
-    assert False # TODO
+    shutil.copytree(PYTHON_HOME, DEST_PYTHON_HOME)
+    for p in remove_packages:
+        p = join(DEST_PYTHON_HOME, p)
+        log(" - Removing package", p)
+        shutil.rmtree(p, ignore_errors = True)
 PYTHON_HOME = DEST_PYTHON_HOME
 del DEST_PYTHON_HOME
 
@@ -177,7 +186,7 @@ del DEST_PYTHON_HOME
 ###############################################################################
 log('Cleaning up the release dir')
 to_remove_ext = [
-    '.o', '.a', '.pyc', '.lib', '~',
+    '.o', '.a', '.pyc', '.lib', '~', '.depend.mk', '.command'
 ]
 
 to_remove_inf = [
@@ -217,15 +226,16 @@ if IS_WINDOWS:
 if not IS_WINDOWS:
 
     BINARIES = [
-        binary.strip() for binary in cmd(
+        binary.strip() for binary in cmd_output(
             'find', DEST_DIR, '-type', 'f', '-print'
-        ).decode('utf8').split('\n')
+        ).split('\n')
         if binary.strip() and is_binary(binary) and 'lib-dynload' not in binary
     ]
 
 
     def to_add(dep):
         return not (
+            dep.startswith('/opt/local') or
             dep.startswith('/usr') or
             dep.startswith('/lib') or
             dep.startswith('/System') or
@@ -233,15 +243,15 @@ if not IS_WINDOWS:
         )
 
     def fill_dependencies(dependencies, binary_path, indent=1):
-        print('-' * indent, binary_path)
+        debug('-' * indent, binary_path)
         children = dependencies.setdefault(binary_path, set())
         l_dep = list(get_binary_dependencies(binary_path))
         for dependency in l_dep:
             if dependency.startswith('@'):
                 continue
-            print('-'*indent + '> dep', dependency)
+            debug('-'*indent + '> dep', dependency)
             if not to_add(dependency):
-                print('-'*indent + '> IGNORE', dependency)
+                debug('-'*indent + '> IGNORE', dependency)
                 continue
             children.add(dependency)
             if dependency not in dependencies:
@@ -251,7 +261,7 @@ if not IS_WINDOWS:
     for bin in BINARIES:
         fill_dependencies(DEPENDENCIES, bin)
 
-    #pprint(DEPENDENCIES)
+    debug("Dependencies:", DEPENDENCIES)
 
     DEST_LIB_DIR = os.path.join(DEST_DIR, 'lib')
     SHIPPED_DEPENDENCIES = {}
@@ -261,9 +271,10 @@ if not IS_WINDOWS:
             SHIPPED_DEPENDENCIES[k] = dest
             cmd('cp', '-fv', k, dest)
 
-    pprint(SHIPPED_DEPENDENCIES)
+    debug("Shippend dependencies:", SHIPPED_DEPENDENCIES)
 
     if sys.platform.lower().startswith("darwin"):
+        log("Fixup binaries dependencies")
         for dep in DEPENDENCIES:
             if dep in SHIPPED_DEPENDENCIES:
                 dep = SHIPPED_DEPENDENCIES[dep]
@@ -271,17 +282,18 @@ if not IS_WINDOWS:
             reldir = os.path.relpath(DEST_LIB_DIR, start = os.path.dirname(dep))
             if dep.endswith('.so') or dep.endswith('.dylib'):
                 cmd('install_name_tool', '-id', '@rpath/' + os.path.basename(dep), dep)
+        rpath_added = {}
         for dep in DEPENDENCIES:
-            print("Working on", dep)
+            debug("Working on", dep)
             deps = DEPENDENCIES[dep]
             if dep in SHIPPED_DEPENDENCIES:
                 dep = SHIPPED_DEPENDENCIES[dep]
-                print("Which is copied at", dep)
-            print(dep, "has the follwing deps", deps)
+                debug("Which is copied at", dep)
+            debug(dep, "has the follwing deps", deps)
             for subdep in deps:
                 buildpath = SHIPPED_DEPENDENCIES[subdep]
                 reldir = os.path.relpath(os.path.dirname(buildpath), start = os.path.dirname(dep))
-                print(dep, 'subdep', dep, 'at', buildpath)
+                debug(dep, 'subdep', dep, 'at', buildpath)
                 cmd(
                     'install_name_tool',
                     '-change',
@@ -289,10 +301,13 @@ if not IS_WINDOWS:
                     '@rpath/' + os.path.basename(subdep),
                     dep
                 )
+                if reldir in rpath_added.get(dep, set()): continue
+                rpath_added.setdefault(dep, set()).add(reldir)
+                log(' - Add rpath', reldir, "to", dep)
                 try:
                     cmd('install_name_tool', '-add_rpath', reldir, dep)
                 except:
-                    print("Couldn't add rpath", reldir, "to", dep)
+                    log("Couldn't add rpath", reldir, "to", dep)
     else:
         for dep in DEPENDENCIES:
             if dep in SHIPPED_DEPENDENCIES:
@@ -311,14 +326,14 @@ for root, dirs, files in os.walk(DEST_DIR):
     for f in files:
         path = join(root, f)
         if is_binary(path):
-            log(" - Found binary file", path)
             TO_STRIP.append(path)
 
 for bin in TO_STRIP:
     if abspath(bin).startswith(abspath(PYTHON_HOME)):
-        log("Ignore", bin)
+        debug(" - Ignore", bin)
         continue
     try:
+        log(" - Stripping", bin)
         strip(bin)
     except:
         log("Couldn't strip", bin)
