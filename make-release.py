@@ -4,7 +4,7 @@ import os, sys
 import subprocess
 import shutil
 from datetime import datetime
-from os.path import join, isdir, isfile, dirname, abspath, exists
+from os.path import join, isdir, isfile, dirname, abspath, exists, basename
 import stat
 from pprint import pprint
 
@@ -94,13 +94,10 @@ def is_binary(path):
 
 if which("otool"):
     def get_binary_dependencies(arg):
-        deps = cmd_output('otool', '-L', arg)
-        deps = deps.split("\n")[:-1]
-        if not deps:
-            return []
-        return (
-            dep.strip().split(" ")[0] for dep in deps[1:]
-        )
+        deps = cmd_output('otool', '-L', arg).split('\n')[2:]
+        for path in (dep.strip().split(" ")[0] for dep in deps):
+            if path: yield path
+
 elif which("ldd"):
     def get_binary_dependencies(arg):
         deps = cmd_output('ldd', arg)
@@ -242,17 +239,33 @@ if not IS_WINDOWS:
             dep.startswith(DEST_DIR)
         )
 
+    def get_binary_rpaths(binary_path):
+        lines = (l.strip() for l in cmd_output('otool', '-l', binary_path).split('\n'))
+        for l in lines:
+            if l.startswith('path '):
+                yield l.split(' ')[1]
+
+    def solve_rpath_dependency(binary_path, dependency):
+        dep = '/'.join(dependency.split('/')[1:])
+        for dir in get_binary_rpaths(binary_path):
+            if exists(join(dir, dep)):
+                return join(dir, dep)
+
     def fill_dependencies(dependencies, binary_path, indent=1):
-        debug('-' * indent, binary_path)
         children = dependencies.setdefault(binary_path, set())
         l_dep = list(get_binary_dependencies(binary_path))
+        debug('-' * indent, "Find dependencies of", binary_path, l_dep)
         for dependency in l_dep:
-            if dependency.startswith('@'):
+            if dependency.startswith('@rpath'):
+                debug('-'*indent + "solve", dependency, "for", binary_path, "to",
+                      solve_rpath_dependency(binary_path, dependency))
+                dependency = solve_rpath_dependency(binary_path, dependency)
+            elif dependency.startswith('@'):
                 continue
-            debug('-'*indent + '> dep', dependency)
             if not to_add(dependency):
-                debug('-'*indent + '> IGNORE', dependency)
+                debug('-'*indent + '> IGNORE', dependency, "of", basename(binary_path))
                 continue
+            debug('-'*indent + '> Add dep', dependency, "of", basename(binary_path))
             children.add(dependency)
             if dependency not in dependencies:
                 fill_dependencies(dependencies, dependency, indent + 1)
@@ -261,7 +274,11 @@ if not IS_WINDOWS:
     for bin in BINARIES:
         fill_dependencies(DEPENDENCIES, bin)
 
-    debug("Dependencies:", DEPENDENCIES)
+    debug("Dumping dependencies:")
+    for bin, deps in DEPENDENCIES.items():
+        debug(" * dependencies of %s:" % bin)
+        for dep in deps:
+            debug("    -", dep)
 
     DEST_LIB_DIR = os.path.join(DEST_DIR, 'lib')
     SHIPPED_DEPENDENCIES = {}
@@ -271,7 +288,7 @@ if not IS_WINDOWS:
             SHIPPED_DEPENDENCIES[k] = dest
             cmd('cp', '-fv', k, dest)
 
-    debug("Shippend dependencies:", SHIPPED_DEPENDENCIES)
+    debug("Shipped dependencies:", SHIPPED_DEPENDENCIES)
 
     if sys.platform.lower().startswith("darwin"):
         log("Fixup binaries dependencies")
@@ -293,7 +310,7 @@ if not IS_WINDOWS:
             for subdep in deps:
                 buildpath = SHIPPED_DEPENDENCIES[subdep]
                 reldir = os.path.relpath(os.path.dirname(buildpath), start = os.path.dirname(dep))
-                debug(dep, 'subdep', dep, 'at', buildpath)
+                debug(dep, 'subdep', subdep, 'at', buildpath)
                 cmd(
                     'install_name_tool',
                     '-change',
@@ -303,9 +320,11 @@ if not IS_WINDOWS:
                 )
                 if reldir in rpath_added.get(dep, set()): continue
                 rpath_added.setdefault(dep, set()).add(reldir)
+                for path in get_binary_rpaths(dep):
+                    cmd('install_name_tool', '-delete_rpath', path, dep)
                 log(' - Add rpath', reldir, "to", dep)
                 try:
-                    cmd('install_name_tool', '-add_rpath', reldir, dep)
+                    cmd('install_name_tool', '-add_rpath', '@loader_path/' + reldir, dep)
                 except:
                     log("Couldn't add rpath", reldir, "to", dep)
     else:
