@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from cube import _log
+from . import _log
 import inspect
 
 def _send(level, *msgs):
