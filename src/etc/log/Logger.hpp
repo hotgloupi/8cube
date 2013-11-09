@@ -68,6 +68,26 @@ namespace etc { namespace log {
 			{}
 		};
 
+		struct ComponentConfig
+		{
+			Level level;
+			bool enabled;
+		};
+
+		static
+		ComponentConfig const& _component_config(std::string const& name);
+
+		inline
+		bool _should_log(Line const& line)
+		{
+			if (line.level < _level) // lesser than global log level
+			{
+				auto const& config = _component_config(line.component);
+				if (line.level < config.level || !config.enabled)
+					return false;
+			}
+			return true;
+		}
 	private:
 		std::string     _name;
 		Level           _level;
@@ -83,13 +103,14 @@ namespace etc { namespace log {
 	public:
 		inline
 		void message(Line const& line, std::string msg) noexcept
-		{ this->_message(line, std::move(msg)); }
+		{ if (_should_log(line)) this->_message(line, std::move(msg)); }
 
 		template<typename... T>
 		inline
 		void message(Line const& line, T const&... values) noexcept
 		{
-			this->_message(line, etc::to_string(values...));
+			if (_should_log(line))
+				this->_message(line, etc::to_string(values...));
 		}
 
 	protected:

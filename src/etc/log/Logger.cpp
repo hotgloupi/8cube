@@ -138,26 +138,6 @@ namespace etc { namespace log {
 			return res;
 		}
 
-		std::pair<Level, bool> const& component_config(std::string const& name)
-		{
-			static std::unordered_map<std::string, std::pair<Level, bool>> components;
-			auto it = components.find(name);
-			if (it != components.end())
-				return it->second;
-			static std::vector<Pattern> patterns = get_patterns();
-			std::pair<Level, bool> res = {default_level(), false};
-			for (auto const& pattern: patterns)
-			{
-#ifdef _WIN32
-				if (::PathMatchSpec(name.c_str(), pattern.str.c_str()) == TRUE)
-#else
-				if (::fnmatch(pattern.str.c_str(), name.c_str(), 0) == 0)
-#endif
-					res = {pattern.level, (pattern.op == Pattern::add_match)};
-			}
-			logger_log("Component", name, "config:", res.first, res.second);
-			return components[name] = res;
-		}
 
 
 		struct io_service_runner
