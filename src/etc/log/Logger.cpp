@@ -23,7 +23,7 @@ namespace etc { namespace log {
 
 	namespace {
 
-#if 0 // Set this to 1 to debug the logger itself
+#ifdef ETC_DEBUG
 		template<typename... Args>
 		void logger_log(Args&&... args)
 		{
