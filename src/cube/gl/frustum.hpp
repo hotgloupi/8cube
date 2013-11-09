@@ -59,13 +59,13 @@ namespace cube { namespace gl { namespace frustum {
 		Frustum(units::Angle const fov,
 		        float const ratio,
 		        T const ndist,
-		        T const fdist);
+		        T const fdist) noexcept;
 
 		void update(vec3f const& front,
-		            vec3f const& up);
+		            vec3f const& up) noexcept;
 
 		inline
-		plane_t const& plane(PlanePosition const pos)
+		plane_t const& plane(PlanePosition const pos) noexcept
 		{ return _planes[static_cast<etc::size_type>(pos)]; }
 
 		/**
@@ -83,24 +83,22 @@ namespace cube { namespace gl { namespace frustum {
 		/**
 		 * @brief Check whether or not a point is in the frustum.
 		 */
-		bool contains(vec3 const& point) const;
+		bool contains(vec3 const& point) const noexcept;
 
-		bool intersects(sphere_t const& sphere) const;
+		bool intersects(sphere_t const& sphere) const noexcept;
 
 	private:
 		CUBE_API_INTERNAL
 		inline
-		void _plane(PlanePosition const pos, plane_t const& p)
-		{
-			_planes[static_cast<etc::size_type>(pos)] = p;
-		}
+		void _plane(PlanePosition const pos, plane_t const& p) noexcept
+		{ _planes[static_cast<etc::size_type>(pos)] = p; }
 
 	private:
 		CUBE_API_INTERNAL
 		static
 		vec2d _plane_size(units::Angle const fov,
 		                  float const ratio,
-		                  T const distance);
+		                  T const distance) noexcept;
 	};
 
 }}}
