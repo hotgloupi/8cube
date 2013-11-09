@@ -29,9 +29,6 @@ class Application(cube.gui.Application):
             self._client
         )
         #self.window.confine_mouse(True)
-        self.__prepare()
-
-    def __prepare(self):
 
         self.__fps_label = cube.gui.widgets.Label("FPS:", x = 0, y = 0, w = 400, h = 90)
         self._main_menu = cube.gui.widgets.VerticalLayout(
