@@ -164,7 +164,7 @@ def configure(project, build):
             c.libraries.PythonDependency,
             c_compiler,
             'deps/cPython-3.3',
-            shared = True,
+            shared = False,
             version = (3, 3),
             pymalloc = True,
             with_valgrind_support = False,
