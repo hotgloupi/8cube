@@ -306,14 +306,19 @@ namespace etc { namespace log {
 		boost::asio::io_service s;
 		boost::asio::deadline_timer timer(s, boost::posix_time::seconds(2));
 		timer.async_wait([] (boost::system::error_code const& ec) {
-			logger_log("Force all remaining logs to be dropped");
-			runner().stopped = true;
+			if (!ec)
+			{
+				logger_log("Force all remaining logs to be dropped");
+				runner().stopped = true;
+			}
 		});
+		std::thread waiter_thread{[&] {s.run();}};
 #endif
 		runner().thread.join();
 #ifdef ETC_DEBUG
-		if (runner().dropped > 0)
-			logger_log("Dropped logs:", runner().dropped);
+		timer.cancel();
+		waiter_thread.join();
+		logger_log("Dropped logs:", runner().dropped);
 #endif
 	}
 
