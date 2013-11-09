@@ -16,7 +16,7 @@ namespace cube { namespace gl { namespace plane {
 	 * computed and used to normalize distance. This is the only correct way to
 	 * work with integer coordinates.
 	 *
-	 * The plane is oriented by it's normal. When created from three points,
+	 * The plane is oriented by its normal. When created from three points,
 	 * the orientation is a vector normal to the anti-clockwise face.
 	 *
 	 *       ^
@@ -84,10 +84,10 @@ namespace cube { namespace gl { namespace plane {
 
 	typedef Plane<float>    Planef;
 	typedef Plane<double>   Planed;
-	typedef Plane<int32_t>  Planei;
-	typedef Plane<uint32_t> Planeu;
-	typedef Plane<int64_t>  Planeil;
-	typedef Plane<uint64_t> Planeul;
+	//typedef Plane<int32_t>  Planei;
+	//typedef Plane<uint32_t> Planeu;
+	//typedef Plane<int64_t>  Planeil;
+	//typedef Plane<uint64_t> Planeul;
 
 	template<typename T>
 	CUBE_API
