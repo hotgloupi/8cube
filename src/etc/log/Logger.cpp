@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <thread>
+#include <mutex>
 #include <unordered_map>
 #include <vector>
 
@@ -202,16 +203,107 @@ namespace etc { namespace log {
 			return runner;
 		}
 
+		static void send_line(std::ostream* out,
+		                      Flag flags,
+		                      Line line,
+		                      std::string message)
+		{
+
+			static std::string level_strings[] = {
+				etc::to_string(Level::debug),
+				etc::to_string(Level::info),
+				etc::to_string(Level::warn),
+				etc::to_string(Level::error),
+				etc::to_string(Level::fatal),
+			};
+			std::string const& level_string = level_strings[(size_t)line.level];
+			std::string line_string{std::to_string(line.line)};
+
+			struct Size {
+				size_t level;
+				size_t file;
+				size_t line;
+				size_t function;
+				size_t component;
+			};
+
+			static Size max_size{8, 0, 4, 0, 40};
+
+			Size size{
+				level_string.size(),
+				strlen(line.file),
+				line_string.size(),
+				strlen(line.function),
+				line.component.size(),
+			};
+
+
+			// And update them.
+#define _UPDATE_SIZE(__name)                                                  \
+			if (max_size.__name < size.__name)                                \
+				max_size.__name = size.__name;                                \
+	/**/
+			_UPDATE_SIZE(line);
+			_UPDATE_SIZE(file);
+			_UPDATE_SIZE(function);
+			_UPDATE_SIZE(component);
+#undef _UPDATE_SIZE
+
+			static std::string res;
+			res.clear();
+
+			switch (line.level)
+			{
+			case Level::warn:
+				res.append("[33;01;33m");
+				break;
+			case Level::error:
+				res.append("[33;03;31m");
+				break;
+			default:
+				break;
+			}
+			// Print each part
+#define _PRINT_PART(__name, __var, __flag) \
+			if (flags & Flag::__flag) \
+			{ \
+				size_t delta = max_size.__name - size.__name; \
+				res.append(1, '['); \
+				res.append( \
+					(delta / 2) + (delta % 2), \
+					' ' \
+				); \
+				res.append(__var); \
+				res.append(delta / 2, ' '); \
+				res.append(1, ']'); \
+			} \
+	/**/
+			_PRINT_PART(level, level_string, level);
+			_PRINT_PART(file, line.file, location);
+			_PRINT_PART(line, line_string, location);
+			_PRINT_PART(function, line.function, function);
+			_PRINT_PART(component, line.component, component);
+#undef _PRINT_PART
+
+			res.append(line.indent * 2, ' ');
+			res.append(message);
+			res.append("[0m\n");
+			*out << res;
+		}
+
 	} // !anonymous
+
 
 	Logger& logger(std::string const& name)
 	{
 		static std::unordered_map<std::string, Logger*> loggers;
 		static Level level = default_level();
+		static std::mutex mutex;
+		std::lock_guard<std::mutex> guard{mutex};
 		auto it = loggers.find(name);
 		if (it != loggers.end())
 			return *it->second;
-		return *((loggers[name] = new Logger{name, level}));
+		return *(loggers[name] = new Logger{name, level});
 	}
 
 	void shutdown()
