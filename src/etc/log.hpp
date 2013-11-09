@@ -10,15 +10,14 @@
 
 # define ETC_LOG_COMPONENT(__name)                                            \
 	static inline                                                             \
-	char const* const& etc_log_component() noexcept                           \
-	{ static char const* n = __name; return n; }                              \
+	std::string const& etc_log_component() noexcept                           \
+	{ static std::string n{__name}; return n; }                               \
 /**/
 # define ETC_LOG_SUB_COMPONENT(__name)                                        \
 	static auto BOOST_PP_CAT(log, __LINE__) =                                 \
 		std::string{etc_log_component()} + "#" __name;                        \
-	auto etc_log_component = [] () -> char const* const& {                    \
-		static char const* n = BOOST_PP_CAT(log, __LINE__).c_str();           \
-		return n;                                                             \
+	static auto etc_log_component = [&] () -> std::string const& {            \
+		return BOOST_PP_CAT(log, __LINE__);                                   \
 	};                                                                        \
 /**/
 
