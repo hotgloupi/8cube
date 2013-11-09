@@ -57,7 +57,8 @@ namespace etc { namespace log {
 
 		Level default_level()
 		{
-			static std::string level_string = etc::sys::environ::get("ETC_LOG_LEVEL", "INFO");
+			static std::string level_string =
+				etc::sys::environ::get("ETC_LOG_LEVEL", "INFO");
 			static Level value = level_from_string(level_string, Level::info);
 			return value;
 		}
@@ -127,11 +128,23 @@ namespace etc { namespace log {
 					continue;
 				}
 				if (match[0] == '+')
-					res.push_back(Pattern(Pattern::add_match, match.substr(1), level));
+					res.emplace_back(
+						Pattern::add_match,
+						"*" + match.substr(1) + "*",
+						level
+					);
 				else if (match[0] == '-')
-					res.push_back(Pattern(Pattern::remove_match, match.substr(1), level));
+					res.emplace_back(
+						Pattern::remove_match,
+						"*" + match.substr(1) + "*",
+						level
+					);
 				else
-					res.push_back(Pattern(Pattern::add_match, match, level));
+					res.emplace_back(
+						Pattern::add_match,
+						"*" + match + "*",
+						level
+					);
 			}
 			for (auto const& p: res)
 				logger_log("Pattern:", p.level, p.str, p.op);
@@ -162,7 +175,7 @@ namespace etc { namespace log {
 
 			template<typename Fn>
 			inline
-			void post(Fn&& fn)
+			void post(Fn fn)
 			{
 #ifdef ETC_DEBUG
 				this->service.post([=] {
