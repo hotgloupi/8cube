@@ -54,7 +54,7 @@ namespace etc { namespace log {
 		            char const* file,
 		            size_type const line,
 		            char const* function,
-		            char const* component);
+		            std::string const& component);
 		ETC_API Log(Log const& o);
 		ETC_API Log(Log&& o);
 		ETC_API ~Log();

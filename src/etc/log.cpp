@@ -15,7 +15,7 @@ namespace etc { namespace log {
 	                 char const* file,
 	                 size_type const line,
 	                 char const* function,
-	                 char const* component)
+	                 std::string const& component)
 		: _line{
 			level,
 			file,
