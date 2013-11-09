@@ -17,7 +17,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void ShaderProgramParameter::operator =(Texture& texture)
 	{
-		ETC_LOG_SUB_COMPONENT("Parameter");
+		ETC_LOG_SUB_COMPONENT("ShaderProgramParameter");
 		ETC_TRACE.debug("Bind a texture to a shader program parameter");
 		_program.bind_texture_unit(texture, *this);
 	}
@@ -65,10 +65,11 @@ namespace cube { namespace gl { namespace renderer {
 	ShaderProgramParameter&
 	ShaderProgram::parameter(std::string const& name)
 	{
+		ETC_TRACE.debug("Retreive parameter", name);
 		auto it = _parameters().find(name);
 		if (it != _parameters_map->end())
 		{
-			ETC_TRACE.debug("Retreived parameter", name, "in cache !");
+			ETC_LOG.debug("Found", name, "in cache");
 			assert(it->second != nullptr);
 			return *(it->second);
 		}
@@ -87,6 +88,7 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	ShaderProgram::update(State const& state)
 	{
+		ETC_TRACE.debug("Update shader parameters from state");
 		struct MatrixGetter
 		{
 			std::string name;
@@ -107,6 +109,7 @@ namespace cube { namespace gl { namespace renderer {
 			auto it = map.find(matrix.name);
 			if (it != end)
 			{
+				assert(it->second != nullptr);
 				*(it->second) = (state.*(matrix.getter))(); // beuark
 			}
 		}

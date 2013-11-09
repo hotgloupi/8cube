@@ -77,6 +77,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	class ShaderProgramParameter
 		: public renderer::ShaderProgramParameter
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgramParameter");
 	private:
 		GLint           _size;
 		GLenum          _type;
