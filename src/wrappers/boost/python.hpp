@@ -54,6 +54,11 @@ namespace boost { namespace python {
 		ss << val;
 		return ss.str();
 	};
+
+	inline
+	std::string to_string(object o)
+	{ return extract<std::string>(str(o)); }
+
 }}
 
 #define BOOST_PYTHON_DOCSTRING_OPTIONS()                                      \
