@@ -334,97 +334,36 @@ namespace etc { namespace log {
 			stream = OutStream(&std::cerr, false);
 	}
 
-	namespace {
-
-		// every fields are strings.
-		struct StringLine
+	Logger::ComponentConfig const&
+	Logger::_component_config(std::string const& name)
+	{
+		static std::unordered_map<std::string, ComponentConfig> components;
+		auto it = components.find(name);
+		if (it != components.end())
+			return it->second;
+		static std::vector<Pattern> patterns = get_patterns();
+		ComponentConfig res = {default_level(), false};
+		for (auto const& pattern: patterns)
 		{
-			std::string const   level;
-			std::string const   file;
-			std::string const   line;
-			std::string const   function;
-			std::string const   component;
-		};
-
-		static void SendLine(std::ostream* out,
-		                     Flag flags,
-		                     Line line,
-		                     std::string message)
-		{
-			StringLine string{
-				etc::to_string(line.level),
-				line.file,
-				etc::to_string(line.line),
-				line.function,
-				line.component,
-			};
-			static struct {
-				size_t level;
-				size_t file;
-				size_t line;
-				size_t function;
-				size_t component;
-			} max_size = {8, 0, 0, 0, 40};
-		// And update them.
-#define _UPDATE_SIZE(__name)                                                  \
-			if (max_size.__name < string.__name.size())                       \
-				max_size.__name = string.__name.size()                        \
-	/**/
-			_UPDATE_SIZE(level);
-			_UPDATE_SIZE(file);
-			_UPDATE_SIZE(line);
-			_UPDATE_SIZE(function);
-			_UPDATE_SIZE(component);
-#undef _UPDATE_SIZE
-
-
-			switch (line.level)
-			{
-			case Level::warn:
-				break;
-				*out << "[33;01;33m";
-			case Level::error:
-				*out << "[33;03;31m";
-				break;
-			default:
-				break;
-			}
-			// Print each part
-#define _PRINT_PART(__name, __flag) \
-			if (flags & Flag::__flag) \
-			{ \
-				size_t delta = max_size.__name - string.__name.size(); \
-				*out << '[' << std::string( \
-				            (delta / 2) + (delta % 2), \
-				            ' ' \
-				        ) \
-				     << string.__name \
-				     << std::string(delta / 2, ' ') << ']' \
-				; \
-			} \
-	/**/
-			_PRINT_PART(level, level);
-			_PRINT_PART(file, location);
-			_PRINT_PART(line, location);
-			_PRINT_PART(function, function);
-			_PRINT_PART(component, component);
-#undef _PRINT_PART
-
-			*out <<  std::string(line.indent * 2, ' ') << message
-			     << "[0m\n";
+#ifdef _WIN32
+			if (::PathMatchSpec(name.c_str(), pattern.str.c_str()) == TRUE)
+#else
+			if (::fnmatch(pattern.str.c_str(), name.c_str(), 0) == 0)
+#endif
+				res = {pattern.level, (pattern.op == Pattern::add_match)};
 		}
-
+		logger_log(
+			"Component", name,
+			(res.enabled ? "enabled" : "disabled"),
+			"for level", res.level
+		);
+		return components[name] = res;
 	}
-
 	void Logger::_message(Line const& line,
 	                      std::string&& message) noexcept
 	{
 		try
 		{
-			auto config = component_config(line.component);
-			if (line.level < config.first || !config.second)
-				return;
-
 			// Fetch the out stream.
 			assert(meta::enum_<Level>::valid_index(line.level));
 			unsigned int idx = meta::enum_<Level>::indexof(line.level);
@@ -433,7 +372,7 @@ namespace etc { namespace log {
 
 			runner().post(
 				std::bind(
-					&SendLine,
+					&send_line,
 					out,
 					_flags,
 					line,
