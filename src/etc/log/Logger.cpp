@@ -245,8 +245,47 @@ namespace etc { namespace log {
 			static std::string res;
 			res.clear();
 
+#ifdef _WIN32
+			static HANDLE console_handle = ::GetStdHandle(STD_OUTPUT_HANDLE);
+# define DARK_BLUE    1
+# define DARK_GREEN   2
+# define DARK_CYAN    3
+# define DARK_RED     4
+# define DARK_PINK    5
+# define DARK_YELLOW  6
+# define WHITE        7
+# define GRAY         8
+# define BLUE         9
+# define GREEN        10
+# define CYAN         11
+# define RED          12
+# define PINK         13
+# define YELLOW       14
+# define BOLD_WHITE   15
+			int color = WHITE;
 			switch (line.level)
 			{
+			case Level::info:
+				color = BOLD_WHITE;
+				break;
+			case Level::warn:
+				color = YELLOW;
+				break;
+			case Level::error:
+				color = DARK_RED;
+				break;
+			default:
+				break;
+			}
+			if (color != WHITE)
+				::SetConsoleTextAttribute(console_handle, color);
+#else
+			bool colored = true;
+			switch (line.level)
+			{
+			case Level::info:
+				res.append("[1m");
+				break;
 			case Level::warn:
 				res.append("[33;01;33m");
 				break;
@@ -254,8 +293,10 @@ namespace etc { namespace log {
 				res.append("[33;03;31m");
 				break;
 			default:
+				colored = false;
 				break;
 			}
+#endif
 			// Print each part
 #define _PRINT_PART(__name, __var, __flag) \
 			if (flags & Flag::__flag) \
@@ -279,9 +320,41 @@ namespace etc { namespace log {
 #undef _PRINT_PART
 
 			res.append(line.indent * 2, ' ');
-			res.append(message);
-			res.append("[0m\n");
+
+			std::string trimmed_message = message;
+			boost::algorithm::trim_if(
+				trimmed_message,
+				boost::algorithm::is_any_of(" \t\n\r"));
+			std::vector<std::string> lines;
+			boost::split(lines,
+						 trimmed_message,
+						 boost::algorithm::is_any_of("\r\n"),
+						 boost::token_compress_on);
+			if (lines.size() == 1)
+			{
+				res.append(lines[0]);
+			}
+			else if (lines.size() > 1)
+			{
+				std::string indent(res.size(), ' ');
+				res.append(lines[0]);
+				for (size_t i = 1; i < lines.size(); i++)
+				{
+					res.append("\n");
+					res.append(indent);
+					res.append(lines[i]);
+				}
+			}
+#ifndef _WIN32
+			if (colored)
+				res.append("[0m");
+#endif
+			res.append("\n");
 			*out << res;
+#ifdef _WIN32
+			if (color != WHITE)
+				::SetConsoleTextAttribute(console_handle, WHITE);
+#endif
 		}
 
 	} // !anonymous
