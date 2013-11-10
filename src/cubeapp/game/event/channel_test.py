@@ -2,7 +2,7 @@
 
 from .channel import Channel
 
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
 class _(TestCase):
 

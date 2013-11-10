@@ -15,9 +15,13 @@ class _(TestCase):
         self.assertIsInstance(e2.channel, Channel)
         self.assertIsInstance(e3.channel, Channel)
 
-    @expectedFailure
     def test_no_arg(self):
-        Event()
+        try:
+            Event()
+        except:
+            pass
+        else:
+            self.fail("Shouldn't be able to create an event without arguments")
 
     def test_same_channel(self):
         e1 = Event("pif")
