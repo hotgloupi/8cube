@@ -50,6 +50,11 @@ class Assimp(Dependency):
             '-DBoost_NO_SYSTEM_PATHS=TRUE',
             '-DBoost_NO_CMAKE=TRUE',
             '-DBoost_ADDITIONAL_VERSIONS=1.55',
+            '-DASSIMP_BUILD_ASSIMP_TOOLS=FALSE',
+            '-DASSIMP_BUILD_STATIC_LIB=%s' % (self.shared and "FALSE" or "TRUE"),
+            '-DASSIMP_BUILD_SAMPLES=FALSE',
+            '-DASSIMP_BUILD_TESTS=FALSE',
+            '-DASSIMP_NO_EXPORT=TRUE',
         ]
         if platform.IS_WINDOWS:
             cmake_cmd.extend([
@@ -338,10 +343,9 @@ def configure(project, build):
             if not isinstance(lib, Target):
                 if lib.shared and not lib.system:
                     for f in lib.files:
-                        print("Copy",f )
                         build.fs.copy(f, dest_dir = 'release/bin')
             else:
-                if lib.dependencies[0].shared:
+                if lib.shared:
                     build.fs.copy(lib, dest_dir = 'release/bin')
 
 
