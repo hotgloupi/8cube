@@ -89,19 +89,6 @@ namespace cubeapp { namespace python {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Initialization section
-/*
-	static
-	bool contains_libpython(fs::path lib_dir, std::string dirname)
-	{
-		fs::directory_iterator dir(lib_dir), end;
-		for (; dir != end; ++dir)
-		{
-			fs::path p(*dir);
-			if (boost::algorithm::starts_with(p.filename().string(), filename))
-				return true;
-		}
-		return false;
-	}*/
 
 	Interpreter& Interpreter::instance(boost::filesystem::path lib_dir)
 	{

@@ -19,8 +19,6 @@
 namespace fs = boost::filesystem;
 namespace algo = boost::algorithm;
 
-static int load_libraries(fs::path lib_dir);
-
 static std::string safe_path(std::string const& path)
 {
 	std::string res{path};
@@ -41,13 +39,6 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	fs::path exec_dir = fs::canonical(argv[0]).parent_path();
 	fs::path games_dir = exec_dir.parent_path() / "share" / "8cube" / "games";
 	fs::path lib_dir = exec_dir.parent_path() / "lib";
-
-#ifdef _WIN32
-	//load_libraries(exec_dir);
-	load_libraries(lib_dir);
-#else
-	(void)load_libraries;
-#endif
 
 	ETC_LOG("Starting 8cube");
 
@@ -88,38 +79,4 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	}
 	std::cerr << "The 'impossible' happened, you should report this to contact@8cube.io\n";
 	return EXIT_FAILURE;
-}
-
-#ifdef _WIN32
-# include <wrappers/windows.hpp>
-#else
-# include <dlfcn.h>
-#endif
-
-static int load_libraries(fs::path lib_dir)
-{
-	fs::directory_iterator dir(lib_dir), end;
-	for (; dir != end; ++dir)
-	{
-		fs::path p(*dir);
-		//std::cout << "-- file: " << p.string() << std::endl;
-		if (algo::ends_with(p.string(), ".dll") ||
-		    algo::ends_with(p.string(), ".pyd") ||
-		    algo::ends_with(p.string(), ".so"))
-		{
-#ifdef _WIN32
-			std::cout << "-- Load library: " << p.string() << std::endl;
-			::LoadLibrary(p.string().c_str());
-#else
-      //auto handle = ::dlopen(p.string().c_str(), RTLD_NOW);
-      //if (!handle)
-      //  {
-      //    std::cerr << "Error while loading " << p.string() << ": " << dlerror() << std::endl;
-      //  }
-      //  if (auto res = dlsym(handle, "__caca0_free_bitmap"))
-      //    std::cout << "found: " << (void const*)res << std::endl;
-#endif
-		}
-	}
-	return 0;
 }
