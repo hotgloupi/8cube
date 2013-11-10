@@ -68,9 +68,10 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	;
 	try {
 		bool success = interpreter.exec(init_script);
-		etc::log::shutdown();
+		cube::debug::Performance::instance().shutdown();
 		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
 			cube::debug::Performance::instance().dump();
+		etc::log::shutdown();
 		return (success ? EXIT_SUCCESS : EXIT_FAILURE);
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
