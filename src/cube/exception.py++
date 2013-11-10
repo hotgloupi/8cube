@@ -6,17 +6,17 @@
 #include <etc/to_string.hpp>
 #include <etc/types.hpp>
 
-PyObject* ExceptionType = nullptr;
+namespace py = boost::python;
 
 namespace {
+
+	static PyObject* ExceptionType = nullptr;
 
 	// from http://stackoverflow.com/questions/9620268/boost-python-custom-exception-class
 	PyObject*
 	create_exception_type(const char* name,
 	                      PyObject* baseTypeObj = PyExc_Exception)
 	{
-		namespace py = boost::python;
-
 		std::string scopeName = py::extract<std::string>(py::scope().attr("__name__"));
 		std::string qualifiedName0 = scopeName + "." + name;
 		char* qualifiedName1 = const_cast<char*>(qualifiedName0.c_str());
@@ -30,48 +30,38 @@ namespace {
 
 	void translator(cube::exception::Exception const& e)
 	{
-		namespace py = boost::python;
 		py::list backtrace;
-		if (auto bt = e.backtrace())
+		if (auto const& bt = e.backtrace())
 		{
-			for (auto frame : *bt)
-				backtrace.append(
-					static_cast<std::string>(frame)
-				);
+			for (auto const& frame: *bt)
+				backtrace.append(static_cast<std::string>(frame));
 		}
 		py::object exception_type(py::handle<>(py::borrowed(ExceptionType)));
 		exception_type.attr("backtrace") = backtrace;
 
-		//PyErr_SetObject(ExceptionType, boost::python::object(e).ptr());
-		PyErr_SetString(
-			ExceptionType,
-			etc::to_string(ETC_TYPE_STRING(e), ':', e.what()).c_str()
-		);
+		PyErr_SetString(ExceptionType, e.what());
 	}
 
 } // !anonymous
 
-namespace cube { namespace exception {
+namespace {
 
-	void testlast()
+	void test_throw(std::string const& str)
 	{
-		throw Exception("Coucou !");
+		throw cube::exception::Exception(str);
 	}
 
-	void test()
-	{
-		testlast();
-	}
+	void test_cb(py::object cb)
+	{ cb(); }
 
-}}
+}
 
 BOOST_PYTHON_MODULE(exception)
 {
 	BOOST_PYTHON_DOCSTRING_OPTIONS();
 
-	namespace py = boost::python;
-	//py::class_<cube::exception::Exception>("_Exception", py::no_init);
 	ExceptionType = create_exception_type("Exception");
 	py::register_exception_translator<cube::exception::Exception>(&translator);
-	py::def("test", &cube::exception::test);
+	py::def("test_throw", &test_throw);
+	py::def("test_cb", &test_cb);
 }
