@@ -9,49 +9,28 @@ using namespace cube::system::inputs;
 namespace {
 
 	template<typename T>
-	struct WrapSignal
-	{
-		std::shared_ptr<T> _storage;
-		T& signal;
-
-		WrapSignal()
-			: _storage(new T)
-			, signal(*_storage)
-		{}
-
-		WrapSignal(T& signal)
-			: signal(signal)
-		{}
-
-		WrapSignal(WrapSignal const& other)
-			: _storage(other._storage)
-			, signal(other.signal)
-		{}
-
-		WrapSignal(WrapSignal&& other)
-			: _storage(std::move(other._storage))
-			, signal(other.signal)
-		{}
-
-		boost::signals2::connection
-		connect(boost::python::object o)
-		{
-			return this->signal.connect(o);
-		}
-
-		static bool exported; // see ugly macro below
-	};
-
-	template<typename T>
-	bool WrapSignal<T>::exported = false;
-
-	template<typename T>
 	std::string enum_str(T const mod)
 	{
 		std::stringstream ss;
 		ss << mod;
 		return ss.str();
 	}
+
+	template<typename Sig>
+	struct SignalExport
+	{
+		typedef Sig type;
+		static bool exported;
+
+		static
+		boost::signals2::connection
+		connect(Sig& signal, boost::python::object o)
+		{
+			return signal.connect(o);
+		}
+	};
+	template<typename T>
+	bool SignalExport<T>::exported = false;
 
 }
 
@@ -237,38 +216,36 @@ BOOST_PYTHON_MODULE(inputs)
 #define MKSTR(S) #S
 
 #define DEF_CONNECT(cls, name) do {                                           \
-	typedef WrapSignal<Inputs::on_ ## name ## _t> Wrapper;                    \
-	struct get { static Wrapper name(Inputs * const self) {                   \
-		return Wrapper(self->on_ ## name());                                  \
-	}};                                                                       \
+	typedef SignalExport<Inputs::on_ ## name ## _t> Signal;                   \
+	typedef typename Signal::type signal_t;                   \
+	typedef typename Inputs::on_ ## name ## _signature_t signature_t; \
                                                                               \
 	cls.add_property(                                                         \
 		"on_" #name,                                                          \
 		py::make_function(                                                    \
-			&get::name,                                                       \
-			py::return_value_policy<py::return_by_value, py::return_internal_reference<>>()                    \
+			&Inputs::on_ ## name,                                             \
+			py::return_internal_reference<>()                                 \
 		),                                                                    \
 		"connector for the " MKSTR(name) " signal"                            \
 	);                                                                        \
-	if (!Wrapper::exported)                                                   \
+	if (!Signal::exported)                                                    \
 	{                                                                         \
-		Wrapper::exported = true;                                             \
-		py::class_<Wrapper>(                                                  \
+		Signal::exported = true;                                              \
+		py::class_<typename Signal::type, boost::noncopyable>(            \
 				MKSTR(on_ ## name ## _t),                                     \
-				MKSTR(name) " signal type",                                   \
-				py::init<>()                                                  \
+				MKSTR(name) " signal type", py::no_init                                   \
 			)                                                                 \
 			.def(                                                             \
 				"connect",                                                    \
-				&Wrapper::connect,                                            \
+				&Signal::connect,                                            \
 				py::with_custodian_and_ward<1, 2>()                           \
 			)                                                                 \
-		;                                                                     \
+		    .def("__call__", static_cast<signature_t>(&signal_t::operator()));\
 	}                                                                         \
 } while (false)                                                               \
 	/**/
 
-	py::class_<Inputs, boost::noncopyable> cls("Inputs", py::no_init);
+	py::class_<Inputs, boost::noncopyable> cls("Inputs");
 
 	DEF_CONNECT(cls, expose);
 	DEF_CONNECT(cls, resize);

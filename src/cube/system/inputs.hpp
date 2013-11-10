@@ -179,11 +179,13 @@ namespace cube { namespace system { namespace inputs {
 	};
 
 
-    struct CUBE_API Inputs : private boost::noncopyable
+    struct CUBE_API Inputs:
+		private boost::noncopyable
     {
 # define CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(name, ...)                          \
 	public:                                                                   \
 		typedef boost::signals2::signal<void(__VA_ARGS__)> on_ ## name ## _t; \
+		typedef void (on_ ## name ## _t::*on_ ## name ## _signature_t)(__VA_ARGS__);  \
 	private:                                                                  \
 		on_ ## name ## _t    _on_ ## name;                                    \
 	public:                                                                   \
