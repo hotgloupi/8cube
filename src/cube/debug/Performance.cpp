@@ -88,15 +88,15 @@ namespace cube { namespace debug {
 		typedef std::unordered_map<std::thread::id, CallStack>  ThreadStackMap;
 		typedef std::unordered_set<Info const*>                 RootSet;
 
-		std::atomic<Performance::id_type>       next_id;
-		StatMap                                 stats;
-		TimerMap                                timers;
-		ThreadStackMap                          stacks;
-		RootSet                                 roots;
+		std::atomic<Performance::id_type>              next_id;
+		StatMap                                        stats;
+		TimerMap                                       timers;
+		ThreadStackMap                                 stacks;
+		RootSet                                        roots;
 
-		boost::asio::io_service                 service;
-		boost::asio::io_service::work           work;
-		std::thread                             worker_thread;
+		boost::asio::io_service                        service;
+		std::unique_ptr<boost::asio::io_service::work> work;
+		std::thread                                    worker_thread;
 
 		Impl()
 			: next_id{1}
@@ -105,7 +105,7 @@ namespace cube { namespace debug {
 			, stacks{}
 			, roots{}
 			, service{}
-			, work{service}
+			, work{new boost::asio::io_service::work{service}}
 			, worker_thread{
 				[this] { this->service.run(); }
 			}
@@ -125,8 +125,7 @@ namespace cube { namespace debug {
 
 	Performance::~Performance()
 	{
-		_this->service.stop();
-		_this->worker_thread.join();
+		this->shutdown();
 	}
 
 	Performance::id_type
@@ -200,6 +199,16 @@ namespace cube { namespace debug {
 			assert(not _this->stacks[thread_id].empty());
 			_this->stacks[thread_id].pop();
 		});
+	}
+
+	void
+	Performance::shutdown()
+	{
+		if (_this->work != nullptr)
+		{
+			_this->work.reset();
+			_this->worker_thread.join();
+		}
 	}
 
 	void

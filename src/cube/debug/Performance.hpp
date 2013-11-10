@@ -31,6 +31,7 @@ namespace cube { namespace debug {
 		Performance& instance();
 
 	public:
+		void shutdown();
 		void dump();
 		void dump_set(std::unordered_set<Info const*> const& set,
 		              unsigned int const max_name_len,
