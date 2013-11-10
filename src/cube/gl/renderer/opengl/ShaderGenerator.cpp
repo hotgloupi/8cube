@@ -6,6 +6,7 @@
 #include <etc/enum.hpp>
 
 #include <sstream>
+#include <unordered_map>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
