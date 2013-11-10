@@ -26,7 +26,10 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	public:
 		static
 		RendererContextPtr
-		create_renderer_context(gl::renderer::Name const name);
+		create_renderer_context(etc::size_type const width,
+		                        etc::size_type const height,
+		                        Flags const flags,
+		                        gl::renderer::Name const name);
 
 	private:
 		SDLRendererContext& _context();

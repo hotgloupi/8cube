@@ -107,7 +107,12 @@ namespace cube { namespace system { namespace window {
 				width,
 				height,
 				flags,
-				create_renderer_context(name),
+				CUBE_SYSTEM_WINDOW_TYPE::create_renderer_context(
+					width,
+					height,
+					flags,
+					name
+				),
 				etc::make_unique<inputs::Inputs>(),
 			}
 		};
@@ -121,14 +126,22 @@ namespace cube { namespace system { namespace window {
 	}
 
 	Window::RendererContextPtr
-	Window::create_renderer_context(gl::renderer::Name const name)
+	Window::create_renderer_context(etc::size_type const width,
+	                                etc::size_type const height,
+	                                Flags const flags,
+	                                gl::renderer::Name const name)
 	{
-		return CUBE_SYSTEM_WINDOW_TYPE::create_renderer_context(name);
+		return CUBE_SYSTEM_WINDOW_TYPE::create_renderer_context(
+			width,
+			height,
+			flags | Flags::hidden,
+			name
+		);
 	}
 
 	RendererContext::~RendererContext()
 	{
-
+		ETC_LOG.debug(this, "Deleting renderer context");
 	}
 
 }}} // !cube::system::window

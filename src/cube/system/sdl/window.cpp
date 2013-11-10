@@ -33,38 +33,53 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	class SDLRendererContext
 		: public cube::system::window::RendererContext
 	{
+		ETC_LOG_COMPONENT("cube.system.sdl.window.RendererContext");
 	public:
 		SDL_version   linked;
 		SDL_version   compiled;
 		SDL_Window*   window;
 		SDL_GLContext gl_context;
 		SDL_SysWMinfo wm;
+		static etc::size_type counter;
 
 	public:
-		SDLRendererContext()
+		SDLRendererContext(etc::size_type const width,
+		                   etc::size_type const height,
+		                   Window::Flags const flags,
+		                   gl::renderer::Name const name)
 		{
+			ETC_TRACE.debug(this, "Creating an SDL renderer context");
 			SDL_GetVersion(&linked);
 			SDL_VERSION(&compiled);
 
-			ETC_LOG(
-				"Compiled SDL version ", etc::iomanip::nosep(),
-				(int)this->compiled.major, '.', (int)this->compiled.minor, '-',
-				(int)this->compiled.patch
-			);
-			ETC_LOG(
-				"Linked SDL version ", etc::iomanip::nosep(),
-				(int)this->linked.major, '.', (int)this->linked.minor, '-',
-				(int)this->linked.patch
-			);
-			if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-				throw SDLException("Init");
+			if (++counter == 1)
+			{
+				ETC_LOG(
+					"Compiled SDL version ", etc::iomanip::nosep(),
+					(int)this->compiled.major, '.', (int)this->compiled.minor, '-',
+					(int)this->compiled.patch
+				);
+				ETC_LOG(
+					"Linked SDL version ", etc::iomanip::nosep(),
+					(int)this->linked.major, '.', (int)this->linked.minor, '-',
+					(int)this->linked.patch
+				);
+				if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+					throw SDLException("Init");
+			}
+			int sdl_flags = 0;
+			if (name == gl::renderer::Name::OpenGL)
+				sdl_flags |= SDL_WINDOW_OPENGL;
+			if (flags & Window::Flags::hidden)
+				sdl_flags |= SDL_WINDOW_HIDDEN;
+
 			this->window = SDL_CreateWindow(
 				"Default name",
 				SDL_WINDOWPOS_CENTERED,
 				SDL_WINDOWPOS_CENTERED,
-				640,
-				480,
-				SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN
+				width,
+				width,
+				sdl_flags
 			);
 			if (this->window == nullptr)
 				throw SDLException{"CreateWindow"};
@@ -95,7 +110,21 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				throw SDLException{"SetWindowShape"};
 */
 		}
+
+		~SDLRendererContext()
+		{
+			SDL_DestroyWindow(this->window);
+			this->window = nullptr;
+
+			if (--counter == 0)
+			{
+				ETC_LOG("Last renderer context, quitting SDL");
+				::SDL_Quit();
+			}
+		}
 	};
+
+	etc::size_type SDLRendererContext::counter = 0;
 
 	Window::Window(ImplPtr&& impl)
 		: Super{std::move(impl)}
@@ -117,7 +146,6 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 	Window::~Window()
 	{
-		::SDL_Quit();
 	}
 
 	SDLRendererContext& Window::_context()
@@ -243,12 +271,14 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		) { /* Dry the queue of mouse motion events */ }
 	}
 
-
 	Window::RendererContextPtr
-	Window::create_renderer_context(gl::renderer::Name const name)
+	Window::create_renderer_context(etc::size_type const width,
+	                                etc::size_type const height,
+	                                Flags const flags,
+	                                gl::renderer::Name const name)
 	{
 		return RendererContextPtr{
-			new SDLRendererContext{}
+			new SDLRendererContext{width, height, flags, name}
 		};
 	}
 

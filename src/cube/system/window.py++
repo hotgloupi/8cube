@@ -44,6 +44,9 @@ BOOST_PYTHON_MODULE(window)
 	py::enum_<Window::Flags>("WindowFlags")
 		.value("none", Window::Flags::none)
 		.value("borderless", Window::Flags::borderless)
+		.value("fullscreen", Window::Flags::fullscreen)
+		.value("fullscreen_desktop", Window::Flags::fullscreen_desktop)
+		.value("hidden", Window::Flags::hidden)
 	;
 
 	py::class_<Window, std::auto_ptr<Window>, boost::noncopyable>(
@@ -82,5 +85,11 @@ BOOST_PYTHON_MODULE(window)
 			&Window::swap_buffers
 		)
 	;
+	py::class_<RendererContext, boost::noncopyable, std::auto_ptr<RendererContext>>("RendererContext", py::no_init);
 	py::def("create_window", &Wrap::create_window);
+	py::def(
+		"create_renderer_context",
+		&Window::create_renderer_context
+	);
+	py::register_unique_ptr_converter<RendererContext>();
 }
