@@ -59,6 +59,40 @@ namespace boost { namespace python {
 	std::string to_string(object o)
 	{ return extract<std::string>(str(o)); }
 
+	///////////////////////////////////////////////////////////////////////
+	// Convert unique_ptr
+
+	// This is involved when returning by value, and as copying is not
+	// allowed for a unique_ptr, we can safely remove de const qualifiers.
+	// This is meant to happen when returning unique_ptr<T>, for the
+	// caller, the variable is moved.
+	//
+	// When boost python handle properly to move operation, this could go
+	// away.
+
+	template<typename T>
+	struct unique_ptr_converter
+	{
+		static inline
+		PyObject* convert(std::unique_ptr<T> const& value)
+		{
+			return boost::python::incref(
+				boost::python::object(
+					std::auto_ptr<T>(
+						const_cast<std::unique_ptr<T>&>(value).release()
+					)
+				).ptr()
+			);
+		}
+	};
+
+	template<typename T>
+	inline
+	void register_unique_ptr_converter()
+	{
+		to_python_converter<std::unique_ptr<T>, unique_ptr_converter<T>>();
+	}
+
 }}
 
 #define BOOST_PYTHON_DOCSTRING_OPTIONS()                                      \
