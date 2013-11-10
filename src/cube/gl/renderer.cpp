@@ -25,13 +25,13 @@ namespace cube { namespace gl { namespace renderer {
 	}
 
 	RendererPtr
-	create_renderer(cube::gl::viewport::Viewport const& vp,
+	create_renderer(cube::system::window::RendererContext& context,
 	                Name const name)
 	{
 		for (auto const& description: descriptions())
 		{
 			if (description->name() == name)
-				return description->create(vp);
+				return description->create(context);
 		}
 		throw Exception{"Cannot find any renderer with that name"};
 	}

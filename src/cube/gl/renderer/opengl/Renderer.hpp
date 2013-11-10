@@ -11,7 +11,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	public:
 
 	public:
-		void initialize(cube::gl::viewport::Viewport const& vp);
+		GLRenderer(system::window::RendererContext& context);
 		void shutdown();
 		cube::gl::renderer::RendererType const& description() const;
 		~GLRenderer();
@@ -69,7 +69,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	public:
 		RendererType();
 		std::unique_ptr<renderer::Renderer>
-		create(::cube::gl::viewport::Viewport const& vp) override;
+		create(system::window::RendererContext& context) override;
 		std::string
 		__str__() const override;
 		Name name() const override { return Name::OpenGL; }

@@ -22,38 +22,24 @@ namespace cube { namespace system { namespace window {
 	struct Window::Impl
 	{
 		std::string        title;
-		etc::size_type     width;
-		etc::size_type     height;
-		Flags              flags;
 		RendererContextPtr context;
 		InputsPtr          inputs;
 		RendererPtr        renderer;
 
-		Impl(std::string const& title,
-		     etc::size_type const width,
-		     etc::size_type const height,
-		     Flags const flags,
+		Impl(std::string title,
 		     RendererContextPtr context,
 		     InputsPtr inputs)
-			: title{title}
-			, width{width}
-			, height{height}
-			, flags{flags}
+			: title{std::move(title)}
 			, context{std::move(context)}
 			, inputs{std::move(inputs)}
-			, renderer{
-				gl::renderer::create_renderer(
-					gl::viewport::Viewport{0, 0, (float) width, (float) height},
-					cube::gl::renderer::Name::OpenGL
-				)
-			}
+			, renderer{gl::renderer::create_renderer(*this->context)}
 		{}
 	};
 
 	Window::Window(ImplPtr&& impl) noexcept
 		: _impl{std::move(impl)}
 	{
-		ETC_LOG.debug("New window", _impl->title, _impl->width, _impl->height);
+		ETC_LOG.debug("New window", _impl->title, this->width(), this->height());
 	}
 
 	Window::~Window()
@@ -77,42 +63,30 @@ namespace cube { namespace system { namespace window {
 	{ return *_impl->context; }
 
 	etc::size_type Window::width() const noexcept
-	{ return _impl->width; }
+	{ return _impl->context->width(); }
 
 	etc::size_type Window::height() const noexcept
-	{ return _impl->height; }
+	{ return _impl->context->height(); }
 
 	Window::Flags Window::flags() const noexcept
-	{ return _impl->flags; }
+	{ return _impl->context->flags(); }
 
 	std::string const& Window::title() const noexcept
 	{ return _impl->title; }
 
-	void Window::width(etc::size_type const w) noexcept
-	{ _impl->width = w; }
+	void Window::size(etc::size_type const w,
+	                  etc::size_type const h)
+	{ _impl->context->size(w, h); }
 
-	void Window::height(etc::size_type const h) noexcept
-	{ _impl->height = h; }
 
 	std::unique_ptr<Window>
-	Window::create(std::string const& title,
-	               etc::size_type const width,
-	               etc::size_type const height,
-	               Flags const flags,
-	               gl::renderer::Name const name)
+	Window::create(std::string title,
+	               RendererContextPtr renderer_context)
 	{
 		auto impl_ptr = std::unique_ptr<Window::Impl>{
 			new Impl{
-				title,
-				width,
-				height,
-				flags,
-				CUBE_SYSTEM_WINDOW_TYPE::create_renderer_context(
-					width,
-					height,
-					flags,
-					name
-				),
+				std::move(title),
+				std::move(renderer_context),
 				etc::make_unique<inputs::Inputs>(),
 			}
 		};
@@ -123,6 +97,25 @@ namespace cube { namespace system { namespace window {
 		};
 		ETC_LOG.debug("Successfully created window and renderer");
 		return ptr;
+
+	}
+
+	std::unique_ptr<Window>
+	Window::create(std::string title,
+	               etc::size_type const width,
+	               etc::size_type const height,
+	               Flags const flags,
+	               gl::renderer::Name const name)
+	{
+		return create(
+			std::move(title),
+			CUBE_SYSTEM_WINDOW_TYPE::create_renderer_context(
+				width,
+				height,
+				flags,
+				name
+			)
+		);
 	}
 
 	Window::RendererContextPtr
@@ -137,6 +130,37 @@ namespace cube { namespace system { namespace window {
 			flags | Flags::hidden,
 			name
 		);
+	}
+
+	RendererContext::RendererContext(etc::size_type const width,
+	                                 etc::size_type const height,
+	                                 Window::Flags const flags,
+	                                 gl::renderer::Name const name) noexcept
+		: _width{width}
+		, _height{height}
+		, _flags{flags}
+		, _name{name}
+	{}
+
+	etc::size_type RendererContext::width() const noexcept
+	{ return _width; }
+
+	etc::size_type RendererContext::height() const noexcept
+	{ return _height; }
+
+	Window::Flags RendererContext::flags() const noexcept
+	{ return _flags; }
+
+	gl::renderer::Name RendererContext::name() const noexcept
+	{ return _name; }
+
+	void
+	RendererContext::size(etc::size_type const width,
+	                      etc::size_type const height)
+	{
+		_size(width, height);
+		_width = width;
+		_height = height;
 	}
 
 	RendererContext::~RendererContext()

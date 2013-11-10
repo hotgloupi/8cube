@@ -44,20 +44,24 @@ namespace cube { namespace system { namespace window {
 		Flags flags() const noexcept;
 
 	protected:
-		void width(etc::size_type const w) noexcept;
-		void height(etc::size_type const h) noexcept;
+		void size(etc::size_type const width,
+		          etc::size_type const height);
 
 	protected:
 		Window(ImplPtr&& impl) noexcept;
 	public:
 		static
 		std::unique_ptr<Window>
-		create(std::string const& title,
+		create(std::string title,
 		       etc::size_type const width,
 		       etc::size_type const height,
 		       Flags const flags = Flags::none,
 		       gl::renderer::Name const name  = gl::renderer::Name::OpenGL);
 
+		static
+		std::unique_ptr<Window>
+		create(std::string title,
+		       RendererContextPtr renderer_context);
 	public:
 		static
 		RendererContextPtr
@@ -83,8 +87,40 @@ namespace cube { namespace system { namespace window {
 
 	};
 
-	struct RendererContext
+	class RendererContext
 	{
+	protected:
+		etc::size_type           _width;
+		etc::size_type           _height;
+		Window::Flags            _flags;
+		gl::renderer::Name const _name;
+
+	protected:
+		RendererContext(etc::size_type const width,
+		                etc::size_type const height,
+		                Window::Flags const flags,
+		                gl::renderer::Name const name) noexcept;
+
+
+	public:
+		virtual
+		etc::size_type width() const noexcept;
+
+		virtual
+		etc::size_type height() const noexcept;
+
+		virtual
+		Window::Flags flags() const noexcept;
+
+		gl::renderer::Name name() const noexcept;
+
+	public:
+		void size(etc::size_type const width, etc::size_type const height);
+	protected:
+		virtual
+		void _size(etc::size_type const width,
+		           etc::size_type const height) = 0;
+	public:
 		virtual
 		~RendererContext();
 	};

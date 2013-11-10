@@ -9,6 +9,13 @@ namespace cube { namespace system {
 
 	}
 
+	namespace window {
+
+		class Window;
+		class RendererContext;
+
+	}
+
 }} // !cube::system
 
 #endif

@@ -47,6 +47,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		                   etc::size_type const height,
 		                   Window::Flags const flags,
 		                   gl::renderer::Name const name)
+			: RendererContext{width, height, flags, name}
 		{
 			ETC_TRACE.debug(this, "Creating an SDL renderer context");
 			SDL_GetVersion(&linked);
@@ -109,6 +110,12 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			if (SDL_SetWindowShape(_context().window, SDL_GetWindowSurface(_context().window), &shape_mode))
 				throw SDLException{"SetWindowShape"};
 */
+		}
+
+		void _size(etc::size_type const width,
+		           etc::size_type const height) override
+		{
+			SDL_SetWindowSize(this->window, width, height);
 		}
 
 		~SDLRendererContext()
@@ -177,8 +184,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				switch (e.window.event)
 				{
 				case SDL_WINDOWEVENT_RESIZED:
-					this->width(e.window.data1);
-					this->height(e.window.data2);
+					this->size(e.window.data1, e.window.data2);
 					has_resize = true;
 					break;
 				case SDL_WINDOWEVENT_EXPOSED:

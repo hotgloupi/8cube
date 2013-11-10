@@ -1,18 +1,18 @@
+#include "Renderer.hpp"
+#include "VertexBuffer.hpp"
+#include "Shader.hpp"
+#include "ShaderProgram.hpp"
+#include "Texture.hpp"
 
-# include <cube/gl/matrix.hpp>
+#include "_opengl.hpp"
 
-# include "Renderer.hpp"
-# include "VertexBuffer.hpp"
-# include "Shader.hpp"
-# include "ShaderProgram.hpp"
-# include "Texture.hpp"
+#include <cube/gl/matrix.hpp>
+#include <cube/system/Window.hpp>
 
-# include "_opengl.hpp"
-
-# include <cassert>
-# include <iostream>
-# include <stdexcept>
-# include <string>
+#include <cassert>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
@@ -21,13 +21,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	GLRenderer::~GLRenderer()
 	{}
 
-	void GLRenderer::initialize(cube::gl::viewport::Viewport const& vp)
+	GLRenderer::GLRenderer(system::window::RendererContext& context)
 	{
-		ETC_TRACE.debug("GLRenderer::initialize(", vp, ")");
-		//int major, minor;
-		//glGetIntegerv(GL_MAJOR_VERSION, &major);
-		//glGetIntegerv(GL_MINOR_VERSION, &minor);
-		//std::cerr << "OpenGL " << major << "." << minor << std::endl;
+		ETC_TRACE.debug("GLRenderer::initialize(", &context, ")");
 		::glewExperimental = GL_TRUE;
 		auto ret = ::glewInit();
 		if (ret != GLEW_OK)
@@ -46,7 +42,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		CHECK(GLEW_ARB_vertex_shader)
 		CHECK(GLEW_ARB_fragment_shader)
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
-		this->viewport(vp);
+		this->viewport(
+			viewport::Viewport{0, (float)context.width(), 0, (float)context.height()}
+		);
 	}
 
 	void GLRenderer::shutdown()
@@ -223,10 +221,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	std::unique_ptr<renderer::Renderer>
-	RendererType::create(::cube::gl::viewport::Viewport const& vp)
+	RendererType::create(cube::system::window::RendererContext& context)
 	{
-		std::unique_ptr<renderer::Renderer> renderer(new GLRenderer);
-		renderer->initialize(vp);
+		std::unique_ptr<renderer::Renderer> renderer(new GLRenderer{context});
 
 		ETC_LOG.info("GLEW version",    glewGetString(GLEW_VERSION));
 		ETC_LOG.info("OpenGL version",  (char*) glGetString(GL_VERSION));

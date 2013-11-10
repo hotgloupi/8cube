@@ -10,6 +10,7 @@
 # include "renderer/VertexBuffer.hpp"
 
 # include <cube/api.hpp>
+# include <cube/system/fwd.hpp>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -21,7 +22,7 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	CUBE_API
 	RendererPtr
-	create_renderer(cube::gl::viewport::Viewport const& vp,
+	create_renderer(cube::system::window::RendererContext& context,
 	                Name const name = Name::OpenGL);
 
 	/**

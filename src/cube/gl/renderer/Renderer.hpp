@@ -6,7 +6,8 @@
 # include "State.hpp"
 # include "VertexBufferAttribute.hpp"
 
-# include "../viewport.hpp"
+# include <cube/gl/viewport.hpp>
+# include <cube/system/fwd.hpp>
 
 # include <etc/types.hpp>
 
@@ -35,7 +36,7 @@ namespace cube { namespace gl { namespace renderer {
 		friend class Painter;
 
 	protected:
-		cube::gl::viewport::Viewport    _viewport;
+		viewport::Viewport    _viewport;
 	private:
 		std::vector<State>              _states;
 		ShaderGeneratorPtr              _shader_generator;
@@ -93,10 +94,6 @@ namespace cube { namespace gl { namespace renderer {
 		///
 		virtual
 		void update_projection_matrix();
-
-		///
-		virtual
-		void initialize(cube::gl::viewport::Viewport const& vp) = 0;
 
 		///
 		virtual
@@ -232,7 +229,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual
 		std::unique_ptr<Renderer>
-		create(cube::gl::viewport::Viewport const& vp) = 0;
+		create(cube::system::window::RendererContext& context) = 0;
 
 		virtual std::string __str__() const = 0;
 		virtual Name name() const = 0;
