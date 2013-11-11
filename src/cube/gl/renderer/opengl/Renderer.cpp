@@ -23,24 +23,29 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	GLRenderer::GLRenderer(system::window::RendererContext& context)
 	{
-		ETC_TRACE.debug("GLRenderer::initialize(", &context, ")");
-		::glewExperimental = GL_TRUE;
-		auto ret = ::glewInit();
-		if (ret != GLEW_OK)
-			throw Exception{
-				"Cannot initialize OpenGL renderer: " +
-				std::string((char const*) glewGetErrorString(ret))
-			};
+		ETC_TRACE.debug("GLRenderer(", &context, ")");
+		static bool initialized = false;
+		if (!initialized)
+		{
+			ETC_LOG.debug("Initializing GLEW");
+			::glewExperimental = GL_TRUE;
+			auto ret = ::glewInit();
+			if (ret != GLEW_OK)
+				throw Exception{
+					"Cannot initialize OpenGL renderer: " +
+					std::string((char const*) glewGetErrorString(ret))
+				};
 
 #define CHECK(ext) \
-		if (!ext) \
-			throw Exception{"Extension " #ext " is not available"}; \
-		/**/
+			if (!ext) \
+				throw Exception{"Extension " #ext " is not available"}; \
+			/**/
 
-		CHECK(GLEW_ARB_shading_language_100)
-		CHECK(GLEW_ARB_shader_objects)
-		CHECK(GLEW_ARB_vertex_shader)
-		CHECK(GLEW_ARB_fragment_shader)
+			CHECK(GLEW_ARB_shading_language_100)
+			CHECK(GLEW_ARB_shader_objects)
+			CHECK(GLEW_ARB_vertex_shader)
+			CHECK(GLEW_ARB_fragment_shader)
+		}
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
 		this->viewport(
 			viewport::Viewport{0, (float)context.width(), 0, (float)context.height()}
