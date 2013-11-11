@@ -52,6 +52,12 @@ def parse_args(args):
         help = "Launch unit tests",
         action = 'store_true'
     )
+
+    parser.add_argument(
+        '--unittest', '-u',
+        help = 'Launch unit tests that match the argument',
+        action = 'store'
+    )
     return parser, parser.parse_args(args=args)
 
 def main(args):
@@ -67,7 +73,11 @@ def main(args):
     cube.gui.FontManager.populate()
     try:
         parser, args = parse_args(args)
-        if args.unittests:
+        if args.unittests or args.unittest:
+            if args.unittest:
+                pattern = '*%s*.py' % args.unittest
+            else:
+                pattern = '*.py'
             import unittest
             lib_dir = os.path.abspath(
                 os.path.join(
@@ -82,7 +92,7 @@ def main(args):
                         'discover',
                         '-s', os.path.join(lib_dir, lib),
                         '-t', lib_dir,
-                        '-p', '*.py',
+                        '-p', pattern,
                         '-v',
                     ],
                     exit = False
