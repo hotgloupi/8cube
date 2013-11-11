@@ -8,9 +8,10 @@ namespace {
 
 	std::string const& static_storage(std::string&& str)
 	{
+		static std::string out_of_memory{"out of memory"};
 		static std::unordered_set<std::string> storage;
 		try { return *storage.emplace(std::move(str)).first; }
-		catch (...) { return "no memory"; }
+		catch (...) { return out_of_memory; }
 	}
 
 	void send(etc::log::Level level,
