@@ -79,7 +79,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				SDL_WINDOWPOS_CENTERED,
 				SDL_WINDOWPOS_CENTERED,
 				width,
-				width,
+				height,
 				sdl_flags
 			);
 			if (this->window == nullptr)
