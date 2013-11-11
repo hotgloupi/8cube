@@ -277,6 +277,18 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		) { /* Dry the queue of mouse motion events */ }
 	}
 
+	void Window::show()
+	{ SDL_ShowWindow(_context().window); }
+
+	void Window::hide()
+	{ SDL_HideWindow(_context().window); }
+
+	void Window::minimize()
+	{ SDL_MinimizeWindow(_context().window); }
+
+	void Window::maximize()
+	{ SDL_MaximizeWindow(_context().window); }
+
 	Window::RendererContextPtr
 	Window::create_renderer_context(etc::size_type const width,
 	                                etc::size_type const height,

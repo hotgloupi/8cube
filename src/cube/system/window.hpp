@@ -85,6 +85,17 @@ namespace cube { namespace system { namespace window {
 		virtual
 		void swap_buffers() = 0;
 
+		virtual
+		void show() = 0;
+
+		virtual
+		void hide() = 0;
+
+		virtual
+		void minimize() = 0;
+
+		virtual
+		void maximize() = 0;
 	};
 
 	class RendererContext

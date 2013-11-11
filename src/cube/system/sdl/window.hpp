@@ -22,6 +22,10 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		etc::size_type poll(etc::size_type const max) override;
 		void confine_mouse(bool mode) override;
 		void swap_buffers() override;
+		void show() override;
+		void hide() override;
+		void minimize() override;
+		void maximize() override;
 
 	public:
 		static

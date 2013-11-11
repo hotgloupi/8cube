@@ -55,6 +55,10 @@ BOOST_PYTHON_MODULE(window)
 			"poll",
 			static_cast<etc::size_type (Window::*)(etc::size_type const)>(&Window::poll)
 		)
+		.def("show", &Window::show)
+		.def("hide", &Window::hide)
+		.def("minimize", &Window::minimize)
+		.def("maximize", &Window::maximize)
 		.add_property(
 			"renderer",
 			py::make_function(
