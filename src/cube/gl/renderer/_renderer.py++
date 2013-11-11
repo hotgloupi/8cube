@@ -1,0 +1,40 @@
+#include "Shader.hpp"
+#include "ShaderProgram.hpp"
+
+#include <cube/gl/renderer.hpp>
+#include <cube/system/window.hpp>
+
+#include <wrappers/boost/python.hpp>
+
+namespace {
+
+	using namespace cube::gl::renderer;
+
+	void delete_renderer(std::auto_ptr<Renderer>& ptr)
+	{ ptr.reset(); }
+
+}
+
+BOOST_PYTHON_MODULE(_renderer)
+{
+	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	namespace py = boost::python;
+	using namespace cube::gl::renderer;
+
+	py::def(
+	    "create_renderer",
+	    &create_renderer
+	);
+
+	py::def(
+	    "delete_renderer",
+	    &delete_renderer
+	);
+
+	py::register_unique_ptr_converter<Renderer>();
+	py::register_unique_ptr_converter<Drawable>();
+	py::register_unique_ptr_converter<ShaderProgram>();
+	py::register_unique_ptr_converter<Shader>();
+	py::register_unique_ptr_converter<VertexBuffer>();
+	py::register_unique_ptr_converter<VertexBufferAttribute>();
+}

@@ -287,8 +287,8 @@ def configure(project, build):
         'libcube',
         rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
-        libraries = base_libraries + [libetc] + graphic_libraries + boost.libraries + python.libraries,
-        precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
+        libraries = base_libraries + [libetc] + graphic_libraries + boost.libraries,
+        precompiled_headers = [boost_signals2_pch, stl_pch],
         defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
     )
 
