@@ -77,6 +77,9 @@ namespace cube { namespace gl { namespace renderer {
 		 * Retreive a shader parameter by its name.
 		 */
 		ShaderProgramParameter& parameter(std::string const& name);
+		inline
+		ShaderProgramParameter& operator [](std::string const& name)
+		{ return this->parameter(name); }
 
 		/**
 		 * Find an already loaded parameter.

@@ -4,10 +4,23 @@
 
 #include <wrappers/boost/python.hpp>
 
+namespace py = boost::python;
+using namespace ::cube::gl::renderer;
+
+namespace {
+
+	template<typename T>
+	void set_shader_parameter(ShaderProgram& self,
+	                          std::string const& key,
+	                          T const& value)
+	{
+		self.parameter(key) = value;
+	}
+
+}
+
 BOOST_PYTHON_MODULE(ShaderProgram)
 {
-	namespace py = boost::python;
-	using namespace ::cube::gl::renderer;
 
 	{
 		py::scope scope(py::class_<
@@ -20,9 +33,21 @@ BOOST_PYTHON_MODULE(ShaderProgram)
 				py::no_init
 			)
 			.def(
-				"parameter",
+				"__getitem__",
 				&ShaderProgram::parameter,
 				py::return_internal_reference<>()
+			)
+			.def(
+			    "__setitem__",
+				&set_shader_parameter<matrix_type const&>
+			)
+			.def(
+			    "__setitem__",
+				&set_shader_parameter<int32_t>
+			)
+			.def(
+			    "__setitem__",
+				&set_shader_parameter<Texture&>
 			)
 			.def(
 				"update",
@@ -62,8 +87,8 @@ BOOST_PYTHON_MODULE(ShaderProgram)
 				)                                                         \
 			)                                                             \
 	/**/
-			make_eq(pure_virtual, matrix_type const&)
-			make_eq(pure_virtual, int32_t)
+			make_eq(make_function, matrix_type const&)
+			make_eq(make_function, int32_t)
 			make_eq(make_function, Texture&)
 #undef make_eq
 		;

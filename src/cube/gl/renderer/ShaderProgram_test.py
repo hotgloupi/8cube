@@ -2,6 +2,8 @@
 
 from unittest import TestCase
 
+from cube.gl.matrix import Matrix44f
+
 from .Shader_test import ShaderSetup
 
 class ShaderProgramSetup(ShaderSetup):
@@ -33,3 +35,7 @@ class ShaderProgramTestCase(ShaderProgramSetup, TestCase):
                 pass
             else:
                 self.fail("Shouldn't be able to create a program from %s" % args)
+
+    def test_parameter(self):
+        self.shader['cube_MVP'].set(Matrix44f())
+        self.shader['cube_MVP'] = Matrix44f()
