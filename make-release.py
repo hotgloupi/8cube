@@ -196,6 +196,7 @@ to_remove_files = [
 
 to_remove_dirs = [
     '__pycache__',
+    '.dSYM'
 ]
 
 for root, dirs, files in os.walk(DEST_DIR):
@@ -207,7 +208,7 @@ for root, dirs, files in os.walk(DEST_DIR):
             os.unlink(join(root, f))
             continue
     for d in dirs[:]:
-        if d in to_remove_dirs:
+        if any(d.endswith(ext) for ext in to_remove_dirs):
             dirs.remove(d)
             log(" - Remove directory", join(root, d))
             shutil.rmtree(join(root, d))
@@ -232,7 +233,7 @@ if not IS_WINDOWS:
 
     def to_add(dep):
         return not (
-            dep.startswith('/opt/local') or
+            #dep.startswith('/opt/local') or
             dep.startswith('/usr') or
             dep.startswith('/lib') or
             dep.startswith('/System') or
