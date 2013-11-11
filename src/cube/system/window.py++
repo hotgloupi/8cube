@@ -23,6 +23,12 @@ namespace {
 			    std::move(ptr)
 			);
 		}
+
+		template<typename T>
+		static
+		void flush_auto_ptr(std::auto_ptr<T>& value)
+		{ value.reset(); }
+
 	}; // !Wrap
 
 } // !anonymous
@@ -104,14 +110,27 @@ BOOST_PYTHON_MODULE(window)
 	    "create_window",
 	    static_cast<create_window_signature>(&Window::create)
 	);
+
 	py::def(
 	    "create_window",
 	    &Wrap::create_window
 	);
+
+	py::def(
+		"delete_window",
+		&Wrap::flush_auto_ptr<Window>
+	);
+
 	py::def(
 		"create_renderer_context",
 		&Window::create_renderer_context
 	);
+
+	py::def(
+		"delete_renderer_context",
+		&Wrap::flush_auto_ptr<RendererContext>
+	);
+
 	py::register_unique_ptr_converter<RendererContext>();
 	py::register_unique_ptr_converter<Window>();
 }
