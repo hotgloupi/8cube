@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from .units import Angle, rad, deg, rad_value, deg_value
+from .angle import Angle, rad, deg, rad_value, deg_value
 
 class _(TestCase):
 

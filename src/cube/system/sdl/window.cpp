@@ -55,6 +55,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 			if (++counter == 1)
 			{
+				ETC_TRACE("First renderer context, initializing SDL");
 				ETC_LOG(
 					"Compiled SDL version ", etc::iomanip::nosep(),
 					(int)this->compiled.major, '.', (int)this->compiled.minor, '-',

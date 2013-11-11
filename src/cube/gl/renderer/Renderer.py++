@@ -1,20 +1,18 @@
 #include "PainterWithProxy.hpp"
+#include "Renderer.hpp"
+#include "ShaderGenerator.hpp"
+#include "ShaderProgram.hpp"
+#include "Texture.hpp"
+#include "VertexBufferAttribute.hpp"
+#include "VertexBuffer.hpp"
 
-#include <cube/api.hpp>
 #include <cube/gl/exception.hpp>
-#include <cube/gl/renderer/Renderer.hpp>
-#include <cube/gl/renderer/ShaderGenerator.hpp>
-#include <cube/gl/renderer/ShaderProgram.hpp>
-#include <cube/gl/renderer/Texture.hpp>
-#include <cube/gl/renderer/VertexBufferAttribute.hpp>
-#include <cube/gl/renderer/VertexBuffer.hpp>
 
 #include <wrappers/boost/python.hpp>
 
 namespace {
 
 	namespace renderer = cube::gl::renderer;
-	namespace renderer_bindings = cube::gl::renderer_bindings;
 	namespace py = boost::python;
 
 	struct Wrap
@@ -22,20 +20,20 @@ namespace {
 		struct Renderer
 		{
 			static
-			renderer_bindings::PainterWithProxy
+			renderer::PainterWithProxy
 			begin(renderer::Renderer& self,
 			      renderer::Mode mode)
 			{
-				return renderer_bindings::PainterWithProxy(self, mode);
+				return renderer::PainterWithProxy(self, mode);
 			}
 
 			static
 			void
 			clear(renderer::Renderer& self,
-			      int buffer_bit)
+			      int const buffer_bit)
 			{
 				self.clear(
-					static_cast<cube::gl::renderer::BufferBit>(buffer_bit)
+					static_cast<renderer::BufferBit>(buffer_bit)
 				);
 			}
 
@@ -180,152 +178,155 @@ namespace {
 
 } //!anonymous
 
-namespace cube { namespace gl { namespace renderer_bindings {
 
+
+BOOST_PYTHON_MODULE(Renderer)
+{
 	using namespace ::cube::gl::renderer;
 
-	CUBE_API
-	void export_renderer()
-	{
+	py::converter::registry::push_back(
+		&vector_of_string_from_python::convertible,
+		&vector_of_string_from_python::construct,
+		py::type_id<std::vector<std::string>>()
+	);
 
-		py::converter::registry::push_back(
-			&vector_of_string_from_python::convertible,
-			&vector_of_string_from_python::construct,
-			py::type_id<std::vector<std::string>>()
-		);
+	typedef TexturePtr (Renderer::*new_texture_cb_t)(std::string const&);
 
-		typedef TexturePtr (Renderer::*new_texture_cb_t)(std::string const&);
+	typedef TexturePtr (Renderer::*new_texture_raw_cb_t)(
+		PixelFormat const,
+		unsigned int,
+		unsigned int,
+		renderer::PixelFormat const,
+		renderer::ContentPacking const,
+		void const*
+	);
 
-		typedef TexturePtr (Renderer::*new_texture_raw_cb_t)(
-			PixelFormat const,
-			unsigned int,
-			unsigned int,
-			renderer::PixelFormat const,
-			renderer::ContentPacking const,
-			void const*
-		);
+	typedef ShaderPtr (Renderer::*new_fragment_shader_t)(
+		std::vector<std::string> const&
+	);
 
-		typedef ShaderPtr (Renderer::*new_fragment_shader_t)(
-			std::vector<std::string> const&
-		);
+	typedef ShaderPtr (Renderer::*new_vertex_shader_t)(
+		std::vector<std::string> const&
+	);
 
-		typedef ShaderPtr (Renderer::*new_vertex_shader_t)(
-			std::vector<std::string> const&
-		);
-
-		py::class_<Renderer, boost::shared_ptr<Renderer>, boost::noncopyable>(
-				"Renderer", py::no_init
-			)
-			.def(
-				"description",
+	py::class_<Renderer, std::auto_ptr<Renderer>, boost::noncopyable>(
+			"Renderer", py::no_init
+		)
+		.add_property(
+			"description",
+			py::make_function(
 				&Renderer::description,
 				py::return_internal_reference<>()
 			)
-			.def(
-				"viewport",
-				&Wrap::Renderer::viewport
+		)
+		.def(
+			"viewport",
+			&Wrap::Renderer::viewport
+		)
+		.def(
+			"begin",
+			&Wrap::Renderer::begin,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.add_property(
+			"state",
+			py::make_function(
+				&Renderer::current_state,
+				py::return_internal_reference<>()
 			)
-			.def(
-				"begin",
-				&Wrap::Renderer::begin,
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.add_property(
-				"state",
-				py::make_function(
-					&Renderer::current_state,
-					py::return_internal_reference<>()
-				)
-			)
-			.def(
-				"new_vertex_buffer",
-				&Wrap::Renderer::new_vertex_buffer,
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"new_index_buffer",
-				&Wrap::Renderer::new_index_buffer,
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"generate_shader",
-				&Wrap::Renderer::generate_shader
-				//py::return_value_policy<
-				//	py::return_by_value,
-				//	py::with_custodian_and_ward_postcall<1,0>
-				//>()
-			)
-			.def(
-				"new_shader_program",
-				&Wrap::Renderer::new_shader_program,
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"new_fragment_shader",
-				static_cast<new_fragment_shader_t>(&Renderer::new_fragment_shader),
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"new_vertex_shader",
-				static_cast<new_vertex_shader_t>(&Renderer::new_vertex_shader),
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"new_texture",
-				static_cast<new_texture_cb_t>(
-					&Renderer::new_texture
-				),
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"new_texture",
-				static_cast<new_texture_raw_cb_t>(
-					&Renderer::new_texture
-				),
-				py::return_value_policy<
-					py::return_by_value,
-					py::with_custodian_and_ward_postcall<1,0>
-				>()
-			)
-			.def(
-				"clear",
-				&Wrap::Renderer::clear
-			)
-		;
+		)
+		.def(
+			"new_vertex_buffer",
+			&Wrap::Renderer::new_vertex_buffer,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"new_index_buffer",
+			&Wrap::Renderer::new_index_buffer,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"generate_shader",
+			&Wrap::Renderer::generate_shader
+			//py::return_value_policy<
+			//	py::return_by_value,
+			//	py::with_custodian_and_ward_postcall<1,0>
+			//>()
+		)
+		.def(
+			"new_shader",
+			&Renderer::new_shader
+		)
+		.def(
+			"new_shader_program",
+			&Wrap::Renderer::new_shader_program,
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"new_fragment_shader",
+			static_cast<new_fragment_shader_t>(&Renderer::new_fragment_shader),
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"new_vertex_shader",
+			static_cast<new_vertex_shader_t>(&Renderer::new_vertex_shader),
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"new_texture",
+			static_cast<new_texture_cb_t>(
+				&Renderer::new_texture
+			),
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"new_texture",
+			static_cast<new_texture_raw_cb_t>(
+				&Renderer::new_texture
+			),
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<1,0>
+			>()
+		)
+		.def(
+			"clear",
+			&Wrap::Renderer::clear
+		)
+	;
 
-		///////////////////////////////////////////////////////////////////////////
-		// RendererType
+	///////////////////////////////////////////////////////////////////////////
+	// RendererType
 
-		py::class_<RendererType, boost::noncopyable>(
-				"RendererType",
-				py::no_init
-			)
-			.def(
-				"__str__",
-				&RendererType::__str__
-			)
-		;
-	}
-
-}}}
+	py::class_<RendererType, boost::noncopyable>(
+			"RendererType",
+			py::no_init
+		)
+		.add_property("name", &RendererType::name)
+		.def(
+			"__str__",
+			&RendererType::__str__
+		)
+	;
+}

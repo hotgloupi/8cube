@@ -136,35 +136,40 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderGeneratorProxy
 		generate_shader(ShaderType const type);
 
+
+	public:
 		/// Create a shader of @a type.
 		ShaderPtr new_shader(ShaderType const type,
 		                     std::vector<std::string> const& sources);
 
 		/// Create a new vertex shader.
-		virtual
-		ShaderPtr new_vertex_shader(std::vector<std::string> const& sources) = 0;
+		inline
+		ShaderPtr new_vertex_shader(std::vector<std::string> const& sources)
+		{ return this->new_shader(ShaderType::vertex, sources); }
 
 		/// Create a new vertex shared from one source.
 		inline
 		ShaderPtr new_vertex_shader(std::string const& source)
-		{
-			return this->new_vertex_shader(std::vector<std::string>{source});
-		}
+		{ return this->new_vertex_shader(std::vector<std::string>{source}); }
 
 		/// Create a new fragment shader.
-		virtual
-		ShaderPtr new_fragment_shader(std::vector<std::string> const& sources) = 0;
+		inline
+		ShaderPtr new_fragment_shader(std::vector<std::string> const& sources)
+		{ return this->new_shader(ShaderType::fragment, sources); }
 
 		/// Create a new fragment from one source.
 		inline
 		ShaderPtr new_fragment_shader(std::string const& source)
-		{
-			return this->new_fragment_shader(std::vector<std::string>{source});
-		}
+		{ return this->new_fragment_shader(std::vector<std::string>{source}); }
 
-		/// Create a shader program from shaders.
+	protected:
 		virtual
-		ShaderProgramPtr new_shader_program(std::vector<ShaderPtr>&& shaders) = 0;
+		ShaderPtr _new_shader(ShaderType const type,
+		                     std::vector<std::string> const& sources) = 0;
+
+	public:
+		/// Create a shader program from shaders.
+		ShaderProgramPtr new_shader_program(std::vector<ShaderPtr>&& shaders);
 
 		/// Create a shader program from shaders.
 		template<typename ShaderPtr1, typename ShaderPtr2, typename... ShaderPtrs>
@@ -180,7 +185,11 @@ namespace cube { namespace gl { namespace renderer {
 			});
 		}
 
+	protected:
+		virtual
+		ShaderProgramPtr _new_shader_program(std::vector<ShaderPtr>&& shaders) = 0;
 
+	public:
 		/// Create a texture from file.
 		virtual
 		TexturePtr new_texture(std::string const& path) = 0;

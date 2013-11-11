@@ -126,19 +126,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	ShaderPtr
-	GLRenderer::new_vertex_shader(std::vector<std::string> const& sources)
-	{
-		return ShaderPtr{new Shader{renderer::ShaderType::vertex, sources}};
-	}
-
-	ShaderPtr
-	GLRenderer::new_fragment_shader(std::vector<std::string> const& sources)
-	{
-		return ShaderPtr{new Shader{renderer::ShaderType::fragment, sources}};
-	}
+	GLRenderer::_new_shader(ShaderType const type,
+	                        std::vector<std::string> const& sources)
+	{ return ShaderPtr{new Shader{type, sources}}; }
 
 	ShaderProgramPtr
-	GLRenderer::new_shader_program(std::vector<ShaderPtr>&& shaders)
+	GLRenderer::_new_shader_program(std::vector<ShaderPtr>&& shaders)
 	{
 		return ShaderProgramPtr{new ShaderProgram{std::move(shaders)}};
 	}

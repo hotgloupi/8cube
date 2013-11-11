@@ -25,17 +25,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		VertexBufferPtr
 		new_index_buffer(VertexBufferAttributePtr&& attributes) override;
 
-		/// Create a new vertex shader.
-		ShaderPtr
-		new_vertex_shader(std::vector<std::string> const& sources) override;
-
-		/// Create a new fragment shader.
-		ShaderPtr
-		new_fragment_shader(std::vector<std::string> const& sources) override;
+	protected:
+		ShaderPtr _new_shader(ShaderType const type,
+		                     std::vector<std::string> const& sources) override;
 
 		/// Create a shader program from shaders.
 		ShaderProgramPtr
-		new_shader_program(std::vector<ShaderPtr>&& shaders) override;
+		_new_shader_program(std::vector<ShaderPtr>&& shaders) override;
 
 		TexturePtr new_texture(std::string const& path);
 

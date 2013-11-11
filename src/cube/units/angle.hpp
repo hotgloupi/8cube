@@ -10,21 +10,19 @@ namespace cube { namespace units {
 
 	namespace bu = boost::units;
 
-	typedef
-		float
-		angle_internal_type;
+	typedef float angle_internal_type;
 
-#define _CUBE_UNITS_MAKE_QUANTITY(__name, __base_unit, __storage) \
-	struct __name \
-		: bu::quantity<__base_unit, __storage> \
-	{ \
-		template<typename... Args> \
-		__name(Args&&... args) \
-			: bu::quantity<__base_unit, __storage>( \
-				std::forward<Args>(args)... \
-			) \
-		{} \
-	} \
+# define _CUBE_UNITS_MAKE_QUANTITY(__name, __base_unit, __storage)            \
+	struct __name                                                             \
+		: bu::quantity<__base_unit, __storage>                                \
+	{                                                                         \
+		template<typename... Args>                                            \
+		__name(Args&&... args)                                                \
+			: bu::quantity<__base_unit, __storage>(                           \
+				std::forward<Args>(args)...                                   \
+			)                                                                 \
+		{}                                                                    \
+	}                                                                         \
 /**/
 
 	_CUBE_UNITS_MAKE_QUANTITY(Angle, bu::si::plane_angle, angle_internal_type);
@@ -53,7 +51,11 @@ namespace cube { namespace units {
 
 }} // !cube::units
 
-#define _CUBE_UNITS_ANGLE_CONVERTERS(__ret_type, __func_name, __from_type, __unit, __to_type)          \
+# define _CUBE_UNITS_ANGLE_CONVERTERS(__ret_type,                             \
+                                      __func_name,                            \
+                                      __from_type,                            \
+                                      __unit,                                 \
+                                      __to_type)                              \
 namespace cube { namespace units {                                            \
 	inline                                                                    \
 	__ret_type __func_name(__from_type value)                                 \
@@ -74,13 +76,13 @@ auto operator"" _##__func_name(                                               \
 // Angle rad(double)
 // Angle operator"" _rad(double)
 // double rad_value(T)
-	_CUBE_UNITS_ANGLE_CONVERTERS(Angle, rad, float, radian, Radian);
+_CUBE_UNITS_ANGLE_CONVERTERS(Angle, rad, float, radian, Radian);
 
 // Angle deg(double)
 // Angle operator"" _deg(double)
 // double deg_value(T)
-	_CUBE_UNITS_ANGLE_CONVERTERS(Angle, deg, float, degree, Degree);
+_CUBE_UNITS_ANGLE_CONVERTERS(Angle, deg, float, degree, Degree);
 
-#undef _CUBE_UNITS_ANGLE_CONVERTERS
+# undef _CUBE_UNITS_ANGLE_CONVERTERS
 
 #endif

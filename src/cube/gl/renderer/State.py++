@@ -1,47 +1,39 @@
-#include <cube/api.hpp>
-#include <cube/gl/renderer/State.hpp>
+#include "State.hpp"
 
 #include <wrappers/boost/python.hpp>
 
-namespace cube { namespace gl { namespace renderer_bindings {
-
+BOOST_PYTHON_MODULE(State)
+{
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
-	CUBE_API
-	void export_state()
-	{
-		typedef void(State::*get_matrix_t)(matrix_type const&);
+	typedef void(State::*get_matrix_t)(matrix_type const&);
 
-		py::class_<State, boost::noncopyable>("State", py::init<State const&>())
+	py::class_<State, boost::noncopyable>("State", py::init<State const&>())
 
 # define EXPORT_STATE_MATRIX(__name)                                          \
-			.add_property(                                                    \
-				#__name,                                                      \
-				py::make_function(                                            \
-					static_cast<                                              \
-						matrix_type const&(State::*)() const                  \
-					>(&State::__name),                                        \
-					py::return_internal_reference<>()                         \
-				),                                                            \
-				static_cast<get_matrix_t>(&State::__name)                     \
-			)                                                                 \
-	/**/
-			EXPORT_STATE_MATRIX(model)
-			EXPORT_STATE_MATRIX(view)
-			EXPORT_STATE_MATRIX(projection)
-			.add_property(
-				"mvp",
-				py::make_function(
-					static_cast<
-						matrix_type const&(State::*)() const
-					>(&State::mvp),
-					py::return_internal_reference<>()
-				)
+		.add_property(                                                    \
+			#__name,                                                      \
+			py::make_function(                                            \
+				static_cast<                                              \
+					matrix_type const&(State::*)() const                  \
+				>(&State::__name),                                        \
+				py::return_internal_reference<>()                         \
+			),                                                            \
+			static_cast<get_matrix_t>(&State::__name)                     \
+		)                                                                 \
+/**/
+		EXPORT_STATE_MATRIX(model)
+		EXPORT_STATE_MATRIX(view)
+		EXPORT_STATE_MATRIX(projection)
+		.add_property(
+			"mvp",
+			py::make_function(
+				static_cast<
+					matrix_type const&(State::*)() const
+				>(&State::mvp),
+				py::return_internal_reference<>()
 			)
-		;
-	}
-
-}}}
-
-
+		)
+	;
+}

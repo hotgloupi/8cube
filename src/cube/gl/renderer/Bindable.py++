@@ -1,20 +1,15 @@
-#include <cube/api.hpp>
-#include <cube/gl/renderer/Bindable.hpp>
+#include "Bindable.hpp"
 
 #include <wrappers/boost/python.hpp>
 
-namespace cube { namespace gl { namespace renderer_bindings {
-
+BOOST_PYTHON_MODULE(Bindable)
+{
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
-	CUBE_API
-	void export_bindable()
-	{
-		py::class_<Bindable, boost::noncopyable>(
-			"Bindable",
-			py::no_init
-		);
-	}
+	py::class_<Bindable, boost::noncopyable>(
+		"Bindable",
+		py::no_init
+	);
+}
 
-}}}
