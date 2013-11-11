@@ -27,7 +27,10 @@ namespace etc { namespace log {
 		template<typename... Args>
 		void logger_log(Args&&... args)
 		{
-			etc::sprint(std::cerr, "[LOGGER]", std::forward<Args>(args)...);
+			static bool debug_logger =
+				sys::environ::get("ETC_DEBUG_LOGGER", "").size() > 0;
+			if (debug_logger)
+				etc::sprint(std::cerr, "[LOGGER]", std::forward<Args>(args)...);
 		}
 #else
 # define logger_log(...)
