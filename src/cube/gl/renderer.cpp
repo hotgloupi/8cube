@@ -1,10 +1,10 @@
 #include "renderer.hpp"
 
 #include "renderer/Exception.hpp"
-#include "renderer/VertexBuffer.hpp"
-
 #include "renderer/opengl/Renderer.hpp"
 #include "renderer/opengl/ShaderGenerator.hpp"
+
+#include <cube/system/window.hpp>
 
 #include <etc/memory.hpp>
 
@@ -25,12 +25,11 @@ namespace cube { namespace gl { namespace renderer {
 	}
 
 	RendererPtr
-	create_renderer(cube::system::window::RendererContext& context,
-	                Name const name)
+	create_renderer(cube::system::window::RendererContext& context)
 	{
 		for (auto const& description: descriptions())
 		{
-			if (description->name() == name)
+			if (description->name() == context.name())
 				return description->create(context);
 		}
 		throw Exception{"Cannot find any renderer with that name"};

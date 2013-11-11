@@ -22,8 +22,7 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	CUBE_API
 	RendererPtr
-	create_renderer(cube::system::window::RendererContext& context,
-	                Name const name = Name::OpenGL);
+	create_renderer(cube::system::window::RendererContext& context);
 
 	/**
 	 * Create a new shader generator.
