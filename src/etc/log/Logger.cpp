@@ -165,6 +165,7 @@ namespace etc { namespace log {
 			size_t                                         dropped;
 #endif
 			std::thread                                    thread;
+			bool                                           async;
 
 			io_service_runner()
 				: service{}
@@ -174,12 +175,15 @@ namespace etc { namespace log {
 				, dropped{0}
 #endif
 				, thread{[this] { this->service.run(); }}
+				, async{not etc::sys::environ::contains("ETC_LOG_SYNC")}
 			{}
 
 			template<typename Fn>
 			inline
 			void post(Fn fn)
 			{
+				if (this->async)
+				{
 #ifdef ETC_DEBUG
 				this->service.post([=] {
 					if (!this->stopped)
@@ -190,6 +194,9 @@ namespace etc { namespace log {
 #else
 				this->service.post(std::forward<Fn>(fn));
 #endif
+				}
+				else
+					fn();
 			}
 		};
 
@@ -396,6 +403,16 @@ namespace etc { namespace log {
 		waiter_thread.join();
 		logger_log("Dropped logs:", runner().dropped);
 #endif
+	}
+
+	bool asynchroneous()
+	{
+		return runner().async;
+	}
+
+	void asynchroneous(bool async)
+	{
+		runner().async = async;
 	}
 
 	Logger::Logger(std::string const& name,
