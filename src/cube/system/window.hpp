@@ -98,7 +98,7 @@ namespace cube { namespace system { namespace window {
 		void maximize() = 0;
 	};
 
-	class RendererContext
+	class CUBE_API RendererContext
 	{
 	protected:
 		etc::size_type           _width;
