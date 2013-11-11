@@ -39,6 +39,11 @@ namespace etc { namespace sys { namespace environ {
 	                                std::string const& value);
 
 	/**
+	 * @brief Returns whether or not a variable is in the environment.
+	 */
+	ETC_API bool contains(std::string const& key) noexcept;
+
+	/**
 	 * Exception thrown when the key is not found.
 	 */
 	struct ETC_API_EXCEPTION KeyError
