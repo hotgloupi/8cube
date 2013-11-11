@@ -263,11 +263,15 @@ def configure(project, build):
         force_include = True,
     )
 
+    base_libraries.extend([
+        boost.component_library('filesystem'),
+        boost.component_library('system'),
+    ])
     libetc = compiler.link_library(
         'libetc',
         rglob("src/etc/*.cpp"),
         directory  = 'release/lib',
-        libraries = base_libraries + boost.libraries,
+        libraries = base_libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
         shared = True,
         precompiled_headers = [stl_pch]
@@ -287,7 +291,7 @@ def configure(project, build):
         'libcube',
         rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
-        libraries = base_libraries + [libetc] + graphic_libraries + boost.libraries,
+        libraries = base_libraries + [libetc] + graphic_libraries,
         precompiled_headers = [boost_signals2_pch, stl_pch],
         defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
     )
