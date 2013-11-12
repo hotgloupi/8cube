@@ -10,11 +10,11 @@ namespace cube { namespace gl { namespace renderer {
 	class CUBE_API Bindable
 	{
 	private:
-		etc::size_type __bound;
+		etc::size_type _bound;
 
 	public:
-		Bindable()
-			: __bound{0}
+		Bindable() noexcept
+			: _bound{0}
 		{}
 
 		virtual
@@ -22,6 +22,14 @@ namespace cube { namespace gl { namespace renderer {
 		{}
 
 	protected:
+		/**
+		 * @brief Bind the bindable with the current state.
+		 *
+		 * This method is called when the bindable *needs* to be bound.
+		 */
+		virtual
+		void _bind(State const& state) = 0;
+
 		/**
 		 * @brief   Unbind the bindable.
 		 *
@@ -34,23 +42,15 @@ namespace cube { namespace gl { namespace renderer {
 		 *          method, use the Bindable<>::Guard class.
 		 */
 		virtual
-		void _unbind() = 0;
-
-		/**
-		 * @brief Bind the bindable with the current state.
-		 *
-		 * This method is called when the bindable *needs* to be bound.
-		 */
-		virtual
-		void _bind(State const& state) = 0;
+		void _unbind() noexcept = 0;
 
 	public:
 		/**
 		 * @brief Check is the bindable is bound.
 		 */
 		inline
-		etc::size_type bound() const
-		{ return __bound; }
+		etc::size_type bound() const noexcept
+		{ return _bound; }
 
 	protected:
 		/**
@@ -66,24 +66,14 @@ namespace cube { namespace gl { namespace renderer {
 		struct InternalGuard;
 
 	private:
+		enum InternalMethod { internal_method };
 		inline
-		void __unbind()
-		{
-			if (__bound > 0)
-			{
-				__bound -= 1;
-				if (__bound == 0)
-					_unbind();
-			}
-		}
+		void _bind(State const& state, InternalMethod)
+		{ if (++_bound == 1) _bind(state); }
 
 		inline
-		void __bind(State const& state)
-		{
-			__bound += 1;
-			if (__bound == 1)
-				_bind(state);
-		}
+		void _unbind(InternalMethod) noexcept
+		{ if (--_bound == 0) _unbind(); }
 
 		/**
 		 * @brief Bind guard used by the painter.
@@ -101,14 +91,13 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		Bindable& bindable;
 
-	protected:
 		Guard(Bindable& bindable, State const& state)
 			: bindable(bindable)
-		{ this->bindable.__bind(state); }
+		{ this->bindable._bind(state, Bindable::internal_method); }
 
 	public:
 		~Guard()
-		{ this->bindable.__unbind(); }
+		{ this->bindable._unbind(Bindable::internal_method); }
 		friend class Painter;
 	};
 

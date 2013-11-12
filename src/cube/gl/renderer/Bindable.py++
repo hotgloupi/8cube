@@ -8,8 +8,10 @@ BOOST_PYTHON_MODULE(Bindable)
 	using namespace ::cube::gl::renderer;
 
 	py::class_<Bindable, boost::noncopyable>(
-		"Bindable",
-		py::no_init
-	);
+			"Bindable",
+			py::no_init
+		)
+		.add_property("bound", &Bindable::bound)
+	;
 }
 
