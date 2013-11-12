@@ -5,6 +5,7 @@
 
 # include <etc/types.hpp>
 # include <etc/memory.hpp>
+# include <etc/log/component.hpp>
 
 # include <functional>
 # include <vector>
@@ -49,6 +50,7 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	class CUBE_API VertexBufferAttribute
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.VertexBufferAttribute");
 	public:
 		ContentKind const           kind;
 		ContentType const           type;
@@ -66,6 +68,16 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		void* buffer() const { return _buffer; }
 
+	private:
+		VertexBufferAttribute(ContentKind const kind,
+		                      ContentType const type,
+		                      ContentHint const hint,
+		                      etc::size_type const arity,
+		                      etc::size_type const nb_elements,
+		                      size_t const buffer_size,
+		                      void* buffer,
+		                      std::function<void(void*)> deleter) noexcept;
+
 	public:
 		/**
 		 * @brief Contruct an attribute.
@@ -82,15 +94,17 @@ namespace cube { namespace gl { namespace renderer {
 		                      std::unique_ptr<T, Deleter>&& data,
 		                      etc::size_type const nb_elements,
 		                      ContentHint const hint = ContentHint::static_content)
-			: kind{kind}
-			, type{detail::extract_content_type<T>::value}
-			, hint{hint}
-			, arity{content_traits<T>::arity}
-			, nb_elements{nb_elements}
-			, buffer_size{nb_elements * sizeof(T)}
-			, _buffer{data.release()}
-			, _deleter{detail::WrapDeleter<T, Deleter>{data.get_deleter()}}
-		{}
+			: VertexBufferAttribute{
+				kind,
+				detail::extract_content_type<T>::value,
+				hint,
+				content_traits<T>::arity,
+				nb_elements,
+				nb_elements * sizeof(T),
+				data.get(),
+				detail::WrapDeleter<T, Deleter>{data.get_deleter()}
+			}
+		{data.release();}
 
 		/**
 		 * @brief Construct an attribute from a raw pointer.
@@ -109,14 +123,16 @@ namespace cube { namespace gl { namespace renderer {
 		                      T const* data,
 		                      etc::size_type const nb_elements,
 		                      ContentHint const hint = ContentHint::static_content)
-			: kind{kind}
-			, type{detail::extract_content_type<T>::value}
-			, hint{hint}
-			, arity{content_traits<T>::arity}
-			, nb_elements{nb_elements}
-			, buffer_size{nb_elements * sizeof(T)}
-			, _buffer{const_cast<T*>(data)} // The data won't be deleted
-			, _deleter{}
+			: VertexBufferAttribute{
+				kind,
+				detail::extract_content_type<T>::value,
+				hint,
+				content_traits<T>::arity,
+				nb_elements,
+				nb_elements * sizeof(T),
+				const_cast<T*>(data), // The data won't be deleted
+				nullptr
+			}
 		{}
 
 		/**
@@ -186,12 +202,7 @@ namespace cube { namespace gl { namespace renderer {
 			_deleter = detail::WrapDeleter<T, Deleter>{data.get_deleter()};
 		}
 
-		~VertexBufferAttribute()
-		{
-			if (_deleter)
-				_deleter(_buffer);
-			_buffer = nullptr;
-		}
+		~VertexBufferAttribute();
 	};
 
 	template<typename... Args>
