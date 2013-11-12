@@ -81,9 +81,6 @@ namespace cube { namespace gl {
 }}
 
 # define _CUBE_GL_VECTOR_DEF(__arity, __type, __suffix)                       \
-namespace cube { namespace gl { namespace vector {                            \
-	typedef Vector ## __arity<__type> Vector ## __arity ## __suffix;          \
-}}}                                                                           \
 namespace glm { namespace detail {                                            \
 	CUBE_API                                                                  \
 	std::ostream& operator <<(std::ostream& out,                              \

@@ -82,9 +82,32 @@ namespace cube { namespace gl {
 		template<typename T> using Vector3 = glm::detail::tvec3<T>;
 		template<typename T> using Vector4 = glm::detail::tvec4<T>;
 
-		typedef Vector2<float> Vector2f;
-		typedef Vector3<float> Vector3f;
-		typedef Vector4<float> Vector4f;
+		/// Define {Vector,vec}{2,3,4}{f,d,i,u,il,ul} aliases.
+# define _CUBE_GL_VECTOR_DEF(__arity, __type, __suffix)                       \
+		typedef Vector ## __arity<__type> Vector ## __arity ## __suffix;      \
+		typedef Vector ## __arity<__type> vec ## __arity ## __suffix;         \
+/**/
+		_CUBE_GL_VECTOR_DEF(2, float, f);
+		_CUBE_GL_VECTOR_DEF(2, double, d);
+		_CUBE_GL_VECTOR_DEF(2, int32_t, i);
+		_CUBE_GL_VECTOR_DEF(2, uint32_t, u);
+		_CUBE_GL_VECTOR_DEF(2, int64_t, il);
+		_CUBE_GL_VECTOR_DEF(2, uint64_t, ul);
+
+		_CUBE_GL_VECTOR_DEF(3, float, f);
+		_CUBE_GL_VECTOR_DEF(3, double, d);
+		_CUBE_GL_VECTOR_DEF(3, int32_t, i);
+		_CUBE_GL_VECTOR_DEF(3, uint32_t, u);
+		_CUBE_GL_VECTOR_DEF(3, int64_t, il);
+		_CUBE_GL_VECTOR_DEF(3, uint64_t, ul);
+
+		_CUBE_GL_VECTOR_DEF(4, float, f);
+		_CUBE_GL_VECTOR_DEF(4, double, d);
+		_CUBE_GL_VECTOR_DEF(4, int32_t, i);
+		_CUBE_GL_VECTOR_DEF(4, uint32_t, u);
+		_CUBE_GL_VECTOR_DEF(4, int64_t, il);
+		_CUBE_GL_VECTOR_DEF(4, uint64_t, ul);
+# undef _CUBE_GL_VECTOR_DEF
 
 	}
 
