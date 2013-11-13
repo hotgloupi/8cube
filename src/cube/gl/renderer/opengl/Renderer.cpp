@@ -45,6 +45,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			CHECK(GLEW_ARB_shader_objects)
 			CHECK(GLEW_ARB_vertex_shader)
 			CHECK(GLEW_ARB_fragment_shader)
+			initialized = true;
 		}
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
 		this->viewport(
