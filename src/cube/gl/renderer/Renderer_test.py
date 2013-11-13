@@ -3,7 +3,7 @@ from . import create_renderer, delete_renderer
 from cube.system.window import create_renderer_context,\
                                delete_renderer_context,\
                                 WindowFlags
-from cube.gl.renderer import Name
+from cube.gl.renderer import Name, mode_2d, mode_3d, Painter
 
 from unittest import TestCase
 
@@ -18,11 +18,18 @@ class RendererSetup:
             self.name
         )
         self.renderer = create_renderer(self.context)
+
     def tearDown(self):
         delete_renderer(self.renderer)
         delete_renderer_context(self.context)
 
-class _(TestCase, RendererSetup):
+class _(RendererSetup, TestCase):
     def test_init(self):
         pass
+
+    def test_begin(self):
+        with self.renderer.begin(mode_2d) as p:
+            self.assertIsInstance(p, Painter)
+        with self.renderer.begin(mode_3d) as p:
+            self.assertIsInstance(p, Painter)
 
