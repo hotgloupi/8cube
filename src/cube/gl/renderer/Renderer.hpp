@@ -38,8 +38,8 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		viewport::Viewport    _viewport;
 	private:
-		std::vector<State>              _states;
-		ShaderGeneratorPtr              _shader_generator;
+		struct Impl;
+		std::unique_ptr<Impl> _this;
 
 	public:
 		Renderer();
@@ -58,10 +58,7 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Retreive the current_state.
 		 */
-        inline
-		State& current_state()
-		{ return _states.back(); }
-
+		State& current_state();
 
 		/**
 		 *

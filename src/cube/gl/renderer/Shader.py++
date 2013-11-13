@@ -9,7 +9,7 @@ BOOST_PYTHON_MODULE(Shader)
 
 	py::class_<
 			Shader,
-			std::auto_ptr<Shader>,
+			ShaderPtr,
 			boost::noncopyable
 		>(
 			"Shader",

@@ -9,9 +9,9 @@
 #include "ShaderGenerator.hpp"
 #include "Texture.hpp"
 
-#include "../renderer.hpp"
-
 #include <cube/debug.hpp>
+#include <cube/gl/renderer.hpp>
+#include <cube/resource/Manager.hpp>
 
 #include <etc/log.hpp>
 
@@ -28,19 +28,28 @@ namespace cube { namespace gl { namespace renderer {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	// Renderer implem
+	struct Renderer::Impl
+	{
+		std::vector<State> states;
+		ShaderGeneratorPtr shader_generator;
+		resource::Manager  resource_manager;
+	};
+
+	///////////////////////////////////////////////////////////////////////////
 	// Renderer class
 
 	Renderer::Renderer()
 		: _viewport{0,0,0,0}
-		, _states{}
-		, _shader_generator{nullptr} // lazily initialized.
+		, _this{new Impl{{}, nullptr, {}}}
 	{
 		_push_state(State(Mode::none));
 	}
 
 	Renderer::~Renderer()
 	{
-		assert(_states.back().mode == Mode::none);
+		ETC_TRACE.debug("Destroying", *this);
+		assert(_this->states.back().mode == Mode::none);
 		_pop_state();
 	}
 
@@ -72,8 +81,8 @@ namespace cube { namespace gl { namespace renderer {
 	Painter Renderer::begin(State&& state)
 	{
 		CUBE_DEBUG_PERFORMANCE_SECTION("cube.Renderer");
-		auto it = _states.rbegin(),
-		     end = _states.rend();
+		auto it = _this->states.rbegin(),
+		     end = _this->states.rend();
 		for (; it != end; ++it)
 		{
 			if (it->mode == state.mode)
@@ -106,16 +115,23 @@ namespace cube { namespace gl { namespace renderer {
 		this->update_projection_matrix();
 	}
 
+	State& Renderer::current_state()
+	{
+		if (_this->states.size() == 0)
+			throw Exception{"No state available"};
+		return _this->states.back();
+	}
+
 	void Renderer::_push_state(State&& state)
 	{
 		ETC_TRACE.debug("Pushing new state");
-		_states.push_back(std::move(state));
+		_this->states.push_back(std::move(state));
 	}
 
 	void Renderer::_pop_state()
 	{
 		ETC_TRACE.debug("pop state");
-		_states.pop_back();
+		_this->states.pop_back();
 	}
 
 	ShaderPtr
@@ -128,7 +144,7 @@ namespace cube { namespace gl { namespace renderer {
 		{
 		case ShaderType::vertex:
 		case ShaderType::fragment:
-			return this->_new_shader(type, sources);
+			return _this->resource_manager.manage(_new_shader(type, sources));
 		default:
 			throw Exception{"Unknown shader type"};
 		}
@@ -139,15 +155,17 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		if (shaders.size() == 0)
 			throw Exception{"Shader list is empty"};
-		return _new_shader_program(std::move(shaders));
+		return _this->resource_manager.manage(
+			_new_shader_program(std::move(shaders))
+		);
 	}
 
 	ShaderGeneratorProxy
 	Renderer::generate_shader(ShaderType const type)
 	{
-		if (_shader_generator == nullptr)
-			_shader_generator = create_shader_generator(*this);
-		return _shader_generator->begin(type);
+		if (_this->shader_generator == nullptr)
+			_this->shader_generator = create_shader_generator(*this);
+		return _this->shader_generator->begin(type);
 	}
 
 }}} // !cube::gl::renderer

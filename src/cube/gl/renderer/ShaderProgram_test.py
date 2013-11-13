@@ -13,6 +13,10 @@ class ShaderProgramSetup(ShaderSetup):
         super().setUp()
         self.shader = self.renderer.new_shader_program([self.fs, self.vs])
 
+    def tearDown(self):
+        self.shader = None
+        super().tearDown()
+
 class ShaderProgramTestCase(ShaderProgramSetup, TestCase):
 
     def test_init(self):

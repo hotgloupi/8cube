@@ -20,8 +20,10 @@ class RendererSetup:
         self.renderer = create_renderer(self.context)
 
     def tearDown(self):
-        delete_renderer(self.renderer)
-        delete_renderer_context(self.context)
+        self.context = None
+        self.renderer = None
+        import gc
+        gc.collect()
 
 class _(RendererSetup, TestCase):
     def test_init(self):

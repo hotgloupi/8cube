@@ -3,6 +3,8 @@
 
 # include "Bindable.hpp"
 
+# include <cube/resource/Resource.hpp>
+
 # include <etc/types.hpp>
 # include <etc/log/component.hpp>
 
@@ -63,6 +65,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	class CUBE_API ShaderProgram
 		: public Bindable
+		, public resource::Resource
 	{
 		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgram");
 	public:

@@ -28,10 +28,10 @@ namespace cube { namespace gl { namespace renderer {
 	typedef std::unique_ptr<Bindable>               BindablePtr;
 	typedef std::unique_ptr<Drawable>               DrawablePtr;
 	typedef std::unique_ptr<Renderer>               RendererPtr;
-	typedef std::unique_ptr<Shader>                 ShaderPtr;
+	typedef std::shared_ptr<Shader>                 ShaderPtr;
 	typedef std::unique_ptr<ShaderGenerator>        ShaderGeneratorPtr;
 	typedef std::unique_ptr<ShaderGeneratorProxy>   ShaderGeneratorProxyPtr;
-	typedef std::unique_ptr<ShaderProgram>          ShaderProgramPtr;
+	typedef std::shared_ptr<ShaderProgram>          ShaderProgramPtr;
 	typedef std::unique_ptr<ShaderRoutine>          ShaderRoutinePtr;
 	typedef std::unique_ptr<Texture>                TexturePtr;
 	typedef std::unique_ptr<VertexBuffer>           VertexBufferPtr;

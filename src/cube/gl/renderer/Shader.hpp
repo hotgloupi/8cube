@@ -3,9 +3,12 @@
 
 # include "fwd.hpp"
 
+# include <cube/resource/Resource.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	class CUBE_API Shader
+		: public resource::Resource
 	{
 	public:
 		virtual

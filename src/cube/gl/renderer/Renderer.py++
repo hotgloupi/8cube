@@ -47,21 +47,56 @@ namespace {
 				);
 			}
 
+			template<
+				  typename T
+				, template<typename...> class from_ptr
+				, template<typename...> class to_ptr
+			>
+			struct convert_ptr
+			{
+				// Default conversion is just a move
+				static inline
+				to_ptr<T> convert(from_ptr<T>&& ptr)
+				{ return std::move(ptr); }
+			};
+
 			template<typename T>
+			struct convert_ptr<T, std::auto_ptr, std::unique_ptr>
+			{
+				// Release from one to another.
+				static inline
+				std::unique_ptr<T> convert(std::auto_ptr<T>&& ptr)
+				{
+					std::unique_ptr<T> res(ptr.get());
+					ptr.release();
+					return std::move(res);
+				}
+			};
+
+			template<
+				  typename T
+				, template<typename...> class smart_ptr = std::unique_ptr
+				, template<typename...> class storage_ptr = std::auto_ptr
+			>
 			static
-			std::vector<std::unique_ptr<T>>
+			std::vector<smart_ptr<T>>
 			_list_to_vector(boost::python::list& args)
 			{
 				size_t len = boost::python::len(args);
-				std::vector<std::unique_ptr<T>> ptrs;
+				std::vector<smart_ptr<T>> ptrs;
 				for (size_t i = 0; i < len; ++i)
 				{
-					std::auto_ptr<T> ptr = boost::python::extract<std::auto_ptr<T>>(args[i]);
+					storage_ptr<T>& ptr =
+						boost::python::extract<storage_ptr<T>&>(args[i]);
 					if (ptr.get() == nullptr)
 						throw cube::gl::exception::Exception{
 							"Found a null pointer in the list!"
 						};
-					ptrs.emplace_back(ptr.release());
+					ptrs.emplace_back(
+						convert_ptr<T, storage_ptr, smart_ptr>::convert(
+							std::move(ptr)
+						)
+					);
 					args[i] = boost::python::object{};
 				}
 				return ptrs;
@@ -73,7 +108,7 @@ namespace {
 			                   boost::python::list args)
 			{
 				return self.new_shader_program(
-					_list_to_vector<renderer::Shader>(args)
+					_list_to_vector<renderer::Shader, std::shared_ptr, std::shared_ptr>(args)
 				);
 			}
 
@@ -209,6 +244,11 @@ BOOST_PYTHON_MODULE(Renderer)
 		std::vector<std::string> const&
 	);
 
+	typedef py::return_value_policy<
+		py::return_by_value,
+		py::with_custodian_and_ward_postcall<0, 1>
+	> return_internal_value_policy;
+
 	py::class_<Renderer, std::auto_ptr<Renderer>, boost::noncopyable>(
 			"Renderer", py::no_init
 		)
@@ -226,10 +266,7 @@ BOOST_PYTHON_MODULE(Renderer)
 		.def(
 			"begin",
 			&Wrap::Renderer::begin,
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			return_internal_value_policy()
 		)
 		.add_property(
 			"state",
@@ -241,18 +278,12 @@ BOOST_PYTHON_MODULE(Renderer)
 		.def(
 			"new_vertex_buffer",
 			&Wrap::Renderer::new_vertex_buffer,
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			return_internal_value_policy()
 		)
 		.def(
 			"new_index_buffer",
 			&Wrap::Renderer::new_index_buffer,
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			return_internal_value_policy()
 		)
 		.def(
 			"generate_shader",
@@ -264,51 +295,33 @@ BOOST_PYTHON_MODULE(Renderer)
 		)
 		.def(
 			"new_shader",
-			&Renderer::new_shader
+			&Renderer::new_shader,
+			return_internal_value_policy()
 		)
 		.def(
 			"new_shader_program",
 			&Wrap::Renderer::new_shader_program,
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			return_internal_value_policy()
 		)
 		.def(
 			"new_fragment_shader",
 			static_cast<new_fragment_shader_t>(&Renderer::new_fragment_shader),
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			return_internal_value_policy()
 		)
 		.def(
 			"new_vertex_shader",
 			static_cast<new_vertex_shader_t>(&Renderer::new_vertex_shader),
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			return_internal_value_policy()
 		)
 		.def(
 			"new_texture",
-			static_cast<new_texture_cb_t>(
-				&Renderer::new_texture
-			),
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			static_cast<new_texture_cb_t>(&Renderer::new_texture),
+			return_internal_value_policy()
 		)
 		.def(
 			"new_texture",
-			static_cast<new_texture_raw_cb_t>(
-				&Renderer::new_texture
-			),
-			py::return_value_policy<
-				py::return_by_value,
-				py::with_custodian_and_ward_postcall<1,0>
-			>()
+			static_cast<new_texture_raw_cb_t>(&Renderer::new_texture),
+			return_internal_value_policy()
 		)
 		.def(
 			"clear",

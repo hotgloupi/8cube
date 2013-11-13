@@ -28,6 +28,10 @@ class ShaderSetup(RendererSetup):
             }
             """
         ])
+    def tearDown(self):
+        self.vs = None
+        self.fs = None
+        super().tearDown()
 
 class _(ShaderSetup, TestCase):
 
