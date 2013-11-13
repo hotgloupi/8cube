@@ -3,6 +3,8 @@
 #include "backtrace.hpp"
 
 #include <etc/log.hpp>
+#include <etc/sys/environ.hpp>
+
 #include <iostream>
 
 namespace etc { namespace exception {
@@ -22,7 +24,10 @@ namespace etc { namespace exception {
 			try { _msg = std::string(err.what()); }
 			catch (std::exception const&) {}
 		}
-		ETC_LOG.warn("Raising:", *this);
+		static bool const logging_exception =
+			etc::sys::environ::contains("ETC_LOG_EXCEPTION");
+		if (logging_exception)
+			ETC_LOG.warn("Raising:", *this);
 	}
 
 	Exception::~Exception() throw ()
