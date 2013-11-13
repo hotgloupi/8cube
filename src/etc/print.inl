@@ -42,8 +42,7 @@ namespace etc {
 		typename std::enable_if<!meta::is_printable<T>::value>::type
 		sprint_generic_value(std::ostream& out, T&& value)
 		{
-			static const std::string type_string{ETC_TYPE_STRING(T)};
-			out  << "<" << type_string << " at " << &value << ">";
+			out  << "<" << ETC_TYPE_STRING(value) << " at " << &value << ">";
 		}
 
 		template <typename T>
