@@ -23,7 +23,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	GLRenderer::GLRenderer(system::window::RendererContext& context)
 	{
-		ETC_TRACE.debug("GLRenderer(", &context, ")");
+		ETC_TRACE.debug("Creating renderer", *this, "with the context", context);
 		static bool initialized = false;
 		if (!initialized)
 		{
@@ -54,7 +54,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	void GLRenderer::shutdown()
 	{
-		ETC_TRACE.debug("Shutting down GLRenderer renderer");
+		ETC_TRACE.debug(*this, "Shutting down");
 	}
 
 	renderer::RendererType const&
@@ -66,7 +66,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	renderer::Painter GLRenderer::begin(Mode mode)
 	{
-		ETC_TRACE.debug("Begin mode", mode);
+		ETC_TRACE.debug(*this, "Begin mode", mode);
 		State state{mode};
 
 		switch (mode)

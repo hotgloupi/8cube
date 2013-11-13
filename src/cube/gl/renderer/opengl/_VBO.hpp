@@ -51,15 +51,16 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			_pointer_methods[(size_t) this->attr->kind](*this);
 		}
 
-		void unbind()
+		void unbind() noexcept
 		{
-			if (this->gl_kind != 0)
-				gl::DisableClientState(this->gl_kind);
+			if (this->gl_kind == 0)
+				return;
+			gl::DisableClientState<gl::no_throw>(this->gl_kind);
 		}
 
 		static void vertex_pointer(SubVBO const& self)
 		{
-			ETC_TRACE.debug("Set the vertex pointer",
+			ETC_TRACE.debug(self, "Set the vertex pointer",
 				self.attr->arity,
 				self.gl_type, (int) self.attr->kind,
 				self.stride,
@@ -79,7 +80,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		static void color_pointer(SubVBO const& self)
 		{
-			ETC_TRACE.debug("Set the color pointer",
+			ETC_TRACE.debug(self, "Set the color pointer",
 				self.attr->arity,
 				self.gl_type, (int) self.attr->kind,
 				self.stride,
@@ -144,7 +145,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			, _current_stride{0}
 			, _sub_vbos{}
 		{
-			ETC_TRACE.debug("New VBO");
+			ETC_TRACE.debug(*this, "New VBO");
 			gl::GenBuffers(1, &_id);
 			this->bind(false);
 			gl::BufferData(
@@ -174,7 +175,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		void
 		sub_vbo(VertexBufferAttribute const& attr, size_t offset)
 		{
-			ETC_TRACE.debug("Set a sub VBO");
+			ETC_TRACE.debug(*this, "Set a sub VBO");
 			assert(offset + attr.buffer_size <= _total_size);
 			if (is_indices && attr.kind != ContentKind::index)
 				throw Exception(
@@ -210,7 +211,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		void bind(bool all = true)
 		{
-			ETC_TRACE.debug("Binding the VBO");
+			ETC_TRACE.debug(*this, "Binding the VBO");
 			gl::BindBuffer(_gl_array_type, _id);
 
 			if (!all)
@@ -220,11 +221,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				vbo.bind();
 		}
 
-		void unbind(bool all = true)
+		void unbind(bool all = true) noexcept
 		{
-			ETC_TRACE.debug("Unbinding the VBO");
-			gl::BindBuffer(_gl_array_type, 0);
-
+			ETC_TRACE.debug(*this, "Unbinding the VBO");
+			gl::BindBuffer<gl::no_throw>(_gl_array_type, 0);
 			if (!all)
 				return;
 

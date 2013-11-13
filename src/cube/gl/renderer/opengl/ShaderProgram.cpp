@@ -9,8 +9,6 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgram");
-
 	ShaderProgram::ShaderProgram(std::vector<ShaderPtr>&& shaders)
 		: _id{0}
 	{
@@ -58,7 +56,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ShaderProgram::~ShaderProgram()
 	{
 		ETC_TRACE.debug("Delete the program", _id);
-		gl::DeleteProgram(_id);
+		gl::DeleteProgram<gl::no_throw>(_id);
 	}
 
 	void ShaderProgram::_bind()
@@ -67,10 +65,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::UseProgram(_id);
 	}
 
-	void ShaderProgram::_unbind()
+	void ShaderProgram::_unbind() noexcept
 	{
 		ETC_TRACE.debug("Unbind current shader program", _id);
-		gl::UseProgram(0);
+		gl::UseProgram<gl::no_throw>(0);
 	}
 
 	template<typename BindGuard>

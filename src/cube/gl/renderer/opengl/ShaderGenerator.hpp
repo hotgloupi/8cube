@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_RENDERER_OPENGL_SHADERGENERATOR_HPP
 # define CUBE_GL_RENDERER_OPENGL_SHADERGENERATOR_HPP
 
-# include "../ShaderGenerator.hpp"
+# include <cube/gl/renderer/ShaderGenerator.hpp>
 
 # include <memory>
 

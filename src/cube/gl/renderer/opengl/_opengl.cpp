@@ -154,7 +154,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		//GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, // GL_RGB                    Specific
 	};
 
-	void gl::_check_error(char const* function_)
+	template<gl::ThrowPolicy error_policy>
+	void gl::_check_error(char const* function_) noexcept(error_policy == gl::no_throw)
 	{
 		GLenum code = glGetError();
 
@@ -175,25 +176,27 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 #undef _ERR
 		};
 
-		std::string error, description;
+		std::string error = (function_ != nullptr ? function_ : "(nil)");
+		error += ": ";
 		auto it = errors.find(code);
 		if (it == errors.end())
 		{
-			error = etc::to_string("Unknown error code", code);
-			description = "Not documented error.";
+			error += "Unknown error code (" + etc::to_string(code) + "):";
+			error += "Undocumented error.";
 		}
 		else
 		{
-			error = it->second.first;
-			description = it->second.second;
+			error += it->second.first + ": " + it->second.second;
 		}
 
-		std::string function = (
-			function_ != nullptr ? function_ : "(anonymous function)"
-		);
-        throw Exception{
-			std::string{function} + ": " + error + ": " + description
-		};
+		if (error_policy == can_throw)
+			throw Exception{error};
+		ETC_LOG.error("Unchecked OpenGL error:", error);
     }
+
+	template
+	void gl::_check_error<gl::no_throw>(char const* function_) noexcept(true);
+	template
+	void gl::_check_error<gl::can_throw>(char const* function_) noexcept(false);
 
 }}}} // !cube::gl::opengl

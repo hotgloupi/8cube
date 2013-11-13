@@ -152,6 +152,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::BindTexture(GL_TEXTURE_2D, _id);
 	}
 
+	void Texture::_unbind() noexcept
+	{
+		gl::BindTexture<gl::no_throw>(GL_TEXTURE_2D, 0);
+	}
+
 	void
 	Texture::bind_unit(etc::size_type unit,
 	                   renderer::ShaderProgramParameter& param)
@@ -178,10 +183,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		                  gl::get_pixel_format(data_format),
 		                  gl::get_content_packing(data_packing),
 		                  data);
-	}
-	void Texture::_unbind()
-	{
-		gl::BindTexture(GL_TEXTURE_2D, 0);
 	}
 
 }}}}

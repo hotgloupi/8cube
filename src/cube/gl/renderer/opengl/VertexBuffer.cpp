@@ -19,17 +19,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		: renderer::VertexBuffer{std::move(attributes)}
 		, _vbo{nullptr}
 	{
-		ETC_TRACE.debug("Creating a vertex buffer");
+		ETC_TRACE.debug(*this, "Creating a vertex buffer");
 		if (_attributes.size() == 0)
-			throw Exception("Refreshing an empty VBO.");
-
-		if (_vbo != nullptr)
-			throw Exception("Already refreshed VBO.");
-
+			throw Exception("Empty attribute list");
 		size_t total_size = 0;
 		for (auto const& attr: _attributes)
 			total_size += attr->buffer_size;
-		_vbo = new gl::VBO<is_indices>{total_size};
+		_vbo.reset(new gl::VBO<is_indices>{total_size});
 
 		size_t offset = 0;
 		for (auto const& attr: _attributes)
@@ -42,9 +38,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	template<bool is_indices>
 	_VertexBuffer<is_indices>::~_VertexBuffer()
 	{
-		ETC_TRACE.debug("Delete VertexBuffer", this);
-		delete _vbo;
-		_vbo = nullptr;
+		ETC_TRACE.debug(this, "Delete VertexBuffer");
 	}
 
 	template<bool is_indices>
@@ -57,11 +51,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	template<bool is_indices>
-	void _VertexBuffer<is_indices>::_unbind()
+	void _VertexBuffer<is_indices>::_unbind() noexcept
 	{
 		ETC_TRACE.debug("Unbind vertex buffer");
-		if (_vbo == nullptr)
-			throw Exception("Cannot unbind a non finalized VertexBuffer");
+		assert(_vbo != nullptr && "Cannot unbind a non finalized VertexBuffer");
 		this->_vbo->unbind();
 	}
 

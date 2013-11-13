@@ -31,17 +31,21 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	struct gl
 	{
+
+	public:
+		enum ThrowPolicy { can_throw, no_throw };
 	private:
-		static void _check_error(char const* function_);
+		template<ThrowPolicy error_policy>
+		static void _check_error(char const* function_)
+			noexcept(error_policy == no_throw);
+		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");
 
 	public:
 # define _CUBE_GL_OPENGL_PROTO(name, type)                                    \
-		template<typename... T>                                               \
+		template<ThrowPolicy error_policy = can_throw, typename... T>         \
 		static inline                                                         \
-		type name(T... values)                                                \
+		type name(T... values) noexcept(error_policy == no_throw)             \
 	/**/
-
-	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");
 
 // values... is defined in the proto
 # define _CUBE_GL_OPENGL_LOG(gl_name)                                         \
@@ -54,7 +58,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			_CUBE_GL_OPENGL_LOG(gl_name);                                     \
 			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer"); \
 			::gl_name(values...);                                             \
-			_check_error(#gl_name);                                           \
+			_check_error<error_policy>(#gl_name);                              \
 		}
 	/**/
 
@@ -64,7 +68,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			_CUBE_GL_OPENGL_LOG(gl_name);                                     \
 			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer"); \
 			type ret = ::gl_name(values...);                                  \
-			_check_error(#gl_name);                                           \
+			_check_error<error_policy>(#gl_name);                              \
 			return ret;                                                       \
 		}
 	/**/
@@ -83,81 +87,55 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name ## ARB, type)               \
 	/**/
 
-		_CUBE_GL_OPENGL_WRAP(Enable);
-		_CUBE_GL_OPENGL_WRAP(Disable);
-		_CUBE_GL_OPENGL_WRAP(EnableClientState);
-		_CUBE_GL_OPENGL_WRAP(DisableClientState);
+		_CUBE_GL_OPENGL_WRAP(ActiveTexture);
+		_CUBE_GL_OPENGL_WRAP(AttachShader);
+		_CUBE_GL_OPENGL_WRAP(BindTexture);
+		_CUBE_GL_OPENGL_WRAP(Clear);
+		_CUBE_GL_OPENGL_WRAP(ClearColor);
 		_CUBE_GL_OPENGL_WRAP(ClientActiveTexture);
-
-		_CUBE_GL_OPENGL_WRAP_ARB(GenBuffers);
+		_CUBE_GL_OPENGL_WRAP(ColorPointer);
+		_CUBE_GL_OPENGL_WRAP(CompileShader);
+		_CUBE_GL_OPENGL_WRAP(DeleteProgram);
+		_CUBE_GL_OPENGL_WRAP(DeleteShader);
+		_CUBE_GL_OPENGL_WRAP(DeleteTextures);
+		_CUBE_GL_OPENGL_WRAP(DetachShader);
+		_CUBE_GL_OPENGL_WRAP(Disable);
+		_CUBE_GL_OPENGL_WRAP(DisableClientState);
+		_CUBE_GL_OPENGL_WRAP(DrawArrays);
+		_CUBE_GL_OPENGL_WRAP(DrawElements);
+		_CUBE_GL_OPENGL_WRAP(Enable);
+		_CUBE_GL_OPENGL_WRAP(EnableClientState);
+		_CUBE_GL_OPENGL_WRAP(GenTextures);
+		_CUBE_GL_OPENGL_WRAP(GenerateMipmap);
+		_CUBE_GL_OPENGL_WRAP(GetActiveUniform);
+		_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
+		_CUBE_GL_OPENGL_WRAP(GetProgramiv);
+		_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
+		_CUBE_GL_OPENGL_WRAP(GetShaderiv);
+		_CUBE_GL_OPENGL_WRAP(LinkProgram);
+		_CUBE_GL_OPENGL_WRAP(LoadIdentity);
+		_CUBE_GL_OPENGL_WRAP(NormalPointer);
+		_CUBE_GL_OPENGL_WRAP(ShaderSource);
+		_CUBE_GL_OPENGL_WRAP(TexCoordPointer);
+		_CUBE_GL_OPENGL_WRAP(TexImage2D);
+		_CUBE_GL_OPENGL_WRAP(TexParameteri);
+		_CUBE_GL_OPENGL_WRAP(TexStorage2D);
+		_CUBE_GL_OPENGL_WRAP(TexSubImage2D);
+		_CUBE_GL_OPENGL_WRAP(Uniform1i);
+		_CUBE_GL_OPENGL_WRAP(Uniform3fv);
+		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
+		_CUBE_GL_OPENGL_WRAP(UseProgram);
+		_CUBE_GL_OPENGL_WRAP(ValidateProgram);
+		_CUBE_GL_OPENGL_WRAP(VertexPointer);
+		_CUBE_GL_OPENGL_WRAP(Viewport);
 		_CUBE_GL_OPENGL_WRAP_ARB(BindBuffer);
 		_CUBE_GL_OPENGL_WRAP_ARB(BufferData);
 		_CUBE_GL_OPENGL_WRAP_ARB(BufferSubData);
 		_CUBE_GL_OPENGL_WRAP_ARB(DeleteBuffers);
-
-
-		_CUBE_GL_OPENGL_WRAP(VertexPointer);
-		_CUBE_GL_OPENGL_WRAP(ColorPointer);
-		_CUBE_GL_OPENGL_WRAP(NormalPointer);
-		_CUBE_GL_OPENGL_WRAP(TexCoordPointer);
-
-		_CUBE_GL_OPENGL_WRAP(DrawElements);
-		_CUBE_GL_OPENGL_WRAP(DrawArrays);
-		_CUBE_GL_OPENGL_WRAP(Clear);
-		_CUBE_GL_OPENGL_WRAP(ClearColor);
-		_CUBE_GL_OPENGL_WRAP(Viewport);
-
-		_CUBE_GL_OPENGL_WRAP(LoadIdentity);
-
-		//_CUBE_GL_OPENGL_CALL_RET(CreateShader, glCreateShaderObjectARB, GLuint);
-		//_CUBE_GL_OPENGL_WRAP(DeleteShader);
-		//_CUBE_GL_OPENGL_WRAP_ARB(ShaderSource);
-		//_CUBE_GL_OPENGL_WRAP_ARB(CompileShader);
-		//_CUBE_GL_OPENGL_WRAP(GetShaderiv);
-		//_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
-
-		//_CUBE_GL_OPENGL_CALL_RET(CreateProgram, glCreateProgramObjectARB, GLuint);
-		//_CUBE_GL_OPENGL_WRAP(DeleteProgram);
-		//_CUBE_GL_OPENGL_WRAP_ARB(LinkProgram);
-		//_CUBE_GL_OPENGL_WRAP_ARB(ValidateProgram);
-		//_CUBE_GL_OPENGL_WRAP_ARB(GetProgramiv);
-		//_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
-		//_CUBE_GL_OPENGL_WRAP(AttachShader);
-		//_CUBE_GL_OPENGL_WRAP(DetachShader);
-		//_CUBE_GL_OPENGL_CALL(UseProgram, glUseProgramObjectARB);
-		//_CUBE_GL_OPENGL_WRAP_ARB_RET(GetUniformLocation, GLint);
-		//_CUBE_GL_OPENGL_WRAP_ARB(UniformMatrix4fv);
-
-		_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
-		_CUBE_GL_OPENGL_WRAP(DeleteShader);
-		_CUBE_GL_OPENGL_WRAP(ShaderSource);
-		_CUBE_GL_OPENGL_WRAP(CompileShader);
-		_CUBE_GL_OPENGL_WRAP(GetShaderiv);
-		_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
-
+		_CUBE_GL_OPENGL_WRAP_ARB(GenBuffers);
 		_CUBE_GL_OPENGL_WRAP_RET(CreateProgram, GLuint);
-		_CUBE_GL_OPENGL_WRAP(DeleteProgram);
-		_CUBE_GL_OPENGL_WRAP(LinkProgram);
-		_CUBE_GL_OPENGL_WRAP(ValidateProgram);
-		_CUBE_GL_OPENGL_WRAP(GetProgramiv);
-		_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
-		_CUBE_GL_OPENGL_WRAP(AttachShader);
-		_CUBE_GL_OPENGL_WRAP(DetachShader);
-		_CUBE_GL_OPENGL_WRAP(UseProgram);
+		_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
 		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
-		_CUBE_GL_OPENGL_WRAP(GetActiveUniform);
-		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
-		_CUBE_GL_OPENGL_WRAP(Uniform1i);
-
-		_CUBE_GL_OPENGL_WRAP(GenTextures);
-		_CUBE_GL_OPENGL_WRAP(DeleteTextures);
-		_CUBE_GL_OPENGL_WRAP(BindTexture);
-		_CUBE_GL_OPENGL_WRAP(TexImage2D);
-		_CUBE_GL_OPENGL_WRAP(TexStorage2D);
-		_CUBE_GL_OPENGL_WRAP(GenerateMipmap);
-		_CUBE_GL_OPENGL_WRAP(TexSubImage2D);
-		_CUBE_GL_OPENGL_WRAP(TexParameteri);
-		_CUBE_GL_OPENGL_WRAP(ActiveTexture);
 
 # undef _CUBE_GL_OPENGL_WRAP
 # undef _CUBE_GL_OPENGL_WRAP_RET
@@ -213,5 +191,27 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	};
 
 }}}} // !cube::gl::opengl
+
+
+// old api compat, here just in case
+
+//_CUBE_GL_OPENGL_CALL_RET(CreateShader, glCreateShaderObjectARB, GLuint);
+//_CUBE_GL_OPENGL_WRAP(DeleteShader);
+//_CUBE_GL_OPENGL_WRAP_ARB(ShaderSource);
+//_CUBE_GL_OPENGL_WRAP_ARB(CompileShader);
+//_CUBE_GL_OPENGL_WRAP(GetShaderiv);
+//_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
+
+//_CUBE_GL_OPENGL_CALL_RET(CreateProgram, glCreateProgramObjectARB, GLuint);
+//_CUBE_GL_OPENGL_WRAP(DeleteProgram);
+//_CUBE_GL_OPENGL_WRAP_ARB(LinkProgram);
+//_CUBE_GL_OPENGL_WRAP_ARB(ValidateProgram);
+//_CUBE_GL_OPENGL_WRAP_ARB(GetProgramiv);
+//_CUBE_GL_OPENGL_WRAP(GetProgramInfoLog);
+//_CUBE_GL_OPENGL_WRAP(AttachShader);
+//_CUBE_GL_OPENGL_WRAP(DetachShader);
+//_CUBE_GL_OPENGL_CALL(UseProgram, glUseProgramObjectARB);
+//_CUBE_GL_OPENGL_WRAP_ARB_RET(GetUniformLocation, GLint);
+//_CUBE_GL_OPENGL_WRAP_ARB(UniformMatrix4fv);
 
 #endif

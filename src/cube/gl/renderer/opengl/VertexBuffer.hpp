@@ -13,7 +13,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		: public renderer::VertexBuffer
 	{
 	private:
-		gl::VBO<is_indices>*    _vbo;
+		std::unique_ptr<gl::VBO<is_indices>>    _vbo;
 	public:
 		_VertexBuffer(AttributePtr&& attribute);
 		_VertexBuffer(AttributeList&& attributes);
@@ -23,7 +23,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	protected:
 		void _bind() override;
-		void _unbind() override;
+		void _unbind() noexcept override;
 	};
 
 	typedef _VertexBuffer<false> VertexBuffer;
