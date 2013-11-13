@@ -41,7 +41,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	Renderer::Renderer()
 		: _viewport{0,0,0,0}
-		, _this{new Impl{{}, nullptr, {}}}
+		, _this{new Impl}
 	{
 		_push_state(State(Mode::none));
 	}
