@@ -27,6 +27,7 @@ namespace cube { namespace gl { namespace renderer {
 		         void const* data) = 0;
 
 	protected:
+		inline
 		void _bind(State const&) override
 		{
 			this->_bind();

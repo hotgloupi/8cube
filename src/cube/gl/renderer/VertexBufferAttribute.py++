@@ -65,16 +65,13 @@ namespace {
 		default:
 			_CHECK(cube::gl::vector::Vector2f);
 			_CHECK(cube::gl::vector::Vector3f);
+			_CHECK(cube::gl::vector::Vector4f);
 #undef _CHECK
 		}
 
 		throw Exception{
-			"List content has to be a color or a vector, got '" +
-			std::string(
-				boost::python::extract<std::string>(
-					boost::python::str(first)
-				)
-			) + "'."
+			"List content has to be of type " + etc::to_string(kind) +
+			", got '" + py::to_string(first) + "' instead"
 		};
 
 		throw "Never reached";
