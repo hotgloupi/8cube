@@ -13,12 +13,20 @@ namespace etc {
 	bool
 	demangle(std::string const& sym,
 	         std::string& res,
-	         std::string& error) throw()
+	         std::string& error) noexcept
 	{
 #ifndef BOOST_MSVC
 		size_t size;
 		int status;
-		char* demangled = abi::__cxa_demangle(sym.c_str(), 0, &size, &status);
+		char* demangled;
+# ifdef _WIN32
+		if (sym.size() && sym[0] == 'Z')
+			demangled = abi::__cxa_demangle(("_" + sym).c_str(), 0, &size, &status);
+		else
+			demangled = abi::__cxa_demangle(sym.c_str(), 0, &size, &status);
+# else
+		demangled = abi::__cxa_demangle(sym.c_str(), 0, &size, &status);
+# endif
 
 		switch (status)
 		{
