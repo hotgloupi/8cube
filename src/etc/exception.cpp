@@ -2,9 +2,12 @@
 
 #include "backtrace.hpp"
 
+#include <etc/log.hpp>
 #include <iostream>
 
 namespace etc { namespace exception {
+
+	ETC_LOG_COMPONENT("etc.exception.Exception");
 
 	Exception::Exception(std::string const& msg)
 		: std::runtime_error(msg)
@@ -19,6 +22,7 @@ namespace etc { namespace exception {
 			try { _msg = std::string(err.what()); }
 			catch (std::exception const&) {}
 		}
+		ETC_LOG.warn("Raising:", *this);
 	}
 
 	Exception::~Exception() throw ()
@@ -29,7 +33,7 @@ namespace etc { namespace exception {
 
 	std::ostream& operator <<(std::ostream& out, Exception const& e)
 	{
-		out << e.what() << ":\n";
+		out << e.what() << ":";
 		if (e._backtrace == nullptr)
 		{
 			out << "No backtrace available: ";
@@ -39,7 +43,7 @@ namespace etc { namespace exception {
 				out << e._msg;
 		}
 		else
-			out << *e._backtrace;
+			out << e._msg << ":\n" <<  *e._backtrace;
 		return out;
 	}
 }}
