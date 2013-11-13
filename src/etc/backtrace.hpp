@@ -13,10 +13,11 @@ namespace etc { namespace backtrace {
 
 	struct ETC_API StackFrame
 	{
+		std::string where;
+		unsigned int line;
 		std::string symbol;
 		std::string symbol_mangled;
-		std::string symbol_demangled;
-		int address;
+		void* address;
 		int offset;
 		operator std::string() const;
 	};

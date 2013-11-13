@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <locale>
 #include <string>
 #include <sstream>
 
@@ -91,6 +92,43 @@ namespace etc { namespace backtrace {
 				frame.symbol = frame.symbol_mangled = "???";
 				frame.offset = frame.address = 0;
 			}
+#elif defined(ETC_PLATFORM_OSX)
+			// Parsing line like this
+			// 0 libetc.dylib 0x000000010d82ab81 _ZN3etc9backtrace9BacktraceC2Ev + 225
+
+			char const* str = strs[i];
+			int idx = 0;
+			// Discard index and spaces.
+			while (str[idx] != '\0' && !std::isalpha(str[idx])) idx++;
+
+			// Store dylib.
+			while (str[idx] != '\0' && !std::isspace(str[idx])) frame.where.push_back(str[idx++]);
+
+			// Discard spaces.
+			while (str[idx] != '\0' && std::isspace(str[idx])) idx++;
+
+			// Store address.
+			{
+				std::string address;
+				while (str[idx] != '\0' && !std::isspace(str[idx])) address.push_back(str[idx++]);
+				std::stringstream(address) >> std::hex >> frame.address;
+			}
+
+			// Discard spaces.
+			while (str[idx] != '\0' && std::isspace(str[idx])) idx++;
+
+			// Store symbol
+			int start = idx;
+			while (str[idx] != '\0') idx++;
+			while (idx > start && str[idx--] != '+') {}
+			frame.symbol_mangled = std::string(&str[start], idx - start);
+			while (str[idx] != '\0' && str[idx++] != '+') {}
+			if (str[idx] != '\0')
+				std::stringstream(std::string(str)) >> frame.offset;
+
+			std::string error;
+			if (!demangle(frame.symbol_mangled, frame.symbol, error))
+				frame.symbol = frame.symbol_mangled;
 #else
 			std::string sym(strs[i]);
 			discard(sym, '(');
@@ -140,10 +178,10 @@ namespace etc { namespace backtrace {
 	{
 		out << (
 			boost::format(
-				"0x%0" + std::to_string(2 * sizeof(void*)) + "x: "
+				"%0" + std::to_string(2 * sizeof(void*)) + "x"
 			) % frame.address
 		);
-
+		out << ": ";
 		if (!frame.symbol.empty())
 			out << (boost::format("%s +0x%x") % frame.symbol % frame.offset);
 		else
@@ -156,10 +194,16 @@ namespace etc { namespace backtrace {
 		unsigned i = 0;
 		// Visual expects a float ... don't ask.
 		const size_t width = std::log10(float(bt.size())) + 1;
+
+		etc::size_type max = 0;
+		for (Backtrace::Frame const& f : bt)
+			if (f.where.size() > max)
+				max = f.where.size();
+
 		for (Backtrace::Frame const& f : bt)
 		{
-			boost::format fmt("#%-" + std::to_string(width) + "d %s\n");
-			out << (fmt % i++ % f);
+			boost::format fmt("#%-" + std::to_string(width) + "d %-" + std::to_string(max) + "s %s\n");
+			out << (fmt % i++ % f.where % f);
 		}
 		return out;
 	}
