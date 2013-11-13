@@ -240,6 +240,7 @@ def configure(project, build):
                 'ws2_32',
                 'Gdi32',
                 'mswsock',
+                'Dbghelp',
             ]
         )
     elif platform.IS_MACOSX:
