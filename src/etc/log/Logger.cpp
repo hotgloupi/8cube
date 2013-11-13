@@ -230,7 +230,7 @@ namespace etc { namespace log {
 				size_t component;
 			};
 
-			static Size max_size{8, 0, 4, 0, 40};
+			static Size max_size{8, 0, 4, 0, 50};
 
 			Size size{
 				level_string.size(),
