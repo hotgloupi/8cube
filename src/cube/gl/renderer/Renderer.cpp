@@ -49,6 +49,7 @@ namespace cube { namespace gl { namespace renderer {
 	Renderer::~Renderer()
 	{
 		ETC_TRACE.debug("Destroying", *this);
+		assert(_this->states.size() == 1);
 		assert(_this->states.back().mode == Mode::none);
 		_pop_state();
 	}
