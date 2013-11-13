@@ -290,20 +290,20 @@ namespace etc { namespace log {
 			if (color != WHITE)
 				::SetConsoleTextAttribute(console_handle, color);
 #else
-			bool colored = true;
+			static std::string color;
 			switch (line.level)
 			{
 			case Level::info:
-				res.append("[1m");
+				color = "[1m";
 				break;
 			case Level::warn:
-				res.append("[33;01;33m");
+				color = "[33;01;33m";
 				break;
 			case Level::error:
-				res.append("[33;03;31m");
+				color = "[33;03;31m";
 				break;
 			default:
-				colored = false;
+				color.clear();
 				break;
 			}
 #endif
@@ -347,6 +347,7 @@ namespace etc { namespace log {
 			else if (lines.size() > 1)
 			{
 				std::string indent(res.size(), ' ');
+				indent += "-> ";
 				res.append(lines[0]);
 				for (size_t i = 1; i < lines.size(); i++)
 				{
@@ -355,13 +356,12 @@ namespace etc { namespace log {
 					res.append(lines[i]);
 				}
 			}
-#ifndef _WIN32
-			if (colored)
-				res.append("[0m");
-#endif
 			res.append("\n");
+
+#ifndef _WIN32
+			*out << color << res << "[0m";
+#else
 			*out << res;
-#ifdef _WIN32
 			if (color != WHITE)
 				::SetConsoleTextAttribute(console_handle, WHITE);
 #endif
