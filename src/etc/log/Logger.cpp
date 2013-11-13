@@ -405,14 +405,9 @@ namespace etc { namespace log {
 #endif
 	}
 
-	bool asynchroneous()
+	void set_mode(Mode mode)
 	{
-		return runner().async;
-	}
-
-	void asynchroneous(bool async)
-	{
-		runner().async = async;
+		runner().async = (mode == Mode::asynchroneous);
 	}
 
 	Logger::Logger(std::string const& name,

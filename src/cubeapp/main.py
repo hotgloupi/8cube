@@ -74,6 +74,7 @@ def main(args):
     try:
         parser, args = parse_args(args)
         if args.unittests or args.unittest:
+            cube.log.set_mode(cube.log.Mode.synchroneous)
             if args.unittest:
                 pattern = '*%s*.py' % args.unittest
             else:

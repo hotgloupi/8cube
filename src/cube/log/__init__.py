@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from . import _log
+from ._log import Mode, set_mode
 import inspect
 
 def _send(level, *msgs):

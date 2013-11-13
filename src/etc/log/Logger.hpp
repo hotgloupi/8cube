@@ -46,6 +46,14 @@ namespace etc { namespace log {
 
 	ETC_API void shutdown();
 
+	enum class Mode
+	{
+		synchroneous = 0,
+		asynchroneous = 1
+	};
+
+	ETC_API void set_mode(Mode mode);
+
 	class ETC_API Logger
 		: private boost::noncopyable
 	{

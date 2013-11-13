@@ -35,16 +35,22 @@ namespace {
 BOOST_PYTHON_MODULE(_log)
 {
 	namespace py = boost::python;
+	using namespace etc::log;
 
-	py::enum_<etc::log::Level>("Level")
-		.value("debug", etc::log::Level::debug)
-		.value("info",  etc::log::Level::info)
-		.value("warn",  etc::log::Level::warn)
-		.value("error", etc::log::Level::error)
-		.value("fatal", etc::log::Level::fatal)
+	py::enum_<Level>("Level")
+		.value("debug", Level::debug)
+		.value("info",  Level::info)
+		.value("warn",  Level::warn)
+		.value("error", Level::error)
+		.value("fatal", Level::fatal)
 	;
 
 	py::def("send", &send);
 
-}
+	py::enum_<Mode>("Mode")
+		.value("asynchroneous", Mode::asynchroneous)
+		.value("synchroneous", Mode::synchroneous)
+	;
 
+	py::def("set_mode", &set_mode);
+}
