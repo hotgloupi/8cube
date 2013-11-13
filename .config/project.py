@@ -277,22 +277,22 @@ def configure(project, build):
         precompiled_headers = [stl_pch]
     )
 ################### libcube
-    boost_python_pch = compiler.generate_precompiled_header(
-        "src/wrappers/boost/python.hpp",
-        libraries = boost.libraries + python.libraries,
-    )
+    #boost_python_pch = compiler.generate_precompiled_header(
+    #    "src/wrappers/boost/python.hpp",
+    #    libraries = boost.libraries + python.libraries,
+    #)
 
-    boost_signals2_pch = compiler.generate_precompiled_header(
-        "src/wrappers/boost/signals2.hpp",
-        libraries = boost.libraries
-    )
+    #boost_signals2_pch = compiler.generate_precompiled_header(
+    #    "src/wrappers/boost/signals2.hpp",
+    #    libraries = boost.libraries
+    #)
 
     libcube = compiler.link_dynamic_library(
         'libcube',
         rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
         libraries = base_libraries + [libetc] + graphic_libraries,
-        precompiled_headers = [boost_signals2_pch, stl_pch],
+        precompiled_headers = [stl_pch],
         defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
     )
 
@@ -305,7 +305,7 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-            precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
+            precompiled_headers = [stl_pch],
         )
 
 ################### libcubeapp
@@ -315,7 +315,7 @@ def configure(project, build):
         (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
         libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
-        precompiled_headers = [boost_python_pch, boost_signals2_pch, stl_pch],
+        precompiled_headers = [stl_pch],
     )
 
     for binding in rglob("cubeapp/*.py++", dir='src'):
@@ -325,7 +325,7 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-            precompiled_headers = [boost_python_pch, stl_pch],
+            precompiled_headers = [stl_pch],
         )
 
 
