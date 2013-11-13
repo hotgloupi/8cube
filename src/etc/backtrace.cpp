@@ -90,7 +90,8 @@ namespace etc { namespace backtrace {
 //			else
 			{
 				frame.symbol = frame.symbol_mangled = "???";
-				frame.offset = frame.address = 0;
+				frame.offset = 0;
+				frame.address = 0;
 			}
 #elif defined(ETC_PLATFORM_OSX)
 			// Parsing line like this
