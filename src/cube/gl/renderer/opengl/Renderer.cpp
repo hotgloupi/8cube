@@ -45,6 +45,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			CHECK(GLEW_ARB_shader_objects)
 			CHECK(GLEW_ARB_vertex_shader)
 			CHECK(GLEW_ARB_fragment_shader)
+			ETC_LOG.info("GLEW version",    glewGetString(GLEW_VERSION));
+			ETC_LOG.info("OpenGL version",  (char*) glGetString(GL_VERSION));
+			ETC_LOG.info("OpenGL renderer", (char*) glGetString(GL_RENDERER));
+			ETC_LOG.info("OpenGL vendor",   (char*) glGetString(GL_VENDOR));
+			ETC_LOG.info("GLSL version",    (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
 			initialized = true;
 		}
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
@@ -221,16 +226,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	std::unique_ptr<renderer::Renderer>
 	RendererType::create(cube::system::window::RendererContext& context)
-	{
-		std::unique_ptr<renderer::Renderer> renderer(new GLRenderer{context});
-
-		ETC_LOG.info("GLEW version",    glewGetString(GLEW_VERSION));
-		ETC_LOG.info("OpenGL version",  (char*) glGetString(GL_VERSION));
-		ETC_LOG.info("OpenGL renderer", (char*) glGetString(GL_RENDERER));
-		ETC_LOG.info("OpenGL vendor",   (char*) glGetString(GL_VENDOR));
-		ETC_LOG.info("GLSL version",    (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
-		return renderer;
-	}
+	{ return std::unique_ptr<renderer::Renderer>(new GLRenderer{context}); }
 
 	std::string
 	RendererType::__str__() const
