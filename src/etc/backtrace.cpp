@@ -16,6 +16,7 @@
 
 #ifdef _WIN32
 # include <Windows.h>
+# include <Dbghelp.h>
 #else
 # include <execinfo.h>
 #endif
@@ -56,18 +57,18 @@ namespace etc { namespace backtrace {
 
 #ifdef _WIN32
 		size_t frames = 0;
-//		HANDLE process = ::GetCurrentProcess();
-//		static bool sym_initialized = false;
-//		if (!sym_initialized)
-//		{
-//			if (SymInitialize(process, nullptr, TRUE) == FALSE)
-//				return;
-//			sym_initialized = true;
-//		}
-//		size_t frames = ::CaptureStackBackTrace(0, size, callstack, nullptr);
-//		SYMBOL_INFO* symbol = (SYMBOL_INFO*) ::calloc(sizeof(SYMBOL_INFO) + 256, 1);
-//		symbol->MaxNameLen = 255;
-//		symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+		HANDLE process = ::GetCurrentProcess();
+		static bool sym_initialized = false;
+		if (!sym_initialized)
+		{
+			if (SymInitialize(process, nullptr, TRUE) == FALSE)
+				return;
+			sym_initialized = true;
+		}
+		frames = ::CaptureStackBackTrace(0, size, callstack, nullptr);
+		SYMBOL_INFO* symbol = (SYMBOL_INFO*) ::calloc(sizeof(SYMBOL_INFO) + 256, 1);
+		symbol->MaxNameLen = 255;
+		symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 #else
 		size_t frames = ::backtrace(callstack, size);
 		char** strs = ::backtrace_symbols(callstack, frames);
@@ -78,16 +79,20 @@ namespace etc { namespace backtrace {
 		{
 			StackFrame frame;
 #ifdef _WIN32
-//			if (::SymFromAddr(process, ((DWORD64) stack[i]), 0, symbol) == TRUE)
-//			{
-//				frame.symbol_mangled = symbol->Name;
-//				std::string error;
-//				if (!demangle(frame.symbol_mangled, frame.symbol, error))
-//					frame.symbol = frame.symbol_mangled;
-//				frame.offset = 0;
-//				frame.address = symbol->Address;
-//			}
-//			else
+			if (::SymFromAddr(process, ((DWORD64) callstack[i]), 0, symbol) == TRUE)
+			{
+				frame.symbol_mangled = symbol->Name;
+				std::string error;
+				if (!demangle(frame.symbol_mangled, frame.symbol, error))
+				{
+					//std::cerr << "Couldn't demangle '" << frame.symbol_mangled
+					//          << "': " << error << std::endl;
+					frame.symbol = frame.symbol_mangled;
+				}
+				frame.offset = 0;
+				frame.address = (void*)symbol->Address;
+			}
+			else
 			{
 				frame.symbol = frame.symbol_mangled = "???";
 				frame.offset = 0;
