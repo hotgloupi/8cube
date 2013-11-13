@@ -2,6 +2,8 @@
 # define ETC_PRINT_INL
 
 # include "print.hpp"
+# include "types.hpp"
+# include "meta/is_printable.hpp"
 
 # include <iostream>
 # include <sstream>
@@ -25,6 +27,25 @@ namespace etc {
 			{}
 		};
 
+		// Generic printable values.
+		template<typename T>
+		inline
+		typename std::enable_if<meta::is_printable<T>::value>::type
+		sprint_generic_value(std::ostream& out, T&& value)
+		{
+		  out << std::forward<T>(value);
+		}
+
+		// Generic non-printable values.
+		template<typename T>
+		inline
+		typename std::enable_if<!meta::is_printable<T>::value>::type
+		sprint_generic_value(std::ostream& out, T&& value)
+		{
+			static const std::string type_string{ETC_TYPE_STRING(T)};
+			out  << "<" << type_string << " at " << &value << ">";
+		}
+
 		template <typename T>
 		struct is_iomanip { static bool const value = false; };
 		template <typename T>
@@ -46,7 +67,7 @@ namespace etc {
 		{
 		  if (!is_first && flags.sep.size())
 			  out << flags.sep;
-		  out << std::forward<T>(value);
+			sprint_generic_value(out, std::forward<T>(value));
 		  return false;
 		}
 
