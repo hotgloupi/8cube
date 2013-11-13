@@ -12,7 +12,7 @@
 # include <boost/noncopyable.hpp>
 
 # include <set>
-# include <vector>
+# include <array>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -140,102 +140,45 @@ namespace cube { namespace gl { namespace renderer {
 		 *  }
 		 */
 		inline operator bool() const { return true; }
-
-	private:
-		// For the proxy
-		void _new_guard(Bindable::Guard* mem, Bindable& bindable)
-		{
-			if (_bound_drawables.find(&bindable) != _bound_drawables.end())
-			{
-				throw Exception{
-					"The bindable is already bound to this painter"
-				};
-			}
-			new (mem) Bindable::Guard(bindable, *_current_state);
-			_bound_drawables.insert(&bindable);
-		}
-
-		void _delete_guard(Bindable::Guard& guard)
-		{
-			auto it = _bound_drawables.find(&guard.bindable);
-			// We assert here since we know that a bindable cannot be bound
-			// twice to the same painter.
-			assert(it != _bound_drawables.end());
-			_bound_drawables.erase(it);
-			guard.~Guard();
-		}
-
 	};
 
 	template<etc::size_type const bounds>
 	struct Painter::Proxy
 	{
 	private:
-		Painter&    _self;
-		uint8_t     _guards[sizeof(Bindable::Guard) * bounds];
+		Painter&                            _self;
+		std::array<Bindable::Guard, bounds> _guards;
 
 	public:
 		template<typename... Args>
 		explicit
 		Proxy(Painter& self, Args&&... bindables)
 			: _self(self)
-			, _guards{}
-		{
-			_init(
-				(Bindable::Guard*) _guards,
-				std::forward<Args>(bindables)...
-			);
-		}
-
-		~Proxy()
-		{
-			auto tab = (Bindable::Guard*) _guards;
-			for (etc::size_type i = 0; i < bounds; ++i)
-			{
-				_self._delete_guard(tab[i]);
-			}
-		}
-		Proxy(Proxy&& other) = default;
+			, _guards{{
+				Bindable::Guard{
+					std::forward<Args>(bindables),
+					self.state(),
+				}...
+			}}
+		{}
 
 		inline
-		Painter* operator ->()
-		{
-			return &_self;
-		}
+		Proxy(Proxy&& other) noexcept
+			: _self(other._self)
+			, _guards(std::move(other._guards))
+		{}
+
+		~Proxy()
+		{}
+
+		inline
+		Painter* operator ->() noexcept
+		{ return &_self; }
 
 	private:
 		Proxy(Proxy const&) = delete;
 		Proxy& operator =(Proxy const&) = delete;
 		Proxy& operator =(Proxy&&) = delete;
-
-	private:
-		template<typename T>
-		struct ERROR_HELPER_incomplete_type_detected_for
-		{
-			static const int size = sizeof(T);
-		};
-	private:
-		template<typename First, typename... Tail>
-		inline
-		void _init(Bindable::Guard* mem,
-		           First&& first,
-		           Tail&&... tail)
-		{
-			static_assert(
-				ERROR_HELPER_incomplete_type_detected_for<First>::size > 0,
-				"Incomplete type detected!"
-			);
-			_self._new_guard(mem, first);
-			try {
-				_init(mem + 1, std::forward<Tail>(tail)...);
-			} catch (...) {
-				_self._delete_guard(*mem);
-				throw;
-			}
-		}
-
-		// termination
-		inline void _init(Bindable::Guard*) {}
 	};
 
 	template<typename... Args>
