@@ -1,7 +1,7 @@
 #ifndef  CUBE_GL_OPENGL_SHADERPROGRAM_HPP
 # define CUBE_GL_OPENGL_SHADERPROGRAM_HPP
 
-# include "../ShaderProgram.hpp"
+# include <cube/gl/renderer/ShaderProgram.hpp>
 
 # include "_opengl.hpp"
 
@@ -10,6 +10,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	class ShaderProgram
 		: public renderer::ShaderProgram
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgram");
 	public:
 		typedef std::unique_ptr<renderer::Shader> ShaderPtr;
 
@@ -34,7 +35,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	 * renderer::Bindable interface.
 	 */
 	protected:
-		void _unbind() override;
+		void _unbind() noexcept override;
 
 	};
 

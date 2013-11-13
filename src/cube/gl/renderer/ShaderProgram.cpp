@@ -10,14 +10,11 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgram");
-
 	///////////////////////////////////////////////////////////////////////////
 	// ShaderProgramParameter
 
-	void ShaderProgramParameter::operator =(Texture& texture)
+	void ShaderProgramParameter::_set(Texture& texture)
 	{
-		ETC_LOG_SUB_COMPONENT("ShaderProgramParameter");
 		ETC_TRACE.debug("Bind a texture to a shader program parameter");
 		_program.bind_texture_unit(texture, *this);
 	}
@@ -50,14 +47,16 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		if (_parameters_map.get() == nullptr)
 		{
+			ETC_LOG.debug(this, "Creating the parameters map");
 			auto list = _fetch_parameters();
-			_parameters_map.reset(new ParameterMap{});
+			ParameterMap map;
 			for (auto& param : list)
 			{
 				assert(param.get() != nullptr);
 				std::string name = param->name();
-				_parameters_map->emplace(std::move(name), std::move(param));
+				map.emplace(std::move(name), std::move(param));
 			}
+			_parameters_map.reset(new ParameterMap{std::move(map)});
 		}
 		return *(_parameters_map.get());
 	}

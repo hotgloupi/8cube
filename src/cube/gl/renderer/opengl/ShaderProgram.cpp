@@ -96,7 +96,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			, _location{location}
 		{}
 
-		void operator =(matrix_type const& value)
+		void _set(matrix_type const& value) override
 		{
 			ETC_TRACE.debug("Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
@@ -104,11 +104,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			                     glm::value_ptr(value));
 		}
 
-		void operator =(int32_t value)
+		void _set(int32_t value) override
 		{
 			ETC_TRACE.debug("Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
 			gl::Uniform1i(_location, value);
+		}
+
+		void _set(vector::vec3f const& value) override
+		{
+			ETC_TRACE.debug("Set shader parameter", _name, "to", value);
+			BindGuard guard(_program);
+			gl::Uniform3fv(_location, 1, glm::value_ptr(value));
 		}
 	};
 
@@ -116,6 +123,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	std::vector<ShaderProgram::ParameterPtr>
 	ShaderProgram::_fetch_parameters()
 	{
+		ETC_TRACE.debug(*this, "Fetching parameters");
 		GLint max_name_size;
 		gl::GetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name_size);
 

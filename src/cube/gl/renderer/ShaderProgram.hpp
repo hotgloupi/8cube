@@ -4,6 +4,7 @@
 # include "Bindable.hpp"
 
 # include <etc/types.hpp>
+# include <etc/log/component.hpp>
 
 # include <memory>
 # include <unordered_map>
@@ -16,6 +17,7 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	class CUBE_API ShaderProgramParameter
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgramParameter");
 	protected:
 		ShaderProgram&  _program;
 		std::string     _name;
@@ -37,23 +39,32 @@ namespace cube { namespace gl { namespace renderer {
 		std::string const& name() const { return _name; }
 
 	public:
-		virtual
-		void operator =(matrix_type const& value) = 0;
+		template<typename T>
+		inline
+		void operator =(T&& value)
+		{ this->set(std::forward<T>(value)); }
 
-		virtual
-		void operator =(int32_t value) = 0;
+		template<typename T>
+		inline
+		void set(T&& value)
+		{ this->_set(std::forward<T>(value)); }
+
+	protected:
+		virtual void _set(matrix_type const& value) = 0;
+		virtual void _set(int32_t value) = 0;
+		virtual void _set(vector::vec3f const& value) = 0;
 
 		/**
 		 * Forward to ShaderProgram::bind_texture_unit.
 		 * Should not be overridden.
 		 */
-		virtual
-		void operator =(Texture& texture);
+		virtual void _set(Texture& texture);
 	};
 
 	class CUBE_API ShaderProgram
 		: public Bindable
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderProgram");
 	public:
 		virtual
 		~ShaderProgram();

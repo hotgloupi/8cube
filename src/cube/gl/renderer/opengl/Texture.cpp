@@ -141,7 +141,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		SDL_FreeSurface(_surface);
 		_surface = nullptr;
-		gl::DeleteTextures(1, &_id);
+		gl::DeleteTextures<gl::no_throw>(1, &_id);
 		_id = 0;
 	}
 
