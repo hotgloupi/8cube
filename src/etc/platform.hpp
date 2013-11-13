@@ -4,6 +4,7 @@
 # ifdef _WIN32
 #  define ETC_PLATFORM_WINDOWS 1
 # elif defined(__APPLE__) or defined(__apple__) or defined(__darwin__)
+#  define ETC_PLATFORM_OSX 1
 #  define ETC_PLATFORM_MACOSX 1
 #  define ETC_PLATFORM_DARWIN 1
 # elif defined(__linux__)
