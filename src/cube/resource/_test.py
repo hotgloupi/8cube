@@ -64,8 +64,14 @@ class Core(TestCase):
         self.assertEqual(r.refcount, 2)
         self.manager = None
         gc.collect()
-        self.assertEqual(r.refcount, 1)
-        self.assertFalse(r.managed)
+        self.assertEqual(
+            r.refcount, 2,
+            msg = "The manager should not have been deleted"
+        )
+        self.assertTrue(
+            r.managed,
+            msg = "The resource is still managed"
+        )
 
     def test_create_custom_resource(self):
         class MyResource(Resource):

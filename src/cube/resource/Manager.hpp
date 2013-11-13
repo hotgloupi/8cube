@@ -5,7 +5,6 @@
 
 # include <cube/api.hpp>
 
-# include <memory>
 # include <string>
 
 namespace cube { namespace resource {
@@ -36,8 +35,27 @@ namespace cube { namespace resource {
 		/**
 		 * Give a resource to a manager.
 		 */
-		void manage(Resource& resource);
+		template<typename ResourceType>
+		inline
+		std::shared_ptr<ResourceType>
+		manage(ResourceType& resource)
+		{ return std::static_pointer_cast<ResourceType>(_manage(resource)); }
 
+		template<typename ResourceType>
+		inline
+		std::shared_ptr<ResourceType>
+		manage(std::shared_ptr<ResourceType>resource)
+		{
+			return std::static_pointer_cast<ResourceType>(
+				_manage(std::static_pointer_cast<Resource>(resource))
+			);
+		}
+
+	private:
+		ResourcePtr _manage(Resource& resource);
+		ResourcePtr _manage(ResourcePtr resource);
+
+	public:
 		/**
 		 * Stop managing a resource.
 		 */

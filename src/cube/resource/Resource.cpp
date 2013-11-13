@@ -9,8 +9,8 @@ namespace cube { namespace resource {
 	Resource::~Resource()
 	{}
 
-	void Resource::manage(Manager& manager,
-	                      id_type const id)
+	id_type Resource::manage(Manager& manager,
+	                         id_type const id)
 	{
 		assert(id != 0);
 		if (_manager != nullptr)
@@ -20,6 +20,7 @@ namespace cube { namespace resource {
 
 		_manager = &manager;
 		_id = id;
+		return id;
 	}
 
 	void Resource::manage()

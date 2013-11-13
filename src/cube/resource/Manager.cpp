@@ -2,12 +2,15 @@
 
 #include <cube/exception.hpp>
 
+#include <etc/log.hpp>
 #include <etc/path.hpp>
 
 #include <unordered_map>
 #include <vector>
 
 namespace cube { namespace resource {
+
+	ETC_LOG_COMPONENT("cube.resource.Manager");
 
 	using cube::exception::Exception;
 
@@ -34,7 +37,11 @@ namespace cube { namespace resource {
 	Manager::~Manager()
 	{
 		for (auto& pair: _this->resources)
+		{
 			pair.second->manage();
+			if (pair.second.use_count() > 1)
+				ETC_LOG.warn("Destroying", *this, "earlier than", *pair.second);
+		}
 	}
 
 	Manager&
@@ -49,14 +56,23 @@ namespace cube { namespace resource {
 		return *this;
 	}
 
-	void
-	Manager::manage(Resource& resource)
+	ResourcePtr
+	Manager::_manage(Resource& resource)
 	{
-		resource.manage(*this, ++_this->next_id);
-		_this->resources.emplace(
-			resource.id(),
-			resource.shared_from_this()
-		);
+		auto resource_ptr = resource.shared_from_this();
+		if (resource_ptr.use_count() == 1)
+			throw Exception{"This resource has been created on the stack"};
+		return this->manage(std::move(resource_ptr));
+	}
+
+	ResourcePtr
+	Manager::_manage(ResourcePtr resource_ptr)
+	{
+		auto id = resource_ptr->manage(*this, ++_this->next_id);
+		auto const& it = _this->resources.emplace(id, std::move(resource_ptr));
+		if (it.second == false)
+			throw Exception{"Couldn't store the resource"};
+		return it.first->second;
 	}
 
 	void

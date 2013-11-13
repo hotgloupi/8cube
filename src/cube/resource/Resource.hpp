@@ -41,8 +41,8 @@ namespace cube { namespace resource {
 		{}
 
 	private:
-		void manage(Manager& manager,
-		            id_type const id);
+		id_type manage(Manager& manager,
+		               id_type const id);
 		void manage();
 
 		friend Manager;
