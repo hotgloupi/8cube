@@ -2,6 +2,7 @@
 # define ETC_COMPILER_HPP
 
 # include <boost/config.hpp>
+# include <boost/preprocessor/config/config.hpp>
 
 # ifdef BOOST_NO_CXX11_DELETED_FUNCTIONS
 #  define ETC_DELETED_FUNCTION
@@ -10,6 +11,10 @@
 # endif
 
 # define ETC_NOEXCEPT BOOST_NOEXCEPT
+
+# ifndef BOOST_PP_VARIADICS
+#  error "Variadic macros not enabled"
+# endif
 
 # ifdef BOOST_MSVC
 #  define ETC_PRETTY_FUNCTION __FUNCTION__
