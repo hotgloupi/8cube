@@ -12,7 +12,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	protected:
 		virtual void _draw(Painter& p) = 0;
-    friend Painter;
+		friend Painter;
 	};
 
 }}}
