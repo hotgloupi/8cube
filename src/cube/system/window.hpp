@@ -89,6 +89,9 @@ namespace cube { namespace system { namespace window {
 		void show() = 0;
 
 		virtual
+		void raise() = 0;
+
+		virtual
 		void hide() = 0;
 
 		virtual

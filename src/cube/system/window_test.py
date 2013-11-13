@@ -15,7 +15,6 @@ class Creation(TestCase):
         )
     def tearDown(self):
         window.delete_renderer_context(self.context)
-        print("CONTEXT", self.context)
 
     def test_renderer_context(self):
         self.assertEqual(self.context.width, 640)
@@ -108,6 +107,14 @@ class _(TestCase):
         self.window.show()
         self.window.minimize()
         self.window.poll()
+
+    def test_raise(self):
+        self.window.show()
+        self.window.raise_()
+        self.window.poll()
+
+    def test_maximize(self):
+        self.window.show()
         self.window.maximize()
         self.window.poll()
 

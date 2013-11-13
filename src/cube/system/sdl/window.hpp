@@ -23,6 +23,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		void confine_mouse(bool mode) override;
 		void swap_buffers() override;
 		void show() override;
+		void raise() override;
 		void hide() override;
 		void minimize() override;
 		void maximize() override;

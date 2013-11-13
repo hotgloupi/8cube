@@ -281,6 +281,9 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	void Window::show()
 	{ SDL_ShowWindow(_context().window); }
 
+	void Window::raise()
+	{ SDL_RaiseWindow(_context().window); }
+
 	void Window::hide()
 	{ SDL_HideWindow(_context().window); }
 
