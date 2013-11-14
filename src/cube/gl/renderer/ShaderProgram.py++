@@ -32,7 +32,7 @@ BOOST_PYTHON_MODULE(ShaderProgram)
 	auto shader_program_class = py::class_<
 			ShaderProgram,
 			ShaderProgramPtr,
-			py::bases<Bindable>,
+			py::bases<Bindable, cube::resource::Resource>,
 			boost::noncopyable
 		>(
 			"ShaderProgram",

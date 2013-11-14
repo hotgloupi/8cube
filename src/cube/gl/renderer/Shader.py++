@@ -10,7 +10,8 @@ BOOST_PYTHON_MODULE(Shader)
 	py::class_<
 			Shader,
 			ShaderPtr,
-			boost::noncopyable
+			boost::noncopyable,
+			py::bases<cube::resource::Resource>
 		>(
 			"Shader",
 			py::no_init
