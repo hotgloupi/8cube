@@ -54,9 +54,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			initialized = true;
 		}
 		gl::ClearColor(1.0f, 0, 0, 1.0f);
-		this->viewport(
-			viewport::Viewport{0, (float)context.width(), 0, (float)context.height()}
-		);
 	}
 
 	void GLRenderer::shutdown()
@@ -75,7 +72,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		ETC_TRACE.debug(*this, "Begin mode", mode);
 		State state{mode};
-
 		switch (mode)
 		{
 		case Mode::_2d:
