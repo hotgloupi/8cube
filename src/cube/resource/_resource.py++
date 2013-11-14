@@ -13,19 +13,9 @@ namespace {
 	using namespace cube::resource;
 	using cube::exception::Exception;
 
-	struct WrapResource
-		: public Resource
-	{
-		WrapResource()
-			: Resource{}
-		{}
 
-		~WrapResource()
-		{}
-
-		size_t refcount() const noexcept
-		{ return this->shared_from_this().use_count() - 1; }
-	};
+	size_t resource_refcount(Resource const& resource) noexcept
+	{ return resource.shared_from_this().use_count() - 1; }
 
 	struct WrapManager
 	{
@@ -92,12 +82,9 @@ namespace {
 		}
 
 		static
-		std::shared_ptr<WrapResource> manage(Manager& self, Resource& r)
+		std::shared_ptr<Resource> manage(Manager& self, Resource& r)
 		{
-			auto ptr = std::dynamic_pointer_cast<WrapResource>(self.manage(r));
-			if (ptr.get() == nullptr)
-				throw Exception{"Invalid resource: " + etc::to_string(r)};
-			return ptr;
+			return self.manage(r);
 		}
 	};
 
@@ -108,18 +95,16 @@ BOOST_PYTHON_MODULE(_resource)
 	namespace py = boost::python;
 	using namespace cube::resource;
 
-	py::class_<Resource, boost::noncopyable>("_Resource", py::no_init);
 	py::class_<
-		WrapResource,
-		std::shared_ptr<WrapResource>,
-		boost::noncopyable,
-		py::bases<Resource>
+		Resource,
+		ResourcePtr,
+		boost::noncopyable
 	>(
 		"Resource"
 	)
-		.add_property("id", &WrapResource::id)
-		.add_property("managed", &WrapResource::managed)
-		.add_property("refcount", &WrapResource::refcount)
+		.add_property("id", &Resource::id)
+		.add_property("managed", &Resource::managed)
+		.add_property("refcount", &resource_refcount)
 	;
 
 	py::class_<

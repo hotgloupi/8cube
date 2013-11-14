@@ -5,8 +5,6 @@
 
 # include <cube/api.hpp>
 
-# include <memory>
-
 namespace cube { namespace resource {
 
 	typedef unsigned int id_type;
@@ -22,6 +20,12 @@ namespace cube { namespace resource {
 		Manager*    _manager;
 
 	public:
+		inline
+		Resource() noexcept
+			: _id{0}
+			, _manager{nullptr}
+		{}
+
 		virtual
 		~Resource();
 
@@ -32,13 +36,6 @@ namespace cube { namespace resource {
 		inline
 		bool managed() const noexcept
 		{ return _id != 0; }
-
-	protected:
-		inline
-		Resource() noexcept
-			: _id{0}
-			, _manager{nullptr}
-		{}
 
 	private:
 		id_type manage(Manager& manager,

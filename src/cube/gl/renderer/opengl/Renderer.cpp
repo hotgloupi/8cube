@@ -22,6 +22,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{}
 
 	GLRenderer::GLRenderer(system::window::RendererContext& context)
+		: Renderer(context)
 	{
 		ETC_TRACE.debug("Creating renderer", *this, "with the context", context);
 		static bool initialized = false;

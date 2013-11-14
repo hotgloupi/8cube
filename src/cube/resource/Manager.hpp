@@ -1,6 +1,7 @@
 #ifndef  CUBE_RESOURCE_MANAGER_HPP
 # define CUBE_RESOURCE_MANAGER_HPP
 
+# include "fwd.hpp"
 # include "Resource.hpp"
 
 # include <cube/api.hpp>

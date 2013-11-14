@@ -97,6 +97,9 @@ class _(TestCase):
     def tearDown(self):
         window.delete_window(self.window)
 
+    def test_render_target(self):
+        tgt = self.window.renderer.context.new_render_target()
+
     def test_show_hide(self):
         self.window.show()
         self.window.poll()

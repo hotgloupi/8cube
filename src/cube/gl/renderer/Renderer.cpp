@@ -12,6 +12,7 @@
 #include <cube/debug.hpp>
 #include <cube/gl/renderer.hpp>
 #include <cube/resource/Manager.hpp>
+#include <cube/system/window.hpp>
 
 #include <etc/log.hpp>
 

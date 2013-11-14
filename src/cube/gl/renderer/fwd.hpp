@@ -11,6 +11,7 @@ namespace cube { namespace gl { namespace renderer {
 	class Drawable;
 
 	class Painter;
+	class RenderTarget;
 	class Renderer;
 	class RendererType;
 	class Shader;
@@ -19,19 +20,20 @@ namespace cube { namespace gl { namespace renderer {
 	class ShaderProgram;
 	class ShaderProgramParameter;
 	class ShaderRoutine;
-	struct State;
 	class Texture;
 	class VertexBuffer;
 	class VertexBufferAttribute;
+	struct State;
 
 
+	typedef std::shared_ptr<RenderTarget>           RenderTargetPtr;
+	typedef std::shared_ptr<Shader>                 ShaderPtr;
+	typedef std::shared_ptr<ShaderProgram>          ShaderProgramPtr;
 	typedef std::unique_ptr<Bindable>               BindablePtr;
 	typedef std::unique_ptr<Drawable>               DrawablePtr;
 	typedef std::unique_ptr<Renderer>               RendererPtr;
-	typedef std::shared_ptr<Shader>                 ShaderPtr;
 	typedef std::unique_ptr<ShaderGenerator>        ShaderGeneratorPtr;
 	typedef std::unique_ptr<ShaderGeneratorProxy>   ShaderGeneratorProxyPtr;
-	typedef std::shared_ptr<ShaderProgram>          ShaderProgramPtr;
 	typedef std::unique_ptr<ShaderRoutine>          ShaderRoutinePtr;
 	typedef std::unique_ptr<Texture>                TexturePtr;
 	typedef std::unique_ptr<VertexBuffer>           VertexBufferPtr;
