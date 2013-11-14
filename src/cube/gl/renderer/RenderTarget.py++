@@ -1,0 +1,17 @@
+#include "RenderTarget.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+BOOST_PYTHON_MODULE(RenderTarget)
+{
+	namespace py = boost::python;
+	using namespace cube::gl::renderer;
+
+	py::class_<
+		  RenderTarget
+		, boost::noncopyable
+		, RenderTargetPtr
+		, py::bases<Bindable, cube::resource::Resource>
+	>("RenderTarget", py::no_init)
+	;
+}

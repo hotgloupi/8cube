@@ -39,6 +39,7 @@ BOOST_PYTHON_MODULE(window)
 	namespace py = boost::python;
 
 	using namespace cube::system::window;
+	using cube::gl::renderer::RenderTargetPtr;
 
 	py::enum_<Window::Flags>("WindowFlags")
 		.value("none", Window::Flags::none)
@@ -115,6 +116,14 @@ BOOST_PYTHON_MODULE(window)
 		.add_property("flags", &RendererContext::flags)
 		.add_property("name", &RendererContext::name)
 		.def("size", &RendererContext::size)
+		.def(
+		    "new_render_target",
+		    static_cast<RenderTargetPtr (RendererContext::*)()>(&RendererContext::new_render_target)
+		)
+		.def(
+		    "new_render_target",
+		    static_cast<RenderTargetPtr (RendererContext::*)(etc::size_type const, etc::size_type const)>(&RendererContext::new_render_target)
+		)
 	;
 	typedef std::unique_ptr<Window>
 		(*create_window_signature)(std::string,

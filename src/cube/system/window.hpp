@@ -134,6 +134,18 @@ namespace cube { namespace system { namespace window {
 		virtual
 		void _size(etc::size_type const width,
 		           etc::size_type const height) = 0;
+
+
+	public:
+		inline
+		gl::renderer::RenderTargetPtr new_render_target()
+		{ return this->new_render_target(this->width(), this->height()); }
+
+		virtual
+		gl::renderer::RenderTargetPtr
+		new_render_target(etc::size_type const width,
+		                  etc::size_type const height) = 0;
+
 	public:
 		virtual
 		~RendererContext();
