@@ -27,8 +27,21 @@ class RendererSetup:
         gc.collect()
 
 class _(RendererSetup, TestCase):
-    def test_init(self):
-        pass
+    def test_viewport(self):
+        self.assertEqual(self.renderer.viewport.x, 0)
+        self.assertEqual(self.renderer.viewport.y, 0)
+        self.assertEqual(self.renderer.viewport.w, 640)
+        self.assertEqual(self.renderer.viewport.h, 480)
+
+        self.renderer.viewport.x = 42
+        self.renderer.viewport.y = 42
+        self.renderer.viewport.w = 42
+        self.renderer.viewport.h = 42
+
+        self.assertEqual(self.renderer.viewport.x, 0)
+        self.assertEqual(self.renderer.viewport.y, 0)
+        self.assertEqual(self.renderer.viewport.w, 640)
+        self.assertEqual(self.renderer.viewport.h, 480)
 
     def test_begin(self):
         with self.renderer.begin(mode_2d) as p:

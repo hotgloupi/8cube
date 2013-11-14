@@ -42,14 +42,11 @@ namespace cube { namespace gl { namespace renderer {
 		std::unique_ptr<Impl> _this;
 
 	public:
-		Renderer();
-		/// Calls shutdown() method
+		Renderer(system::window::RendererContext& context);
 		virtual ~Renderer();
 
-		inline
-		viewport::Viewport const& viewport() const
-		{ return _viewport; }
 
+		system::window::RendererContext& context() const noexcept;
 	/*************************************************************************
 	 * All renderers act as a state machine. States are pushed with the      *
 	 * Renderer::begin(State) method by implementations classes.             *
@@ -85,6 +82,9 @@ namespace cube { namespace gl { namespace renderer {
 	 *************************************************************************/
 	public:
 		/// default implementation sets _viewport
+		inline
+		viewport::Viewport const& viewport() const noexcept
+		{ return _viewport; }
 		virtual
 		void viewport(cube::gl::viewport::Viewport const& vp);
 

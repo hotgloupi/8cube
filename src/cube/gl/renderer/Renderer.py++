@@ -6,6 +6,7 @@
 #include "VertexBufferAttribute.hpp"
 #include "VertexBuffer.hpp"
 
+#include <cube/system/window.hpp>
 #include <cube/gl/exception.hpp>
 
 #include <wrappers/boost/python.hpp>
@@ -259,9 +260,16 @@ BOOST_PYTHON_MODULE(Renderer)
 				py::return_internal_reference<>()
 			)
 		)
-		.def(
+		.add_property(
 			"viewport",
-			&Wrap::Renderer::viewport
+			py::make_function(
+				static_cast<cube::gl::viewport::Viewport const& (Renderer::*)() const>(&Renderer::viewport),
+				py::return_value_policy<py::copy_const_reference>()
+			)
+		)
+		.add_property(
+			"context",
+			py::make_function(&Renderer::context, py::return_internal_reference<>())
 		)
 		.def(
 			"begin",

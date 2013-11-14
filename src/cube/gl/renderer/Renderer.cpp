@@ -31,18 +31,27 @@ namespace cube { namespace gl { namespace renderer {
 	// Renderer implem
 	struct Renderer::Impl
 	{
+		system::window::RendererContext& context;
 		std::vector<State> states;
 		ShaderGeneratorPtr shader_generator;
 		resource::Manager  resource_manager;
+
+		Impl(system::window::RendererContext& context)
+			: context(context)
+			, states{}
+			, shader_generator{nullptr}
+			, resource_manager{}
+		{}
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// Renderer class
 
-	Renderer::Renderer()
-		: _viewport{0,0,0,0}
-		, _this{new Impl}
+	Renderer::Renderer(system::window::RendererContext& context)
+		: _viewport{0,0, (float)context.width(), (float)context.height()}
+		, _this{new Impl{context}}
 	{
+		ETC_TRACE.debug("Creating", *this, "with", _viewport);
 		_push_state(State(Mode::none));
 	}
 
@@ -53,6 +62,9 @@ namespace cube { namespace gl { namespace renderer {
 		assert(_this->states.back().mode == Mode::none);
 		_pop_state();
 	}
+
+	system::window::RendererContext& Renderer::context() const noexcept
+	{ return _this->context; }
 
 	void
 	Renderer::update_projection_matrix()
