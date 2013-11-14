@@ -36,7 +36,9 @@ class ShaderSetup(RendererSetup):
 class _(ShaderSetup, TestCase):
 
     def test_init(self):
-        pass
+        import cube
+        self.assertIsInstance(self.fs, cube.resource.Resource)
+        self.assertIsInstance(self.vs, cube.resource.Resource)
 
     def test_init_empty_list(self):
         try:
