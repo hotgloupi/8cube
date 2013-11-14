@@ -2,6 +2,7 @@
 
 #include <cube/gl/renderer.hpp>
 #include <cube/gl/renderer/RenderTarget.hpp>
+#include <cube/gl/renderer/Texture.hpp>
 #include <cube/system/Exception.hpp>
 #include <cube/system/inputs.hpp>
 
@@ -9,6 +10,8 @@
 
 #include <etc/log.hpp>
 #include <etc/platform.hpp>
+#include <etc/sys/environ.hpp>
+#include <etc/scope_exit.hpp>
 
 #include <unordered_map>
 
@@ -34,17 +37,27 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		: public gl::renderer::RenderTarget
 	{
 	private:
+		etc::size_type _width;
+		etc::size_type _height;
 		SDL_Texture* _texture;
+		SDL_Window* _window;
 		SDL_Renderer* _renderer;
+		SDL_Surface* _renderer_surface;
 		SDL_Texture* _previous;
 
 	public:
 		SDLRenderTarget(SDL_Renderer* renderer,
+		                SDL_Surface* renderer_surface,
+		                SDL_Window* window,
 		                etc::size_type const width,
 		                etc::size_type const height,
 		                uint32_t const sdl_format)
-			: _texture{nullptr}
+			: _width{width}
+			, _height{height}
+			, _texture{nullptr}
+			, _window{window}
 			, _renderer{renderer}
+			, _renderer_surface{renderer_surface}
 			, _previous{nullptr}
 		{
 			ETC_TRACE.debug("Creating", *this);
@@ -83,6 +96,89 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					std::string(SDL_GetError()) + ")"
 				);
 		}
+
+		gl::renderer::TexturePtr texture() const override
+		{
+			struct Texture
+				: public gl::renderer::Texture
+			{
+				SDL_Texture* _texture;
+
+				inline
+				Texture(SDL_Texture* texture) noexcept
+					: _texture{texture}
+				{}
+
+				void
+				set_data(unsigned int x,
+						 unsigned int y,
+						 unsigned int width,
+						 unsigned int height,
+						 gl::renderer::PixelFormat const data_format,
+						 gl::renderer::ContentPacking const data_packing,
+						 void const* data) override
+				{ throw Exception{"Not implemented"}; }
+
+				void
+				bind_unit(etc::size_type unit,
+				          gl::renderer::ShaderProgramParameter& param)
+				{ throw Exception{"Not implemented"}; }
+
+				void _bind() override
+				{ SDL_GL_BindTexture(_texture, nullptr, nullptr); }
+				void _unbind() noexcept override
+				{ SDL_GL_UnbindTexture(_texture); }
+			};
+
+			return gl::renderer::TexturePtr{new Texture{_texture}};
+		}
+
+		void
+		save_screenshot(std::string const& file) const
+		{
+			if (this->_renderer == nullptr)
+				throw Exception{"No renderer available"};
+			int width, height;
+			if (SDL_GetRendererOutputSize(_renderer, &width, &height) != 0)
+			{
+				ETC_LOG.warn(
+					"Couldn't get render output size:", SDL_GetError(),
+					"(fallback on render target size:", _width, _height, ")");
+				width = _width;
+				height = _height;
+			}
+
+			if (_renderer_surface != nullptr)
+			{
+				ETC_LOG.debug("Saving from window's surface");
+				if (SDL_SaveBMP(SDL_GetWindowSurface(_window), file.c_str()) != 0)
+					throw SDLException("SaveBMP");
+				return;
+			}
+
+			int bpp = 4;
+			std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
+			int pitch = 0;
+			if (SDL_RenderReadPixels(_renderer, nullptr, 0, pixels.get(), pitch) != 0)
+				throw SDLException{"RenderReadPixels"};
+
+			SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
+				pixels.get(),
+				width,
+				height,
+				bpp * 8,
+				pitch,
+				0,
+				0,
+				0,
+				0
+			);
+			if (surface == nullptr)
+				throw SDLException{"CreateRGBSurfaceFrom"};
+			ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
+			if (SDL_SaveBMP(surface, file.c_str()) != 0)
+				throw SDLException("SDL_SaveBMP");
+		}
 	};
 
 	class SDLRendererContext
@@ -94,6 +190,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		SDL_version           compiled;
 		SDL_Window*           window;
 		SDL_Renderer*         renderer;
+		SDL_Surface*          renderer_surface; //only for software renderer
 		SDL_RendererInfo      renderer_info;
 		SDL_GLContext         gl_context;
 		SDL_SysWMinfo         wm;
@@ -106,7 +203,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		                   gl::renderer::Name const name)
 			: RendererContext{width, height, flags, name}
 		{
-			ETC_TRACE.debug(this, "Creating an SDL renderer context");
+			ETC_TRACE.debug(*this, "Creating an SDL renderer context");
 			SDL_GetVersion(&linked);
 			SDL_VERSION(&compiled);
 
@@ -132,27 +229,69 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			if (flags & Window::Flags::hidden)
 				sdl_flags |= SDL_WINDOW_HIDDEN;
 
-			int res = SDL_CreateWindowAndRenderer(
+			this->window = SDL_CreateWindow(
+				"Default name",
+				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 				width,
 				height,
-				sdl_flags,
-				&this->window,
-				&this->renderer
+				sdl_flags
 			);
-			if (res != 0)
-				throw SDLException{"CreateWindowAndRenderer"};
+			if (this->window == nullptr)
+				throw SDLException{"CreateWindow"};
 
-			assert(this->window != nullptr && this->renderer != nullptr);
+			auto window_guard = etc::scope_exit(
+				[&] { SDL_DestroyWindow(window); }
+			);
+			if (etc::sys::environ::contains("CUBE_SYSTEM_WINDOW_NO_RENDERER"))
+			{
+				ETC_LOG.warn("Renderer creation was disabled");
+				this->renderer = nullptr;
+				this->renderer_surface = nullptr;
+			}
+			else if (etc::sys::environ::contains("CUBE_SYSTEM_WINDOW_SOFTWARE_RENDERER"))
+			{
+				ETC_LOG.debug("Creating a software renderer");
+				this->renderer_surface = SDL_GetWindowSurface(this->window);
+				if (this->renderer_surface == nullptr)
+					throw SDLException{"GetWindowSurface"};
+				this->renderer = SDL_CreateSoftwareRenderer(this->renderer_surface);
+				if (this->renderer == nullptr)
+					ETC_LOG.warn("Couldn't create a renderer:", SDL_GetError());
+			}
+			else
+			{
+				ETC_LOG.debug("Creating window and renderer");
+				this->renderer = SDL_CreateRenderer(
+					this->window,
+					-1,
+					SDL_RENDERER_ACCELERATED |
+					SDL_RENDERER_PRESENTVSYNC |
+					SDL_RENDERER_TARGETTEXTURE
+				);
+				if (this->renderer == nullptr)
+					throw SDLException{"CreateWindowAndRenderer"};
+				this->renderer_surface = nullptr;
+			}
 
-			if (SDL_GetRendererInfo(this->renderer, &this->renderer_info) != 0)
-				throw SDLException{"GetRendererInfo"};
+			if (this->renderer != nullptr)
+			{
+				ETC_LOG.debug("Retreive renderer infos");
+				if (SDL_GetRendererInfo(this->renderer, &this->renderer_info) != 0)
+					throw SDLException{"GetRendererInfo"};
 
-			ETC_LOG.debug("SDL renderer name:", this->renderer_info.name);
+				ETC_LOG.debug("SDL renderer name:", this->renderer_info.name);
+			}
+			else
+			{
+				memset(&this->renderer_info, 0, sizeof(this->renderer_info));
+			}
 
+			ETC_LOG.debug("Create opengl context");
 			this->gl_context = SDL_GL_CreateContext(this->window);
 			if (this->gl_context == nullptr)
 				throw SDLException{"GL_CreateContext"};
 
+			ETC_LOG.debug("Retreive Window handle");
 			SDL_VERSION(&this->wm.version);
 			if (SDL_GetWindowWMInfo(this->window, &this->wm) == SDL_FALSE)
 				throw SDLException{"GetWindowWMInfo"};
@@ -174,6 +313,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			if (SDL_SetWindowShape(_context().window, SDL_GetWindowSurface(_context().window), &shape_mode))
 				throw SDLException{"SetWindowShape"};
 */
+
+			window_guard.dismiss();
 		}
 
 
@@ -196,7 +337,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		}
 
 		bool allow_render_target() const noexcept
-		{ return this->renderer_info.flags & SDL_RENDERER_TARGETTEXTURE; }
+		{ return this->renderer != nullptr and this->renderer_info.flags & SDL_RENDERER_TARGETTEXTURE; }
 
 		gl::renderer::RenderTargetPtr
 		new_render_target(etc::size_type const width,
@@ -204,11 +345,15 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		{
 			if (not this->allow_render_target())
 				throw Exception{"RenderTarget not allowed by this renderer"};
-			if ((int)width > this->renderer_info.max_texture_width ||
-			    (int)height > this->renderer_info.max_texture_height)
-				throw Exception{"RenderTarget too big"};
 			return gl::renderer::RenderTargetPtr{
-				new SDLRenderTarget{this->renderer, width, height, this->renderer_info.texture_formats[0]}
+				new SDLRenderTarget{
+					this->renderer,
+					this->renderer_surface,
+					this->window,
+					width,
+					height,
+					this->renderer_info.texture_formats[0]
+				}
 			};
 		}
 	};

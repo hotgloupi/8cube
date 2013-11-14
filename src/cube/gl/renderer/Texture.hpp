@@ -29,9 +29,7 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		inline
 		void _bind(State const&) override
-		{
-			this->_bind();
-		}
+		{ this->_bind(); }
 
 	protected:
 		virtual

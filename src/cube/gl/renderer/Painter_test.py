@@ -85,11 +85,14 @@ class _(PainterSetup, TestCase):
             self.renderer.clear(1)
             with self.renderer.begin(mode_2d) as painter:
                 painter.state.model = matrix.translate(painter.state.model, 10, 12, .0)
-                with painter.bind([self.shader, self.vb]):
+                with painter.bind([self.target, self.shader, self.vb]):
                     self.shader['cube_MVP'] = painter.state.mvp
                     painter.draw_elements(DrawMode.quads, self.indices, 0, 4)
             self.window.poll()
+            self.target.save_screenshot("test-before.bmp")
             self.window.swap_buffers()
+            self.target.save_screenshot("test-after.bmp")
+            break
             time.sleep(.1)
         time.sleep(1)
 

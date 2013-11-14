@@ -12,8 +12,16 @@ namespace cube { namespace gl { namespace renderer {
 		, public resource::Resource
 	{
 	public:
+		virtual
+		TexturePtr texture() const = 0;
+
+		virtual
+		void
+		save_screenshot(std::string const& file) const = 0;
+
 		virtual ~RenderTarget();
 	};
 
 }}}
+
 #endif
