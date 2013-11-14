@@ -49,7 +49,6 @@ from . import matrix
 from .camera import Camera
 from .color import Color3f, Color4f
 from .cube import Cube3f, Cube3d, Cube3i, Cube3u, Cube3il, Cube3ul
-from .renderer import *
 from .text import Text
 from .font import Font
 from .material import Material
@@ -82,3 +81,4 @@ vec4ul = Vector4ul
 
 from .viewport import Viewport
 
+from .renderer import *

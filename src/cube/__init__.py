@@ -9,9 +9,10 @@ The cube library provides:
 
 """
 
-from .application import Application
-from . import constants, gl, gui, system
-
 from .exception import Exception
 from .debug import check_performance
 from .log import debug, info, warn, error, fatal
+
+from .application import Application
+from . import constants, resource, system, gl, gui
+
