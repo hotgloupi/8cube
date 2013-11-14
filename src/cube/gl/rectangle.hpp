@@ -22,14 +22,20 @@ namespace cube { namespace gl { namespace rectangle {
 		};
 
 	public:
-		Rectangle2(T x, T y, T w, T h)
-			: x{x}
-			, y{y}
-			, w{w}
-			, h{h}
+		inline
+		Rectangle2(T x, T y, T w, T h) noexcept
+			: position{x, y}
+			, size{w, h}
 		{}
 
-		Rectangle2& operator =(Rectangle2 const& other)
+		inline
+		Rectangle2(Rectangle2 const& other) noexcept
+			: position{other.position}
+			, size{other.size}
+		{}
+
+		inline
+		Rectangle2& operator =(Rectangle2 const& other) noexcept
 		{
 			if (this != &other)
 			{

@@ -4,6 +4,7 @@ from cube.system.window import create_renderer_context,\
                                delete_renderer_context,\
                                 WindowFlags
 from cube.gl.renderer import Name, mode_2d, mode_3d, Painter
+from cube.gl.viewport import Viewport
 
 from unittest import TestCase
 

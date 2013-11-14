@@ -10,12 +10,16 @@ BOOST_PYTHON_MODULE(viewport)
 	BOOST_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
-	py::class_<Viewport, boost::noncopyable>(
-			"Viewport",
-			py::init<float, float, float, float>(
-				py::args("x", "y", "w", "h")
-			)
-		)
+	py::class_<
+		  Viewport
+	>(
+		"Viewport",
+		py::init<float, float, float, float>(py::args("x", "y", "w", "h"))
+	 )
+		.def_readwrite("x", &Viewport::x)
+		.def_readwrite("y", &Viewport::y)
+		.def_readwrite("w", &Viewport::w)
+		.def_readwrite("h", &Viewport::h)
 	;
 
 }

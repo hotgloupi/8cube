@@ -10,12 +10,18 @@ namespace cube { namespace gl { namespace viewport {
 	struct CUBE_API Viewport
 		: public rectangle::Rectangle2f
 	{
-		Viewport(float x, float y, float w, float h)
+		inline
+		Viewport(float x, float y, float w, float h) noexcept
 			: rectangle::Rectangle2f{x, y, w, h}
 		{}
 
 		inline
-		Viewport& operator =(Viewport const& other)
+		Viewport(Viewport const& other) noexcept
+			: rectangle::Rectangle2f{other}
+		{}
+
+		inline
+		Viewport& operator =(Viewport const& other) noexcept
 		{
 			this->rectangle::Rectangle2f::operator =(other);
 			return *this;
