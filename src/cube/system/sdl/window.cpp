@@ -399,7 +399,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	{
 	}
 
-	SDLRendererContext& Window::_context()
+	SDLRendererContext& Window::_context() const
 	{
 #ifdef CUBE_DEBUG
 		return dynamic_cast<SDLRendererContext&>(this->renderer_context());

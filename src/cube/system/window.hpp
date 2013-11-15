@@ -36,7 +36,7 @@ namespace cube { namespace system { namespace window {
 
 	public:
 		gl::renderer::Renderer& renderer();
-		RendererContext& renderer_context();
+		RendererContext& renderer_context() const;
 		inputs::Inputs& inputs();
 		std::string const& title() const noexcept;
 		etc::size_type width() const noexcept;

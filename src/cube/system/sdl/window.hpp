@@ -38,7 +38,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		                        gl::renderer::Name const name);
 
 	private:
-		SDLRendererContext& _context();
+		SDLRendererContext& _context() const;
 	};
 
 }}}}

@@ -59,7 +59,7 @@ namespace cube { namespace system { namespace window {
 	inputs::Inputs& Window::inputs()
 	{ return *_impl->inputs; }
 
-	RendererContext& Window::renderer_context()
+	RendererContext& Window::renderer_context() const
 	{ return *_impl->context; }
 
 	etc::size_type Window::width() const noexcept
