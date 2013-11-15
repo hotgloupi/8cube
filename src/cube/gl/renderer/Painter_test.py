@@ -9,18 +9,21 @@ from cube.gl import \
         Name, \
         matrix
 from cube.system import create_window, WindowFlags
+import os
+from os import path
+import time
+import sys
+import inspect
 
 from unittest import TestCase
 
 class PainterSetup:
 
     def setUp(self):
-        self.window = create_window("Hello", 640, 480, WindowFlags.none, Name.OpenGL)
+        self.window = create_window("PainterSetup", 200, 200, WindowFlags.hidden, Name.OpenGL)
         self.renderer = self.window.renderer
-        # XXX Should be created before any opengl objects, otherwise we got
-        # an abort in pthred_unlock ...
+        # Should be created before any shader
         self.target = self.renderer.context.new_render_target()
-
 
         self.fs = self.renderer.new_fragment_shader(["""
             void main(void)
@@ -40,7 +43,7 @@ class PainterSetup:
         ])
         x, y, w, h = (
             11, 42,
-            220, 240
+            120, 140
         )
         self.shader = self.renderer.new_shader_program([self.fs, self.vs])
         self.vb = self.renderer.new_vertex_buffer([
@@ -57,10 +60,10 @@ class PainterSetup:
             make_vba(
                 ContentKind.color,
                 [
-                    Color3f('#ccc'),
-                    Color3f('#ccc'),
-                    Color3f('#ccc'),
-                    Color3f('#ccd'),
+                    Color3f('#e00'),
+                    Color3f('#00f'),
+                    Color3f('#ffc'),
+                    Color3f('#9cd'),
                 ],
                 ContentHint.static_content
             )
@@ -73,26 +76,59 @@ class PainterSetup:
             )
         )
 
+def painter_test(func):
+    def wrapper(self):
+        fname = list(filter(
+            lambda e: bool(e),
+            self.__class__.__module__.lower().replace('_test', '').split('.')
+        ))[-1]
+        cls = self.__class__.__name__.lower().replace('_', '')
+        if cls: fname += '_' + cls
+        fname += '_' + func.__name__
+        source_dir = path.dirname(inspect.getfile(self.__class__))
+        thruth = path.join(source_dir, "%s.bmp" % fname)
+        img = path.join(source_dir, "%s-tmp.bmp" % fname)
+        first_time = not path.exists(thruth)
+
+        if first_time:
+            img = thruth
+
+        with self.renderer.begin(mode_2d) as painter:
+            with painter.bind([self.target]):
+                self.renderer.clear(1)
+                func(self, painter)
+            self.target.save(img)
+
+        if first_time:
+            self.window.show()
+            running = [1]
+            self.renderer.clear(1)
+            slot = self.window.inputs.on_quit.connect(lambda: running.pop())
+            self.window.title = fname
+            while running:
+                self.window.swap_buffers()
+                with self.renderer.begin(mode_2d) as painter:
+                    self.renderer.clear(1)
+                    func(self, painter)
+                self.window.poll()
+            slot.disconnect()
+            print("Compare the previous output with the file %s" % img)
+            sys.exit(0)
+
+        with open(thruth, 'rb') as f1:
+            with open(img, 'rb') as f2:
+                self.assertTrue(f1.read() == f2.read(),
+                                "%s and %s are not the same" % (thruth, img))
+        os.unlink(img)
+
+    wrapper.__name__ = func.__name__
+    return wrapper
+
 class _(PainterSetup, TestCase):
 
-    def test_simple(self):
-        from cube.resource import Resource
-        import time
-        print(self.shader, isinstance(self.shader, Resource))
-        self.assertTrue(self.shader.managed)
-        self.window.poll()
-        while True:
-            self.renderer.clear(1)
-            with self.renderer.begin(mode_2d) as painter:
-                painter.state.model = matrix.translate(painter.state.model, 10, 12, .0)
-                with painter.bind([self.target, self.shader, self.vb]):
-                    self.shader['cube_MVP'] = painter.state.mvp
-                    painter.draw_elements(DrawMode.quads, self.indices, 0, 4)
-            self.window.poll()
-            self.target.save_screenshot("test-before.bmp")
-            self.window.swap_buffers()
-            self.target.save_screenshot("test-after.bmp")
-            break
-            time.sleep(.1)
-        time.sleep(1)
+    @painter_test
+    def test_simple(self, painter):
+        with painter.bind([self.shader, self.vb]):
+            self.shader['cube_MVP'] = painter.state.mvp
+            painter.draw_elements(DrawMode.quads, self.indices, 0, 4)
 
