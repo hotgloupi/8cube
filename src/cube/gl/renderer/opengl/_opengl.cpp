@@ -199,4 +199,24 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	template
 	void gl::_check_error<gl::can_throw>(char const* function_) noexcept(false);
 
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
+
+	renderer::PixelFormat gl::to_pixel_format(GLenum value) noexcept
+	{
+		size_t i = 0;
+		while (i < ARRAY_SIZE(_pixel_format_map) &&
+		       _pixel_format_map[i] != value)
+		     ++i;
+		return static_cast<renderer::PixelFormat>(i);
+	}
+
+	renderer::ContentPacking gl::to_content_packing(GLenum value) noexcept
+	{
+		size_t i = 0;
+		while (i < ARRAY_SIZE(_content_packing_map) &&
+		       _content_packing_map[i] != value)
+		     ++i;
+		return static_cast<renderer::ContentPacking>(i);
+	}
+
 }}}} // !cube::gl::opengl
