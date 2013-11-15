@@ -112,6 +112,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(GetProgramiv);
 		_CUBE_GL_OPENGL_WRAP(GetShaderInfoLog);
 		_CUBE_GL_OPENGL_WRAP(GetShaderiv);
+		_CUBE_GL_OPENGL_WRAP(GetTexImage);
 		_CUBE_GL_OPENGL_WRAP(LinkProgram);
 		_CUBE_GL_OPENGL_WRAP(LoadIdentity);
 		_CUBE_GL_OPENGL_WRAP(NormalPointer);
