@@ -11,8 +11,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	               std::vector<std::string> const& sources)
 		: type{type}
 	{
-		ETC_TRACE.debug("Create", *this, type, "with", sources.size(), "sources");
 		_id = gl::CreateShader(gl::get_shader_type(type));
+		ETC_TRACE_CTOR(type, "with", sources.size(), "sources");
 
 		{
 			// Adding sources to the shader
@@ -39,7 +39,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	Shader::~Shader()
 	{
-		ETC_TRACE.debug(*this, "Delete shader", _id);
+		ETC_TRACE_DTOR(_id);
 		gl::DeleteShader<gl::no_throw>(_id);
 	}
 

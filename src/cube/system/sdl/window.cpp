@@ -261,7 +261,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			}
 			else if (etc::sys::environ::contains("CUBE_SYSTEM_WINDOW_SOFTWARE_RENDERER"))
 			{
-				ETC_LOG.debug("Creating a software renderer");
+				ETC_TRACE.debug("Create a software renderer");
 				this->renderer_surface = SDL_GetWindowSurface(this->window);
 				if (this->renderer_surface == nullptr)
 					throw SDLException{"GetWindowSurface"};
@@ -271,7 +271,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			}
 			else
 			{
-				ETC_LOG.debug("Creating window and renderer");
+				ETC_TRACE.debug("Create accelerated window and renderer");
 				this->renderer = SDL_CreateRenderer(
 					this->window,
 					-1,
@@ -337,6 +337,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 		~SDLRendererContext()
 		{
+			ETC_TRACE.debug("Destroy", *this);
 			SDL_DestroyWindow(this->window);
 			this->window = nullptr;
 
@@ -383,9 +384,14 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			SDL_ShowWindow(_context().window);
 	}
 
+	void Window::_title(std::string const& title)
+	{
+		SDL_SetWindowTitle(_context().window, title.c_str());
+	}
+
 	void Window::swap_buffers()
 	{
-        ETC_LOG.debug("Swapping buffers");
+        ETC_LOG.debug("Swap buffers");
 		SDL_GL_SwapWindow(_context().window);
 	}
 

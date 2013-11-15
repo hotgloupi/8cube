@@ -29,17 +29,21 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		];
 
 	public:
+		inline
 		SubVBO(GLuint id,
 		       VertexBufferAttribute const& attr,
 		       GLvoid* offset,
-		       GLsizei stride)
+		       GLsizei stride) noexcept
 			: id{id}
 			, attr{&attr}
 			, gl_kind{gl::get_content_kind(attr.kind)}
 			, gl_type{gl::get_content_type(attr.type)}
 			, offset{offset}
 			, stride{stride}
-		{}
+		{ ETC_TRACE_CTOR(); }
+
+		inline
+		~SubVBO() { ETC_TRACE_DTOR(); }
 
 		SubVBO(SubVBO const&) = default;
 		SubVBO& operator =(SubVBO const&) = default;
@@ -53,9 +57,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		void unbind() noexcept
 		{
-			if (this->gl_kind == 0)
-				return;
-			gl::DisableClientState<gl::no_throw>(this->gl_kind);
+			if (this->gl_kind != 0)
+				gl::DisableClientState<gl::no_throw>(this->gl_kind);
 		}
 
 		static void vertex_pointer(SubVBO const& self)
@@ -145,7 +148,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			, _current_stride{0}
 			, _sub_vbos{}
 		{
-			ETC_TRACE.debug(*this, "New VBO");
+			ETC_TRACE_CTOR();
 			gl::GenBuffers(1, &_id);
 			this->bind(false);
 			gl::BufferData(
@@ -168,8 +171,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		~VBO()
 		{
+			ETC_TRACE_DTOR();
 			if (_id != 0)
-				gl::DeleteBuffers(1, &_id);
+				gl::DeleteBuffers<gl::no_throw>(1, &_id);
 		}
 
 		void

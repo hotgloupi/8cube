@@ -15,7 +15,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		, _id(0)
 		, _unit(-1)
 	{
-		ETC_TRACE.debug("New texture from:", path);
+		ETC_TRACE_CTOR("from path", path);
 		_surface = ::IMG_Load(path.c_str());
 		if (_surface == nullptr)
 			throw Exception{etc::to_string(
@@ -119,7 +119,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		, _id(0)
 		, _unit(-1)
 	{
-		ETC_TRACE.debug("New texture from data");
+		ETC_TRACE_CTOR("from data");
 		gl::GenTextures(1, &_id);
 		gl::BindTexture(GL_TEXTURE_2D, _id);
 		gl::TexImage2D(
@@ -139,6 +139,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	Texture::~Texture()
 	{
+		ETC_TRACE_DTOR();
 		SDL_FreeSurface(_surface);
 		_surface = nullptr;
 		gl::DeleteTextures<gl::no_throw>(1, &_id);

@@ -12,14 +12,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	template<bool is_indices>
 	_VertexBuffer<is_indices>::_VertexBuffer(AttributePtr&& attribute)
 		: _VertexBuffer{make_vertex_buffer_attributes(std::move(attribute))}
-	{}
+	{ ETC_TRACE_CTOR(); }
 
 	template<bool is_indices>
 	_VertexBuffer<is_indices>::_VertexBuffer(AttributeList&& attributes)
 		: renderer::VertexBuffer{std::move(attributes)}
 		, _vbo{nullptr}
 	{
-		ETC_TRACE.debug(*this, "Creating a vertex buffer");
+		ETC_TRACE_CTOR();
 		if (_attributes.size() == 0)
 			throw Exception("Empty attribute list");
 		size_t total_size = 0;
@@ -37,9 +37,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	template<bool is_indices>
 	_VertexBuffer<is_indices>::~_VertexBuffer()
-	{
-		ETC_TRACE.debug(this, "Delete VertexBuffer");
-	}
+	{ ETC_TRACE_DTOR(); }
 
 	template<bool is_indices>
 	void _VertexBuffer<is_indices>::_bind()

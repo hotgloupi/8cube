@@ -12,10 +12,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ShaderProgram::ShaderProgram(std::vector<ShaderPtr>&& shaders)
 		: _id{0}
 	{
-		ETC_TRACE.debug("Creating a new program");
 		_id = gl::CreateProgram();
+		ETC_TRACE_CTOR(_id);
 
-		ETC_LOG.debug("Attaching shaders to the program", _id);
+		ETC_LOG.debug(*this, "Attach shaders to the program", _id);
 		for (auto& shader: shaders)
 		{
 			Shader const* opengl_shader = static_cast<Shader const*>(shader.get());
@@ -25,7 +25,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			gl::AttachShader(_id, opengl_shader->id());
 		}
 
-		ETC_LOG.debug("Linking the program", _id);
+		ETC_LOG.debug(*this, "Link the program", _id);
 		gl::LinkProgram(_id);
 
 		GLint success = 0;
@@ -39,7 +39,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			};
 		}
 
-		ETC_LOG.debug("Validating the program", _id);
+		ETC_LOG.debug(*this, "Validate the program", _id);
 		gl::ValidateProgram(_id);
 		success = 0;
 		glGetProgramiv(_id, GL_VALIDATE_STATUS, &success);
@@ -55,19 +55,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ShaderProgram::~ShaderProgram()
 	{
-		ETC_TRACE.debug("Delete the program", _id);
+		ETC_TRACE_DTOR(_id);
 		gl::DeleteProgram<gl::no_throw>(_id);
 	}
 
 	void ShaderProgram::_bind()
 	{
-		ETC_TRACE.debug("Binding shader program", _id);
+		ETC_TRACE.debug(*this, "Bind shader program", _id);
 		gl::UseProgram(_id);
 	}
 
 	void ShaderProgram::_unbind() noexcept
 	{
-		ETC_TRACE.debug("Unbind current shader program", _id);
+		ETC_TRACE.debug(*this, "Unbind current shader program", _id);
 		gl::UseProgram<gl::no_throw>(0);
 	}
 
@@ -96,7 +96,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		void _set(matrix_type const& value) override
 		{
-			ETC_TRACE.debug("Set shader parameter", _name, "to", value);
+			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
 			gl::UniformMatrix4fv(_location, 1, GL_FALSE,
 			                     glm::value_ptr(value));
@@ -104,14 +104,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		void _set(int32_t value) override
 		{
-			ETC_TRACE.debug("Set shader parameter", _name, "to", value);
+			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
 			gl::Uniform1i(_location, value);
 		}
 
 		void _set(vector::vec3f const& value) override
 		{
-			ETC_TRACE.debug("Set shader parameter", _name, "to", value);
+			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
 			gl::Uniform3fv(_location, 1, glm::value_ptr(value));
 		}
