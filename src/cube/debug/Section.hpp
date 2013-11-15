@@ -16,18 +16,19 @@ namespace cube { namespace debug {
 		typename Manager::id_type _id;
 	public:
 		template<typename... Args>
-		explicit
-		Section(Args&&... args)
+		inline explicit
+		Section(Args&&... args) noexcept
 			: _id{Manager::instance().begin(
 				info_type(std::forward<Args>(args)...)
 			)}
 		{}
 
-		explicit
-		Section(Section&& other)
+		inline
+		Section(Section&& other) noexcept
 			: _id{other._id}
 		{ other._id = 0; }
 
+		inline
 		~Section()
 		{ if (_id != 0) Manager::instance().end(_id); }
 	};

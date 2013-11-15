@@ -46,8 +46,8 @@ namespace cube { namespace debug {
 
 	private:
 		friend struct Section<Performance>;
-		id_type begin(Info&& info);
-		void end(id_type const id);
+		id_type begin(Info&& info) noexcept;
+		void end(id_type const id) noexcept;
 	};
 
 	struct Performance::Info

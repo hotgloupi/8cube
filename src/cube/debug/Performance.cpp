@@ -1,6 +1,7 @@
 #include "Performance.hpp"
 
 #include <etc/print.hpp>
+#include <etc/log.hpp>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/lockable_adapter.hpp>
@@ -34,6 +35,8 @@ namespace std {
 } //!std
 
 namespace cube { namespace debug {
+
+	ETC_LOG_COMPONENT("cube.debug.Performance");
 
 	typedef std::chrono::system_clock clock_type;
 
@@ -129,76 +132,84 @@ namespace cube { namespace debug {
 	}
 
 	Performance::id_type
-	Performance::begin(Info&& info_)
+	Performance::begin(Info&& info_) noexcept
 	{
-		auto const thread_id = std::this_thread::get_id();
-		id_type const id = _this->next_id++;
-		auto start_time = clock_type::now();
-		_this->service.post([=] {
-			Info info{std::move(info_)};
-			Impl::CallStack& stack = _this->stacks[thread_id];
+		try {
+			auto const thread_id = std::this_thread::get_id();
+			id_type const id = _this->next_id++;
+			auto start_time = clock_type::now();
+			_this->service.post([=] {
+				Info info{std::move(info_)};
+				Impl::CallStack& stack = _this->stacks[thread_id];
 
-			CallStat* stat_ptr = nullptr;
-			Info const* info_ptr = nullptr;
+				CallStat* stat_ptr = nullptr;
+				Info const* info_ptr = nullptr;
 
-			// Set the info parent
-			if (!stack.empty())
-				info.set_parent(stack.top());
+				// Set the info parent
+				if (!stack.empty())
+					info.set_parent(stack.top());
 
-			// Insert a new CallStat if needed, but retreive info and stat ptr.
-			{
-				auto res = _this->stats.insert({std::move(info), {}});
-				info_ptr = &res.first->first;
-				stat_ptr = &res.first->second;
-			}
+				// Insert a new CallStat if needed, but retreive info and stat ptr.
+				{
+					auto res = _this->stats.insert({std::move(info), {}});
+					info_ptr = &res.first->first;
+					stat_ptr = &res.first->second;
+				}
 
-			assert(info_ptr != nullptr);
-			assert(stat_ptr != nullptr);
+				assert(info_ptr != nullptr);
+				assert(stat_ptr != nullptr);
 
-			// Insert a new timer for the stat found earlier.
-			{
-				auto res = _this->timers.insert({id, Timer{stat_ptr, start_time}});
-				assert(res.second == true && "timers insert failed");
-			}
+				// Insert a new timer for the stat found earlier.
+				{
+					auto res = _this->timers.insert({id, Timer{stat_ptr, start_time}});
+					assert(res.second == true && "timers insert failed");
+				}
 
-			// If the stack is not empty, add info as a child of the last call.
-			if (!stack.empty())
-				stack.top()->add_child(info_ptr);
-			else
-				_this->roots.insert(info_ptr);
+				// If the stack is not empty, add info as a child of the last call.
+				if (!stack.empty())
+					stack.top()->add_child(info_ptr);
+				else
+					_this->roots.insert(info_ptr);
 
-			// We do not alter the way info instance is hashed, but we'll need to
-			// add children later if the scope has a subsection.
-			stack.push(const_cast<Info*>(info_ptr));
-		});
-
-		return id;
+				// We do not alter the way info instance is hashed, but we'll need to
+				// add children later if the scope has a subsection.
+				stack.push(const_cast<Info*>(info_ptr));
+			});
+			return id;
+		} catch (...) {
+			ETC_LOG.warn("Couldn't begin a Performance section");
+		}
+		return 0;
 	}
 
 	void
-	Performance::end(id_type const id)
+	Performance::end(id_type const id) noexcept
 	{
-		auto const thread_id = std::this_thread::get_id();
-		auto end_time = clock_type::now();
+		try {
+			auto const thread_id = std::this_thread::get_id();
+			auto end_time = clock_type::now();
 
-		_this->service.post([id, thread_id, end_time, this] {
-			// Retreive the timer.
-			auto it = _this->timers.find(id);
-			assert(it != _this->timers.end());
-			auto& timer = it->second;
+			_this->service.post([id, thread_id, end_time, this] {
+				// Retreive the timer.
+				auto it = _this->timers.find(id);
+				assert(it != _this->timers.end());
+				auto& timer = it->second;
 
-			// Update stat
-			assert(timer.stat_ptr != nullptr);
-			timer.stat_ptr->total_time += end_time - timer.start;
-			timer.stat_ptr->count++;
+				// Update stat
+				assert(timer.stat_ptr != nullptr);
+				timer.stat_ptr->total_time += end_time - timer.start;
+				timer.stat_ptr->count++;
 
-			// Remove the timer from the map.
-			_this->timers.erase(it);
+				// Remove the timer from the map.
+				_this->timers.erase(it);
 
-			// Pop the last stack element.
-			assert(not _this->stacks[thread_id].empty());
-			_this->stacks[thread_id].pop();
-		});
+				// Pop the last stack element.
+				assert(not _this->stacks[thread_id].empty());
+				_this->stacks[thread_id].pop();
+			});
+		} catch (...) {
+			ETC_LOG.warn("Couldn't end a Performance section");
+		}
 	}
 
 	void
