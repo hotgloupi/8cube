@@ -154,15 +154,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		//GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, // GL_RGB                    Specific
 	};
 
-	template<gl::ThrowPolicy error_policy>
-	void gl::_check_error(char const* function_) noexcept(error_policy == gl::no_throw)
-	{
-		GLenum code = glGetError();
-
-		if (code == GL_NO_ERROR)
-			return;
-
-		static std::map<GLenum, std::pair<std::string, std::string>> errors{
+	static std::map<GLenum, std::pair<std::string, std::string>> errors{
 #define _ERR(enum, str)                                                       \
 	{enum, {#enum, str "."}}                                                  \
 	/**/
@@ -174,7 +166,15 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			_ERR(GL_INVALID_FRAMEBUFFER_OPERATION_EXT,
 				 "Wrong operation on a frame buffer"),
 #undef _ERR
-		};
+	};
+
+	template<gl::ThrowPolicy error_policy>
+	void gl::_check_error(char const* function_) noexcept(error_policy == gl::no_throw)
+	{
+		GLenum code = glGetError();
+
+		if (code == GL_NO_ERROR)
+			return;
 
 		std::string error = (function_ != nullptr ? function_ : "(nil)");
 		error += ": ";
