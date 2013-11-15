@@ -3,6 +3,8 @@
 
 # include "meta/clean_type.hpp"
 
+# include <boost/preprocessor/cat.hpp>
+
 # include <cstdlib>
 
 namespace etc {
@@ -74,8 +76,11 @@ namespace etc {
 		};
 	}
 
-#define ETC_SCOPE_EXIT \
-	auto dummy ## __LINE__ = ::etc::detail::scope_exit_helper{} + [&]
+# define ETC_SCOPE_EXIT                                                       \
+	auto BOOST_PP_CAT(scope_at_line_, __LINE__) =                             \
+	::etc::detail::scope_exit_helper{} + [&]                                  \
+/**/
+
 }
 
 #endif
