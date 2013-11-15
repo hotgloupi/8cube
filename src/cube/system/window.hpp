@@ -99,6 +99,9 @@ namespace cube { namespace system { namespace window {
 
 		virtual
 		void maximize() = 0;
+
+		virtual
+		void screenshot(std::string const& file) const = 0;
 	};
 
 	class CUBE_API RendererContext

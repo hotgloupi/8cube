@@ -15,7 +15,7 @@ BOOST_PYTHON_MODULE(RenderTarget)
 		, py::bases<Bindable, cube::resource::Resource>
 	>("RenderTarget", py::no_init)
 		.add_property("texture", &RenderTarget::texture)
-		.def("save_screenshot", &RenderTarget::save_screenshot)
+		.def("save", &RenderTarget::save)
 	;
 	py::register_unique_ptr_converter<Texture>();
 }

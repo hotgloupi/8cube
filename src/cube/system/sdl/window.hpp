@@ -27,6 +27,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		void hide() override;
 		void minimize() override;
 		void maximize() override;
+		void screenshot(std::string const& file) const override;
 
 	public:
 		static

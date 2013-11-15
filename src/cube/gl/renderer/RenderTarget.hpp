@@ -17,7 +17,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		virtual
 		void
-		save_screenshot(std::string const& file) const = 0;
+		save(std::string const& file) const = 0;
 
 		virtual ~RenderTarget();
 	};

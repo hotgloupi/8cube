@@ -105,6 +105,7 @@ BOOST_PYTHON_MODULE(window)
 			"swap_buffers",
 			&Window::swap_buffers
 		)
+		.def("screenshot", &Window::screenshot)
 	;
 	py::class_<
 		  RendererContext

@@ -3,6 +3,7 @@
 #include <cube/gl/renderer.hpp>
 #include <cube/gl/renderer/RenderTarget.hpp>
 #include <cube/gl/renderer/Texture.hpp>
+#include <cube/gl/renderer/opengl/_opengl.hpp>
 #include <cube/system/Exception.hpp>
 #include <cube/system/inputs.hpp>
 
@@ -64,7 +65,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			assert(_renderer != nullptr);
 			_texture = SDL_CreateTexture(
 				_renderer,
-				sdl_format,
+				sdl_format, //SDL_PIXELFORMAT_RGBA8888,
 				SDL_TEXTUREACCESS_TARGET,
 				width,
 				height
@@ -125,7 +126,10 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				{ throw Exception{"Not implemented"}; }
 
 				void _bind() override
-				{ SDL_GL_BindTexture(_texture, nullptr, nullptr); }
+				{
+					if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)
+						throw SDLException("GL_BindTexture");
+				}
 				void _unbind() noexcept override
 				{ SDL_GL_UnbindTexture(_texture); }
 			};
@@ -134,44 +138,51 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		}
 
 		void
-		save_screenshot(std::string const& file) const
+		save(std::string const& file) const
 		{
-			if (this->_renderer == nullptr)
-				throw Exception{"No renderer available"};
-			int width, height;
-			if (SDL_GetRendererOutputSize(_renderer, &width, &height) != 0)
-			{
-				ETC_LOG.warn(
-					"Couldn't get render output size:", SDL_GetError(),
-					"(fallback on render target size:", _width, _height, ")");
-				width = _width;
-				height = _height;
-			}
-
-			if (_renderer_surface != nullptr)
-			{
-				ETC_LOG.debug("Saving from window's surface");
-				if (SDL_SaveBMP(SDL_GetWindowSurface(_window), file.c_str()) != 0)
-					throw SDLException("SaveBMP");
-				return;
-			}
-
+			ETC_TRACE.debug("Save", *this, "to", file);
+			if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)
+				throw SDLException("GL_BindTexture");
+			ETC_SCOPE_EXIT{ SDL_GL_UnbindTexture(_texture); };
+			int width, height, fmt, red_size, green_size, blue_size, alpha_size;
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_WIDTH, &width);
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_HEIGHT, &height);
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_RED_SIZE, &red_size);
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_GREEN_SIZE, &green_size);
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_BLUE_SIZE, &blue_size);
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_ALPHA_SIZE, &alpha_size);
+			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
+			ETC_LOG.debug("Internal texture size is", width, height);
+			ETC_LOG.debug("Internal texture is", gl::renderer::opengl::gl::to_pixel_format(fmt));
+			ETC_LOG.debug("Component sizes:", red_size, green_size, blue_size, alpha_size);
 			int bpp = 4;
 			std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
-			int pitch = 0;
-			if (SDL_RenderReadPixels(_renderer, nullptr, 0, pixels.get(), pitch) != 0)
-				throw SDLException{"RenderReadPixels"};
-
+			memset(pixels.get(), 0, width * height * bpp);
+			gl::renderer::opengl::gl::GetTexImage(
+				GL_TEXTURE_RECTANGLE,
+				0,
+				GL_BGRA,
+				GL_UNSIGNED_INT_8_8_8_8_REV,
+				(void*)pixels.get()
+			);
+			int pitch = bpp * width;
+			std::unique_ptr<char[]> row{new char[pitch]};
+			for (int line = 0; 2 * line < height - 1; line++)
+			{
+				char* down_row = pixels.get() + line * pitch;
+				char* up_row = pixels.get() + (height - 1 - line) * pitch;
+				memcpy(row.get(), down_row, pitch); // save down
+				memcpy(down_row, up_row, pitch); // copy up to down
+				memcpy(up_row, row.get(), pitch); // copy down to up
+			}
 			SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
 				pixels.get(),
 				width,
 				height,
 				bpp * 8,
 				pitch,
-				0,
-				0,
-				0,
-				0
+				0, 0, 0, 0
+				//0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
 			);
 			if (surface == nullptr)
 				throw SDLException{"CreateRGBSurfaceFrom"};
@@ -203,13 +214,13 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		                   gl::renderer::Name const name)
 			: RendererContext{width, height, flags, name}
 		{
-			ETC_TRACE.debug(*this, "Creating an SDL renderer context");
+			ETC_TRACE.debug("Create", *this);
 			SDL_GetVersion(&linked);
 			SDL_VERSION(&compiled);
 
 			if (++counter == 1)
 			{
-				ETC_TRACE("First renderer context, initializing SDL");
+				ETC_TRACE("First renderer context, initialize SDL");
 				ETC_LOG(
 					"Compiled SDL version ", etc::iomanip::nosep(),
 					(int)this->compiled.major, '.', (int)this->compiled.minor, '-',
@@ -389,6 +400,56 @@ namespace cube { namespace system { namespace sdl { namespace window {
 #else
 		return static_cast<SDLRendererContext&>(this->renderer_context());
 #endif
+	}
+
+	void
+	Window::screenshot(std::string const& file) const
+	{
+		ETC_TRACE.debug("Save from window's surface to", file);
+		SDL_Surface* surface = SDL_GetWindowSurface(_context().window);
+		if (surface != nullptr)
+		{
+			if (SDL_SaveBMP(surface, file.c_str()) != 0)
+				throw SDLException("SaveBMP");
+			return;
+		}
+
+		//if (this->_renderer == nullptr)
+		//	throw Exception{"No renderer available"};
+
+		int width, height;
+		if (SDL_GetRendererOutputSize(_context().renderer, &width, &height) != 0)
+		{
+			width = this->width();
+			height = this->height();
+			ETC_LOG.warn(
+				"Couldn't get render output size:", SDL_GetError(),
+				"(fallback on render target size:", width, height, ")");
+		}
+
+
+		int bpp = 4;
+		std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
+		int pitch = bpp * width;
+		if (SDL_RenderReadPixels(_context().renderer, nullptr, 0, pixels.get(), pitch) != 0)
+			throw SDLException{"RenderReadPixels"};
+
+		surface = SDL_CreateRGBSurfaceFrom(
+			pixels.get(),
+			width,
+			height,
+			bpp * 8,
+			pitch,
+			0,
+			0,
+			0,
+			0
+		);
+		if (surface == nullptr)
+			throw SDLException{"CreateRGBSurfaceFrom"};
+		ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
+		if (SDL_SaveBMP(surface, file.c_str()) != 0)
+			throw SDLException("SDL_SaveBMP");
 	}
 
 	etc::size_type
