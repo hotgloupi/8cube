@@ -286,6 +286,8 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
+	std::ostream& operator <<(std::ostream& out, PixelFormat const format);
 
 	template<ContentType type> struct ContentTypeSize;
 	template<> struct ContentTypeSize<ContentType::int8>
