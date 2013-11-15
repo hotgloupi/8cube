@@ -22,6 +22,9 @@
 	auto BOOST_PP_CAT(log, __LINE__) = ETC_LOG                                \
 /**/
 
+# define ETC_TRACE_CTOR(...) ETC_TRACE.debug("Create", *this, ##__VA_ARGS__)
+# define ETC_TRACE_DTOR(...) ETC_TRACE.debug("Destroy", *this, ##__VA_ARGS__)
+
 namespace etc { namespace log {
 
 	struct ETC_API Log
