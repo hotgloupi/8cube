@@ -360,6 +360,11 @@ def configure(project, build):
     for src in rglob("cubeapp/*.py", dir = 'src'):
         build.fs.copy(src, 'release/lib/python/' + src[4:])
 
+    for src in rglob("cube/*.bmp", dir = 'src'):
+        build.fs.copy(src, 'release/lib/python/' + src[4:])
+    for src in rglob("cubeapp/*.bmp", dir = 'src'):
+        build.fs.copy(src, 'release/lib/python/' + src[4:])
+
     for src in rglob("games/*.py", dir = 'share'):
         build.fs.copy(src, 'release/share/8cube/' + src[6:])
 
