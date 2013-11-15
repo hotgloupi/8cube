@@ -93,9 +93,10 @@ BOOST_PYTHON_MODULE(window)
 		.add_property(
 			"title",
 			py::make_function(
-				&Window::title,
+				static_cast<std::string const& (Window::*)() const>(&Window::title),
 				py::return_value_policy<py::return_by_value>()
-			)
+			),
+			static_cast<void (Window::*)(std::string const&)>(&Window::title)
 		)
 		.def(
 			"confine_mouse",

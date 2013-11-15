@@ -74,6 +74,12 @@ namespace cube { namespace system { namespace window {
 	std::string const& Window::title() const noexcept
 	{ return _impl->title; }
 
+	void Window::title(std::string const& title)
+	{
+		_title(title);
+		_impl->title = title;
+	}
+
 	void Window::size(etc::size_type const w,
 	                  etc::size_type const h)
 	{ _impl->context->size(w, h); }

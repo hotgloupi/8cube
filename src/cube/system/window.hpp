@@ -39,6 +39,7 @@ namespace cube { namespace system { namespace window {
 		RendererContext& renderer_context() const;
 		inputs::Inputs& inputs();
 		std::string const& title() const noexcept;
+		void title(std::string const& title);
 		etc::size_type width() const noexcept;
 		etc::size_type height() const noexcept;
 		Flags flags() const noexcept;
@@ -46,6 +47,8 @@ namespace cube { namespace system { namespace window {
 	protected:
 		void size(etc::size_type const width,
 		          etc::size_type const height);
+		virtual
+		void _title(std::string const& title) = 0;
 
 	protected:
 		Window(ImplPtr&& impl) noexcept;

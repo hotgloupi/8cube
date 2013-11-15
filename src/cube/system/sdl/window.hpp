@@ -19,6 +19,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		virtual
 		~Window();
 
+		void _title(std::string const& title) override;
 		etc::size_type poll(etc::size_type const max) override;
 		void confine_mouse(bool mode) override;
 		void swap_buffers() override;
