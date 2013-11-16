@@ -267,6 +267,7 @@ def configure(project, build):
     base_libraries.extend([
         boost.component_library('filesystem'),
         boost.component_library('system'),
+        boost.component_library('thread'),
     ])
     libetc = compiler.link_library(
         'libetc',
