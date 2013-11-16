@@ -6,6 +6,7 @@
 
 # include "api.hpp"
 # include "types.hpp"
+# include "to_string.hpp"
 # include "compiler.hpp"
 
 # define ETC_LOG                                                              \
@@ -22,8 +23,8 @@
 	auto BOOST_PP_CAT(log, __LINE__) = ETC_LOG                                \
 /**/
 
-# define ETC_TRACE_CTOR(...) ETC_TRACE.debug("Create", *this, ##__VA_ARGS__)
-# define ETC_TRACE_DTOR(...) ETC_TRACE.debug("Destroy", *this, ##__VA_ARGS__)
+# define ETC_TRACE_CTOR(...) ETC_TRACE.debug("Create", *this)(__VA_ARGS__)
+# define ETC_TRACE_DTOR(...) ETC_TRACE.debug("Destroy", *this)(__VA_ARGS__)
 
 namespace etc { namespace log {
 
@@ -31,24 +32,25 @@ namespace etc { namespace log {
 	{
 	private:
 		Line            _line;
-		Logger&         _logger;
-		bool            _dtor_indent;
+		Logger*         _logger;
+		bool            _should_log;
+		std::string     _message;
 
 	public:
 		/**
 		 * Log object should not be built directly, but with macros ETC_LOG*.
 		 * They are copiable and movable by construction, but not by assignment.
 		 */
-		ETC_API Log(Level const level,
-		            char const* file,
-		            size_type const line,
-		            char const* function,
-		            std::string const& component);
-		ETC_API Log(Log const& o);
-		ETC_API Log(Log&& o);
-		ETC_API ~Log();
+		Log(Level const level,
+		    char const* file,
+		    size_type const line,
+		    char const* function,
+		    std::string const& component) noexcept;
+		Log(Log&& o) noexcept;
+		~Log();
 
 	private:
+		Log(Log const& o) ETC_DELETED_FUNCTION;
 		Log& operator =(Log const&) ETC_DELETED_FUNCTION;
 		Log& operator =(Log&&) ETC_DELETED_FUNCTION;
 
@@ -61,53 +63,50 @@ namespace etc { namespace log {
 	public:
 		/// Nothing happens for an empty call.
 		inline
-		Log& send() noexcept
-		{ return *this; }
+		Log&& send() noexcept
+		{ return std::move(*this); }
 
 		/// Send values to the logger.
 		template<typename... T>
-		Log& send(T const&... strs)
+		inline
+		Log&& send(T&&... strs) noexcept
 		{
-# ifdef NDEBUG
-			// No debug level if NDEBUG is specified.
-			if (_line.level <= Level::debug)
-				return *this;
+			try {
+# ifdef NDEBUG // No debug level if NDEBUG is specified.
+				if (_line.level > Level::debug)
 #endif
-			_logger.message(_line, strs...);
-			return *this;
+				if (_should_log)
+				{
+					if (_message.size() > 0)
+						_message.append(" ");
+					_message.append(etc::to_string(std::forward<T>(strs)...));
+				}
+			} catch (...) { assert(false && "Couldn't log a message"); }
+			return std::move(*this);
 		}
 
 		/// Forward to send.
 		template<typename... T>
-		Log& operator ()(T const&... strs)
-		{
-			return this->send(strs...);
-		}
+		inline
+		Log&& operator ()(T&&... strs) noexcept
+		{ return this->send(std::forward<T>(strs)...); }
 
 #define _ETC_LOG_LEVEL_PRINTER(lvl)                                           \
 		template<typename... T>                                               \
-		Log lvl(T const&... strs)                                             \
+		inline                                                                \
+		Log&& lvl(T&&... strs) noexcept                                       \
 		{                                                                     \
-			Log res{                                                          \
-				Level::lvl,                                                   \
-				_line.file, _line.line,                                       \
-				_line.function, _line.component                               \
-			};                                                                \
-			res.send(                                                         \
-				strs...                                                       \
-			);                                                                \
-			return res;                                                       \
+			assert(_message.size() == 0 || _line.level == Level::lvl);        \
+			_line.level = Level::lvl;                                         \
+			_should_log = _logger->should_log(_line);                         \
+			return this->send(std::forward<T>(strs)...);                      \
 		}                                                                     \
 	/**/
 # ifdef NDEBUG
-		template<typename... T> inline Log debug(T const&...)
-		{
-			return Log{
-				Level::debug,
-				_line.file, _line.line,
-				_line.function, _line.component
-			};
-		}
+		template<typename... T>
+		inline
+		Log&& debug(T const&...) noexcept
+		{ return std::move(*this); }
 # else
 		_ETC_LOG_LEVEL_PRINTER(debug)
 # endif
@@ -117,24 +116,10 @@ namespace etc { namespace log {
 		_ETC_LOG_LEVEL_PRINTER(fatal)
 # undef _ETC_LOG_LEVEL_PRINTER
 
-		operator bool() const noexcept {return false;}
-
-	private:
-		static
-		etc::size_type _current_indent();
+		inline
+		operator bool() const noexcept
+		{ return false; }
 	};
-
-	struct Indent
-	{
-		private:
-			static size_type _indent;
-		public:
-			static inline size_type increment() { return ++_indent; }
-			static inline size_type decrement() { return --_indent; }
-			static inline size_type get() { return _indent; }
-	};
-
-	extern Indent indent;
 
 }}
 

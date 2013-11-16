@@ -2,6 +2,7 @@
 
 #include <etc/meta/enum.hpp>
 #include <etc/sys/environ.hpp>
+#include <etc/to_string.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/io_service.hpp>
@@ -33,7 +34,7 @@ namespace etc { namespace log {
 				etc::sprint(std::cerr, "[LOGGER]", std::forward<Args>(args)...);
 		}
 #else
-# define logger_log(...)
+# define logger_log(...) (void)(0)
 #endif
 
 		Level level_from_string(std::string const& str, Level default_value)
@@ -346,8 +347,8 @@ namespace etc { namespace log {
 			}
 			else if (lines.size() > 1)
 			{
-				std::string indent(res.size(), ' ');
-				indent += "-> ";
+				std::string indent(res.size() - line.indent * 2, '.');
+				indent.append(line.indent * 2, ' ');
 				res.append(lines[0]);
 				for (size_t i = 1; i < lines.size(); i++)
 				{
@@ -447,11 +448,10 @@ namespace etc { namespace log {
 		);
 		return components[name] = res;
 	}
-	void Logger::_message(Line const& line,
-	                      std::string&& message) noexcept
+	void Logger::message(Line const& line,
+	                     std::string message) noexcept
 	{
-		try
-		{
+		try {
 			// Fetch the out stream.
 			assert(meta::enum_<Level>::valid_index(line.level));
 			unsigned int idx = meta::enum_<Level>::indexof(line.level);
@@ -467,11 +467,7 @@ namespace etc { namespace log {
 					std::move(message)
 				)
 			);
-		}
-		catch (...)
-		{
-			// XXX do something smart here
-		}
+		} catch (...) { assert(false && "Couldn't log a message"); }
 	}
 
 }} // !etc::log

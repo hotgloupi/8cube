@@ -3,8 +3,7 @@
 
 # include "Line.hpp"
 
-# include "../api.hpp"
-# include "../to_string.hpp"
+# include <etc/api.hpp>
 
 # include <boost/noncopyable.hpp>
 
@@ -85,8 +84,9 @@ namespace etc { namespace log {
 		static
 		ComponentConfig const& _component_config(std::string const& name);
 
+	public:
 		inline
-		bool _should_log(Line const& line)
+		bool should_log(Line const& line)
 		{
 			if (line.level < _level) // lesser than global log level
 			{
@@ -109,20 +109,7 @@ namespace etc { namespace log {
 		friend ETC_API Logger& logger(std::string const&);
 
 	public:
-		inline
-		void message(Line const& line, std::string msg) noexcept
-		{ if (_should_log(line)) this->_message(line, std::move(msg)); }
-
-		template<typename... T>
-		inline
-		void message(Line const& line, T const&... values) noexcept
-		{
-			if (_should_log(line))
-				this->_message(line, etc::to_string(values...));
-		}
-
-	protected:
-		void _message(Line const& line, std::string&& message) noexcept;
+		void message(Line const& line, std::string message) noexcept;
 	};
 
 }} // !etc::log
