@@ -75,8 +75,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		// Bug in ATI drivers
 		gl::Enable(GL_TEXTURE_2D);
 
+#ifndef __APPLE__
 		if (GLEW_VERSION_3_0)
 		{
+			ETC_LOG.debug(levels, mode == GL_RGB ? "RGB" : "RGBA", _surface->w, _surface->h);
 			gl::TexStorage2D(GL_TEXTURE_2D, levels, mode, _surface->w, _surface->h);
 			gl::TexSubImage2D(
 				GL_TEXTURE_2D,
@@ -89,6 +91,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			);
 		}
 		else
+#endif // __APPLE__
 		{
 			gl::TexImage2D(
 				GL_TEXTURE_2D,
