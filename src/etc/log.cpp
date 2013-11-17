@@ -61,7 +61,14 @@ namespace etc { namespace log {
 		, _logger{other._logger}
 		, _should_log{other._should_log}
 		, _message{std::move(other._message)}
-	{ other._logger = nullptr; }
+	{
+		other._logger = nullptr;
+		if (_should_log)
+		{
+			_should_log = false;
+			_logger->message(std::move(_line), std::move(_message));
+		}
+	}
 
 	Log::~Log()
 	{

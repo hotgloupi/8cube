@@ -28,6 +28,9 @@
 
 namespace etc { namespace log {
 
+	/**
+	 * Log object should not be built directly, but with macros ETC_LOG*.
+	 */
 	struct ETC_API Log
 	{
 	private:
@@ -37,16 +40,16 @@ namespace etc { namespace log {
 		std::string     _message;
 
 	public:
-		/**
-		 * Log object should not be built directly, but with macros ETC_LOG*.
-		 * They are copiable and movable by construction, but not by assignment.
-		 */
+		/// Create a new Line with an incremented indentation.
 		Log(Level const level,
 		    char const* file,
 		    size_type const line,
 		    char const* function,
 		    std::string const& component) noexcept;
+		/// Send the message to the logger.
 		Log(Log&& o) noexcept;
+		/// Send the message to the logger is not already done and decrement
+		/// the general indentation.
 		~Log();
 
 	private:
