@@ -11,8 +11,10 @@ The cube library provides:
 
 from .exception import Exception
 from .debug import check_performance
-from .log import debug, info, warn, error, fatal
+from .log import \
+    debug, info, warn, error, fatal, \
+    trace, trace_info, trace_warn, trace_error, trace_fatal
 
 from .application import Application
-from . import constants, resource, system, gl, gui
+from . import constants, resource, system, gl, gui, scene
 
