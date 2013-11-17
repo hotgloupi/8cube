@@ -147,6 +147,7 @@ def configure(project, build):
         hidden_visibility = (build_type != 'DEBUG'),
         force_architecture = False,
         target_architecture = '32bit',
+        forbidden_warnings = ['return-type',]
 #        additional_link_flags = {
 #            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
 #        }
