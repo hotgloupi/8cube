@@ -70,7 +70,9 @@ def main(args):
         return
     cube.info("Launching 8cube with args", args)
     cube.constants.application.name("8cube")
-    cube.gui.FontManager.populate()
+
+    with cube.trace_info("Initializing the font manager"):
+        cube.gui.FontManager.populate()
     try:
         parser, args = parse_args(args)
         if args.unittests or args.unittest:
@@ -87,22 +89,24 @@ def main(args):
                 )
             )
             for lib in ['cube', 'cubeapp']:
-                runner = unittest.TestProgram(
-                    argv = [
-                        'cubeapp.main',
-                        'discover',
-                        '-s', os.path.join(lib_dir, lib),
-                        '-t', lib_dir,
-                        '-p', pattern,
-                        '-v',
-                    ],
-                    exit = False
-                )
-                if not runner.result.wasSuccessful():
-                    sys.exit(1)
+                with cube.trace_info("Testing the module '%s'" % lib):
+                    runner = unittest.TestProgram(
+                        argv = [
+                            'cubeapp.main',
+                            'discover',
+                            '-s', os.path.join(lib_dir, lib),
+                            '-t', lib_dir,
+                            '-p', pattern,
+                            '-v',
+                        ],
+                        exit = False
+                    )
+                    if not runner.result.wasSuccessful():
+                        sys.exit(1)
             cube.info("All tests passed")
             return
         if args.console:
+            cube.log.set_mode(cube.log.Mode.synchroneous)
             console()
             return
 
