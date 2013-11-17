@@ -1,6 +1,7 @@
 #include <wrappers/boost/python.hpp>
 
 #include <etc/log.hpp>
+#include <etc/stack_ptr.hpp>
 
 #include <unordered_set>
 
@@ -30,6 +31,50 @@ namespace {
 		}.send(std::move(msg));
 	}
 
+	struct Trace
+	{
+		etc::stack_ptr<etc::log::Log> log;
+		etc::log::Level               level;
+		std::string                   file;
+		etc::size_type                line;
+		std::string                   function;
+		std::string                   component;
+		std::string                   msg;
+
+		Trace(etc::log::Level level,
+		      std::string file,
+		      etc::size_type line,
+		      std::string function,
+		      std::string component,
+		      std::string msg)
+			: log{etc::stack_ptr_no_init}
+			, level{level}
+			, file{std::move(file)}
+			, line{line}
+			, function{std::move(function)}
+			, component{std::move(component)}
+			, msg{std::move(msg)}
+		{}
+
+		Trace& enter()
+		{
+			this->log.reset(
+				etc::log::Log{
+					this->level,
+					static_storage(std::move(this->file)).c_str(),
+					this->line,
+					static_storage(std::move(this->function)).c_str(),
+					static_storage(std::move(this->component)),
+				}.send(std::move(this->msg))
+			);
+			return *this;
+		}
+
+		inline
+		void exit(PyObject*, PyObject*, PyObject*)
+		{ this->log.clear(); }
+	};
+
 }
 
 BOOST_PYTHON_MODULE(_log)
@@ -53,4 +98,19 @@ BOOST_PYTHON_MODULE(_log)
 	;
 
 	py::def("set_mode", &set_mode);
+
+	py::class_<Trace, boost::noncopyable>(
+		"Trace",
+		py::init<
+			etc::log::Level,
+			std::string,
+			etc::size_type,
+			std::string,
+			std::string,
+			std::string
+		>()
+	)
+		.def("__enter__", &Trace::enter, py::return_internal_reference<>())
+		.def("__exit__", &Trace::exit)
+	;
 }
