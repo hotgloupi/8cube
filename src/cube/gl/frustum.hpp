@@ -33,21 +33,15 @@ namespace cube { namespace gl { namespace frustum {
 		typedef vector::Vector3d      vec3d;
 		typedef plane::Planed         plane_t;
 		typedef sphere::Sphere<T>     sphere_t;
+		struct Quad { vec3d tl, tr, br, bl; };
 
 	public:
-		units::Angle const   fov;
-		float const   ratio;
-		double const  near_distance;
-		double const  far_distance;
-		vec2d const   near_size;
-		vec2d const   far_size;
-		struct Quad
-		{
-			vec3d tl;
-			vec3d tr;
-			vec3d br;
-			vec3d bl;
-		};
+		units::Angle const fov;
+		float const        ratio;
+		double const       near_distance;
+		double const       far_distance;
+		vec2d const        near_size;
+		vec2d const        far_size;
 
 	public:
 		Quad near;
