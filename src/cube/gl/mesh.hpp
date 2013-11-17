@@ -1,6 +1,8 @@
 #ifndef  CUBE_GL_MESH_HPP
 # define CUBE_GL_MESH_HPP
 
+# include "fwd.hpp"
+
 # include "renderer/constants.hpp"
 # include "renderer/fwd.hpp"
 # include "vector.hpp"

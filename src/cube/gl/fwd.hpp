@@ -60,6 +60,7 @@ namespace cube { namespace gl {
 	namespace mesh {
 
 		class CUBE_API Mesh;
+		typedef std::unique_ptr<Mesh> MeshPtr;
 
 	}
 
