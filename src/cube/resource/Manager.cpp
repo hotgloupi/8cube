@@ -5,6 +5,8 @@
 #include <etc/log.hpp>
 #include <etc/path.hpp>
 
+#include <atomic>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 
@@ -14,6 +16,19 @@ namespace cube { namespace resource {
 
 	using cube::exception::Exception;
 
+	namespace {
+
+		// XXX id are garanteed to be "unique" between managers unless more
+		// than max<id_type>() is reached.
+		inline
+		id_type next_id()
+		{
+			static std::atomic<id_type> current_id{0};
+			assert(current_id != std::numeric_limits<id_type>::max());
+			return ++current_id;
+		}
+
+	}
 	struct Manager::Impl
 	{
 		typedef
@@ -22,11 +37,9 @@ namespace cube { namespace resource {
 
 		std::vector<std::string> paths;
 		ResourceMap resources;
-		id_type     next_id;
 
 		Impl()
 			: resources{}
-			, next_id{1}
 		{}
 	};
 
@@ -68,7 +81,7 @@ namespace cube { namespace resource {
 	ResourcePtr
 	Manager::_manage(ResourcePtr resource_ptr)
 	{
-		auto id = resource_ptr->manage(*this, ++_this->next_id);
+		auto id = resource_ptr->manage(*this, next_id());
 		auto const& it = _this->resources.emplace(id, std::move(resource_ptr));
 		if (it.second == false)
 			throw Exception{"Couldn't store the resource"};
