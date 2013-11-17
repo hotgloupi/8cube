@@ -4,9 +4,10 @@
 # include <cube/api.hpp>
 # include <cube/gl/matrix.hpp>
 
-# include <cstdint>
 # include <cstddef>
+# include <cstdint>
 # include <iosfwd>
+# include <stdexcept>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -192,11 +193,26 @@ namespace cube { namespace gl { namespace renderer {
 		tex_coord0,
 		tex_coord1,
 		tex_coord2,
+		tex_coord3,
+		tex_coord4,
+		tex_coord5,
+		tex_coord6,
+		tex_coord7,
 
 		_max_value
 	};
 	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ContentKind const kind);
+
+	inline constexpr
+	ContentKind operator +(ContentKind const lhs, int const rhs)
+	{
+		return (
+			(lhs == ContentKind::tex_coord0 && rhs >= 0 && rhs < 8) ?
+			((ContentKind) (((int) lhs) + rhs)) :
+			throw std::logic_error{"Wrong usage of operator +"}
+		);
+	}
 
 	enum class PixelFormat
 	{
