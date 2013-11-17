@@ -18,7 +18,9 @@ include_dirs = [
     'deps/SDL/include',
     'deps/boost',
     'deps/freetype2/include',
-    'build/dependencies/sdl/install/include',
+    'build/dependencies/SDL/install/include/SDL2',
+    'build/dependencies/SDL_image/install/include/SDL2',
+    'deps/assimp/include',
 ]
 
 if sys.platform.startswith('win32'):
