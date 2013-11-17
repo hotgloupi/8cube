@@ -1,4 +1,5 @@
 #include "constants.hpp"
+#include "Exception.hpp"
 
 #include <ostream>
 
@@ -240,4 +241,220 @@ namespace cube { namespace gl { namespace renderer {
 		}
 		return out;
 	}
+
+	Mask pixel_mask(PixelFormat const fmt)
+	{
+		Mask res = {0, 0, 0, 0};
+		switch (fmt)
+		{
+		case PixelFormat::depth_component:
+		case PixelFormat::depth_stencil:
+		case PixelFormat::red:
+		case PixelFormat::r8:
+		case PixelFormat::r8_snorm:
+		case PixelFormat::r8i:
+		case PixelFormat::r8ui:
+			res.red = 0xff000000;
+			break;
+
+		case PixelFormat::r16:
+		case PixelFormat::r16_snorm:
+		case PixelFormat::r16i:
+		case PixelFormat::r16ui:
+		case PixelFormat::r16f:
+			res.red = 0xffff0000;
+			break;
+
+		case PixelFormat::r32f:
+		case PixelFormat::r32i:
+		case PixelFormat::r32ui:
+			res.red = 0xffffffff;
+			break;
+
+		case PixelFormat::rg:
+		case PixelFormat::rg8i:
+		case PixelFormat::rg8ui:
+		case PixelFormat::rg8:
+		case PixelFormat::rg8_snorm:
+			res.red = 0xff000000;
+			res.green = 0x00ff0000;
+			break;
+
+		case PixelFormat::rg16:
+		case PixelFormat::rg16_snorm:
+		case PixelFormat::rg16i:
+		case PixelFormat::rg16ui:
+		case PixelFormat::rg16f:
+			res.red = 0xffff0000;
+			res.green = 0x0000ffff;
+			break;
+
+		case PixelFormat::rg32i:
+		case PixelFormat::rg32ui:
+		case PixelFormat::rg32f:
+		case PixelFormat::rgb16i:
+		case PixelFormat::rgb16ui:
+		case PixelFormat::rgb16f:
+		case PixelFormat::rgb32i:
+		case PixelFormat::rgb32ui:
+		case PixelFormat::rgba16i:
+		case PixelFormat::rgba16ui:
+		case PixelFormat::rgba32i:
+		case PixelFormat::rgba32ui:
+			throw Exception{"Unsupported pixel format size"};
+
+		case PixelFormat::rgb:
+		case PixelFormat::rgb8:
+		case PixelFormat::rgb8_snorm:
+		case PixelFormat::rgb8i:
+		case PixelFormat::rgb8ui:
+			res.red =   0xff000000;
+			res.green = 0x00ff0000;
+			res.blue =  0x0000ff00;
+			break;
+
+		case PixelFormat::rgba:
+		case PixelFormat::rgba8:
+		case PixelFormat::rgba8_snorm:
+		case PixelFormat::rgba8i:
+		case PixelFormat::rgba8ui:
+			res.red =   0xff000000;
+			res.green = 0x00ff0000;
+			res.blue =  0x0000ff00;
+			res.alpha = 0x000000ff;
+			break;
+
+		case PixelFormat::r3_g3_b2:
+		case PixelFormat::rgb4:
+		case PixelFormat::rgb5:
+		case PixelFormat::rgb10:
+		case PixelFormat::rgb12:
+		case PixelFormat::rgb16_snorm:
+		case PixelFormat::rgba2:
+		case PixelFormat::rgba4:
+		case PixelFormat::rgb5_a1:
+		case PixelFormat::rgb10_a2:
+		case PixelFormat::rgb10_a2ui:
+		case PixelFormat::rgba12:
+		case PixelFormat::rgba16:
+		case PixelFormat::srgb8:
+		case PixelFormat::srgb8_alpha8:
+		case PixelFormat::rgba16f:
+		case PixelFormat::rgb32f:
+		case PixelFormat::rgba32f:
+		case PixelFormat::r11f_g11f_b10f:
+		case PixelFormat::rgb9_e5:
+		case PixelFormat::compressed_red:
+		case PixelFormat::compressed_rg:
+		case PixelFormat::compressed_rgb:
+		case PixelFormat::compressed_rgba:
+		case PixelFormat::compressed_srgb:
+		case PixelFormat::compressed_srgb_alpha:
+			throw Exception{"Unsupported pixel format"};
+		default:
+			throw Exception{"Unknown format"};
+		}
+		return res;
+	}
+
+	int pixel_depth(PixelFormat const fmt)
+	{
+		switch (fmt)
+		{
+		case PixelFormat::depth_component:
+		case PixelFormat::depth_stencil:
+		case PixelFormat::red:
+		case PixelFormat::r8:
+		case PixelFormat::r8_snorm:
+		case PixelFormat::r8i:
+		case PixelFormat::r8ui:
+			return 8;
+
+		case PixelFormat::r16:
+		case PixelFormat::r16_snorm:
+		case PixelFormat::r16i:
+		case PixelFormat::r16ui:
+		case PixelFormat::r16f:
+			return 16;
+
+		case PixelFormat::r32f:
+		case PixelFormat::r32i:
+		case PixelFormat::r32ui:
+			return 32;
+			break;
+
+		case PixelFormat::rg:
+		case PixelFormat::rg8i:
+		case PixelFormat::rg8ui:
+		case PixelFormat::rg8:
+		case PixelFormat::rg8_snorm:
+			return 16;
+
+		case PixelFormat::rg16:
+		case PixelFormat::rg16_snorm:
+		case PixelFormat::rg16i:
+		case PixelFormat::rg16ui:
+		case PixelFormat::rg16f:
+			return 32;
+
+		case PixelFormat::rgb:
+		case PixelFormat::rgb8:
+		case PixelFormat::rgb8_snorm:
+		case PixelFormat::rgb8i:
+		case PixelFormat::rgb8ui:
+			return 24;
+
+		case PixelFormat::rgba:
+		case PixelFormat::rgba8:
+		case PixelFormat::rgba8_snorm:
+		case PixelFormat::rgba8i:
+		case PixelFormat::rgba8ui:
+			return 32;
+
+		case PixelFormat::rg32i:
+		case PixelFormat::rg32ui:
+		case PixelFormat::rg32f:
+		case PixelFormat::rgb16i:
+		case PixelFormat::rgb16ui:
+		case PixelFormat::rgb16f:
+		case PixelFormat::rgb32i:
+		case PixelFormat::rgb32ui:
+		case PixelFormat::rgba16i:
+		case PixelFormat::rgba16ui:
+		case PixelFormat::rgba32i:
+		case PixelFormat::rgba32ui:
+			throw Exception{"Unsupported pixel format size"};
+
+		case PixelFormat::r3_g3_b2:
+		case PixelFormat::rgb4:
+		case PixelFormat::rgb5:
+		case PixelFormat::rgb10:
+		case PixelFormat::rgb12:
+		case PixelFormat::rgb16_snorm:
+		case PixelFormat::rgba2:
+		case PixelFormat::rgba4:
+		case PixelFormat::rgb5_a1:
+		case PixelFormat::rgb10_a2:
+		case PixelFormat::rgb10_a2ui:
+		case PixelFormat::rgba12:
+		case PixelFormat::rgba16:
+		case PixelFormat::srgb8:
+		case PixelFormat::srgb8_alpha8:
+		case PixelFormat::rgba16f:
+		case PixelFormat::rgb32f:
+		case PixelFormat::rgba32f:
+		case PixelFormat::r11f_g11f_b10f:
+		case PixelFormat::rgb9_e5:
+		case PixelFormat::compressed_red:
+		case PixelFormat::compressed_rg:
+		case PixelFormat::compressed_rgb:
+		case PixelFormat::compressed_rgba:
+		case PixelFormat::compressed_srgb:
+		case PixelFormat::compressed_srgb_alpha:
+			throw Exception{"Unsupported pixel format"};
+		default:
+			throw Exception{"Unknown format"};
+		}
+	}
+
 }}}

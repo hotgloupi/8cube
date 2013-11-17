@@ -289,6 +289,14 @@ namespace cube { namespace gl { namespace renderer {
 	CUBE_API
 	std::ostream& operator <<(std::ostream& out, PixelFormat const format);
 
+	struct CUBE_API Mask { uint32_t red, green, blue, alpha; };
+	CUBE_API
+	Mask pixel_mask(PixelFormat const fmt);
+
+	// Pixel depth in bits.
+	CUBE_API
+	int pixel_depth(PixelFormat const fmt);
+
 	template<ContentType type> struct ContentTypeSize;
 	template<> struct ContentTypeSize<ContentType::int8>
 		{ static size_t const value = sizeof(int8_t); };
