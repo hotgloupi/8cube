@@ -25,12 +25,6 @@ class PainterSetup:
         # Should be created before any shader
         self.target = self.renderer.context.new_render_target()
 
-        self.fs = self.renderer.new_fragment_shader(["""
-            void main(void)
-            {
-                gl_FragColor = gl_Color;
-            }
-        """])
         self.vs = self.renderer.new_vertex_shader([
             """
             uniform mat4 cube_MVP;
@@ -41,6 +35,14 @@ class PainterSetup:
             }
             """
         ])
+
+        self.fs = self.renderer.new_fragment_shader(["""
+            void main(void)
+            {
+                gl_FragColor = gl_Color;
+            }
+        """])
+
         x, y, w, h = (
             11, 42,
             120, 140
