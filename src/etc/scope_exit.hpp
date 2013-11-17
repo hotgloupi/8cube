@@ -19,10 +19,9 @@ namespace etc {
 			bool     _aborted;
 
 		public:
-			template<typename T>
-			inline
-			scope_exit(T&& cb)
-				: _callback{cb}
+			inline explicit
+			scope_exit(Callback cb)
+				: _callback(std::move(cb))
 				, _aborted{false}
 			{}
 
@@ -31,7 +30,7 @@ namespace etc {
 			scope_exit(scope_exit const& other) = delete;
 			inline
 			scope_exit(scope_exit&& other)
-				: _callback{std::move(other._callback)}
+				: _callback(std::move(other._callback))
 				, _aborted{other._aborted}
 			{ other._aborted = true; }
 
@@ -69,10 +68,10 @@ namespace etc {
 	template<typename Lambda>
 	inline
 	detail::scope_exit<typename meta::clean_type<Lambda>::type>
-	scope_exit(Lambda&& lambda)
+	scope_exit(Lambda lambda)
 	{
 		return detail::scope_exit<typename meta::clean_type<Lambda>::type>{
-			std::forward<Lambda>(lambda)
+			std::move(lambda)
 		};
 	}
 
