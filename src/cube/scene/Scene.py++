@@ -1,0 +1,15 @@
+#include "Scene.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+BOOST_PYTHON_MODULE(Scene)
+{
+	using namespace cube::scene;
+	namespace py = boost::python;
+
+	py::class_<Scene, boost::noncopyable>(
+		"Scene",
+		py::init<std::string const&>()
+	)
+	;
+}
