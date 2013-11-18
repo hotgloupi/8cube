@@ -1,11 +1,11 @@
 #include "backtrace.hpp"
 
-#include "to_string.hpp"
-#include "types.hpp"
+#include <etc/to_string.hpp>
+#include <etc/types.hpp>
+#include <etc/test.hpp>
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-
 
 #include <cstdlib>
 #include <iomanip>
@@ -75,7 +75,11 @@ namespace etc { namespace backtrace {
 #endif
 
 
+#ifdef __APPLE__
+		for (unsigned i = 1; i < frames; ++i)
+#else
 		for (unsigned i = 0; i < frames; ++i)
+#endif
 		{
 			StackFrame frame;
 #ifdef _WIN32
@@ -220,5 +224,25 @@ namespace etc { namespace backtrace {
 		s << *this;
 		return s.str();
 	}
+
+	namespace {
+
+		extern "C" {
+
+			void func(Backtrace* b)
+			{
+				*b = Backtrace();
+			}
+
+		}
+
+		ETC_TEST_CASE(backtrace_simple)
+		{
+			Backtrace b;
+			func(&b);
+			ETC_ENFORCE_EQ(b.at(1).symbol, "func");
+		}
+
+	} // !anonymous
 
 }} // !etc::backtrace

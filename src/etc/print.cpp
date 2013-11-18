@@ -1,4 +1,6 @@
-#include <etc/print.hpp>
+#include "print.hpp"
+
+#include <etc/test.hpp>
 
 namespace etc {
 
@@ -32,5 +34,10 @@ namespace etc {
 			out << flags.endl;
 		}
 
+	}
+
+	ETC_TEST_CASE(simple)
+	{
+		ETC_ENFORCE_EQ(etc::to_string("lol"), "lol");
 	}
 }
