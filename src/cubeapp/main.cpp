@@ -6,6 +6,8 @@
 
 #include <etc/log.hpp>
 #include <etc/sys/environ.hpp>
+#include <etc/test/Registry.hpp>
+#include <etc/scope_exit.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
 
@@ -30,6 +32,16 @@ ETC_LOG_COMPONENT("cubeapp.main");
 
 CUBE_MAIN_PROTO(int argc, char** argv)
 {
+	ETC_SCOPE_EXIT{
+		cube::debug::Performance::instance().shutdown();
+		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
+			cube::debug::Performance::instance().dump();
+		etc::log::shutdown();
+	};
+
+	if (not etc::test::registry().run())
+		return EXIT_FAILURE;
+
 	if (argc < 1 || argv[0] == nullptr)
 	{
 		std::cerr << "Wrong program arguments\n";
@@ -68,10 +80,6 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	;
 	try {
 		bool success = interpreter.exec(init_script);
-		cube::debug::Performance::instance().shutdown();
-		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
-			cube::debug::Performance::instance().dump();
-		etc::log::shutdown();
 		return (success ? EXIT_SUCCESS : EXIT_FAILURE);
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
