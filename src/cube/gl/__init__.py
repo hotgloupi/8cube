@@ -24,6 +24,7 @@ Exported classes:
     Viewport
     Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
     ShaderProgram, ShaderProgramParameter
+    Surface
 
 
 Exported enumerations:
@@ -56,6 +57,7 @@ from .matrix import Matrix44f
 from .mesh import Mesh
 from .plane import Planef, Planed
 from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul
+from .surface import Surface
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul
 from .vector import Vector4f, Vector4d, Vector4i, Vector4u, Vector4il, Vector4ul
