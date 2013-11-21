@@ -36,6 +36,10 @@ elif sys.platform.startswith('darwin'):
     include_dirs.extend([
         '/Users/hotgloupi/local/lib/c++/v1',
     ])
+elif sys.platform.startswith('linux'):
+    include_dirs.extend([
+        '/usr/include/c++/4.7',
+    ])
 
 flags = [
     '-Wall',
@@ -46,10 +50,8 @@ flags = [
 ]
 
 for d in include_dirs:
-    if not os.path.isabs(d):
-        d = os.path.join(SCRIPT_DIR, d)
     flags.append('-I')
-    flags.append(os.path.realpath(d))
+    flags.append(d)
 
 
 # Set this to the absolute path to the folder (NOT the file!) containing the
