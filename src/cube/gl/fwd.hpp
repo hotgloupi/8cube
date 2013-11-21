@@ -71,6 +71,12 @@ namespace cube { namespace gl {
 
 	}
 
+	namespace surface {
+
+		class Surface;
+
+	}
+
 	namespace text {
 
 		class CUBE_API Text;
