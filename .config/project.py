@@ -230,8 +230,8 @@ def configure(project, build):
         #assimp.libraries +
         freetype2.libraries
     )
-    if not platform.IS_WINDOWS:
-        list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
+    #if not platform.IS_WINDOWS:
+    #    list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
 
     base_libraries = []
     if platform.IS_WINDOWS:
