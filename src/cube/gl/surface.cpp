@@ -84,4 +84,29 @@ namespace cube { namespace gl { namespace surface {
 	void const* Surface::pixels() const noexcept
 	{ return _this->surface->pixels; }
 
+	static inline
+	etc::size_type component_difference(unsigned char c1,
+	                                    unsigned char c2) noexcept
+	{ return c1 > c2 ? c1 - c2 : c2 - c1; }
+
+	double Surface::difference(Surface const& other) const
+	{
+		if (this->width() != other.width() || this->height() != other.height())
+			throw Exception{"Cannot compare surface of different sizes"};
+
+		if (this->bytes_per_pixel() != other.bytes_per_pixel())
+			throw Exception{"Cannot compare surface of different depth"};
+		etc::size_type diff = 0;
+
+		etc::size_type size = this->width() *
+		                      this->height() *
+		                      this->bytes_per_pixel();
+		unsigned char* d1 = (unsigned char*)this->pixels();
+		unsigned char* d2 = (unsigned char*)other.pixels();
+		for (etc::size_type idx = 0; idx < size; idx++ )
+			diff += component_difference(d1[idx], d2[idx]);
+
+		return ((double) diff) / ((double) (size * 255));
+	}
+
 }}}

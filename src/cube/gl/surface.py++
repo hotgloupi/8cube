@@ -1,0 +1,19 @@
+#include "surface.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+BOOST_PYTHON_MODULE(surface)
+{
+	using namespace cube::gl::surface;
+	namespace py = boost::python;
+
+	py::class_<Surface, boost::noncopyable>(
+		"Surface",
+		py::init<std::string const&>()
+	)
+		.add_property("bytes_per_pixel", &Surface::bytes_per_pixel)
+		.add_property("width", &Surface::width)
+		.add_property("height", &Surface::height)
+		.def("difference", &Surface::difference)
+	;
+}

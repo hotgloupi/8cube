@@ -51,6 +51,8 @@ namespace cube { namespace gl { namespace surface {
 		etc::size_type width() const noexcept;
 		etc::size_type height() const noexcept;
 		void const* pixels() const noexcept;
+
+		double difference(Surface const& other) const;
 	};
 
 }}}
