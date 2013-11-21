@@ -10,9 +10,9 @@ BOOST_PYTHON_MODULE(Texture)
 
 	py::class_<
 			Texture,
-			std::auto_ptr<Texture>,
+			std::shared_ptr<Texture>,
 			boost::noncopyable,
-			py::bases<Bindable>
+			py::bases<Bindable, cube::resource::Resource>
 		>(
 			"Texture",
 			py::no_init

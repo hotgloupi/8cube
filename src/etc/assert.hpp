@@ -81,7 +81,7 @@ namespace etc {
 # undef ETC_ASSERT_DETAIL_MAKE_OPERATOR
 
 # define ETC_ASSERT_DETAIL_OP(op, v1, v2) \
-	::etc::detail::assert_operator<::etc::detail::AssertOperator::op>::check( \
+	::etc::detail::assert_operator< ::etc::detail::AssertOperator::op>::check(\
 		__FILE__, __LINE__, (v1), #v1, (v2), #v2 \
 	); \
 /**/

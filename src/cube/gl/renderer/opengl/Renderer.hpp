@@ -33,14 +33,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		ShaderProgramPtr
 		_new_shader_program(std::vector<ShaderPtr>&& shaders) override;
 
-		TexturePtr new_texture(std::string const& path);
-
-		TexturePtr new_texture(renderer::PixelFormat const internal_format,
-		                       unsigned int width,
-		                       unsigned int height,
-		                       renderer::PixelFormat const data_format,
-		                       renderer::ContentPacking const data_packing,
-		                       void const* data);
+		TexturePtr _new_texture(surface::Surface const& surface) override;
 
 		void draw_elements(renderer::DrawMode mode,
 		                   unsigned int count,

@@ -10,9 +10,9 @@ BOOST_PYTHON_MODULE(VertexBuffer)
 
 	py::class_<
 			VertexBuffer,
-			std::auto_ptr<VertexBuffer>,
+			std::shared_ptr<VertexBuffer>,
 			boost::noncopyable,
-			py::bases<Bindable>
+			py::bases<Bindable, cube::resource::Resource>
 		>(
 			"VertexBuffer",
 			py::no_init

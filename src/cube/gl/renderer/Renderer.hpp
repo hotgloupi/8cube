@@ -6,6 +6,7 @@
 # include "State.hpp"
 # include "VertexBufferAttribute.hpp"
 
+# include <cube/gl/fwd.hpp>
 # include <cube/gl/viewport.hpp>
 # include <cube/system/fwd.hpp>
 
@@ -134,6 +135,9 @@ namespace cube { namespace gl { namespace renderer {
 		generate_shader(ShaderType const type);
 
 
+		/**
+		 * @section Shader creation.
+		 */
 	public:
 		/// Create a shader of @a type.
 		ShaderPtr new_shader(ShaderType const type,
@@ -164,6 +168,9 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderPtr _new_shader(ShaderType const type,
 		                     std::vector<std::string> const& sources) = 0;
 
+		/**
+		 * @section Shader program creation
+		 */
 	public:
 		/// Create a shader program from shaders.
 		ShaderProgramPtr new_shader_program(std::vector<ShaderPtr>&& shaders);
@@ -187,31 +194,13 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderProgramPtr _new_shader_program(std::vector<ShaderPtr>&& shaders) = 0;
 
 	public:
-		/// Create a texture from file.
+		/// Create a texture from a surface.
+		TexturePtr new_texture(surface::Surface const& surface);
+	protected:
 		virtual
-		TexturePtr new_texture(std::string const& path) = 0;
+		TexturePtr _new_texture(surface::Surface const& surface) = 0;
 
-		/**
-		 * @brief   Create a texture from raw data.
-		 *
-		 * @param   internal_format     New texture internal format.
-		 * @param   width               New texture width.
-		 * @param   height              New texture height.
-		 * @param   data_format         Pixel format of the @a data.
-		 * @param   data_packing        Pixel packing format of the @a data.
-		 * @param   data                Pointer to pixels data.
-		 *
-		 * The pointer @a data might be NULL, in which case the texture is just
-		 * allocated
-		 */
-		virtual
-		TexturePtr new_texture(renderer::PixelFormat const internal_format,
-		                       unsigned int width,
-		                       unsigned int height,
-		                       renderer::PixelFormat const data_format,
-		                       renderer::ContentPacking const data_packing,
-		                       void const* data) = 0;
-
+	public:
 		///
 		virtual
 		void draw_elements(DrawMode mode,
@@ -225,7 +214,9 @@ namespace cube { namespace gl { namespace renderer {
 		                 etc::size_type count) = 0;
 
 		virtual
-		void clear(BufferBit flags = BufferBit::color | BufferBit::depth | BufferBit::stencil) = 0;
+		void clear(BufferBit flags = BufferBit::color |
+		                             BufferBit::depth |
+		                             BufferBit::stencil) = 0;
 	};
   ////////////////////////////////////////////////////////////////////////////
   // RendererType class

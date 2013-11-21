@@ -1,8 +1,9 @@
 #include "Texture.hpp"
 
 #include "Exception.hpp"
-
 #include "../ShaderProgram.hpp"
+
+#include <cube/gl/surface.hpp>
 
 #include <etc/to_string.hpp>
 
@@ -10,24 +11,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Texture");
 
-	Texture::Texture(std::string const& path)
-		: _surface(nullptr)
-		, _id(0)
+	Texture::Texture(surface::Surface const& surface)
+		: _id(0)
 		, _unit(-1)
 	{
-		ETC_TRACE_CTOR("from path", path);
-		_surface = ::IMG_Load(path.c_str());
-		if (_surface == nullptr)
-			throw Exception{etc::to_string(
-				"Cannot load '" + path + "':",::IMG_GetError()
-			)};
+		ETC_TRACE_CTOR();
 		gl::GenTextures(1, &_id);
 		gl::BindTexture(GL_TEXTURE_2D, _id);
-		int bpp = _surface->format->BytesPerPixel;
+		int bpp = surface.bytes_per_pixel();
 		if (bpp != 3 && bpp != 4)
 			throw Exception{etc::to_string(
 				"Cannot load image with",
- 				_surface->format->BytesPerPixel,
+ 				surface.bytes_per_pixel(),
 				"bytes per pixel"
 			)};
 		int mode = 0;
@@ -63,8 +58,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		// calculate mipmap levels
 		etc::size_type levels = 1;
 		{
-			etc::size_type w = _surface->w,
-			               h = _surface->h;
+			etc::size_type w = surface.width(),
+			               h = surface.height();
 			while (w > 1 && h > 1)
 			{
 				levels += 1;
@@ -75,19 +70,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		// Bug in ATI drivers
 		gl::Enable(GL_TEXTURE_2D);
 
-#ifndef __APPLE__
+#if 0 //ndef __APPLE__
 		if (GLEW_VERSION_3_0)
 		{
-			ETC_LOG.debug(levels, mode == GL_RGB ? "RGB" : "RGBA", _surface->w, _surface->h);
-			gl::TexStorage2D(GL_TEXTURE_2D, levels, mode, _surface->w, _surface->h);
+			ETC_LOG.debug(levels, mode == GL_RGB ? "RGB" : "RGBA", surface.width(), surface.height());
+			gl::TexStorage2D(GL_TEXTURE_2D, levels, mode, surface.width(), surface.height());
 			gl::TexSubImage2D(
 				GL_TEXTURE_2D,
 				0, 0, 0,
-				_surface->w,
-				_surface->h,
+				surface.width(),
+				surface.height(),
 				GL_BGRA,
 				GL_UNSIGNED_BYTE,
-				_surface->pixels
+				surface.pixels()
 			);
 		}
 		else
@@ -97,12 +92,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				GL_TEXTURE_2D,
 				0,
 				mode,
-				_surface->w,
-				_surface->h,
+				surface.width(),
+				surface.height(),
 				0,
 				GL_BGRA,
 				GL_UNSIGNED_BYTE,
-				_surface->pixels
+				surface.pixels()
 			);
 		}
 		gl::GenerateMipmap(GL_TEXTURE_2D);
@@ -112,6 +107,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	}
 
+	/*
 	Texture::Texture(renderer::PixelFormat const internal_format,
 	                 unsigned int width,
 	                 unsigned int height,
@@ -139,12 +135,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
+	*/
 
 	Texture::~Texture()
 	{
 		ETC_TRACE_DTOR();
-		SDL_FreeSurface(_surface);
-		_surface = nullptr;
 		gl::DeleteTextures<gl::no_throw>(1, &_id);
 		_id = 0;
 	}

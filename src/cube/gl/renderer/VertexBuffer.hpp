@@ -6,8 +6,9 @@
 # include "constants.hpp"
 # include "Bindable.hpp"
 # include "VertexBufferAttribute.hpp"
-
 # include "../content_traits.hpp"
+
+# include <cube/resource/Resource.hpp>
 
 # include <cstdlib>
 # include <memory>
@@ -17,6 +18,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	class CUBE_API VertexBuffer
 		: public Bindable
+		, public resource::Resource
 	{
 	public:
 		typedef VertexBufferAttribute       Attribute;

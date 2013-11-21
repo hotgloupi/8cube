@@ -8,6 +8,7 @@
 
 #include <cube/system/window.hpp>
 #include <cube/gl/exception.hpp>
+#include <cube/gl/surface.hpp>
 
 #include <wrappers/boost/python.hpp>
 
@@ -323,12 +324,7 @@ BOOST_PYTHON_MODULE(Renderer)
 		)
 		.def(
 			"new_texture",
-			static_cast<new_texture_cb_t>(&Renderer::new_texture),
-			return_internal_value_policy()
-		)
-		.def(
-			"new_texture",
-			static_cast<new_texture_raw_cb_t>(&Renderer::new_texture),
+			&Renderer::new_texture,
 			return_internal_value_policy()
 		)
 		.def(

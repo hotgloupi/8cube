@@ -174,6 +174,13 @@ namespace cube { namespace gl { namespace renderer {
 		);
 	}
 
+	TexturePtr Renderer::new_texture(surface::Surface const& surface)
+	{
+		return _this->resource_manager.manage(
+		    _new_texture(surface)
+		);
+	}
+
 	ShaderGeneratorProxy
 	Renderer::generate_shader(ShaderType const type)
 	{

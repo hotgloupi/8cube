@@ -5,8 +5,6 @@
 
 # include "_opengl.hpp"
 
-# include <SDL_image.h>
-
 # include <string>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
@@ -15,18 +13,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		: public renderer::Texture
 	{
 	private:
-		SDL_Surface*    _surface;
 		GLuint          _id;
 		etc::size_type  _unit;
 
 	public:
-		Texture(std::string const& path);
-		Texture(renderer::PixelFormat const internal_format,
-		        unsigned int width,
-		        unsigned int height,
-		        renderer::PixelFormat const data_format,
-		        renderer::ContentPacking const data_packing,
-		        void const* data);
+		Texture(surface::Surface const& surface);
 		~Texture();
 
 	public:

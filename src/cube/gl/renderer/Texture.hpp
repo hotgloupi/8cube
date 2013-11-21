@@ -4,12 +4,15 @@
 # include "Bindable.hpp"
 # include "fwd.hpp"
 
+# include <cube/resource/Resource.hpp>
+
 # include <etc/types.hpp>
 
 namespace cube { namespace gl { namespace renderer {
 
 	class CUBE_API Texture
 		: public Bindable
+		, public resource::Resource
 	{
 	public:
 		virtual

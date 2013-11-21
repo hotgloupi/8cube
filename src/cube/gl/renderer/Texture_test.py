@@ -65,7 +65,7 @@ class _(PainterSetup, TestCase):
         )
         from os import path
         self.texture = self.renderer.new_texture(
-            path.join(path.dirname(__file__), "texture_test.bmp")
+            gl.Surface(path.join(path.dirname(__file__), "texture_test.bmp"))
         )
 
 

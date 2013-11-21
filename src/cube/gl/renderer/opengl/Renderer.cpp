@@ -7,7 +7,7 @@
 #include "_opengl.hpp"
 
 #include <cube/gl/matrix.hpp>
-#include <cube/system/Window.hpp>
+#include <cube/system/window.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -139,29 +139,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		return ShaderProgramPtr{new ShaderProgram{std::move(shaders)}};
 	}
 
-	TexturePtr GLRenderer::new_texture(std::string const& path)
+	TexturePtr GLRenderer::_new_texture(surface::Surface const& surface)
 	{
-		return TexturePtr{new Texture{path}};
-	}
-
-	TexturePtr
-	GLRenderer::new_texture(renderer::PixelFormat const internal_format,
-	                        unsigned int width,
-	                        unsigned int height,
-	                        renderer::PixelFormat const data_format,
-	                        renderer::ContentPacking const data_packing,
-	                        void const* data)
-	{
-		return TexturePtr{
-			new Texture{
-				internal_format,
-				width,
-				height,
-				data_format,
-				data_packing,
-				data
-			}
-		};
+		return TexturePtr{new Texture{surface}};
 	}
 
 	void GLRenderer::clear(cube::gl::renderer::BufferBit flags)
