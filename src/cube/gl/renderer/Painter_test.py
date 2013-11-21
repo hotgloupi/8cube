@@ -7,7 +7,9 @@ from cube.gl import \
         vec2f, \
         DrawMode, \
         Name, \
-        matrix
+        matrix, \
+        Surface
+
 from cube.system import create_window, WindowFlags
 import os
 from os import path
@@ -79,7 +81,7 @@ class PainterSetup:
         )
 
 
-def painter_test(mode):
+def painter_test(mode, delta = 0.01):
     def _painter_test(func):
         def wrapper(self):
             fname = list(filter(
@@ -125,10 +127,9 @@ def painter_test(mode):
                 print("\n###############################################\n")
                 sys.exit(0)
 
-            with open(thruth, 'rb') as f1:
-                with open(img, 'rb') as f2:
-                    self.assertTrue(f1.read() == f2.read(),
-                                    "%s and %s are not the same" % (thruth, img))
+            diff = Surface(img).difference(Surface(thruth))
+            self.assertAlmostEqual(diff, 0, delta = delta,
+                                   msg = "%s and %s are not the same" % (thruth, img))
             os.unlink(img)
 
         wrapper.__name__ = func.__name__
@@ -137,14 +138,14 @@ def painter_test(mode):
 
 class _(PainterSetup, TestCase):
 
-    @painter_test(mode_2d)
+    @painter_test(mode_2d, delta = 0.06)
     def test_simple(self, painter):
         with painter.bind([self.shader, self.vb]):
             self.shader['cube_MVP'] = painter.state.mvp
             painter.draw_elements(DrawMode.quads, self.indices, 0, 4)
 
 
-    @painter_test(mode_2d)
+    @painter_test(mode_2d, delta = 0.02)
     def test_transform(self, painter):
         with painter.bind([self.shader, self.vb]):
             painter.state.model = matrix.scale(painter.state.model, 0.5, 0.5, 0.5)
