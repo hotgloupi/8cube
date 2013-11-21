@@ -6,6 +6,7 @@
 #include "renderer/ShaderProgram.hpp"
 #include "renderer/Texture.hpp"
 #include "renderer/VertexBuffer.hpp"
+#include "surface.hpp"
 #include "vector.hpp"
 
 #include <etc/log.hpp>
@@ -164,9 +165,9 @@ namespace cube { namespace gl { namespace font {
 		struct GlyphMap
 		{
 		private:
-			typedef std::unique_ptr<Glyph>                  GlyphPtr;
-			typedef std::unique_ptr<renderer::Texture>      TexturePtr;
-			typedef std::unique_ptr<renderer::VertexBuffer> VertexBufferPtr;
+			typedef std::unique_ptr<Glyph>    GlyphPtr;
+			typedef renderer::TexturePtr      TexturePtr;
+			typedef renderer::VertexBufferPtr VertexBufferPtr;
 		private:
 			renderer::Renderer&                     _renderer;
 			std::unordered_map<uint32_t, GlyphPtr>  _glyphs;
@@ -187,12 +188,14 @@ namespace cube { namespace gl { namespace font {
 				, _face(face)
 				, _texture_size{1024, 1024}
 				, _texture{renderer.new_texture(
-					renderer::PixelFormat::rgba,
-					_texture_size.x,
-					_texture_size.y,
-					renderer::PixelFormat::rgba,
-					renderer::ContentPacking::uint8,
-					nullptr
+				    surface::Surface{
+						renderer::PixelFormat::rgba,
+						(unsigned int)_texture_size.x,
+						(unsigned int)_texture_size.y,
+						renderer::PixelFormat::rgba,
+						renderer::ContentPacking::uint8,
+						nullptr,
+					}
 				)}
 				, _tex_coords{}
 				, _vertex_buffer{}
@@ -293,7 +296,7 @@ namespace cube { namespace gl { namespace font {
 	public:
 		Impl(renderer::Renderer& renderer,
 		     Infos const& infos,
-		     unsigned int size)
+		     etc::size_type size)
 			: renderer(renderer)
 			, _face{infos, size}
 			, _glyphs{_face, renderer}
@@ -331,7 +334,7 @@ namespace cube { namespace gl { namespace font {
 	{}
 
 	template<typename CharType>
-	std::unique_ptr<renderer::VertexBuffer>
+	renderer::VertexBufferPtr
 	Font::generate_text(std::basic_string<CharType> const& str)
 	{
 		std::vector<vector::Vector2f>   vertices(str.size() * 4);
@@ -393,22 +396,22 @@ namespace cube { namespace gl { namespace font {
 
 	template
 	CUBE_API
-	std::unique_ptr<renderer::VertexBuffer>
+	renderer::VertexBufferPtr
 	Font::generate_text<char>(std::basic_string<char> const& str);
 
 	template
 	CUBE_API
-	std::unique_ptr<renderer::VertexBuffer>
+	renderer::VertexBufferPtr
 	Font::generate_text<wchar_t>(std::basic_string<wchar_t> const& str);
 
 	template
 	CUBE_API
-	std::unique_ptr<renderer::VertexBuffer>
+	renderer::VertexBufferPtr
 	Font::generate_text<char16_t>(std::basic_string<char16_t> const& str);
 
 	template
 	CUBE_API
-	std::unique_ptr<renderer::VertexBuffer>
+	renderer::VertexBufferPtr
 	Font::generate_text<char32_t>(std::basic_string<char32_t> const& str);
 
 	renderer::Texture& Font::texture()

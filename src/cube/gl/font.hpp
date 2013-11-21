@@ -42,7 +42,7 @@ namespace cube { namespace gl { namespace font {
 		 * coordinates.
 		 */
 		template<typename CharType>
-		std::unique_ptr<renderer::VertexBuffer>
+		renderer::VertexBufferPtr
 		generate_text(std::basic_string<CharType> const& str);
 
 		/**

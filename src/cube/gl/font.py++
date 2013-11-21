@@ -17,13 +17,13 @@ namespace {
 		{
 			template<typename CharType>
 			static
-			renderer::VertexBuffer*
+			renderer::VertexBufferPtr
 			generate_text(font::Font& self, CharType const* str)
 			{
 				assert(str != nullptr && "Null string !");
 				return self.generate_text(
 					std::basic_string<CharType>(str)
-				).release();
+				);
 			}
 
 			static
@@ -107,7 +107,10 @@ BOOST_PYTHON_MODULE(font)
 		.def(
 			"generate_text",
 			&Proxy::Font::generate_text<char>,
-			py::return_internal_reference<>()
+			py::return_value_policy<
+				py::return_by_value,
+				py::with_custodian_and_ward_postcall<0, 1>
+			>()
 		)
 		.add_property(
 			"texture",

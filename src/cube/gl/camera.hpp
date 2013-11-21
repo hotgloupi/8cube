@@ -54,4 +54,3 @@ namespace cube { namespace gl { namespace camera {
 }}}
 
 #endif
-
