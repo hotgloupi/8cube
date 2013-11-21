@@ -119,8 +119,8 @@ def configure(project, build):
 
     defines += ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB']
 
-    if platform.IS_LINUX:
-        defines += ['CUBE_WITH_GLX']
+    #if platform.IS_LINUX:
+    #    defines += ['CUBE_WITH_GLX']
 
     library_directories = [
         #'/home/hotgloupi/sandbox/raspberry/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/libc/lib',
