@@ -23,25 +23,24 @@ namespace cube { namespace gl { namespace mesh {
 
 	namespace {
 
+		// Hash helper for vectors and colors.
 		template<typename T>
 		struct hash
 		{
-			typedef
-				typename content_traits<T>::component_type
-				value_type;
-			static etc::size_type const arity =
-				content_traits<T>::arity;
+			typedef typename content_traits<T>::component_type value_type;
+			static etc::size_type const arity = content_traits<T>::arity;
 
 			size_t operator ()(T const* lhs) const
 			{
 				static std::hash<value_type> h;
 				size_t res = 0;
 				for (etc::size_type i = 0; i < arity; ++i)
-					res += h(((value_type const*)lhs)[i]);
+					res += h(((value_type const*) lhs)[i]);
 				return res;
 			}
 		};
 
+		// Comparator for a type T.
 		template<typename T>
 		struct compare
 		{
@@ -50,6 +49,7 @@ namespace cube { namespace gl { namespace mesh {
 			{ return *lhs == *rhs; }
 		};
 
+		// Hash any enum as a size_t integer.
 		struct enum_hash
 		{
 			template<typename T>
@@ -83,7 +83,7 @@ namespace cube { namespace gl { namespace mesh {
 		Mode                        mode;
 
 		MeshData<Mesh::vertex_t>    vertice;
-		MeshData<Mesh::vertex_t>    normals;
+		MeshData<Mesh::normal_t>    normals;
 		MeshData<Mesh::color3_t>    colors3;
 		MeshData<Mesh::color4_t>    colors4;
 		MeshData<Mesh::tex_coord_t> tex_coords0;
@@ -255,7 +255,9 @@ namespace cube { namespace gl { namespace mesh {
 			);
 		}
 
-		return std::unique_ptr<renderer::Drawable>{new View{std::move(vb), std::move(ibs)}};
+		return std::unique_ptr<renderer::Drawable>{
+			new View{std::move(vb), std::move(ibs)}
+		};
 	}
 
 	void

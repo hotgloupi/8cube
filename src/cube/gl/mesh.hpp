@@ -15,10 +15,22 @@
 
 namespace cube { namespace gl { namespace mesh {
 
+	/**
+	 * @brief Container of mesh data.
+	 *
+	 * The mesh class main purpose to store vertice, normals, colors and other
+	 * attributes in order to build higher level structures. It works as a
+	 * state machine when adding data, starting with vertice. You can set the
+	 * next content kind of data to be inserted by setting the ContentKind,
+	 * which defaults to ContentKind::vertex.
+	 *
+	 * At any point, you can get a view of the mesh.
+	 */
 	class CUBE_API Mesh
 	{
 	public:
 		typedef vector::Vector3<float>  vertex_t;
+		typedef vector::Vector3<float>  normal_t;
 		typedef vector::Vector2<float>  tex_coord_t;
 		typedef color::Color3<float>    color3_t;
 		typedef color::Color4<float>    color4_t;
@@ -35,11 +47,21 @@ namespace cube { namespace gl { namespace mesh {
 		Mesh(Mesh&& other);
 		virtual ~Mesh();
 
+		/// Set mode of the data to be inserted.
 		Mesh& mode(Mode const mode);
+
+		/// Set kind of the data to be inserted.
 		Mesh& kind(Kind const kind);
+
+		/// Current mode.
 		Mode mode() const;
+
+		/// Current kind.
 		Kind kind() const;
 
+		/**
+		 * @brief Append data to the mesh.
+		 */
 		template<typename... Args>
 		inline
 		Mesh& append(vertex_t const& value, Args&&... args)
@@ -141,7 +163,7 @@ namespace cube { namespace gl { namespace mesh {
 		void _push(Kind const kind, Mode const mode, color4_t const& el);
 
 		friend
-			std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
+		std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
 	};
 
 	CUBE_API
