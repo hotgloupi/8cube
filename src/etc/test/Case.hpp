@@ -3,6 +3,8 @@
 
 # include "fwd.hpp"
 
+# include <etc/assert.hpp>
+
 # include <string>
 
 namespace etc { namespace test {
