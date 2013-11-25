@@ -373,14 +373,15 @@ namespace etc { namespace log {
 
 	Logger& logger(std::string const& name)
 	{
-		static std::unordered_map<std::string, Logger*> loggers;
+		static std::unordered_map<std::string, std::unique_ptr<Logger>> loggers;
 		static Level level = default_level();
 		static std::mutex mutex;
 		std::lock_guard<std::mutex> guard{mutex};
 		auto it = loggers.find(name);
 		if (it != loggers.end())
 			return *it->second;
-		return *(loggers[name] = new Logger{name, level});
+		loggers[name].reset(new Logger{name, level});
+		return *loggers[name];
 	}
 
 	void shutdown()
