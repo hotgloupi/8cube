@@ -1,13 +1,15 @@
 #include "Scene.hpp"
 
 #include "detail/assimp.hpp"
+#include "Graph.hpp"
 
-#include <etc/memory.hpp>
 #include <etc/log.hpp>
+#include <etc/memory.hpp>
 #include <etc/scope_exit.hpp>
 
 #include <cube/exception.hpp>
 #include <cube/gl/mesh.hpp>
+#include <cube/gl/material.hpp>
 
 #include <boost/thread/tss.hpp>
 
@@ -16,6 +18,8 @@
 using cube::exception::Exception;
 using cube::gl::mesh::Mesh;
 using cube::gl::mesh::MeshPtr;
+using cube::gl::material::Material;
+using cube::gl::material::MaterialPtr;
 using cube::gl::renderer::DrawMode;
 using cube::gl::renderer::ContentKind;
 
@@ -31,6 +35,17 @@ namespace {
 			ptr.reset(new Assimp::Importer);
 		return *ptr;
 	}
+
+	class AssimpException
+		: public Exception
+	{
+	public:
+		AssimpException(std::string const& e)
+			: Exception{
+				e + ": " + std::string{assimp_importer().GetErrorString()}
+			}
+		{}
+	};
 
 	MeshPtr
 	assimp_mesh(aiMesh const* mesh)
@@ -118,45 +133,205 @@ namespace {
 		return res;
 	}
 
-}
+	MaterialPtr assimp_material(aiMaterial* material)
+	{
+		using cube::scene::detail::assimp_cast;
+		typedef Material::color_type color_type;
+		MaterialPtr res;
+
+		{
+			aiString name;
+			if (material->Get(AI_MATKEY_NAME, name) != AI_SUCCESS)
+				throw Exception{"Couldn't retreive the material name"};
+			if (name.length > 0)
+				res = etc::make_unique<Material>(name.C_Str());
+			else
+				res = etc::make_unique<Material>();
+		}
+		assert(res != nullptr);
+
+		{
+			aiColor3D color;
+			if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) != AI_SUCCESS)
+				throw Exception{"Couldn't retreive ambiant color"};
+			res->ambient(color_type{color.r, color.g, color.b});
+		}
+
+		{
+			aiColor3D color;
+			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) != AI_SUCCESS)
+				throw Exception{"Couldn't retreive diffuse color"};
+			res->diffuse(color_type{color.r, color.g, color.b});
+		}
+
+		{
+			aiColor3D color;
+			if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) != AI_SUCCESS)
+				throw Exception{"Couldn't retreive diffuse color"};
+			res->specular(color_type{color.r, color.g, color.b});
+		}
+
+		{
+			float value;
+			if (material->Get(AI_MATKEY_SHININESS, value) != AI_SUCCESS)
+				throw Exception{"Couldn't retreive shininess"};
+			res->shininess(value);
+		}
+
+		{
+			float value;
+			if (material->Get(AI_MATKEY_OPACITY, value) != AI_SUCCESS)
+				throw Exception{"Couldn't retreive opacity"};
+			res->opacity(value);
+		}
+
+		static aiTextureType const texture_types[] = {
+			aiTextureType_DIFFUSE,
+			aiTextureType_SPECULAR,
+			aiTextureType_AMBIENT,
+			aiTextureType_EMISSIVE,
+			aiTextureType_HEIGHT,
+			aiTextureType_NORMALS,
+			aiTextureType_SHININESS,
+			aiTextureType_OPACITY,
+			aiTextureType_DISPLACEMENT,
+			aiTextureType_LIGHTMAP,
+			aiTextureType_REFLECTION,
+			aiTextureType_UNKNOWN,
+		};
+
+		for (auto type: texture_types)
+		{
+			unsigned int texture_count = material->GetTextureCount(type);
+			for (unsigned int i = 0; i < texture_count; ++i)
+			{
+				aiString path;
+				aiTextureMapping mapping;
+				unsigned int uvindex;
+				float blend;
+				aiTextureOp op;
+				aiTextureMapMode map_mode;
+
+				auto ret = material->GetTexture(
+					type,
+					i,
+					&path,
+					&mapping,
+					&uvindex,
+					&blend,
+					&op,
+					&map_mode
+				);
+				if (ret != AI_SUCCESS)
+					throw Exception{"Couldn't retreive texture"};
+
+				if (mapping == aiTextureMapping_UV)
+				{
+					// uv coordinates are stored in the mesh that use this
+					// material...
+					throw Exception{"Unhandled mapping format"};
+				}
+
+				res->textures().emplace_back(
+					path.C_Str(),
+					assimp_cast(type),
+					assimp_cast(mapping),
+					assimp_cast(op),
+					assimp_cast(map_mode),
+					blend
+				);
+			}
+		}
+		return res;
+	}
+
+} // !anonymous
 
 namespace cube { namespace scene {
 
 	struct Scene::Impl
 	{
-		std::vector<MeshPtr> meshes;
+		std::vector<MeshPtr>     meshes;
+		std::vector<MaterialPtr> materials;
+		Graph                    graph;
+
+		Impl()
+		{}
+
+		Impl(aiScene const* assimp_scene)
+		{
+			assert(assimp_scene != nullptr);
+			for (unsigned int i = 0; i < assimp_scene->mNumMeshes; ++i)
+			{
+				ETC_LOG.debug("Loading mesh", i);
+				this->meshes.emplace_back(
+					assimp_mesh(assimp_scene->mMeshes[i])
+				);
+			}
+
+			for (unsigned int i = 0; i < assimp_scene->mNumMaterials; ++i)
+			{
+				ETC_LOG.debug("Loading material", i);
+				this->materials.emplace_back(
+					assimp_material(assimp_scene->mMaterials[i])
+				);
+			}
+		}
 	};
 
-	Scene::Scene(std::string const& path)
-		: _this(new Impl)
+	Scene::Scene()
+		: _this{new Impl}
+	{ ETC_TRACE_CTOR("empty"); }
+
+	Scene::Scene(Scene&& other) noexcept
+		: _this{std::move(other._this)}
+	{}
+
+	Scene::Scene(std::unique_ptr<Impl> self) noexcept
+		: _this{std::move(self)}
+	{ ETC_TRACE_CTOR("not empty"); }
+
+	Scene Scene::from_file(std::string const& path)
 	{
-		ETC_TRACE_CTOR("from", path);
-		aiScene const* scene = assimp_importer().ReadFile(
+		aiScene const* assimp_scene = assimp_importer().ReadFile(
 			path.c_str(),
 			aiProcess_CalcTangentSpace       |
 			aiProcess_Triangulate            |
 			aiProcess_JoinIdenticalVertices  |
 			aiProcess_SortByPType
 		);
-		if (scene == nullptr)
-		{
-			throw Exception{
-				"Couldn't load file '" + path + "':" +
-				std::string(assimp_importer().GetErrorString())
-			};
-		}
+		if (assimp_scene == nullptr)
+			throw AssimpException{"Couldn't load file '" + path + "'"};
 
 		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
 
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
-		{
-			ETC_LOG.debug("Loading mesh", i);
-			_this->meshes.emplace_back(assimp_mesh(scene->mMeshes[i]));
-		}
+		return Scene{etc::make_unique<Impl>(assimp_scene)};
+	}
+
+	Scene Scene::from_string(std::string const& str, std::string const& ext)
+	{
+		aiScene const* assimp_scene = assimp_importer().ReadFileFromMemory(
+			str.c_str(),
+			str.size(),
+			aiProcess_CalcTangentSpace       |
+			aiProcess_Triangulate            |
+			aiProcess_JoinIdenticalVertices  |
+			aiProcess_SortByPType,
+			ext.c_str()
+		);
+		if (assimp_scene == nullptr)
+			throw Exception{"Couldn't load model from string '" + str + "'"};
+
+		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
+
+		return Scene{etc::make_unique<Impl>(assimp_scene)};
 	}
 
 	Scene::~Scene()
 	{ ETC_TRACE_DTOR(); }
+
+	Graph& Scene::graph() noexcept
+	{ return _this->graph; }
 
 }}
 

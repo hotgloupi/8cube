@@ -9,7 +9,10 @@ BOOST_PYTHON_MODULE(Scene)
 
 	py::class_<Scene, boost::noncopyable>(
 		"Scene",
-		py::init<std::string const&>()
+		py::init<>()
 	)
 	;
+
+	py::def("from_file", Scene::from_file);
+	py::def("from_string", Scene::from_string);
 }

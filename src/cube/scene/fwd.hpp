@@ -8,6 +8,8 @@ namespace cube { namespace scene {
 	class Scene;
 	typedef std::unique_ptr<Scene> ScenePtr;
 
+	class Graph;
+
 }}
 
 #endif
