@@ -35,7 +35,8 @@ namespace etc { namespace test {
 		registry().add(this);
 	}
 
-	Case::~Case() {}
+	Case::~Case()
+	{ delete _setup; }
 
 	///////////////////////////////////////////////////////////////////////////
 	// CaseSetup class.
