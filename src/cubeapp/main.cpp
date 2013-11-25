@@ -39,8 +39,15 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 		etc::log::shutdown();
 	};
 
-	if (not etc::test::registry().run())
-		return EXIT_FAILURE;
+	for (int i = 1; i < argc; i++)
+	{
+		if (argv[i] == std::string{"--etc-tests"})
+		{
+			if (not etc::test::registry().run())
+				return EXIT_FAILURE;
+			return EXIT_SUCCESS;
+		}
+	}
 
 	if (argc < 1 || argv[0] == nullptr)
 	{
