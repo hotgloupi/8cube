@@ -34,7 +34,7 @@ namespace etc { namespace test {
 			bool success = false;
 			std::string error;
 			try {
-				ETC_TRACE.debug("Test", ptr->name, "at", ptr->file, ptr->line);
+				ETC_TRACE.debug("Running test", ptr->name, "at", ptr->file, ptr->line);
 				(*ptr)();
 				success = true;
 			} catch (std::exception const& e) {
@@ -46,7 +46,7 @@ namespace etc { namespace test {
 			}
 
 			if (success)
-				ETC_LOG.debug("Test", ptr->name, "succeded");
+				ETC_LOG.debug("Test", ptr->name, "succeded.");
 			else
 			{
 				ETC_LOG.error("Test", ptr->name, "failed:", error);
