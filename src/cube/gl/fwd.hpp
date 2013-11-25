@@ -3,6 +3,7 @@
 
 # include <cube/api.hpp>
 
+# include <etc/memory.hpp>
 # include <etc/types.hpp>
 
 namespace glm { namespace detail {
@@ -46,6 +47,12 @@ namespace cube { namespace gl {
 
 	}
 
+	namespace material {
+
+		class CUBE_API Material;
+		typedef std::unique_ptr<Material> MaterialPtr;
+
+	}
 
 	namespace matrix {
 
