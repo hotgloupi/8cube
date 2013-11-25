@@ -3,10 +3,15 @@
 
 # include <cube/gl/renderer/constants.hpp>
 # include <cube/gl/mesh.hpp>
+# include <cube/gl/material.hpp>
+
+# include <etc/enum.hpp>
 
 # include <assimp/Importer.hpp>
 # include <assimp/scene.h>
 # include <assimp/postprocess.h>
+
+# include <unordered_map>
 
 namespace cube { namespace scene { namespace detail {
 
@@ -74,6 +79,84 @@ namespace cube { namespace scene { namespace detail {
 	typename assimp_cast_t<kind>::to_type const&
 	assimp_cast(typename assimp_cast_t<kind>::from_type const& value)
 	{ return reinterpret_cast<typename assimp_cast_t<kind>::to_type const&>(value); }
+
+	inline
+	gl::material::TextureMapping
+	assimp_cast(aiTextureMapping const value)
+	{
+		static std::unordered_map<
+			  aiTextureMapping
+			, gl::material::TextureMapping
+			, etc::enum_hash
+		> map = {
+			{aiTextureMapping_UV, gl::material::TextureMapping::uv},
+			{aiTextureMapping_SPHERE, gl::material::TextureMapping::sphere},
+			{aiTextureMapping_CYLINDER, gl::material::TextureMapping::cylinder},
+			{aiTextureMapping_BOX, gl::material::TextureMapping::box},
+			{aiTextureMapping_PLANE, gl::material::TextureMapping::plane},
+		};
+		return map.at(value);
+	}
+
+	inline
+	gl::material::TextureMapMode
+	assimp_cast(aiTextureMapMode const value)
+	{
+		static std::unordered_map<
+			  aiTextureMapMode
+			, gl::material::TextureMapMode
+			, etc::enum_hash
+		> map = {
+			{aiTextureMapMode_Wrap, gl::material::TextureMapMode::wrap},
+			{aiTextureMapMode_Clamp, gl::material::TextureMapMode::clamp},
+			{aiTextureMapMode_Decal, gl::material::TextureMapMode::decal},
+			{aiTextureMapMode_Mirror, gl::material::TextureMapMode::mirror},
+		};
+		return map.at(value);
+	}
+
+	inline
+	gl::material::TextureType
+	assimp_cast(aiTextureType const value)
+	{
+		static std::unordered_map<
+			  aiTextureType
+			, gl::material::TextureType
+			, etc::enum_hash
+		> map = {
+			{aiTextureType_DIFFUSE, gl::material::TextureType::diffuse},
+			{aiTextureType_SPECULAR, gl::material::TextureType::specular},
+			{aiTextureType_AMBIENT, gl::material::TextureType::ambient},
+			{aiTextureType_EMISSIVE, gl::material::TextureType::emissive},
+			{aiTextureType_HEIGHT, gl::material::TextureType::height},
+			{aiTextureType_NORMALS, gl::material::TextureType::normals},
+			{aiTextureType_SHININESS, gl::material::TextureType::shininess},
+			{aiTextureType_OPACITY, gl::material::TextureType::opacity},
+			{aiTextureType_DISPLACEMENT, gl::material::TextureType::displacement},
+			{aiTextureType_LIGHTMAP, gl::material::TextureType::lightmap},
+			{aiTextureType_REFLECTION, gl::material::TextureType::reflection},
+		};
+		return map.at(value);
+	}
+
+	inline
+	gl::material::TextureOperation
+	assimp_cast(aiTextureOp const value)
+	{
+		static std::unordered_map<
+			  aiTextureOp
+			, gl::material::TextureOperation
+			, etc::enum_hash
+		> map = {
+			{aiTextureOp_Multiply, gl::material::TextureOperation::multiply},
+			{aiTextureOp_Add, gl::material::TextureOperation::add},
+			{aiTextureOp_Subtract, gl::material::TextureOperation::subtract},
+			{aiTextureOp_Divide, gl::material::TextureOperation::divide},
+			{aiTextureOp_SmoothAdd, gl::material::TextureOperation::smooth_add},
+			{aiTextureOp_SignedAdd, gl::material::TextureOperation::signed_add},
+		};
+		return map.at(value);
+	}
 
 }}}
 
