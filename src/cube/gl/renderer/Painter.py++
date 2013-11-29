@@ -97,7 +97,6 @@ namespace {
 			static
 			PainterBindProxy* bind(renderer::Painter& self, boost::python::list bindables)
 			{
-				//self.bind(o);
 				return new PainterBindProxy{self, bindables};
 			}
 

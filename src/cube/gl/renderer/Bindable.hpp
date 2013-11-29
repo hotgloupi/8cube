@@ -75,6 +75,7 @@ namespace cube { namespace gl { namespace renderer {
 		void _unbind(InternalMethod) noexcept
 		{ if (--_bound == 0) _unbind(); }
 
+	protected:
 		/**
 		 * @brief Bind guard used by the painter.
 		 *
