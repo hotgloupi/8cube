@@ -9,7 +9,7 @@ BOOST_PYTHON_MODULE(State)
 
 	typedef void(State::*get_matrix_t)(matrix_type const&);
 
-	py::class_<State, boost::noncopyable>("State", py::init<State const&>())
+	py::class_<State, boost::noncopyable>("State", py::init<Mode>())
 
 # define EXPORT_STATE_MATRIX(__name)                                          \
 		.add_property(                                                    \
@@ -35,5 +35,12 @@ BOOST_PYTHON_MODULE(State)
 				py::return_internal_reference<>()
 			)
 		)
+
+		.def("translate", &State::translate, py::return_self<>())
+		.def("scale", &State::scale, py::return_self<>())
+		.def("rotate", &State::rotate, py::return_self<>())
+		.def("look_at", &State::look_at, py::return_self<>())
+		.def("perspective", &State::perspective, py::return_self<>())
+		.def("ortho", &State::ortho, py::return_self<>())
 	;
 }

@@ -33,4 +33,63 @@ namespace cube { namespace gl { namespace renderer {
 		_mvp_dirty = true;
 	}
 
+	State& State::scale(component_type const x,
+	                    component_type const y,
+	                    component_type const z) noexcept
+	{
+		_matrices[(size_t) MatrixKind::model] =
+			matrix::scale(this->model(), x, y, z);
+		_mvp_dirty = true;
+		return *this;
+	}
+
+	State& State::translate(component_type const x,
+	                        component_type const y,
+	                        component_type const z) noexcept
+	{
+		_matrices[(size_t) MatrixKind::model] =
+			matrix::translate(this->model(), x, y, z);
+		_mvp_dirty = true;
+		return *this;
+	}
+
+	State& State::rotate(units::Angle const angle,
+	                     vector_type const& axis) noexcept
+	{
+		_matrices[(size_t) MatrixKind::model] =
+			matrix::rotate(this->model(), angle, axis);
+		_mvp_dirty = true;
+		return *this;
+	}
+
+	State& State::look_at(vector_type const& eye,
+	                      vector_type const& center,
+	                      vector_type const& up) noexcept
+	{
+		_matrices[(size_t) MatrixKind::view] = matrix::look_at(eye, center, up);
+		_mvp_dirty = true;
+		return *this;
+	}
+
+	State& State::perspective(component_type const fov,
+	                          component_type const aspect,
+	                          component_type const near,
+	                          component_type const far) noexcept
+	{
+		_matrices[(size_t) MatrixKind::projection] =
+			matrix::perspective(fov, aspect, near, far);
+		_mvp_dirty = true;
+		return *this;
+	}
+
+	State& State::ortho(component_type const x,
+	                    component_type const y,
+	                    component_type const w,
+	                    component_type const h) noexcept
+	{
+		_matrices[(size_t) MatrixKind::projection] = matrix::ortho(x, y, w, h);
+		_mvp_dirty = true;
+		return *this;
+	}
+
 }}} // !cube::gl::renderer
