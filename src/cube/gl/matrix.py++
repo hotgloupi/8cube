@@ -31,10 +31,12 @@ namespace {
 BOOST_PYTHON_MODULE(matrix)
 {
 	BOOST_PYTHON_DOCSTRING_OPTIONS();
-	py::class_<matrix::Matrix44f>("Matrix44f")
+	py::class_<matrix::Matrix44f>("Matrix44f", py::init<>())
+		.def(py::init<matrix::Matrix44f const&>())
 		.def("__str__", &print_obj<matrix::Matrix44f>)
-		.def(py::self * py::self)
 		.def("__getitem__", &matrix_row, py::return_internal_reference<>())
+		.def(py::self == py::self)
+		.def(py::self * py::self)
 	;
 	py::def("perspective", &matrix::perspective<float>);
 	py::def("look_at", &matrix::look_at<float>);
