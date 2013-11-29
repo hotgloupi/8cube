@@ -10,9 +10,9 @@ class _(TestCase):
     def test_normalized(self):
         p = Planef(vec3f(0,0,0), vec3f(0,1,0))
 
-        print(p, p.normal, p.coef)
+        #print(p, p.normal, p.coef)
         p = Planef(vec3f(1,0,0),vec3f(0,0,0), vec3f(0,0,1))
-        print(p, p.normal, p.coef)
+        #print(p, p.normal, p.coef)
 
     def test_distance(self):
         p = Planef(vec3f(0,0,0), vec3f(0,1,0))
