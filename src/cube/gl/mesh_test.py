@@ -41,12 +41,14 @@ class _(PainterSetup, TestCase):
         m.append(gl.vec3f(0, 100, 0))
         m.append(gl.vec3f(100, 100, 0))
         m.append(gl.vec3f(100, 0, 0))
-        #m.append(gl.vec3f(0, 0, 0))
         m.kind = gl.ContentKind.color
         m.append(gl.Color3f("red"))
         m.append(gl.Color3f("blue"))
         m.append(gl.Color3f("green"))
         m.append(gl.Color3f("gray"))
-        m.append(gl.Color3f("red"))
 
-        painter.draw([m.view(self.renderer)])
+        view = m.view(self.renderer)
+
+        with painter.bind([self.shader]):
+            self.shader['cube_MVP'] = painter.state.mvp
+            painter.draw([view])
