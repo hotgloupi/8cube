@@ -4,31 +4,52 @@ from cube import gl
 from unittest import TestCase
 
 class _(PainterSetup, TestCase):
+    class VSRoutine(gl.ShaderRoutine):
+        def source(self, lang):
+            return """
+                gl_Position = cube_MVP * vec4(cube_Vertex, 1);
+                gl_TexCoord[0] = vec4(cube_TexCoord0, 1);
+            """
+
+    vs_inputs = [
+        (
+            gl.ShaderParameterType.vec3,
+            "cube_Vertex",
+            gl.ContentKind.vertex
+        ),
+        (
+            gl.ShaderParameterType.vec3,
+            "cube_TexCoord0",
+            gl.ContentKind.tex_coord0
+        ),
+    ]
+
+    vs_outputs = []
+
+    class FSRoutine(gl.ShaderRoutine):
+        def source(self, lang):
+            return """
+                cube_FragColor = texture2D(sampler0, vec2(gl_TexCoord[0]));
+            """
+
+    fs_parameters = [
+        (
+            gl.ShaderParameterType.sampler2d,
+            "sampler0"
+        ),
+    ]
+
+    fs_inputs = []
+    fs_outputs = [
+        (
+            gl.ShaderParameterType.vec4,
+            "cube_FragColor",
+            gl.ContentKind.color
+        ),
+    ]
 
     def setUp(self):
         super().setUp()
-
-        self.vs = self.renderer.new_vertex_shader([
-            """
-            uniform mat4 cube_MVP;
-            void main(void)
-            {
-                gl_Position = cube_MVP * gl_Vertex;
-                gl_TexCoord[0] = gl_MultiTexCoord0;
-            }
-            """
-        ])
-
-        self.fs = self.renderer.new_fragment_shader([
-            """
-            uniform sampler2D sampler0;
-            void main(void)
-            {
-                gl_FragColor = texture2D(sampler0, vec2(gl_TexCoord[0]));
-            }
-            """
-        ])
-        self.shader = self.renderer.new_shader_program([self.fs, self.vs])
 
         x, y, w, h = (
             0, 0,
