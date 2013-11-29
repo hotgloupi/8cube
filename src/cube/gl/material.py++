@@ -1,0 +1,97 @@
+#include "material.hpp"
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/renderer/Bindable.hpp>
+
+#include <wrappers/boost/python.hpp>
+
+namespace {
+
+	using namespace cube::gl::material;
+
+	template<typename ReturnType>
+	auto getter_cast(ReturnType (Material::*ptr)() const)
+		-> ReturnType (Material::*)() const
+	{ return ptr; }
+
+	template<typename Arg>
+	auto setter_cast(void (Material::*ptr)(Arg))
+		-> void (Material::*)(Arg)
+	{ return ptr; }
+
+}
+
+BOOST_PYTHON_MODULE(material)
+{
+	namespace py = boost::python;
+	using namespace cube::gl::material;
+
+	py::enum_<TextureMapping>("TextureMapping")
+		.value("uv", TextureMapping::uv)
+		.value("sphere", TextureMapping::sphere)
+		.value("cylinder", TextureMapping::cylinder)
+		.value("box", TextureMapping::box)
+		.value("plane", TextureMapping::plane)
+	;
+
+	py::enum_<StackOperation>("StackOperation")
+		.value("multiply", StackOperation::multiply)
+		.value("add", StackOperation::add)
+		.value("subtract", StackOperation::subtract)
+		.value("divide", StackOperation::divide)
+		.value("smooth_add", StackOperation::smooth_add)
+		.value("signed_add", StackOperation::signed_add)
+	;
+
+	py::enum_<TextureMapMode>("TextureMapMode")
+		.value("wrap", TextureMapMode::wrap)
+		.value("clamp", TextureMapMode::clamp)
+		.value("decal", TextureMapMode::decal)
+		.value("mirror", TextureMapMode::mirror)
+	;
+
+	py::enum_<BlendMode>("BlendMode")
+		.value("basic", BlendMode::basic)
+		.value("additive", BlendMode::additive)
+	;
+
+	py::enum_<TextureType>("TextureType")
+		.value("diffuse", TextureType::diffuse)
+		.value("specular", TextureType::specular)
+		.value("ambient", TextureType::ambient)
+		.value("emissive", TextureType::emissive)
+		.value("height", TextureType::height)
+		.value("normals", TextureType::normals)
+		.value("shininess", TextureType::shininess)
+		.value("opacity", TextureType::opacity)
+		.value("displacement", TextureType::displacement)
+		.value("lightmap", TextureType::lightmap)
+		.value("reflection", TextureType::reflection)
+	;
+
+
+	py::class_<Material>("Material")
+		.def(py::init<std::string>())
+#define ADD_PROPERTY(__name) \
+		.add_property( \
+			#__name, \
+			py::make_function( \
+			 	getter_cast(&Material::__name), \
+				py::return_value_policy<py::return_by_value>() \
+			), \
+			py::make_function( \
+				setter_cast(&Material::__name) \
+			) \
+		) \
+/**/
+		ADD_PROPERTY(name)
+		ADD_PROPERTY(ambient)
+		ADD_PROPERTY(diffuse)
+		ADD_PROPERTY(specular)
+		ADD_PROPERTY(shininess)
+		ADD_PROPERTY(opacity)
+#undef ADD_PROPERTY
+		.def("bindable", &Material::bindable)
+	;
+
+
+}
