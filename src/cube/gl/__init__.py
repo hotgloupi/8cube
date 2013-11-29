@@ -40,6 +40,12 @@ Exported enumerations:
     XAxis (left, right)
     YAxis (top, down)
     ZAxis (front, back)
+    TextureMapping (uv, sphere, cylinder, box, plane)
+    StackOperation (multiply, add, subtract, divide, smooth_add, signed_add)
+    TextureMapMode (wrap, clamp, decal, mirror)
+    BlendMode (basic, additive)
+    TextureType (diffuse, specular, ambient, emissive, height, normals,
+                 shininess, opacity, displacement, lightmap, reflection)
 
 """
 
@@ -52,7 +58,7 @@ from .color import Color3f, Color4f
 from .cube import Cube3f, Cube3d, Cube3i, Cube3u, Cube3il, Cube3ul
 from .text import Text
 from .font import Font
-from .material import Material
+from .material import *
 from .matrix import Matrix44f
 from .mesh import Mesh
 from .plane import Planef, Planed
