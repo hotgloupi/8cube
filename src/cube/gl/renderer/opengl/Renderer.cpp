@@ -76,7 +76,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		{
 		case Mode::_2d:
 			gl::Disable(GL_CULL_FACE);
-			gl::Disable(GL_DEPTH_TEST);
+			gl::Enable(GL_DEPTH_TEST);
 			gl::Enable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			break;
@@ -96,6 +96,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	                               cube::gl::renderer::ContentType type,
 	                               void* indices)
 	{
+		ETC_TRACE.debug("Draw elements", mode, count, type, indices);
 		gl::DrawElements(
 			gl::get_draw_mode(mode),
 			count,
