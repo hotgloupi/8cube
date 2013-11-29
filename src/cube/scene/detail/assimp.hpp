@@ -140,20 +140,20 @@ namespace cube { namespace scene { namespace detail {
 	}
 
 	inline
-	gl::material::TextureOperation
+	gl::material::StackOperation
 	assimp_cast(aiTextureOp const value)
 	{
 		static std::unordered_map<
 			  aiTextureOp
-			, gl::material::TextureOperation
+			, gl::material::StackOperation
 			, etc::enum_hash
 		> map = {
-			{aiTextureOp_Multiply, gl::material::TextureOperation::multiply},
-			{aiTextureOp_Add, gl::material::TextureOperation::add},
-			{aiTextureOp_Subtract, gl::material::TextureOperation::subtract},
-			{aiTextureOp_Divide, gl::material::TextureOperation::divide},
-			{aiTextureOp_SmoothAdd, gl::material::TextureOperation::smooth_add},
-			{aiTextureOp_SignedAdd, gl::material::TextureOperation::signed_add},
+			{aiTextureOp_Multiply, gl::material::StackOperation::multiply},
+			{aiTextureOp_Add, gl::material::StackOperation::add},
+			{aiTextureOp_Subtract, gl::material::StackOperation::subtract},
+			{aiTextureOp_Divide, gl::material::StackOperation::divide},
+			{aiTextureOp_SmoothAdd, gl::material::StackOperation::smooth_add},
+			{aiTextureOp_SignedAdd, gl::material::StackOperation::signed_add},
 		};
 		return map.at(value);
 	}
