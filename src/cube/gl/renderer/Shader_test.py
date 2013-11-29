@@ -42,7 +42,7 @@ class _(ShaderSetup, TestCase):
 
     def test_init_empty_list(self):
         try:
-            self.renderer.new_shader(ShaderType.vertex, [])
+            self.renderer.new_vertex_shader([])
         except CubeException as e:
             self.assertEqual(str(e), "Source list is empty")
         else:
@@ -51,7 +51,7 @@ class _(ShaderSetup, TestCase):
 
     def test_init_invalid_source(self):
         try:
-            self.renderer.new_shader(ShaderType.fragment, [":LOL:"])
+            self.renderer.new_fragment_shader([":LOL:"])
         except CubeException as e:
             self.assertTrue(str(e).startswith("Cannot compile shader:"))
         else:
