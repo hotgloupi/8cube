@@ -152,7 +152,9 @@ def painter_test(mode, delta = 0.01):
 
             with self.renderer.begin(mode) as painter:
                 with painter.bind([self.target]):
-                    self.renderer.clear(1)
+                    self.renderer.clear(
+                        gl.BufferBit.color | gl.BufferBit.depth
+                    )
                     func(self, painter)
                 self.target.save(img)
 
@@ -170,7 +172,9 @@ def painter_test(mode, delta = 0.01):
                 while running:
                     self.window.swap_buffers()
                     with self.renderer.begin(mode) as painter:
-                        self.renderer.clear(1)
+                        self.renderer.clear(
+                            gl.BufferBit.color | gl.BufferBit.depth
+                        )
                         func(self, painter)
                     self.window.poll()
                 slot.disconnect()
