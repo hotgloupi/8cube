@@ -3,6 +3,7 @@
 #include "detail/assimp.hpp"
 #include "Graph.hpp"
 
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
 #include <etc/memory.hpp>
 #include <etc/scope_exit.hpp>
@@ -232,7 +233,7 @@ namespace {
 					throw Exception{"Unhandled mapping format"};
 				}
 
-				res->textures().emplace_back(
+				res->add_texture(
 					path.C_Str(),
 					assimp_cast(type),
 					assimp_cast(mapping),
@@ -260,14 +261,7 @@ namespace cube { namespace scene {
 
 		Impl(aiScene const* assimp_scene)
 		{
-			assert(assimp_scene != nullptr);
-			for (unsigned int i = 0; i < assimp_scene->mNumMeshes; ++i)
-			{
-				ETC_LOG.debug("Loading mesh", i);
-				this->meshes.emplace_back(
-					assimp_mesh(assimp_scene->mMeshes[i])
-				);
-			}
+			ETC_ASSERT(assimp_scene != nullptr);
 
 			for (unsigned int i = 0; i < assimp_scene->mNumMaterials; ++i)
 			{
@@ -275,6 +269,20 @@ namespace cube { namespace scene {
 				this->materials.emplace_back(
 					assimp_material(assimp_scene->mMaterials[i])
 				);
+			}
+
+			for (unsigned int i = 0; i < assimp_scene->mNumMeshes; ++i)
+			{
+				ETC_LOG.debug("Loading mesh", i);
+				auto mesh = assimp_scene->mMeshes[i];
+				this->meshes.emplace_back(assimp_mesh(mesh));
+				ETC_ASSERT(mesh->mMaterialIndex < this->materials.size());
+				auto& mat = *this->materials[mesh->mMaterialIndex];
+
+				for (int ch = 0;
+				     mat.colors().size() < mesh->GetNumColorChannels();
+				     ++ch)
+					mat.add_color(gl::material::StackOperation::smooth_add);
 			}
 		}
 	};
