@@ -78,10 +78,10 @@ namespace cube { namespace gl { namespace renderer {
 		case Mode::none:
 			break;
 		case Mode::_2d:
-			this->current_state().projection(matrix::ortho<float>(
+			this->current_state().ortho(
 				_viewport.x, _viewport.w - _viewport.x,
 				_viewport.h - _viewport.y, _viewport.y
-			));
+			);
 			ETC_LOG.debug("New mvp matrix:",
 			              this->current_state().mvp());
 			break;
