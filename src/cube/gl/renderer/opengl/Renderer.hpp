@@ -27,7 +27,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	protected:
 		ShaderPtr _new_shader(ShaderType const type,
-		                     std::vector<std::string> const& sources) override;
+		                     std::vector<std::string> const& sources,
+		                     Shader::Parameters inputs,
+		                     Shader::Parameters outputs,
+		                     Shader::Parameters parameters) override;
 
 		/// Create a shader program from shaders.
 		ShaderProgramPtr

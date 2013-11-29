@@ -11,14 +11,16 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	class Shader
 		: public renderer::Shader
 	{
-	public:
-		renderer::ShaderType const type;
+		typedef renderer::Shader Super;
 	private:
 		GLuint _id;
 
 	public:
 		Shader(renderer::ShaderType const type,
-		       std::vector<std::string> const& sources);
+		       std::vector<std::string> const& sources,
+		       Shader::Parameters inputs,
+		       Shader::Parameters outputs,
+		       Shader::Parameters parameters);
 		virtual ~Shader();
 
 	public:
