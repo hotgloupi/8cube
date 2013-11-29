@@ -67,3 +67,22 @@ class _(TestCase):
         self.assertEqual(v, s.view)
         self.assertNotEqual(p, s.projection)
         self.assertNotEqual(mvp, s.mvp)
+
+    def test_ortho(self):
+        s = gl.State(gl.mode_2d)
+        m = gl.Matrix44f(s.model)
+        v = gl.Matrix44f(s.view)
+        p = gl.Matrix44f(s.projection)
+        mvp = gl.Matrix44f(s.mvp)
+
+        self.assertEqual(m, s.model)
+        self.assertEqual(v, s.view)
+        self.assertEqual(p, s.projection)
+        self.assertEqual(mvp, s.mvp)
+
+        s.ortho(0, 0, 200, 200)
+
+        self.assertEqual(m, s.model)
+        self.assertEqual(v, s.view)
+        self.assertNotEqual(p, s.projection)
+        self.assertNotEqual(mvp, s.mvp)
