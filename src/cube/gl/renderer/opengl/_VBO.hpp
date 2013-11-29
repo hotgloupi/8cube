@@ -4,6 +4,8 @@
 # include "Exception.hpp"
 # include "_opengl.hpp"
 
+# include <array>
+
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	///////////////////////////////////////////////////////////////////////////
@@ -11,9 +13,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	struct gl::SubVBO
 	{
-	private:
-		typedef std::function<void(gl::SubVBO const&)> pointer_method_t;
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.SubVBO");
+	public:
+		typedef void (*method_t)(SubVBO const&);
+		static size_t const content_kinds = (size_t)ContentKind::_max_value;
+		typedef std::array<method_t, content_kinds> method_array_t;
+
 	public:
 		GLuint                          id;
 		VertexBufferAttribute const*    attr;
@@ -24,9 +29,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 
 	private:
-		static pointer_method_t _pointer_methods[
-			(size_t)ContentKind::_max_value
-		];
+		static method_array_t _methods;
 
 	public:
 		inline
@@ -48,24 +51,16 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		SubVBO(SubVBO const&) = default;
 		SubVBO& operator =(SubVBO const&) = default;
 
-		void bind()
-		{
-			if (this->gl_kind != 0)
-				gl::EnableClientState(this->gl_kind);
-			_pointer_methods[(size_t) this->attr->kind](*this);
-		}
+		void bind();
 
-		void unbind() noexcept
-		{
-			if (this->gl_kind != 0)
-				gl::DisableClientState<gl::no_throw>(this->gl_kind);
-		}
+		void unbind() noexcept;
 
 		static void vertex_pointer(SubVBO const& self)
 		{
 			ETC_TRACE.debug(self, "Set the vertex pointer",
+				self.attr->kind,
 				self.attr->arity,
-				self.gl_type, (int) self.attr->kind,
+				self.gl_type,
 				self.stride,
 				self.offset
 			);
@@ -102,7 +97,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			throw false;
 		}
 
-		static void tex_coord0_pointer(SubVBO const& self)
+		static void tex_coord_pointer(SubVBO const& self)
 		{
 			gl::TexCoordPointer(
 				self.attr->arity,
@@ -110,16 +105,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				self.stride,
 				self.offset
 			);
-		}
-
-		static void tex_coord1_pointer(SubVBO const& )
-		{
-			throw false;
-		}
-
-		static void tex_coord2_pointer(SubVBO const& )
-		{
-			throw false;
 		}
 
 	};

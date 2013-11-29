@@ -12,6 +12,7 @@
 # include <etc/log.hpp>
 
 # include <stdexcept>
+# include <array>
 
 # define _CUBE_GL_ENUM_HASHABLE(E)                                            \
 	namespace std {                                                           \
@@ -89,6 +90,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		_CUBE_GL_OPENGL_WRAP(ActiveTexture);
 		_CUBE_GL_OPENGL_WRAP(AttachShader);
+		_CUBE_GL_OPENGL_WRAP(BindAttribLocation);
+		_CUBE_GL_OPENGL_WRAP(BindFragDataLocation);
 		_CUBE_GL_OPENGL_WRAP(BindTexture);
 		_CUBE_GL_OPENGL_WRAP(Clear);
 		_CUBE_GL_OPENGL_WRAP(ClearColor);
@@ -101,10 +104,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(DetachShader);
 		_CUBE_GL_OPENGL_WRAP(Disable);
 		_CUBE_GL_OPENGL_WRAP(DisableClientState);
+		_CUBE_GL_OPENGL_WRAP(DisableVertexAttribArray);
 		_CUBE_GL_OPENGL_WRAP(DrawArrays);
 		_CUBE_GL_OPENGL_WRAP(DrawElements);
 		_CUBE_GL_OPENGL_WRAP(Enable);
 		_CUBE_GL_OPENGL_WRAP(EnableClientState);
+		_CUBE_GL_OPENGL_WRAP(EnableVertexAttribArray);
 		_CUBE_GL_OPENGL_WRAP(GenTextures);
 		_CUBE_GL_OPENGL_WRAP(GenerateMipmap);
 		_CUBE_GL_OPENGL_WRAP(GetActiveUniform);
@@ -128,6 +133,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(UseProgram);
 		_CUBE_GL_OPENGL_WRAP(ValidateProgram);
 		_CUBE_GL_OPENGL_WRAP(VertexPointer);
+		_CUBE_GL_OPENGL_WRAP(VertexAttribPointer);
 		_CUBE_GL_OPENGL_WRAP(Viewport);
 		_CUBE_GL_OPENGL_WRAP_ARB(BindBuffer);
 		_CUBE_GL_OPENGL_WRAP_ARB(BufferData);
@@ -161,11 +167,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GLenum get_content_packing(renderer::ContentPacking value)
 		{ return _content_packing_map[(size_t) value]; }
 
-		static inline
-		GLenum get_content_kind(renderer::ContentKind value)
-		{ return _content_kind_map[(size_t) value]; }
+		static
+		GLenum get_content_kind(renderer::ContentKind value);
 
-		static inline
+		static
 		GLenum get_content_hint(renderer::ContentHint value)
 		{ return _content_hint_map[(size_t) value]; }
 
@@ -181,14 +186,26 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		renderer::PixelFormat to_pixel_format(GLenum value) noexcept;
 		static
 		renderer::ContentPacking to_content_packing(GLenum value) noexcept;
-	private:
-		static GLenum _draw_mode_map[(size_t)renderer::DrawMode::_max_value];
-		static GLenum _content_type_map[(size_t)renderer::ContentType::_max_value];
-		static GLenum _content_packing_map[(size_t)renderer::ContentPacking::_max_value];
-		static GLenum _content_kind_map[(size_t)renderer::ContentKind::_max_value];
-		static GLenum _content_hint_map[(size_t)renderer::ContentHint::_max_value];
-		static GLenum _shader_type_map[(size_t)renderer::ShaderType::_max_value];
-		static GLenum _pixel_format_map[(size_t)renderer::PixelFormat::_max_value];
+	public:
+		static size_t const _draw_modes = (size_t) renderer::DrawMode::_max_value;
+		static std::array<GLenum, _draw_modes> _draw_mode_map;
+
+		static size_t const _content_types = (size_t)renderer::ContentType::_max_value;
+		static std::array<GLenum, _content_types> _content_type_map;
+
+		static size_t const _content_packings = (size_t)renderer::ContentPacking::_max_value;
+		static std::array<GLenum, _content_packings> _content_packing_map;
+
+
+		static size_t const _content_hints = (size_t)renderer::ContentHint::_max_value;
+		static std::array<GLenum, _content_hints> _content_hint_map;
+
+		static size_t const _shader_types = (size_t)renderer::ShaderType::_max_value;
+		static std::array<GLenum, _shader_types> _shader_type_map;
+
+		static size_t const _pixel_formats = (size_t)renderer::PixelFormat::_max_value;
+		static std::array<GLenum, _pixel_formats> _pixel_format_map;
+
 
 	public:
 		struct SubVBO;

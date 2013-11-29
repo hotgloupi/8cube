@@ -1,11 +1,13 @@
 #include "Exception.hpp"
 #include "_opengl.hpp"
 
+#include <etc/abort.hpp>
+
 #include <map>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	GLenum gl::_draw_mode_map[(size_t)DrawMode::_max_value] = {
+	std::array<GLenum, gl::_draw_modes> gl::_draw_mode_map{
 		GL_POINTS,
 		GL_LINES,
 		GL_LINE_STRIP,
@@ -18,11 +20,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GL_POLYGON,
 	};
 
-	GLenum gl::_content_type_map[(size_t)ContentType::_max_value] = {
+	std::array<GLenum, gl::_content_types> gl::_content_type_map{
 		GL_BYTE,    GL_UNSIGNED_BYTE,   GL_SHORT,   GL_UNSIGNED_SHORT,
 		GL_INT,     GL_UNSIGNED_INT,    GL_FLOAT
 	};
-	GLenum gl::_content_packing_map[(size_t)ContentPacking::_max_value] = {
+	std::array<GLenum, gl::_content_packings> gl::_content_packing_map{
 		GL_UNSIGNED_BYTE,
 		GL_BYTE,
 		GL_UNSIGNED_SHORT,
@@ -44,24 +46,50 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GL_UNSIGNED_INT_2_10_10_10_REV,
 	};
 
-	GLenum gl::_content_kind_map[(size_t)ContentKind::_max_value]  = {
-		GL_VERTEX_ARRAY, 0, GL_COLOR_ARRAY, GL_NORMAL_ARRAY,
-		GL_TEXTURE_COORD_ARRAY,
-		GL_TEXTURE_COORD_ARRAY,
-		GL_TEXTURE_COORD_ARRAY,
-	};
+	GLenum gl::get_content_kind(renderer::ContentKind value)
+	{
+		typedef renderer::ContentKind K;
+		static int const kinds = (int) K::_max_value;
+		static std::array<GLenum, kinds> content_kind_map = [] {
+			std::array<GLenum, kinds> res;
+			res[(int)K::vertex] = GL_VERTEX_ARRAY;
+			res[(int)K::index] = 0;
+			res[(int)K::normal] = GL_NORMAL_ARRAY;
 
-	GLenum gl::_content_hint_map[(size_t)ContentHint::_max_value] = {
+			res[(int)K::color] = GL_COLOR_ARRAY;
+			for (int i = (int) K::color0; i < (int) K::_max_color; ++i)
+				res[i] = GL_COLOR_ARRAY;
+
+			res[(int)K::tex_coord] = GL_TEXTURE_COORD_ARRAY;
+			for (int i = (int) K::tex_coord0; i < (int) K::_max_tex_coord; ++i)
+				res[i] = GL_TEXTURE_COORD_ARRAY;
+
+			int n;
+			glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
+			if (n > 0 && n < kinds)
+			{
+				etc::print("max vertex attribs", n);
+				etc::abort(
+					"Too many attribute :" +
+					std::to_string(n) + " < " + std::to_string(kinds)
+				);
+			}
+			return res;
+		}();
+		return content_kind_map[(int)value];
+	}
+
+	std::array<GLenum, gl::_content_hints> gl::_content_hint_map{
 		GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW,
 	};
 
-	GLenum gl::_shader_type_map[(size_t)ShaderType::_max_value] = {
+	std::array<GLenum, gl::_shader_types> gl::_shader_type_map{
 		GL_FRAGMENT_SHADER,
 		GL_VERTEX_SHADER,
 	};
 
 
-	GLenum gl::_pixel_format_map[(size_t)PixelFormat::_max_value] = {
+	std::array<GLenum, gl::_pixel_formats> gl::_pixel_format_map{
 
 		//////////// Table 1. Base Internal Formats
 		// Base Internal Format     RGBA, Depth and Stencil Values  Internal Components
