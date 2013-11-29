@@ -8,7 +8,9 @@ from cube.gl import \
         DrawMode, \
         Name, \
         matrix, \
-        Surface
+        Surface, \
+        ShaderType
+from cube import gl
 
 from cube.system import create_window, WindowFlags
 import os
@@ -20,30 +22,82 @@ import inspect
 from unittest import TestCase
 
 class PainterSetup:
+    class VSRoutine(gl.ShaderRoutine):
+        def source(self, lang):
+            return """
+               gl_Position = cube_MVP * vec4(cube_Vertex, 1);
+               cube_Color = vec4(cube_VertexColor, 1);
+            """
+    vs_inputs = [
+        (
+            gl.ShaderParameterType.vec3,
+            "cube_Vertex",
+            gl.ContentKind.vertex
+        ),
+        (
+            gl.ShaderParameterType.vec3,
+            "cube_VertexColor",
+            gl.ContentKind.color
+        ),
+    ]
+
+    vs_outputs = [
+        (
+            gl.ShaderParameterType.vec4,
+            "cube_Color",
+            gl.ContentKind.color
+        ),
+    ]
+
+    vs_parameters = [
+        (
+            gl.ShaderParameterType.mat4,
+            "cube_MVP"
+        ),
+    ]
+
+    class FSRoutine(gl.ShaderRoutine):
+        def source(self, lang):
+            return """
+               cube_FragColor = cube_Color;
+                """
+    fs_inputs = [
+        (
+            gl.ShaderParameterType.vec4,
+            "cube_Color",
+            gl.ContentKind.color
+        ),
+    ]
+
+    fs_outputs = [
+        (
+            gl.ShaderParameterType.vec4,
+            "cube_FragColor",
+            gl.ContentKind.color
+        ),
+    ]
+
+    fs_parameters = []
 
     def setUp(self):
-        self.window = create_window("PainterSetup", 200, 200, WindowFlags.hidden, Name.OpenGL)
+        self.window = create_window(
+            "PainterSetup", 200, 200, WindowFlags.hidden, Name.OpenGL
+        )
         self.renderer = self.window.renderer
         # Should be created before any shader
         self.target = self.renderer.context.new_render_target()
 
-        self.vs = self.renderer.new_vertex_shader([
-            """
-            uniform mat4 cube_MVP;
-            void main(void)
-            {
-               gl_FrontColor = gl_Color;
-               gl_Position = cube_MVP * gl_Vertex;
-            }
-            """
-        ])
+        gen = self.renderer.generate_shader(gl.ShaderType.vertex)
+        for i in self.vs_inputs: gen.input(*i)
+        for o in self.vs_outputs: gen.output(*o)
+        for p in self.vs_parameters: gen.parameter(*p)
+        self.vs = gen.routine(self.VSRoutine, "main").shader()
 
-        self.fs = self.renderer.new_fragment_shader(["""
-            void main(void)
-            {
-                gl_FragColor = gl_Color;
-            }
-        """])
+        gen = self.renderer.generate_shader(gl.ShaderType.fragment)
+        for i in self.fs_inputs: gen.input(*i)
+        for o in self.fs_outputs: gen.output(*o)
+        for p in self.fs_parameters: gen.parameter(*p)
+        self.fs = gen.routine(self.FSRoutine, "main").shader()
 
         x, y, w, h = (
             11, 42,
@@ -51,15 +105,15 @@ class PainterSetup:
         )
         self.shader = self.renderer.new_shader_program([self.fs, self.vs])
         self.vb = self.renderer.new_vertex_buffer([
-            make_vba(
-                ContentKind.vertex,
-                list(vec2f(*v) for v in [
-                    (x, y),
-                    (x + w, y),
-                    (x + w, y + h),
-                    (x, y + h)
+            gl.make_vba(
+                gl.ContentKind.vertex,
+                list(gl.vec3f(*v) for v in [
+                    (x, y, 0),
+                    (x + w, y, 0),
+                    (x + w, y + h, 0),
+                    (x, y + h, 0)
                 ]),
-                ContentHint.static_content
+                gl.ContentHint.static_content
             ),
             make_vba(
                 ContentKind.color,
