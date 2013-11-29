@@ -11,6 +11,8 @@ namespace etc {
 	template<typename T>
 	struct stack_ptr
 	{
+	public:
+		typedef T value_type;
 	private:
 		bool _valid;
 		union { T _value; };
@@ -56,6 +58,20 @@ namespace etc {
 			new (&_value) T{std::forward<Args>(args)...};
 			_valid = true;
 		}
+
+		inline operator bool() const noexcept { return _valid; }
+
+		inline
+		value_type* operator ->() noexcept { return &_value; }
+
+		inline
+		value_type const* operator ->() const noexcept { return &_value; }
+
+		inline
+		value_type& operator *() noexcept { return _value; }
+
+		inline
+		value_type const& operator *() const noexcept { return _value; }
 	};
 
 }
