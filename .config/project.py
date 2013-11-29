@@ -244,10 +244,11 @@ def configure(project, build):
                 'Dbghelp',
             ]
         )
-    elif platform.IS_MACOSX:
+    else: #elif platform.IS_MACOSX:
         base_libraries.extend(
             c.libraries.simple(name, compiler, shared=True) for name in ['z', 'bz2',]
         )
+
 
     libglew = compiler.link_static_library(
         'libglew',
@@ -336,7 +337,7 @@ def configure(project, build):
         libcubeapp,
         libcube,
         libetc,
-    ] + graphic_libraries + boost.libraries + python.libraries
+    ] + graphic_libraries + boost.libraries + python.libraries + base_libraries
 
     infinit_cube = compiler.link_executable(
         "8cube",
