@@ -136,6 +136,7 @@ BOOST_PYTHON_MODULE(ShaderGenerator)
 		                                          std::string const&,
 		                                          ContentKind const);
 
+	typedef py::return_self<> return_self;
 	py::class_<ShaderGeneratorProxy>("ShaderGeneratorProxy", py::no_init)
 		.def_readonly("type", &ShaderGeneratorProxy::type)
 		.def_readonly("parameters", &ShaderGeneratorProxy::parameters)
@@ -146,27 +147,27 @@ BOOST_PYTHON_MODULE(ShaderGenerator)
 		.def(
 			"input",
 			static_cast<set_param_t>(&ShaderGeneratorProxy::input),
-			py::return_internal_reference<>()
+			return_self()
 		)
 		.def(
 			"input",
 			static_cast<set_param_kind_t>(&ShaderGeneratorProxy::input),
-			py::return_internal_reference<>()
+			return_self()
 		)
 		.def(
 			"output",
 			static_cast<set_param_t>(&ShaderGeneratorProxy::output),
-			py::return_internal_reference<>()
+			return_self()
 		)
 		.def(
 			"output",
 			static_cast<set_param_kind_t>(&ShaderGeneratorProxy::output),
-			py::return_internal_reference<>()
+			return_self()
 		)
 		.def(
 			"parameter",
 			static_cast<set_param_t>(&ShaderGeneratorProxy::parameter),
-			py::return_internal_reference<>()
+			return_self()
 		)
 		.def("routine", py::raw_function(&add_routine))
 	;
