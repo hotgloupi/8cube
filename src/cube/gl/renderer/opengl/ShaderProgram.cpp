@@ -3,7 +3,9 @@
 
 #include "_opengl.hpp"
 
-#include "../Texture.hpp"
+#include <cube/gl/renderer/Texture.hpp>
+
+#include <etc/assert.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -23,6 +25,40 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				dynamic_cast<Shader const*>(shader.get()) != nullptr && "Wrong cast !?"
 			);
 			gl::AttachShader(_id, opengl_shader->id());
+		}
+
+		std::string frag_data_var;
+		for (auto& shader: shaders)
+		{
+			if (shader->type == ShaderType::vertex)
+			{
+				ETC_TRACE.debug(*this, "Bind attributes of", shader);
+				for (auto const& input: shader->inputs())
+				{
+					ETC_LOG.debug(
+						"Bind input", input.name.c_str(), "to index", input.content_kind,
+						"(" + std::to_string((int) input.content_kind) + ")"
+					);
+					gl::BindAttribLocation(_id, (int) input.content_kind, input.name.c_str());
+				}
+			}
+			else if (shader->type == ShaderType::fragment)
+			{
+				for (auto const& output: shader->outputs())
+				{
+					if (output.content_kind == ContentKind::color)
+					{
+						ETC_ASSERT_EQ(frag_data_var, ""); // one frag data.
+						ETC_LOG.debug("Bind fragment output to", output.name);
+						gl::BindFragDataLocation(
+							_id,
+							0, //(int) output.content_kind,
+							output.name.c_str()
+						);
+						frag_data_var = output.name;
+					}
+				}
+			}
 		}
 
 		ETC_LOG.debug(*this, "Link the program", _id);
@@ -51,6 +87,28 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				"Cannot link shader program: " + std::string(log)
 			};
 		}
+		GLint nb_attributes, max_name_size;
+		GLint written, size, location;
+		GLenum type;
+		glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTES, &nb_attributes);
+		glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &max_name_size);
+		std::vector<char> name(max_name_size);
+		for (int i = 0; i < nb_attributes; ++i)
+		{
+			glGetActiveAttrib(_id, i, max_name_size,
+			                  &written, &size, &type, &name[0]);
+			location = glGetAttribLocation(_id, &name[0]);
+			ETC_LOG.debug(
+				"Active bound attribute:", &name[0], "at index", location
+			);
+		}
+
+		if (not frag_data_var.empty())
+			ETC_LOG.debug(
+				"FragData named", frag_data_var, "at index ",
+				glGetFragDataLocation(_id, frag_data_var.c_str())
+			);
+
 	}
 
 	ShaderProgram::~ShaderProgram()
