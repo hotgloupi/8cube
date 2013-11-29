@@ -107,25 +107,76 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			return result;
 		}
 
-		std::string output_source(Proxy const&, Parameter const& p) const
+		std::string output_source(Proxy const& proxy, Parameter const& p) const
 		{
 			std::string result;
+			if (proxy.type == ShaderType::vertex)
+			{
+				if (p.content_kind == ContentKind::vertex)
+				{
+					result += etc::to_string(
+						"#define",
+						p.name,
+						"gl_Position"
+					) + "\n//";
+				}
+				else if (p.content_kind == ContentKind::color && this->glsl_version <= 120)
+				{
+					result += etc::to_string(
+						"#define",
+						p.name,
+						"gl_FrontColor"
+					) + "\n//";
+				}
+			}
+			else if (proxy.type == ShaderType::fragment)
+			{
+				if (p.content_kind == ContentKind::color && this->glsl_version <= 120)
+				{
+					result += etc::to_string(
+						"#define",
+						p.name,
+						"gl_FragColor"
+					) + "\n//";
+				}
+
+			}
 			result += etc::to_string(
 				this->out_qualifier,
 				this->parameter_type_source(p.type),
 				p.name + ";"
 			);
-			if (this->glsl_version <= 120)
+			return result;
+		}
+
+		std::string routine_source(Proxy const&,
+		                           ShaderRoutine const& r) const
+		{
+			std::string result;
+			if (r.return_type.is_void)
+				result += "void";
+			else
+				result += this->parameter_type_source(r.return_type.type);
+			result += " ";
+			result += r.name;
+			result += "(";
+			bool first_arg = true;
+			for (auto const& arg: r.in_arguments)
 			{
-				if (p.content_kind == ContentKind::color)
-				{
-					return etc::to_string(
-						"#define",
-						p.name,
-						"gl_FragColor"
-					);
-				}
+				if (first_arg)
+					first_arg = false;
+				else
+					result += ", ";
+				result += "in ";
+				result += this->parameter_type_source(arg.type);
+				result += arg.name;
 			}
+			result += ")\n";
+			result += "{\n";
+			result += r.source(ShaderLanguage::glsl);
+			if (result.back() != '\n')
+				result += "\n";
+			result += "}\n";
 			return result;
 		}
 	};
@@ -179,11 +230,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			ss << _this->input_source(proxy, param) << CR;
 		ss << CR;
 
-
 		ss << "// Outputs" << CR;
 		for (auto const& param: proxy.outputs)
 			ss << _this->output_source(proxy, param) << CR;
 		ss << CR;
+
+		ss <<  "// Routines" << CR;
+		for (auto const& routine: proxy.routines)
+			ss << _this->routine_source(proxy, *routine) << CR;
 
 		return ss.str();
 #undef CR
