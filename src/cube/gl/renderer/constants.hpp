@@ -98,6 +98,8 @@ namespace cube { namespace gl { namespace renderer {
 		sampler1d, sampler2d, sampler3d,
 		samplerCube,
 		sampler1DShadow, sampler2DShadow,
+
+		_max_value
 	};
 	// XXX
 	// CUBE_API
@@ -186,21 +188,33 @@ namespace cube { namespace gl { namespace renderer {
 
 	enum class ContentKind
 	{
-		vertex = 0,
-		index,
-		color,
-		normal,
-		tex_coord0,
-		tex_coord1,
-		tex_coord2,
-		tex_coord3,
-		tex_coord4,
-		tex_coord5,
-		tex_coord6,
-		tex_coord7,
+		vertex         = 0,
+		normal         = 1,
+		index          = 2,
 
-		_max_value
+		color          = 3,
+		color0         = color,
+
+		color1         = 4,
+		color2         = 5,
+		color3         = 6,
+
+		_max_color     = 7,
+		tex_coord      = 7,
+		tex_coord0     = tex_coord,
+
+		tex_coord1     = 8,
+		tex_coord2     = 9,
+		tex_coord3     = 10,
+		tex_coord4     = 11,
+		tex_coord5     = 12,
+		tex_coord6     = 13,
+		tex_coord7     = 14,
+
+		_max_tex_coord = 15,
+		_max_value = 15
 	};
+
 	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ContentKind const kind);
 
@@ -208,7 +222,8 @@ namespace cube { namespace gl { namespace renderer {
 	ContentKind operator +(ContentKind const lhs, int const rhs)
 	{
 		return (
-			(lhs == ContentKind::tex_coord0 && rhs >= 0 && rhs < 8) ?
+			((lhs == ContentKind::tex_coord0 || lhs == ContentKind::color0)
+			 && rhs >= 0 && rhs < 8) ?
 			((ContentKind) (((int) lhs) + rhs)) :
 			throw std::logic_error{"Wrong usage of operator +"}
 		);
