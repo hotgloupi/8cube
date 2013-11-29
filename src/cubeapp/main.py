@@ -97,8 +97,9 @@ def main(args):
                             '-s', os.path.join(lib_dir, lib),
                             '-t', lib_dir,
                             '-p', pattern,
-                            '-v',
+                            #'-v',
                         ],
+                        verbosity = 0,
                         exit = False
                     )
                     if not runner.result.wasSuccessful():
