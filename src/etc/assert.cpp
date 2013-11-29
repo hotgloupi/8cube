@@ -1,6 +1,10 @@
 #include "assert.hpp"
 
+#include <etc/log.hpp>
+
 namespace etc {
+
+	ETC_LOG_COMPONENT("etc");
 
 	AssertError::AssertError(std::string message) noexcept
 		: _message{std::move(message)}
@@ -18,6 +22,7 @@ namespace etc {
 		                  unsigned int line,
 		                  std::string message)
 		{
+			ETC_LOG.error(message);
 			throw AssertError{
 				std::string(file) + ":" + std::to_string(line) + ": " +
 				std::move(message)
