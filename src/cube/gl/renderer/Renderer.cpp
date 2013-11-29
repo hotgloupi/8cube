@@ -150,7 +150,10 @@ namespace cube { namespace gl { namespace renderer {
 
 	ShaderPtr
 	Renderer::new_shader(ShaderType const type,
-	                     std::vector<std::string> const& sources)
+	                     std::vector<std::string> const& sources,
+	                     Shader::Parameters inputs,
+	                     Shader::Parameters outputs,
+	                     Shader::Parameters parameters)
 	{
 		if (sources.size() == 0)
 			throw Exception{"Source list is empty"};
@@ -158,7 +161,15 @@ namespace cube { namespace gl { namespace renderer {
 		{
 		case ShaderType::vertex:
 		case ShaderType::fragment:
-			return _this->resource_manager.manage(_new_shader(type, sources));
+			return _this->resource_manager.manage(
+				_new_shader(
+					type,
+					sources,
+					std::move(inputs),
+					std::move(outputs),
+					std::move(parameters)
+				)
+			);
 		default:
 			throw Exception{"Unknown shader type"};
 		}

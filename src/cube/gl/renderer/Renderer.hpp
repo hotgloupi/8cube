@@ -141,32 +141,80 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		/// Create a shader of @a type.
 		ShaderPtr new_shader(ShaderType const type,
-		                     std::vector<std::string> const& sources);
+		                     std::vector<std::string> const& sources,
+		                     Shader::Parameters inputs = {},
+		                     Shader::Parameters outputs = {},
+		                     Shader::Parameters parameters = {});
 
 		/// Create a new vertex shader.
 		inline
-		ShaderPtr new_vertex_shader(std::vector<std::string> const& sources)
-		{ return this->new_shader(ShaderType::vertex, sources); }
+		ShaderPtr new_vertex_shader(std::vector<std::string> const& sources,
+		                            Shader::Parameters inputs = {},
+		                            Shader::Parameters outputs = {},
+		                            Shader::Parameters parameters = {})
+		{
+			return this->new_shader(
+				ShaderType::vertex,
+				sources,
+				std::move(inputs),
+				std::move(outputs),
+				std::move(parameters)
+			);
+		}
 
 		/// Create a new vertex shared from one source.
 		inline
-		ShaderPtr new_vertex_shader(std::string const& source)
-		{ return this->new_vertex_shader(std::vector<std::string>{source}); }
+		ShaderPtr new_vertex_shader(std::string const& source,
+		                            Shader::Parameters inputs = {},
+		                            Shader::Parameters outputs = {},
+		                            Shader::Parameters parameters = {})
+		{
+			return this->new_vertex_shader(
+				std::vector<std::string>{source},
+				std::move(inputs),
+				std::move(outputs),
+				std::move(parameters)
+			);
+		}
 
 		/// Create a new fragment shader.
 		inline
-		ShaderPtr new_fragment_shader(std::vector<std::string> const& sources)
-		{ return this->new_shader(ShaderType::fragment, sources); }
+		ShaderPtr new_fragment_shader(std::vector<std::string> const& sources,
+		                              Shader::Parameters inputs = {},
+		                              Shader::Parameters outputs = {},
+		                              Shader::Parameters parameters = {})
+		{
+			return this->new_shader(
+				ShaderType::fragment,
+				sources,
+				std::move(inputs),
+				std::move(outputs),
+				std::move(parameters)
+			);
+		}
 
 		/// Create a new fragment from one source.
 		inline
-		ShaderPtr new_fragment_shader(std::string const& source)
-		{ return this->new_fragment_shader(std::vector<std::string>{source}); }
+		ShaderPtr new_fragment_shader(std::string const& source,
+		                              Shader::Parameters inputs = {},
+		                              Shader::Parameters outputs = {},
+		                              Shader::Parameters parameters = {})
+		{
+			return this->new_fragment_shader(
+				std::vector<std::string>{source},
+				std::move(inputs),
+				std::move(outputs),
+				std::move(parameters)
+			);
+		}
 
 	protected:
 		virtual
 		ShaderPtr _new_shader(ShaderType const type,
-		                     std::vector<std::string> const& sources) = 0;
+		                     std::vector<std::string> const& sources,
+		                     Shader::Parameters inputs,
+		                     Shader::Parameters outputs,
+		                     Shader::Parameters parameters) = 0;
 
 		/**
 		 * @section Shader program creation
