@@ -3,6 +3,10 @@
 
 # include "fwd.hpp"
 
+# include "Exception.hpp"
+# include "Shader.hpp"
+
+# include <etc/log/component.hpp>
 # include <etc/memory.hpp>
 
 # include <vector>
@@ -26,12 +30,11 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	class CUBE_API ShaderGenerator
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderGenerator");
 	protected:
 		Renderer& _renderer;
 	public:
-		ShaderGenerator(Renderer& renderer)
-			: _renderer(renderer)
-		{}
+		ShaderGenerator(Renderer& renderer) noexcept;
 
 		virtual ~ShaderGenerator();
 
@@ -55,15 +58,58 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	class CUBE_API ShaderRoutine
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderRoutine");
 	public:
-		virtual ~ShaderRoutine();
+		struct ReturnType
+		{
+			bool is_void;
+			ShaderParameterType type;
+		};
+
+		struct Argument
+		{
+			ShaderParameterType type;
+			std::string name;
+		};
+
+		struct NotImplemented
+			: public Exception
+		{ NotImplemented() : Exception{"NotImplemented"} {} };
+
+	public:
+		ShaderGeneratorProxy& proxy;
+		ReturnType            return_type;
+		std::string           name;
+		std::vector<Argument> in_arguments;
+		std::vector<Argument> out_arguments;
+		std::vector<Argument> inout_arguments;
+
+	public:
+		ShaderRoutine(ShaderGeneratorProxy& proxy, std::string name);
 
 		virtual
-		bool is_applicable(ShaderType type) const = 0;
+		~ShaderRoutine();
 
+		/// Returns whether or not the routine is applicable for a shader of @a
+		/// type.
 		virtual
-		std::string source(ShaderGeneratorProxy const& proxy,
-		                   std::string const& name) const = 0;
+		bool is_applicable(ShaderType type) const noexcept;
+
+		/// Call one of the specialized *_source() method.
+		virtual
+		std::string source(ShaderLanguage lang) const;
+
+		/// @note Throw NotImplemented by default.
+		virtual
+		std::string glsl_source() const;
+
+		/// @note Throw NotImplemented by default.
+		virtual
+		std::string hlsl_source() const;
+
+		/// @note Throw NotImplemented by default.
+		virtual
+		std::string cg_source() const;
 	};
 
 	/**
@@ -71,31 +117,34 @@ namespace cube { namespace gl { namespace renderer {
 	 */
 	class CUBE_API ShaderGeneratorProxy
 	{
+		ETC_LOG_COMPONENT("cube.gl.renderer.ShaderGeneratorProxy");
 	public:
-		struct Parameter
-		{
-			ShaderParameterType type;
-			std::string name;
-			ContentKind content_kind;
-		};
+		typedef Shader::Parameter             Parameter;
+		typedef Shader::Parameters            Parameters;
+		typedef std::vector<ShaderRoutinePtr> Routines;
 
 	public:
-		ShaderType const        type;
-		ShaderGenerator&        generator;
-		Renderer&               renderer;
-		std::vector<Parameter>  parameters;
-		std::vector<Parameter>  inputs;
-		std::vector<Parameter>  outputs;
+		ShaderType const type;
+		ShaderGenerator& generator;
+		Renderer&        renderer;
+		Parameters       parameters;
+		Parameters       inputs;
+		Parameters       outputs;
+		Routines         routines;
 
 	public:
 		ShaderGeneratorProxy(ShaderType const type,
 		                     ShaderGenerator& generator,
 		                     Renderer& renderer);
 
-		ShaderGeneratorProxy(ShaderGeneratorProxy&& other);
 		ShaderGeneratorProxy(ShaderGeneratorProxy const&);
+		ShaderGeneratorProxy(ShaderGeneratorProxy&& other);
+		~ShaderGeneratorProxy();
 
+	private:
 		ShaderGeneratorProxy& operator =(ShaderGeneratorProxy const&) = delete;
+		ShaderGeneratorProxy& operator =(ShaderGeneratorProxy&&) = delete;
+
 	public:
 		/**
 		 * @brief Add a shader parameter.
@@ -145,8 +194,16 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * @brief Add a routine.
 		 */
-		ShaderGeneratorProxy&
-		routine(ShaderRoutinePtr routine);
+		template<typename RoutineType, typename... Args>
+		inline
+		ShaderGeneratorProxy& routine(Args&&... args)
+		{
+			return raw_routine(ShaderRoutinePtr{
+				new RoutineType{*this, std::forward<Args>(args)...}
+			});
+		}
+
+		ShaderGeneratorProxy& raw_routine(ShaderRoutinePtr routine);
 
 	public:
 		/**
