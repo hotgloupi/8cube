@@ -5,6 +5,7 @@
 # include "vector.hpp"
 
 # include <cube/api.hpp>
+# include <cube/units/angle.hpp>
 
 # include <etc/types.hpp>
 
@@ -34,7 +35,7 @@ namespace cube { namespace gl { namespace matrix {
 	>::type
 	look_at(vector::Vector3<T> const& eye,
 	        vector::Vector3<T> const& center,
-	        vector::Vector3<T> const up)
+	        vector::Vector3<T> const& up)
 	{
 		return ::glm::lookAt(eye, center, up);
 	}
@@ -61,6 +62,26 @@ namespace cube { namespace gl { namespace matrix {
 	scale(Matrix44<T> const& m, T const x, T const y, T const z)
 	{
 		return ::glm::scale(m, x, y, z);
+	}
+
+	template<typename T>
+	inline
+	typename std::enable_if<std::is_floating_point<T>::value, Matrix44<T>>::type
+	rotate(Matrix44<T> const& m,
+	       units::Angle const angle,
+	       T const x, T const y, T const z)
+	{
+		return ::glm::rotate(m, units::deg_value(angle), x, y, z);
+	}
+
+	template<typename T>
+	inline
+	typename std::enable_if<std::is_floating_point<T>::value, Matrix44<T>>::type
+	rotate(Matrix44<T> const& m,
+	       units::Angle const angle,
+	       vector::Vector3<T> const& axis)
+	{
+		return ::glm::rotate(m, units::deg_value(angle), axis);
 	}
 
 	template<typename T>
