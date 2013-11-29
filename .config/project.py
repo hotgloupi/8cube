@@ -205,6 +205,7 @@ def configure(project, build):
         'deps/assimp',
         boost = boost,
         c_compiler = c_compiler,
+        shared = False
     )
 
     sdl = build.add_dependency(
