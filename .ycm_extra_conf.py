@@ -38,6 +38,7 @@ elif sys.platform.startswith('darwin'):
     ])
 elif sys.platform.startswith('linux'):
     include_dirs.extend([
+        '/usr/include/c++/4.8',
         '/usr/include/c++/4.7',
     ])
 
