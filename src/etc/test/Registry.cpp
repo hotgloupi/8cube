@@ -2,6 +2,7 @@
 #include "Case.hpp"
 
 #include <etc/assert.hpp>
+#include <etc/abort.hpp>
 #include <etc/log.hpp>
 
 #include <vector>
@@ -41,15 +42,17 @@ namespace etc { namespace test {
 				error = std::string("Exception: ") + e.what();
 			} catch (AssertError const& e) {
 				error = std::string("AssertError: ") + e.what();
+			} catch (AbortError const& e) {
+				error = std::string("AbortError: ") + e.what();
 			} catch (...) {
 				error = "Unknown error";
 			}
 
 			if (success)
-				ETC_LOG.debug("Test", ptr->name, "succeded.");
+				ETC_LOG.debug(" -> Test", ptr->name, "succeded.");
 			else
 			{
-				ETC_LOG.error("Test", ptr->name, "failed:", error);
+				ETC_LOG.error(" -> Test", ptr->name, "failed:", error);
 				failure++;
 			}
 		}
