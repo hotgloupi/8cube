@@ -1,5 +1,6 @@
 from .material import Material
 from .renderer.Painter_test import PainterSetup, painter_test
+from cube.units import angle
 
 from cube import gl
 
@@ -41,22 +42,78 @@ class _(PainterSetup, TestCase):
         m.opacity = 0.5
         self.assertEqual(m.opacity, 0.5)
 
+    def setUp(self):
+        super().setUp()
+        self.__cube = None
+
+    @property
+    def cube(self):
+        if self.__cube is not None:
+            return self.__cube
+        self.__cube = gl.Mesh()
+
+        vertices = [
+            (-.5, -.5,  .5),
+            (-.5,  .5,  .5),
+            (.5,  .5,  .5),
+            (.5, -.5,  .5),
+            (-.5, -.5, -.5),
+            (-.5,  .5, -.5),
+            (.5,  .5, -.5),
+            (.5, -.5, -.5),
+        ]
+        colors = [
+            (0, 0, 1),
+            (1, 0, 0),
+            (0, 1, 0),
+            (1, 1, 0),
+            (1, 1, 1),
+            (1, 0, 0),
+            (1, 0, 1),
+            (0, 0, 1),
+        ]
+        indices = [
+            0,2,1,  0,3,2,
+            4,3,0,  4,7,3,
+            4,1,5,  4,0,1,
+            3,6,2,  3,7,6,
+            1,6,5,  1,2,6,
+            7,5,6,  7,4,5
+        ]
+        self.__cube.mode = gl.DrawMode.triangles
+
+        for i in indices:
+            self.__cube.kind = gl.ContentKind.vertex
+            self.__cube.append(gl.vec3f(*vertices[i]))
+            self.__cube.kind = gl.ContentKind.color
+            self.__cube.append(gl.Color3f(*colors[i]))
+
+        return self.__cube
+
+    deg = 0
 
     @painter_test(gl.mode_2d)
     def test_render_color0(self, painter):
-        self.cube = gl.Mesh()
-        self.cube.mode = gl.DrawMode.quads
-        self.cube.append(gl.vec3f(20, 20, 0))
-        self.cube.append(gl.vec3f(20, 180, 0))
-        self.cube.append(gl.vec3f(180, 180, 0))
-        self.cube.append(gl.vec3f(180, 20, 0))
-        self.cube.kind = gl.ContentKind.color
-        self.cube.append(gl.Color3f("bisque"))
-        self.cube.append(gl.Color3f("brown"))
-        self.cube.append(gl.Color3f("coral"))
-        self.cube.append(gl.Color3f("gray"))
         material = Material()
+        painter.state.translate(100, 100, 0)
+        painter.state.scale(100, 100, 0)
+        painter.state.rotate(angle.deg(20), gl.vec3f(1, 1, 0))
         cube_view = self.cube.view(self.renderer)
         with painter.bind([material.bindable(self.renderer)]):
             painter.draw([cube_view])
+
+    @painter_test(gl.mode_3d)
+    def test_cube(self, painter):
+        material = Material()
+        cube_view = self.cube.view(self.renderer)
+        painter.state.look_at(
+            gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
+        )
+        painter.state.perspective(
+            35, 200 / 200, 0.005, 30.0
+        )
+        painter.state.rotate(angle.deg(32), gl.vec3f(0, 1, 0))
+        with painter.bind([material.bindable(self.renderer)]):
+            painter.draw([cube_view])
+
 
