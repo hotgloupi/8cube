@@ -36,6 +36,12 @@ BOOST_PYTHON_MODULE(constants)
 		.value("tex_coord2", ContentKind::tex_coord2)
 	;
 
+	py::enum_<ShaderLanguage>("ShaderLanguage")
+		.value("glsl", ShaderLanguage::glsl)
+		.value("hlsl", ShaderLanguage::hlsl)
+		.value("cg", ShaderLanguage::cg)
+	;
+
 	py::enum_<ShaderType>("ShaderType")
 		.value("fragment", ShaderType::fragment)
 		.value("vertex", ShaderType::vertex)
