@@ -239,7 +239,8 @@ namespace cube { namespace gl { namespace renderer {
 
 	protected:
 		virtual
-		ShaderProgramPtr _new_shader_program(std::vector<ShaderPtr>&& shaders) = 0;
+		ShaderProgramPtr
+		_new_shader_program(std::vector<ShaderPtr>&& shaders) = 0;
 
 	public:
 		/// Create a texture from a surface.
@@ -247,6 +248,29 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		virtual
 		TexturePtr _new_texture(surface::Surface const& surface) = 0;
+
+
+	public:
+		/**
+		 * @brief Create a new light.
+		 */
+		template<LightKind kind>
+		inline
+		typename std::enable_if<kind != LightKind::custom, LightPtr>::type
+		new_light(LightInfo<kind> info)
+		{ return _new_light(std::move(info)); }
+
+		LightPtr new_light(CustomLightInfoPtr info);
+
+	protected:
+		virtual
+		LightPtr _new_light(DirectionalLightInfo info);
+		virtual
+		LightPtr _new_light(PointLightInfo info);
+		virtual
+		LightPtr _new_light(SpotLightInfo info);
+		virtual
+		LightPtr _new_light(CustomLightInfoPtr info);
 
 	public:
 		///

@@ -51,6 +51,16 @@ namespace cube { namespace gl { namespace renderer {
 	CUBE_API
 	std::ostream& operator <<(std::ostream& out, MatrixKind kind);
 
+	enum class LightKind
+	{
+		directional,
+		point,
+		spot,
+		custom,
+	};
+	CUBE_API
+	std::ostream& operator <<(std::ostream& out, LightKind const kind);
+
 	enum class BufferBit : int
 	{
 		none    = 0,

@@ -1,0 +1,60 @@
+#include "Light.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+BOOST_PYTHON_MODULE(Light)
+{
+	using namespace cube::gl::renderer;
+	namespace py = boost::python;
+	namespace vector = cube::gl::vector;
+	namespace color = cube::gl::color;
+	namespace units = cube::units;
+
+	py::enum_<LightKind>("LightKind")
+		.value("point", LightKind::point)
+		.value("spot", LightKind::spot)
+		.value("directional", LightKind::directional)
+		.value("custom", LightKind::custom)
+	;
+
+	py::class_<DirectionalLightInfo>(
+			"DirectionalLightInfo",
+			py::init<
+				  vector::Vector3f
+				, color::Color3f
+				, color::Color3f
+				, color::Color3f
+			>()
+		)
+	;
+
+	py::class_<PointLightInfo>(
+			"PointLightInfo",
+			py::init<
+				  vector::Vector3f
+				, color::Color3f
+				, color::Color3f
+				, color::Color3f
+			>()
+		)
+	;
+
+	py::class_<SpotLightInfo>(
+			"SpotLightInfo",
+			py::init<
+				  vector::Vector3f
+				, vector::Vector3f
+				, color::Color3f
+				, color::Color3f
+				, color::Color3f
+				, float
+				, units::Angle
+			>()
+		)
+	;
+
+	py::class_<Light, py::bases<Bindable>, boost::noncopyable, LightPtr>(
+			"Light", py::no_init
+		)
+	;
+}

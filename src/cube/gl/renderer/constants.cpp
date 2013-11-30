@@ -44,6 +44,26 @@ namespace cube { namespace gl { namespace renderer {
 		return out;
 	}
 
+	std::ostream& operator <<(std::ostream& out, LightKind const kind)
+	{
+		switch (kind)
+		{
+#define _CASE(name)                                                           \
+		case LightKind::name:                                                 \
+			out << "LightKind::" #name;                                       \
+			break                                                             \
+/**/
+		_CASE(spot);
+		_CASE(point);
+		_CASE(directional);
+		_CASE(custom);
+#undef _CASE
+		default:
+			out << "Unknown LightKind value";
+		}
+		return out;
+	}
+
 	std::ostream& operator <<(std::ostream& out, ShaderType const type)
 	{
 		switch (type)

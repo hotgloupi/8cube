@@ -1,13 +1,14 @@
 #include "Renderer.hpp"
 
 #include "Exception.hpp"
+#include "Light.hpp"
 #include "Painter.hpp"
-#include "State.hpp"
-#include "VertexBuffer.hpp"
+#include "ShaderGenerator.hpp"
 #include "Shader.hpp"
 #include "ShaderProgram.hpp"
-#include "ShaderGenerator.hpp"
+#include "State.hpp"
 #include "Texture.hpp"
+#include "VertexBuffer.hpp"
 
 #include <cube/debug.hpp>
 #include <cube/gl/renderer.hpp>
@@ -95,16 +96,6 @@ namespace cube { namespace gl { namespace renderer {
 	Painter Renderer::begin(State&& state)
 	{
 		CUBE_DEBUG_PERFORMANCE_SECTION("cube.Renderer");
-		auto it = _this->states.rbegin(),
-		     end = _this->states.rend();
-		for (; it != end; ++it)
-		{
-			if (it->mode == state.mode)
-			{
-				state = *it;
-				break;
-			}
-		}
 		ETC_TRACE.debug("Begining new state in mode", state.mode);
 		switch (state.mode)
 		{
@@ -199,5 +190,20 @@ namespace cube { namespace gl { namespace renderer {
 			_this->shader_generator = create_shader_generator(*this);
 		return _this->shader_generator->begin(type);
 	}
+
+	LightPtr Renderer::new_light(CustomLightInfoPtr info)
+	{ return _new_light(std::move(info)); }
+
+	LightPtr Renderer::_new_light(DirectionalLightInfo info)
+	{ return LightPtr{new Light{std::move(info)}}; }
+
+	LightPtr Renderer::_new_light(PointLightInfo info)
+	{ return LightPtr{new Light{std::move(info)}}; }
+
+	LightPtr Renderer::_new_light(SpotLightInfo info)
+	{ return LightPtr{new Light{std::move(info)}}; }
+
+	LightPtr Renderer::_new_light(CustomLightInfoPtr info)
+	{ return LightPtr{new Light{std::move(info)}}; }
 
 }}} // !cube::gl::renderer
