@@ -7,21 +7,23 @@ BOOST_PYTHON_MODULE(State)
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
-	typedef void(State::*get_matrix_t)(matrix_type const&);
+	typedef State& (State::*set_matrix_t)(matrix_type const&);
+	typedef matrix_type const& (State::*get_matrix_t)() const;
 
 	py::class_<State, boost::noncopyable>("State", py::init<Mode>())
 
 # define EXPORT_STATE_MATRIX(__name)                                          \
-		.add_property(                                                    \
-			#__name,                                                      \
-			py::make_function(                                            \
-				static_cast<                                              \
-					matrix_type const&(State::*)() const                  \
-				>(&State::__name),                                        \
-				py::return_internal_reference<>()                         \
-			),                                                            \
-			static_cast<get_matrix_t>(&State::__name)                     \
-		)                                                                 \
+		.add_property(                                                        \
+			#__name,                                                          \
+			py::make_function(                                                \
+				static_cast<get_matrix_t>(&State::__name),                    \
+				py::return_internal_reference<>()                             \
+			),                                                                \
+			py::make_function(                                                \
+				static_cast<set_matrix_t>(&State::__name),                    \
+				py::return_self<>()                                           \
+			)                                                                 \
+		)                                                                     \
 /**/
 		EXPORT_STATE_MATRIX(model)
 		EXPORT_STATE_MATRIX(view)
@@ -29,9 +31,7 @@ BOOST_PYTHON_MODULE(State)
 		.add_property(
 			"mvp",
 			py::make_function(
-				static_cast<
-					matrix_type const&(State::*)() const
-				>(&State::mvp),
+				static_cast<get_matrix_t>(&State::mvp),
 				py::return_internal_reference<>()
 			)
 		)
