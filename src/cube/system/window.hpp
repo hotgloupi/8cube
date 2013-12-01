@@ -76,12 +76,14 @@ namespace cube { namespace system { namespace window {
 	public:
 		virtual ~Window();
 
-		virtual
+	public:
 		etc::size_type poll();
-
+		etc::size_type poll(etc::size_type const max);
+	protected:
 		virtual
-		etc::size_type poll(etc::size_type const max) = 0;
+		etc::size_type _poll(etc::size_type const max) = 0;
 
+	public:
 		virtual
 		void confine_mouse(bool mode) = 0;
 

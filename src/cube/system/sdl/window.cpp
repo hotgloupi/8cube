@@ -459,7 +459,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	}
 
 	etc::size_type
-	Window::poll(etc::size_type const max)
+	Window::_poll(etc::size_type const max)
 	{
 		ETC_LOG_SUB_COMPONENT("Poll");
 		uint32_t count = 0;

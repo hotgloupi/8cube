@@ -49,9 +49,10 @@ namespace cube { namespace system { namespace window {
 	}
 
 	etc::size_type Window::poll()
-	{
-		return this->poll(100);
-	}
+	{ return this->poll(100); }
+
+	etc::size_type Window::poll(etc::size_type const max)
+	{ return _poll(max); }
 
 	gl::renderer::Renderer& Window::renderer()
 	{ return *_impl->renderer; }
