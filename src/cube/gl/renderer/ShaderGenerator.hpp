@@ -149,8 +149,18 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * @brief Add a shader parameter.
 		 */
+		inline
 		ShaderGeneratorProxy&
 		parameter(ShaderParameterType const type,
+		          std::string const& name)
+		{ return this->parameter(0, type, name); }
+
+		/**
+		 * @brief Add an array shader parameter.
+		 */
+		ShaderGeneratorProxy&
+		parameter(unsigned int array_size,
+		          ShaderParameterType const type,
 		          std::string const& name);
 
 		/**
@@ -175,7 +185,7 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * @brief Add an output attribute.
 		 *
-		 * @note Some input attributes are required depending on the shader
+		 * @note Some output attributes are required depending on the shader
 		 * type. XXX
 		 */
 		ShaderGeneratorProxy&

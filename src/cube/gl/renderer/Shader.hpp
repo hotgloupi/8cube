@@ -15,6 +15,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		struct Parameter
 		{
+			unsigned int array_size;
 			ShaderParameterType type;
 			std::string name;
 			ContentKind content_kind;

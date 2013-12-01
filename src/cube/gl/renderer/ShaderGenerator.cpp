@@ -87,11 +87,17 @@ namespace cube { namespace gl { namespace renderer {
 /**/
 
 	ShaderGeneratorProxy&
-	ShaderGeneratorProxy::parameter(ShaderParameterType const type,
+	ShaderGeneratorProxy::parameter(unsigned int array_size,
+	                                ShaderParameterType const type,
 	                                std::string const& name)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->parameters.push_back({type, name, ContentKind::_max_value});
+		this->parameters.push_back({
+			array_size,
+			type,
+			name,
+			ContentKind::_max_value
+		});
 		return *this;
 	}
 
@@ -101,7 +107,7 @@ namespace cube { namespace gl { namespace renderer {
 	                            ContentKind const content_kind)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->inputs.push_back({type, name, content_kind});
+		this->inputs.push_back({0, type, name, content_kind});
 		return *this;
 	}
 
@@ -111,7 +117,7 @@ namespace cube { namespace gl { namespace renderer {
 	                             ContentKind const content_kind)
 	{
 		ENSURE_NOT_PRESENT(name);
-		this->outputs.push_back({type, name, content_kind});
+		this->outputs.push_back({0, type, name, content_kind});
 		return *this;
 	}
 

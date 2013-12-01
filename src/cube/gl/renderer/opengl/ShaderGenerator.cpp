@@ -76,7 +76,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		parameter_source(Proxy const&, Parameter const& p) const
 		{
 			return etc::to_string(
-				"uniform", this->parameter_type_source(p.type), p.name + ";"
+				"uniform",
+				this->parameter_type_source(p.type),
+				p.name + (
+					p.array_size > 0 ?
+					"[" + std::to_string(p.array_size) + "]" :
+					""
+				) + ";"
 			);
 		}
 
