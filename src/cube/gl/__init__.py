@@ -14,6 +14,7 @@ Exported classes:
     Color{3,4}f
     Cube3{f,d,i,u,il,ul}
     Font
+    Light, SpotLightInfo, PointLightInfo, DirectionalLightInfo
     Material
     Matrix44f
     Mesh
@@ -47,6 +48,7 @@ Exported enumerations:
     TextureType (diffuse, specular, ambient, emissive, height, normals,
                  shininess, opacity, displacement, lightmap, reflection)
 
+    LightKind (point, spot, directional)
 """
 
 from . import font
