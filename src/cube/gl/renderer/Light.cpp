@@ -1,8 +1,13 @@
 #include "Light.hpp"
 
 #include "Exception.hpp"
+#include "State.hpp"
+
+#include <etc/log.hpp>
 
 namespace cube { namespace gl { namespace renderer {
+
+	ETC_LOG_COMPONENT("cube.gl.renderer.Light");
 
 	///////////////////////////////////////////////////////////////////////////
 	// Directional light info.
@@ -115,14 +120,16 @@ namespace cube { namespace gl { namespace renderer {
 		return *_custom;
 	}
 
-	void Light::_bind(State const& state)
+	void Light::_bind()
 	{
-
+		ETC_LOG.debug("Binding", *this);
+		this->bound_state().enable(*this);
 	}
 
 	void Light::_unbind() noexcept
 	{
-
+		ETC_LOG.debug("Unbinding", *this);
+		this->bound_state().disable(*this);
 	}
 
 }}}

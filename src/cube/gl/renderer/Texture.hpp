@@ -28,15 +28,6 @@ namespace cube { namespace gl { namespace renderer {
 		         renderer::PixelFormat const data_format,
 		         renderer::ContentPacking const data_packing,
 		         void const* data) = 0;
-
-	protected:
-		inline
-		void _bind(State const&) override
-		{ this->_bind(); }
-
-	protected:
-		virtual
-		void _bind() = 0;
 	};
 
 }}}

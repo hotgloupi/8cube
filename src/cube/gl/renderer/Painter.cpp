@@ -67,24 +67,6 @@ namespace cube { namespace gl { namespace renderer {
 
 	}
 
-	//void Painter::_update_parameters(BindableBase& bindable)
-	//{
-	//	auto debug = ETC_LOG.debug("Update all parameters of", &bindable);
-
-	//	debug("Projection matrix is", _current_state.projection());
-	//	debug("mvp matrix is", _current_state.mvp());
-	//	bindable.update(MatrixKind::mvp, _current_state.mvp());
-	//	bindable.update(MatrixKind::projection, _current_state.projection());
-	//}
-
-	void Painter::update(MatrixKind kind, matrix_type const& matrix)
-	{
-		ETC_TRACE.debug("update", _bound_drawables.size(),
-		                "bindable(s) with matrix", kind, matrix);
-		//for (auto& drawable : _bound_drawables)
-		//	drawable->update(kind, matrix);
-	}
-
 	void Painter::draw_elements(DrawMode mode,
 	                            VertexBuffer& indices,
 	                            etc::size_type start,
@@ -108,7 +90,7 @@ namespace cube { namespace gl { namespace renderer {
 		else if (count > attr->nb_elements - start)
 			throw Exception{"Count is out of range."};
 
-		Bindable::InternalGuard<VertexBuffer> guard{indices};
+		Bindable::Guard guard{indices, this->state()};
 		_renderer.draw_elements(
 			mode,
 			count,
@@ -153,7 +135,7 @@ namespace cube { namespace gl { namespace renderer {
 					vertex_attr->nb_elements - start
 			)};
 
-		Bindable::InternalGuard<VertexBuffer> guard{vertices};
+		Bindable::Guard guard{vertices, this->state()};
 		_renderer.draw_arrays(mode, start, count);
 	}
 

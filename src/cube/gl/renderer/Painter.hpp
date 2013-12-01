@@ -123,11 +123,6 @@ namespace cube { namespace gl { namespace renderer {
 		                 etc::size_type count = -1);
 
 		/**
-		 * Send to bound drawable (of this painter) a new matrix.
-		 */
-		void update(MatrixKind kind, matrix_type const& matrix);
-
-		/**
 		 * Convert painter to a boolean. If the painter is not ready for
 		 * renderering, this should convert to false. It meant to be used in a
 		 * if statement.

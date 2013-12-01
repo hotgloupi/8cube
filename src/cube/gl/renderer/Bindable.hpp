@@ -11,33 +11,32 @@ namespace cube { namespace gl { namespace renderer {
 	{
 	private:
 		etc::size_type _bound;
+		State*         _bound_state;
 
 	public:
-		Bindable() noexcept
-			: _bound{0}
-		{}
-
-		virtual
-		~Bindable()
-		{}
+		Bindable() noexcept;
+		virtual ~Bindable();
 
 	protected:
 		/**
 		 * @brief Bind the bindable with the current state.
 		 *
-		 * This method is called when the bindable *needs* to be bound.
+		 * This method is called when the bindable *needs* to be bound. When
+		 * called the method bound() returns a number greater than 0, and
+		 * bound_state() a valid state.
 		 */
 		virtual
-		void _bind(State const& state) = 0;
+		void _bind() = 0;
 
 		/**
 		 * @brief   Unbind the bindable.
 		 *
 		 * This method is called by the painter only if the bindable actually
 		 * *needs* to be unbound. That means implementations of this method do
-		 * not need to maintain or check a bound state.
+		 * not need to maintain or check the bound state. When called, the
+		 * method bound() returns 0 and bound_state() returns a valid state.
 		 *
-		 * @warning This method should only be used in the subclasses
+		 * @warning This method should only be used directly in the subclasses
 		 *          constructors. If you need to bind/unbind in a subclass
 		 *          method, use the Bindable<>::Guard class.
 		 */
@@ -52,6 +51,22 @@ namespace cube { namespace gl { namespace renderer {
 		etc::size_type bound() const noexcept
 		{ return _bound; }
 
+		/**
+		 * Returns the bound state.
+		 */
+		State& bound_state();
+
+	public:
+		/**
+		 * @brief Bind guard.
+		 *
+		 * The guard increment the bound counter at construction and decrement
+		 * it at destruction. During the guard lifetime, bound() returns a
+		 * number greater that 0, and bound_state() returns a valid state.
+		 */
+		struct Guard;
+		friend struct Guard;
+
 	protected:
 		/**
 		 * @brief A generic guard that does not affect the bound count.
@@ -60,7 +75,10 @@ namespace cube { namespace gl { namespace renderer {
 		 * they need to ensure the resource they hold is bound.
 		 *
 		 * To do so, final class has to make `struct InternalGuard<FinalClass>'
-		 * a friend and implement the method `FinalClass::_bind()'.
+		 * a friend.
+		 *
+		 * @note You should not use bound() or bound_state() methods when using
+		 * this guard.
 		 */
 		template<typename T>
 		struct InternalGuard;
@@ -68,38 +86,26 @@ namespace cube { namespace gl { namespace renderer {
 	private:
 		enum InternalMethod { internal_method };
 		inline
-		void _bind(State const& state, InternalMethod)
-		{ if (++_bound == 1) _bind(state); }
+		void _bind(InternalMethod)
+		{
+			if (++_bound == 1)
+				try { _bind(); }
+				catch (...) { _bound = 0; throw; }
+		}
 
 		inline
 		void _unbind(InternalMethod) noexcept
 		{ if (--_bound == 0) _unbind(); }
-
-	protected:
-		/**
-		 * @brief Bind guard used by the painter.
-		 *
-		 * The guard increment the bound counter at construction and
-		 * decrement it at destruction.
-		 */
-		struct Guard;
-		friend struct Guard;
-		friend class Painter;
 	};
 
 	struct Bindable::Guard
 	{
-	public:
-		Bindable& bindable;
-
-		Guard(Bindable& bindable, State const& state)
-			: bindable(bindable)
-		{ this->bindable._bind(state, Bindable::internal_method); }
+	private:
+		Bindable& _bindable;
 
 	public:
-		~Guard()
-		{ this->bindable._unbind(Bindable::internal_method); }
-		friend class Painter;
+		Guard(Bindable& bindable, State& state);
+		~Guard();
 	};
 
 	template<typename T>

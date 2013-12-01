@@ -7,7 +7,7 @@
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
 
-#include <vector>
+#include <unordered_set>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -20,7 +20,7 @@ namespace cube { namespace gl { namespace renderer {
 		matrix_type           projection;
 		matrix_type           mvp;
 		bool                  mvp_dirty;
-		std::vector<LightPtr> lights;
+		LightList             lights;
 		Impl() : mvp_dirty{false} {}
 		Impl(Impl const& other)
 			: model{other.model}
@@ -38,7 +38,9 @@ namespace cube { namespace gl { namespace renderer {
 	{}
 
 	State::State(State&& other)
-		noexcept(std::is_nothrow_move_constructible<State::Impl>())
+		noexcept(
+			std::is_nothrow_move_constructible<std::unique_ptr<State::Impl>>()
+		)
 		: mode{other.mode}
 		, _this{std::move(other._this)}
 	{}
@@ -150,5 +152,31 @@ namespace cube { namespace gl { namespace renderer {
 	                    component_type const w,
 	                    component_type const h) noexcept
 	{ return this->projection(matrix::ortho(x, y, w, h)); }
+
+	State::LightList const& State::lights() const noexcept
+	{ return _this->lights; }
+
+	void State::enable(Light const& light)
+	{
+		if (not light.bound())
+			throw Exception{"Cannot enable an unbound light"};
+		auto it = _this->lights.begin(), end = _this->lights.end();
+		for (; it != end; ++it)
+			if (&light == &it->get())
+				throw Exception{"This light is already enabled"};
+		_this->lights.emplace_back(light);
+	}
+
+	void State::disable(Light const& light)
+	{
+		auto it = _this->lights.begin(), end = _this->lights.end();
+		for (; it != end; ++it)
+			if (&light == &it->get())
+			{
+				_this->lights.erase(it);
+				return;
+			}
+		throw Exception{"Light not found"};
+	}
 
 }}} // !cube::gl::renderer

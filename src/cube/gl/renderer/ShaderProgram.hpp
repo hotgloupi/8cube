@@ -101,28 +101,12 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderProgramParameter* find_parameter(std::string const& name);
 
 		/**
-		 * Update matrix parameters for the given matrix kind.
-		 */
-		virtual
-		void update(State const& state);
-
-		/**
 		 * Bind a texture unit to a named shader program parameter.
 		 */
 		virtual
 		void bind_texture_unit(Texture& tex, ShaderProgramParameter& param);
 
 	protected:
-		/**
-		 * Bindable::_bind(State const&) method is implemented here.
-		 * It forwards to _bind() and update all parameters from the state.
-		 */
-		void _bind(State const& state) override
-		{
-			this->_bind();
-			this->update(state);
-		}
-
 		/**
 		 * @brief Retreive all parameters.
 		 */
@@ -135,12 +119,6 @@ namespace cube { namespace gl { namespace renderer {
 	 * Interface to implement.
 	 */
 	protected:
-		/**
-		 * @brief Enable the shader program.
-		 */
-		virtual
-		void _bind() = 0;
-
 		/**
 		 * @brief Fetch all shader program parameters.
 		 */

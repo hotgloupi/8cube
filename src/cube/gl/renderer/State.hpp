@@ -31,7 +31,9 @@ namespace cube { namespace gl { namespace renderer {
 		explicit
 		State(Mode const mode);
 		State(State&& other)
-			noexcept(std::is_nothrow_move_constructible<Impl>());
+			noexcept(
+				std::is_nothrow_move_constructible<std::unique_ptr<Impl>>()
+			);
 		State(State const& other);
 		~State();
 
@@ -109,6 +111,18 @@ namespace cube { namespace gl { namespace renderer {
 		             component_type const y,
 		             component_type const w,
 		             component_type const h) noexcept;
+
+	public:
+		typedef std::vector<std::reference_wrapper<Light const>> LightList;
+		LightList const& lights() const noexcept;
+
+	public:
+		/**
+		 * @brief Enable or disable a light.
+		 * @note Called automatically when a light is bound.
+		 */
+		void enable(Light const& light);
+		void disable(Light const& light);
 	};
 
 }}}

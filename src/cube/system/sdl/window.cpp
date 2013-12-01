@@ -80,7 +80,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			SDL_DestroyTexture(_texture);
 		}
 
-		void _bind(gl::renderer::State const&) override
+		void _bind() override
 		{
 			ETC_TRACE.debug("Binding", *this, "with", _texture);
 			_previous = SDL_GetRenderTarget(_renderer);

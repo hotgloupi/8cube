@@ -43,10 +43,6 @@ BOOST_PYTHON_MODULE(ShaderProgram)
 			&ShaderProgram::parameter,
 			py::return_internal_reference<>()
 		)
-		.def(
-			"update",
-			&ShaderProgram::update
-		)
 	;
 
 	///////////////////////////////////////////////////////////////////////

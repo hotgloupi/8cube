@@ -45,13 +45,6 @@ namespace cube { namespace gl { namespace renderer {
 		{}
 
 	protected:
-		void _bind(State const&) override
-		{
-			_bind();
-		}
-
-		virtual
-		void _bind() = 0;
 		friend struct Bindable::InternalGuard<VertexBuffer>;
 
 	//	template<typename T>

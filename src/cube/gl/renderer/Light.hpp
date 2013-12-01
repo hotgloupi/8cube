@@ -118,7 +118,7 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Bindable interface
 		 */
-		void _bind(State const& state) override;
+		void _bind() override;
 		void _unbind() noexcept override;
 	};
 

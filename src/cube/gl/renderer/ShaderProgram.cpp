@@ -84,34 +84,34 @@ namespace cube { namespace gl { namespace renderer {
 		return it->second.get();
 	}
 
-	void
-	ShaderProgram::update(State const& state)
-	{
-		ETC_TRACE.debug("Update shader parameters from state");
-		struct MatrixGetter
-		{
-			std::string name;
-			matrix_type const& (State::*getter)() const;
-		};
-		static MatrixGetter matrix_get[] = {
-			{"cube_ModelMatrix", &State::model},
-			{"cube_ViewMatrix", &State::view},
-			{"cube_ProjectionMatrix", &State::projection},
-			{"cube_ModelViewProjectionMatrix", &State::mvp},
-		};
+	//void
+	//ShaderProgram::update(State const& state)
+	//{
+	//	ETC_TRACE.debug("Update shader parameters from state");
+	//	struct MatrixGetter
+	//	{
+	//		std::string name;
+	//		matrix_type const& (State::*getter)() const;
+	//	};
+	//	static MatrixGetter matrix_get[] = {
+	//		{"cube_ModelMatrix", &State::model},
+	//		{"cube_ViewMatrix", &State::view},
+	//		{"cube_ProjectionMatrix", &State::projection},
+	//		{"cube_ModelViewProjectionMatrix", &State::mvp},
+	//	};
 
-		Guard guard(*this);
-		auto& map = _parameters();
-		auto end = map.end();
-		for (auto const& matrix: matrix_get)
-		{
-			auto it = map.find(matrix.name);
-			if (it != end)
-			{
-				assert(it->second != nullptr);
-				*(it->second) = (state.*(matrix.getter))(); // beuark
-			}
-		}
-	}
+	//	Guard guard(*this);
+	//	auto& map = _parameters();
+	//	auto end = map.end();
+	//	for (auto const& matrix: matrix_get)
+	//	{
+	//		auto it = map.find(matrix.name);
+	//		if (it != end)
+	//		{
+	//			assert(it->second != nullptr);
+	//			*(it->second) = (state.*(matrix.getter))(); // beuark
+	//		}
+	//	}
+	//}
 
 }}} // !cube::gl::renderer
