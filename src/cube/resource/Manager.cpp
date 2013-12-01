@@ -6,8 +6,9 @@
 #include <etc/path.hpp>
 
 #include <atomic>
+#include <algorithm>
 #include <limits>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 namespace cube { namespace resource {
@@ -32,7 +33,7 @@ namespace cube { namespace resource {
 	struct Manager::Impl
 	{
 		typedef
-			std::unordered_map<id_type, std::shared_ptr<Resource>>
+			std::map<id_type, std::shared_ptr<Resource>>
 			ResourceMap;
 
 		std::vector<std::string> paths;
@@ -98,6 +99,16 @@ namespace cube { namespace resource {
 			throw Exception{"The resource is not managed by this manager"};
 		_this->resources.erase(it);
 		resource.manage();
+	}
+
+	void Manager::flush()
+	{
+		std::vector<id_type> to_remove;
+		for (auto const& pair: _this->resources)
+			if (pair.second.use_count() == 1)
+				to_remove.push_back(pair.first);
+		for (id_type id: to_remove)
+			_this->resources.erase(id);
 	}
 
 }}

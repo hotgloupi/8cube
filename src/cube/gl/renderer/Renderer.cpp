@@ -127,6 +127,9 @@ namespace cube { namespace gl { namespace renderer {
 		return _this->states.back();
 	}
 
+	void Renderer::flush()
+	{ _this->resource_manager.flush(); }
+
 	void Renderer::_push_state(State&& state)
 	{
 		ETC_TRACE.debug("Pushing new state");

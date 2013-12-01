@@ -177,6 +177,7 @@ def painter_test(mode, delta = 0.01):
                         )
                         func(self, painter)
                     self.window.poll()
+                    self.renderer.flush()
                 slot.disconnect()
                 print("\n\n###############################################")
                 print("##### NEW PAINTER TEST NEEDS MANUAL VALIDATION:\n")

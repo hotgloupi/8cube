@@ -388,6 +388,10 @@ BOOST_PYTHON_MODULE(Renderer)
 			"clear",
 			&Wrap::Renderer::clear
 		)
+		.def(
+			"flush",
+			&Renderer::flush
+		)
 	;
 
 	///////////////////////////////////////////////////////////////////////////

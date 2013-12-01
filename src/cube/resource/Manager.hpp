@@ -61,6 +61,11 @@ namespace cube { namespace resource {
 		 * Stop managing a resource.
 		 */
 		void forget(Resource& resource);
+
+		/**
+		 * Cleanup unused resources.
+		 */
+		void flush();
 	};
 
 }}

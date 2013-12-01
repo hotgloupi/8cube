@@ -59,6 +59,11 @@ namespace cube { namespace gl { namespace renderer {
 		State& current_state();
 
 		/**
+		 * Cleanup unused resources.
+		 */
+		void flush();
+
+		/**
 		 *
 		 */
 		virtual
