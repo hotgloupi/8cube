@@ -68,6 +68,10 @@ BOOST_PYTHON_MODULE(material)
 		.value("reflection", TextureType::reflection)
 	;
 
+	py::enum_<ShadingModel>("ShadingModel")
+		.value("none", ShadingModel::none)
+		.value("gouraud", ShadingModel::gouraud)
+	;
 
 	py::class_<Material, boost::noncopyable, MaterialPtr>("Material")
 		.def(py::init<std::string>())
@@ -89,6 +93,7 @@ BOOST_PYTHON_MODULE(material)
 		ADD_PROPERTY(specular)
 		ADD_PROPERTY(shininess)
 		ADD_PROPERTY(opacity)
+		ADD_PROPERTY(shading_model)
 #undef ADD_PROPERTY
 		.def("add_color", &Material::add_color)
 		.def("bindable", &Material::bindable)
