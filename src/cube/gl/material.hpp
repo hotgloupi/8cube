@@ -59,6 +59,12 @@ namespace cube { namespace gl { namespace material {
 		reflection,
 	};
 
+	enum class ShadingModel
+	{
+		none,
+		gouraud,
+	};
+
 	class Material
 	{
 	public:
@@ -106,6 +112,7 @@ namespace cube { namespace gl { namespace material {
 		color_type      _specular;
 		float           _shininess;
 		float           _opacity;
+		ShadingModel    _shading_model;
 		TextureChannels _textures;
 		ColorChannels   _colors;
 
@@ -154,6 +161,12 @@ namespace cube { namespace gl { namespace material {
 
 		/// Set opacity.
 		inline void opacity(float value) noexcept { _opacity = value; }
+
+		inline ShadingModel shading_model() const noexcept
+		{ return _shading_model; }
+
+		inline void shading_model(ShadingModel const model) noexcept
+		{ _shading_model = model; }
 
 		/// Append a texture channel.
 		inline void add_texture(std::string path,
