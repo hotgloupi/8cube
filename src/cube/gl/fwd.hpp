@@ -50,7 +50,7 @@ namespace cube { namespace gl {
 	namespace material {
 
 		class CUBE_API Material;
-		typedef std::unique_ptr<Material> MaterialPtr;
+		typedef std::shared_ptr<Material> MaterialPtr;
 
 	}
 
@@ -67,7 +67,7 @@ namespace cube { namespace gl {
 	namespace mesh {
 
 		class CUBE_API Mesh;
-		typedef std::unique_ptr<Mesh> MeshPtr;
+		typedef std::shared_ptr<Mesh> MeshPtr;
 
 	}
 
