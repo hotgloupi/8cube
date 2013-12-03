@@ -6,7 +6,7 @@
 namespace cube { namespace scene {
 
 	class Scene;
-	typedef std::unique_ptr<Scene> ScenePtr;
+	typedef std::shared_ptr<Scene> ScenePtr;
 
 	class Graph;
 
