@@ -63,7 +63,7 @@ namespace cube { namespace gl { namespace material {
 	{
 	public:
 		typedef color::Color3f color_type;
-		struct Texture
+		struct TextureChannel
 		{
 			std::string path;
 			TextureType type;
@@ -71,12 +71,12 @@ namespace cube { namespace gl { namespace material {
 			StackOperation operation;
 			TextureMapMode map_mode;
 			float blend;
-			Texture(std::string path,
-			        TextureType type,
-			        TextureMapping mapping,
-			        StackOperation operation,
-			        TextureMapMode map_mode,
-			        float blend)
+			TextureChannel(std::string path,
+			               TextureType type,
+			               TextureMapping mapping,
+			               StackOperation operation,
+			               TextureMapMode map_mode,
+			               float blend)
 				: path{std::move(path)}
 				, type{type}
 				, mapping{mapping}
@@ -85,18 +85,29 @@ namespace cube { namespace gl { namespace material {
 				, blend{blend}
 			{}
 		};
-		typedef std::vector<Texture> TextureStack;
-		typedef std::vector<StackOperation> ColorStack;
+		struct ColorChannel
+		{
+			renderer::ShaderParameterType type;
+			StackOperation op;
+			inline
+			ColorChannel(renderer::ShaderParameterType const type,
+			             StackOperation const op) noexcept
+				: type{type}
+				, op{op}
+			{}
+		};
+		typedef std::vector<TextureChannel> TextureChannels;
+		typedef std::vector<ColorChannel> ColorChannels;
 
 	private:
-		std::string  _name;
-		color_type   _diffuse;
-		color_type   _ambient;
-		color_type   _specular;
-		float        _shininess;
-		float        _opacity;
-		TextureStack _textures;
-		ColorStack   _colors;
+		std::string     _name;
+		color_type      _diffuse;
+		color_type      _ambient;
+		color_type      _specular;
+		float           _shininess;
+		float           _opacity;
+		TextureChannels _textures;
+		ColorChannels   _colors;
 
 	public:
 		explicit
@@ -163,15 +174,16 @@ namespace cube { namespace gl { namespace material {
 		}
 
 		/// Texture channels stack.
-		inline TextureStack const& textures() const noexcept
+		inline TextureChannels const& textures() const noexcept
 		{ return _textures; }
 
 		/// Append a color channel.
-		inline void add_color(StackOperation op)
-		{ _colors.push_back(op); }
+		inline void add_color(renderer::ShaderParameterType const type,
+		                      StackOperation const op)
+		{ _colors.emplace_back(type, op); }
 
 		/// Color channels stack.
-		inline ColorStack const& colors() const noexcept
+		inline ColorChannels const& colors() const noexcept
 		{ return _colors; }
 
 	public:

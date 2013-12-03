@@ -69,7 +69,7 @@ BOOST_PYTHON_MODULE(material)
 	;
 
 
-	py::class_<Material>("Material")
+	py::class_<Material, boost::noncopyable, MaterialPtr>("Material")
 		.def(py::init<std::string>())
 #define ADD_PROPERTY(__name) \
 		.add_property( \
@@ -90,6 +90,7 @@ BOOST_PYTHON_MODULE(material)
 		ADD_PROPERTY(shininess)
 		ADD_PROPERTY(opacity)
 #undef ADD_PROPERTY
+		.def("add_color", &Material::add_color)
 		.def("bindable", &Material::bindable)
 	;
 

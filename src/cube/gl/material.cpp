@@ -4,6 +4,7 @@
 #include <cube/gl/renderer/Bindable.hpp>
 #include <cube/gl/renderer/ShaderGenerator.hpp>
 #include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/Light.hpp>
 #include <cube/gl/renderer.hpp>
 #include <cube/system/window.hpp>
 
@@ -11,6 +12,8 @@
 #include <etc/test.hpp>
 
 namespace cube { namespace gl { namespace material {
+
+	using cube::gl::exception::Exception;
 
 	Material::Material(std::string name)
 		: _name{std::move(name)}
@@ -34,10 +37,31 @@ namespace cube { namespace gl { namespace material {
 				, bind_guard{etc::stack_ptr_no_init}
 			{}
 
-			void _bind(renderer::State const& s) override
+			void _bind() override
 			{
-				bind_guard.reset(*shader_program, s);
-				shader_program->parameter("cube_MVP") = s.mvp();
+				auto& shader = *this->shader_program;
+				bind_guard.reset(shader, this->bound_state());
+				shader["cube_MVP"] = this->bound_state().mvp();
+				try {shader["cube_Ambient"] = material.ambient(); }
+				catch (...){}
+				//shader["cube_Diffuse"] = material.diffuse();
+				//shader["cube_Specular"] = material.specular();
+				int32_t point_light_idx = 0,
+				        spot_light_idx = 0,
+				        dir_light_idx = 0;
+				for (auto const& ref: this->bound_state().lights())
+				{
+					auto const& light = ref.get();
+					if (light.kind == renderer::LightKind::point)
+					{
+						auto const& info = light.point();
+						//shader["cube_PointLightPosition[" + std::to_string(point_light_idx) + "]"] = info.position;
+						shader["cube_PointLightAmbient"][point_light_idx] =
+							info.ambient;
+						point_light_idx += 1;
+					}
+				}
+				shader["cube_PointLightCount"] = point_light_idx;
 			}
 
 			void _unbind() noexcept override
@@ -49,15 +73,44 @@ namespace cube { namespace gl { namespace material {
 		struct Main
 			: public renderer::ShaderRoutine
 		{
-			using ShaderRoutine::ShaderRoutine;
+			Material const& _material;
+			Main(renderer::ShaderGeneratorProxy& proxy,
+			     std::string name,
+			     Material const& material)
+				: renderer::ShaderRoutine{proxy, std::move(name)}
+				, _material(material)
+			{}
+
 			std::string
 			glsl_source() const override
 			{
 				std::string res;
 				if (proxy.type == renderer::ShaderType::vertex)
 				{
-					res += "\tgl_Position = cube_MVP * vec4(cube_Vertex, 1);\n";
-					res += "\tcube_Color = vec4(cube_VertexColor.xyz, 1);\n";
+					res +=
+						"\tgl_Position = cube_MVP * vec4(cube_Vertex, 1);\n"
+						"\tvec4 Color = vec4(cube_Ambient, 1);\n"
+					;
+					int idx = 0;
+					for (auto const& ch: _material.colors())
+					{
+						std::string in = "cube_VertexColor" + std::to_string(idx);
+						if (ch.type == renderer::ShaderParameterType::vec3)
+							res += "\tColor += vec4(" + in + ", 1);\n";
+						else if (ch.type == renderer::ShaderParameterType::vec4)
+							res += "\tColor += " + in + ";\n";
+						else
+							throw Exception{
+								"Unhandled type " + etc::to_string(ch.type) +
+								" for color channel " + std::to_string(idx)
+							};
+					}
+					res +=
+						"\tfor (int i = 0; i < cube_PointLightCount; i++)\n"
+						"\t{\n"
+						"\t\tColor += vec4(cube_PointLightAmbient[i], 1);\n"
+						"\t}\n"
+						"\tcube_Color = Color;\n";
 				}
 				else if (proxy.type == renderer::ShaderType::fragment)
 				{
@@ -84,28 +137,29 @@ namespace cube { namespace gl { namespace material {
 			.parameter(ShaderParameterType::vec3, "cube_Ambient")
 			.parameter(ShaderParameterType::vec3, "cube_Specular")
 			.parameter(ShaderParameterType::mat4, "cube_MVP")
+			.parameter(ShaderParameterType::int_, "cube_PointLightCount")
+			.parameter(8, ShaderParameterType::vec3, "cube_PointLightPosition")
+			.parameter(8, ShaderParameterType::vec3, "cube_PointLightDiffuse")
+			.parameter(8, ShaderParameterType::vec3, "cube_PointLightAmbient")
+			.parameter(8, ShaderParameterType::vec3, "cube_PointLightSpecular")
 			.input(
 				ShaderParameterType::vec3,
 				"cube_Vertex",
 				ContentKind::vertex
-			)
-			.input(
-				ShaderParameterType::vec3,
-				"cube_VertexColor",
+			);
+		int idx = 0;
+		for (auto const& channel: _colors)
+			vs.input(
+				channel.type,
+				"cube_VertexColor" + std::to_string(idx++),
 				ContentKind::color
-			)
-			//.output(
-			//	ShaderParameterType::vec3,
-			//	"cube_Position",
-			//	ContentKind::vertex
-			//)
-			.output(
-				ShaderParameterType::vec4,
-				"cube_Color",
-				ContentKind::color
-			)
-			.routine<Main>("main")
-		;
+			);
+
+		vs.output(
+			ShaderParameterType::vec4,
+			"cube_Color",
+			ContentKind::color
+		).routine<Main>("main", *this);
 
 		auto fs = renderer.generate_shader(ShaderType::fragment);
 		fs.input(
@@ -118,11 +172,11 @@ namespace cube { namespace gl { namespace material {
 				"cube_FragColor",
 				ContentKind::color
 			)
-			.routine<Main>("main")
+			.routine<Main>("main", *this)
 		;
 
-		//etc::print("vertex shader:", vs.source());
-		//etc::print("fragment shader:", fs.source());
+		etc::print("vertex shader:", vs.source());
+		etc::print("fragment shader:", fs.source());
 
 		auto shader_program = renderer.new_shader_program(
 			vs.shader(),

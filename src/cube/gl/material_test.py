@@ -1,4 +1,4 @@
-from .material import Material
+from .material import Material, StackOperation
 from .renderer.Painter_test import PainterSetup, painter_test
 from cube.units import angle
 
@@ -95,6 +95,10 @@ class _(PainterSetup, TestCase):
     @painter_test(gl.mode_2d)
     def test_render_color0(self, painter):
         material = Material()
+        material.add_color(
+            gl.ShaderParameterType.vec3,
+            StackOperation.add
+        )
         painter.state.translate(100, 100, 0)
         painter.state.scale(100, 100, 0)
         painter.state.rotate(angle.deg(20), gl.vec3f(1, 1, 0))
@@ -105,6 +109,10 @@ class _(PainterSetup, TestCase):
     @painter_test(gl.mode_3d)
     def test_cube(self, painter):
         material = Material()
+        material.add_color(
+            gl.ShaderParameterType.vec3,
+            StackOperation.add
+        )
         cube_view = self.cube.view(self.renderer)
         painter.state.look_at(
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
