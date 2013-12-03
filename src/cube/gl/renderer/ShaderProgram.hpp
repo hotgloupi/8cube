@@ -38,7 +38,7 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderProgram& program() { return _program; }
 
 		inline
-		std::string const& name() const { return _name; }
+		std::string const& name() const noexcept { return _name; }
 
 	public:
 		template<typename T>
@@ -51,10 +51,21 @@ namespace cube { namespace gl { namespace renderer {
 		void set(T&& value)
 		{ this->_set(std::forward<T>(value)); }
 
+		inline
+		ShaderProgramParameter& operator [](etc::size_type const idx)
+		{ return this->at(idx); }
+
+		inline
+		ShaderProgramParameter& at(etc::size_type const idx)
+		{ return this->_at(idx); }
+
 	protected:
+		virtual ShaderProgramParameter& _at(etc::size_type const idx) = 0;
 		virtual void _set(matrix_type const& value) = 0;
-		virtual void _set(int32_t value) = 0;
+		virtual void _set(int32_t const value) = 0;
+		virtual void _set(float const value) = 0;
 		virtual void _set(vector::vec3f const& value) = 0;
+		virtual void _set(color::Color3f const& value) = 0;
 
 		/**
 		 * Forward to ShaderProgram::bind_texture_unit.

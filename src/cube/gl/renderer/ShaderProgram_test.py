@@ -46,9 +46,13 @@ class ShaderProgramTestCase(ShaderProgramSetup, TestCase):
             """
             uniform mat4 mat44f;
             uniform vec3 vec3f;
+            uniform float floats[4];
+            uniform float floats2[4];
             void main(void)
             {
                gl_FrontColor = gl_Color;
+               for (int i = 0; i < 4; i++)
+                   gl_FrontColor.r *= floats[i] + floats2[i];
                gl_Position = mat44f * vec4(vec3f, 0);
             }
             """
@@ -63,5 +67,8 @@ class ShaderProgramTestCase(ShaderProgramSetup, TestCase):
         shader = self.renderer.new_shader_program([self.vs, self.fs])
         shader["vec3f"] = vec3f()
         shader["mat44f"] = Matrix44f()
+        shader["floats"] = 12.0
+        shader["floats"][1] = 12.0
+        shader["floats"][0] = 12.0
 
 

@@ -24,6 +24,13 @@ namespace {
 	void set_parameter_value(ShaderProgramParameter& self, T value)
 	{ self = value; }
 
+	template<typename T>
+	inline
+	void set_shader_parameter_at(ShaderProgramParameter& self,
+	                             unsigned int index,
+	                             T value)
+	{ self.at(index).set(value); }
+
 }
 
 BOOST_PYTHON_MODULE(ShaderProgram)
@@ -55,21 +62,31 @@ BOOST_PYTHON_MODULE(ShaderProgram)
 				"ShaderProgramParameter",
 				py::no_init
 			)
+			.def(
+				"__getitem__",
+				&ShaderProgramParameter::at,
+				py::return_internal_reference<>()
+			)
 		;
 
-#define shader_program_parameter_setter(__type)                               \
+#define SHADER_PROGRAM_PARAMETER_SETTER(__type)                               \
 	shader_program_parameter_class.def(                                       \
 		"set",                                                                \
 		&set_parameter_value<__type>                                          \
 	);                                                                        \
+	shader_program_parameter_class.def( \
+		"__setitem__", \
+		&set_shader_parameter_at<__type> \
+	); \
 	shader_program_class.def(                                                 \
 		"__setitem__",                                                        \
 		&set_shader_parameter<__type>                                         \
 	)                                                                         \
-	/**/
-	shader_program_parameter_setter(matrix_type const&);
-	shader_program_parameter_setter(int32_t);
-	shader_program_parameter_setter(Texture&);
-	shader_program_parameter_setter(Vector3f const&);
-#undef shader_program_parameter_setter
+/**/
+	SHADER_PROGRAM_PARAMETER_SETTER(matrix_type const&);
+	SHADER_PROGRAM_PARAMETER_SETTER(int32_t);
+	SHADER_PROGRAM_PARAMETER_SETTER(Texture&);
+	SHADER_PROGRAM_PARAMETER_SETTER(Vector3f const&);
+	SHADER_PROGRAM_PARAMETER_SETTER(float);
+#undef SHADER_PROGRAM_PARAMETER_SETTER
 }

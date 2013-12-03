@@ -20,6 +20,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		virtual
 		~ShaderProgram();
 
+		inline GLuint opengl_id() const noexcept { return _id; }
+
 	/**************************************************************************
 	 * renderer::ShaderProgram interface.
 	 */

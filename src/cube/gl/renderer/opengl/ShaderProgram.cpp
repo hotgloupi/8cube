@@ -4,6 +4,7 @@
 #include "_opengl.hpp"
 
 #include <cube/gl/renderer/Texture.hpp>
+#include <cube/gl/color.hpp>
 
 #include <etc/assert.hpp>
 
@@ -20,9 +21,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		ETC_LOG.debug(*this, "Attach shaders to the program", _id);
 		for (auto& shader: shaders)
 		{
-			Shader const* opengl_shader = static_cast<Shader const*>(shader.get());
+			Shader const* opengl_shader =
+				static_cast<Shader const*>(shader.get());
 			assert(
-				dynamic_cast<Shader const*>(shader.get()) != nullptr && "Wrong cast !?"
+				dynamic_cast<Shader const*>(shader.get()) != nullptr &&
+				"Wrong cast !?"
 			);
 			gl::AttachShader(_id, opengl_shader->id());
 		}
@@ -36,10 +39,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				for (auto const& input: shader->inputs())
 				{
 					ETC_LOG.debug(
-						"Bind input", input.name.c_str(), "to index", input.content_kind,
+						"Bind input", input.name.c_str(),
+						"to index", input.content_kind,
 						"(" + std::to_string((int) input.content_kind) + ")"
 					);
-					gl::BindAttribLocation(_id, (int) input.content_kind, input.name.c_str());
+					gl::BindAttribLocation(
+						_id, (int) input.content_kind, input.name.c_str()
+					);
 				}
 			}
 			else if (shader->type == ShaderType::fragment)
@@ -138,10 +144,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GLint           _size;
 		GLenum          _type;
 		GLint           _location;
+		std::unordered_map<etc::size_type, std::unique_ptr<renderer::ShaderProgramParameter>> _indexes;
 
 	public:
 		// Program is bound by renderer::ShaderProgram::fetch_parameter()
-		ShaderProgramParameter(ShaderProgram& program,
+		ShaderProgramParameter(renderer::ShaderProgram& program,
 		                       std::string const& name,
 		                       GLint size,
 		                       GLenum type,
@@ -152,6 +159,42 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			, _location{location}
 		{}
 
+		renderer::ShaderProgramParameter&
+		_at(etc::size_type const idx) override
+		{
+			ETC_TRACE.debug(
+				"Retreive parameter", _name + "[" + std::to_string(idx) + "]"
+			);
+			if (idx == 0)
+				return *this;
+			auto it = _indexes.find(idx);
+			if (it != _indexes.end())
+				return *it->second;
+			ETC_LOG.debug("First time fetch, creating parameter");
+			std::string name = this->name() + "[" + std::to_string(idx) + "]";
+			GLint loc = -1;
+			{
+				BindGuard guard(_program);
+				loc = gl::GetUniformLocation(
+					static_cast<ShaderProgram&>(_program).opengl_id(),
+					name.c_str()
+				);
+			}
+			if (loc < 0)
+				throw Exception{"Cannot find uniform location of" + name};
+			ETC_LOG.debug("Found active uniform", name, "at", loc);
+			_indexes[idx] = std::unique_ptr<renderer::ShaderProgramParameter>{
+				new ShaderProgramParameter{
+					_program,
+					name,
+					_size,
+					_type,
+					loc,
+				}
+			};
+			return *_indexes[idx];
+		}
+
 		void _set(matrix_type const& value) override
 		{
 			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
@@ -160,11 +203,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			                     glm::value_ptr(value));
 		}
 
-		void _set(int32_t value) override
+		void _set(int32_t const value) override
 		{
 			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
 			gl::Uniform1i(_location, value);
+		}
+
+		void _set(float const value) override
+		{
+			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
+			BindGuard guard(_program);
+			gl::Uniform1f(_location, value);
 		}
 
 		void _set(vector::vec3f const& value) override
@@ -172,6 +222,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
 			gl::Uniform3fv(_location, 1, glm::value_ptr(value));
+		}
+
+		void _set(color::Color3f const& value) override
+		{
+			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value, value.colors[0], value.colors[1], value.colors[2]);
+			BindGuard guard(_program);
+			gl::Uniform3fv(_location, 1, &value.colors[0]);
 		}
 	};
 
@@ -218,6 +275,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 					ETC_LOG.warn("Cannot find uniform location of", valid_name);
 					continue;
 				}
+				ETC_LOG.debug(
+					"Found active uniform", valid_name, "at", location
+				);
 				res.emplace_back(
 					new ShaderProgramParameter<Guard>{
 						*this,

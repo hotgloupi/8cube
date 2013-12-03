@@ -163,7 +163,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		ETC_TRACE.debug("Bind texture unit", unit, "of texture", _id);
 		Guard guard(*this);
 		gl::ActiveTexture(GL_TEXTURE0 + unit);
-		param = unit;
+		param = (int32_t)unit;
 	}
 
 	void
