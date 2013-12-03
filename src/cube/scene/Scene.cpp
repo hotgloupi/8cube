@@ -145,45 +145,40 @@ namespace {
 			if (material->Get(AI_MATKEY_NAME, name) != AI_SUCCESS)
 				throw Exception{"Couldn't retreive the material name"};
 			if (name.length > 0)
-				res = etc::make_unique<Material>(name.C_Str());
+				res = std::make_shared<Material>(name.C_Str());
 			else
-				res = etc::make_unique<Material>();
+				res = std::make_shared<Material>();
 		}
 		assert(res != nullptr);
 
 		{
 			aiColor3D color;
-			if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) != AI_SUCCESS)
-				throw Exception{"Couldn't retreive ambiant color"};
-			res->ambient(color_type{color.r, color.g, color.b});
+			if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
+				res->ambient(color_type{color.r, color.g, color.b});
 		}
 
 		{
 			aiColor3D color;
-			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) != AI_SUCCESS)
-				throw Exception{"Couldn't retreive diffuse color"};
-			res->diffuse(color_type{color.r, color.g, color.b});
+			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+				res->diffuse(color_type{color.r, color.g, color.b});
 		}
 
 		{
 			aiColor3D color;
-			if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) != AI_SUCCESS)
-				throw Exception{"Couldn't retreive diffuse color"};
-			res->specular(color_type{color.r, color.g, color.b});
+			if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+				res->specular(color_type{color.r, color.g, color.b});
 		}
 
 		{
 			float value;
-			if (material->Get(AI_MATKEY_SHININESS, value) != AI_SUCCESS)
-				throw Exception{"Couldn't retreive shininess"};
-			res->shininess(value);
+			if (material->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS)
+				res->shininess(value);
 		}
 
 		{
 			float value;
-			if (material->Get(AI_MATKEY_OPACITY, value) != AI_SUCCESS)
-				throw Exception{"Couldn't retreive opacity"};
-			res->opacity(value);
+			if (material->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS)
+				res->opacity(value);
 		}
 
 		static aiTextureType const texture_types[] = {
@@ -282,7 +277,16 @@ namespace cube { namespace scene {
 				for (int ch = 0;
 				     mat.colors().size() < mesh->GetNumColorChannels();
 				     ++ch)
-					mat.add_color(gl::material::StackOperation::smooth_add);
+				{
+					static_assert(
+						detail::assimp_cast_t<ContentKind::color>::to_type::arity == 4,
+						"ShaderParameterType::vec4 is not valid for color channel"
+					);
+					mat.add_color(
+						gl::renderer::ShaderParameterType::vec4,
+						gl::material::StackOperation::smooth_add
+					);
+				}
 			}
 		}
 	};
