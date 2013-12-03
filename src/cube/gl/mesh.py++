@@ -63,7 +63,7 @@ BOOST_PYTHON_MODULE(mesh)
 	using namespace cube::gl::mesh;
 	namespace py = boost::python;
 
-	py::class_<Mesh, boost::noncopyable>("Mesh")
+	py::class_<Mesh, boost::noncopyable, MeshPtr>("Mesh")
 		.def(py::init<Mesh::Kind>())
 		.def(py::init<Mesh::Kind, Mesh::Mode>())
 		.add_property(
