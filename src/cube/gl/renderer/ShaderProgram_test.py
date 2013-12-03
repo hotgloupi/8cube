@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from cube.gl.matrix import Matrix44f
+from cube.gl.matrix import mat4f
 from cube.gl import vec3f
 
 from .Shader_test import ShaderSetup
@@ -66,7 +66,7 @@ class ShaderProgramTestCase(ShaderProgramSetup, TestCase):
 
         shader = self.renderer.new_shader_program([self.vs, self.fs])
         shader["vec3f"] = vec3f()
-        shader["mat44f"] = Matrix44f()
+        shader["mat44f"] = mat4f()
         shader["floats"] = 12.0
         shader["floats"][1] = 12.0
         shader["floats"][0] = 12.0

@@ -19,7 +19,7 @@ namespace cube { namespace gl { namespace sphere {
 
 	public:
 		Sphere(vec3 const& center, T const radius)
-			: center{center}
+			: center(center)
 			, radius{radius}
 		{}
 	};

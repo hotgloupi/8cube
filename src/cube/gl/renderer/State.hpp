@@ -4,6 +4,7 @@
 # include "fwd.hpp"
 
 # include <cube/gl/fwd.hpp>
+# include <cube/gl/matrix.hpp>
 # include <cube/units/angle.hpp>
 
 # include <etc/compiler.hpp>
@@ -17,6 +18,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		typedef matrix_type::value_type component_type;
 		typedef vector::Vector3<component_type> vector_type;
+		typedef matrix::mat3f normal_matrix_type;
 	public:
 		Mode const mode;
 	private:
@@ -57,6 +59,7 @@ namespace cube { namespace gl { namespace renderer {
 		matrix_type const& view() const noexcept;
 		matrix_type const& projection() const noexcept;
 		matrix_type const& mvp() const noexcept;
+		normal_matrix_type normal() const noexcept;
 
 		/**
 		 * @brief Set a matrix.

@@ -17,8 +17,8 @@ namespace {
 		return ss.str();
 	}
 
-	matrix::Matrix44f::col_type&
-	matrix_row(matrix::Matrix44f& mat,
+	matrix::mat4f::col_type&
+	matrix_row(matrix::mat4f& mat,
 	           etc::size_type const row)
 	{
 		if (row > 3)
@@ -31,21 +31,15 @@ namespace {
 BOOST_PYTHON_MODULE(matrix)
 {
 	BOOST_PYTHON_DOCSTRING_OPTIONS();
-	py::class_<matrix::Matrix44f>("Matrix44f", py::init<>())
-		.def(py::init<matrix::Matrix44f const&>())
-		.def("__str__", &print_obj<matrix::Matrix44f>)
+	py::class_<matrix::mat4f>("mat4f", py::init<>())
+		.def(py::init<matrix::mat4f const&>())
+		.def("__str__", &print_obj<matrix::mat4f>)
 		.def("__getitem__", &matrix_row, py::return_internal_reference<>())
 		.def(py::self == py::self)
 		.def(py::self * py::self)
 	;
 	py::def("perspective", &matrix::perspective<float>);
 	py::def("look_at", &matrix::look_at<float>);
-	py::def(
-		"translate",
-		static_cast<
-			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, float const, float const, float const)
-		>(&matrix::translate<float>)
-	);
 	py::def(
 		"translate",
 		static_cast<
@@ -56,8 +50,8 @@ BOOST_PYTHON_MODULE(matrix)
 	py::def(
 		"scale",
 		static_cast<
-			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, float const, float const, float const)
-		>(&matrix::scale<float>)
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, vector::Vector3<float> const&)
+		>(&matrix::scale)
 	);
 
 }

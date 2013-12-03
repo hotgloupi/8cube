@@ -207,8 +207,13 @@ class _(PainterSetup, TestCase):
     @painter_test(mode_2d, delta = 0.02)
     def test_transform(self, painter):
         with painter.bind([self.shader, self.vb]):
-            painter.state.model = matrix.scale(painter.state.model, 0.5, 0.5, 0.5)
+            painter.state.model = matrix.scale(
+                painter.state.model,
+                gl.vec3f(0.5, 0.5, 0.5)
+            )
             painter.state.model = matrix.translate(
-                painter.state.model, 100, 75, 0)
+                painter.state.model,
+                gl.vec3f(100, 75, 0)
+            )
             self.shader['cube_MVP'] = painter.state.mvp
             painter.draw_elements(DrawMode.quads, self.indices, 0, 4)

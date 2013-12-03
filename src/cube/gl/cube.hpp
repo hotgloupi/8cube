@@ -27,8 +27,8 @@ namespace cube { namespace gl { namespace cube {
 
 	public:
 		Cube3(vec3 const& center, T const width)
-			: center{center}
-			, width{width}
+			: center(center)
+			, width(width)
 		{}
 		Cube3(Cube3 const&) = default;
 		Cube3(Cube3&&) = default;

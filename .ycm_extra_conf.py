@@ -21,6 +21,7 @@ include_dirs = [
     'build/dependencies/SDL/install/include/SDL2',
     'build/dependencies/SDL_image/install/include/SDL2',
     'deps/assimp/include',
+    'deps/glm',
 ]
 
 if sys.platform.startswith('win32'):

@@ -16,10 +16,10 @@ namespace cube { namespace gl { namespace renderer {
 	                                             color::Color3f diffuse,
 	                                             color::Color3f ambient,
 	                                             color::Color3f specular)
-		: direction{direction}
-		, diffuse{diffuse}
-		, ambient{ambient}
-		, specular{specular}
+		: direction(direction)
+		, diffuse(diffuse)
+		, ambient(ambient)
+		, specular(specular)
 	{}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -29,10 +29,10 @@ namespace cube { namespace gl { namespace renderer {
 	                                       color::Color3f diffuse,
 	                                       color::Color3f ambient,
 	                                       color::Color3f specular)
-		: position{position}
-		, diffuse{diffuse}
-		, ambient{ambient}
-		, specular{specular}
+		: position(position)
+		, diffuse(diffuse)
+		, ambient(ambient)
+		, specular(specular)
 	{}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -45,13 +45,13 @@ namespace cube { namespace gl { namespace renderer {
 	                                      color::Color3f specular,
 	                                      float attenuation,
 	                                      units::Angle cutoff)
-		: position{position}
-		, direction{direction}
-		, diffuse{diffuse}
-		, ambient{ambient}
-		, specular{specular}
-		, attenuation{attenuation}
-		, cutoff{cutoff}
+		: position(position)
+		, direction(direction)
+		, diffuse(diffuse)
+		, ambient(ambient)
+		, specular(specular)
+		, attenuation(attenuation)
+		, cutoff(cutoff)
 	{}
 
 	///////////////////////////////////////////////////////////////////////////

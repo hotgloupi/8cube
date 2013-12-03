@@ -7,8 +7,9 @@
 namespace glm { namespace detail {
 
 # define _CUBE_GL_VECTOR_DEF(__arity, __value_type, __suffix)                 \
-	std::ostream& operator <<(std::ostream& out,                              \
-	                          tvec ## __arity<__value_type> const& value)     \
+	std::ostream& operator <<(                                                \
+		std::ostream& out,                                                    \
+		cube::gl::vector::Vector ## __arity<__value_type> const& value)       \
 	{                                                                         \
 		out << "Vector" #__arity  #__suffix "(";                              \
 		bool first = true;                                                    \

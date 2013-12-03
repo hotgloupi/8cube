@@ -2,7 +2,7 @@
 # define CUBE_GL_RENDERER_CONSTANTS_HPP
 
 # include <cube/api.hpp>
-# include <cube/gl/matrix.hpp>
+# include <cube/gl/fwd.hpp>
 
 # include <cstddef>
 # include <cstdint>
@@ -37,7 +37,7 @@ namespace cube { namespace gl { namespace renderer {
 	/**
 	 * Matrix type used for every transformation.
 	 */
-	typedef ::cube::gl::matrix::Matrix44f      matrix_type;
+	typedef ::cube::gl::matrix::mat4f      matrix_type;
 
 	enum class MatrixKind
 	{

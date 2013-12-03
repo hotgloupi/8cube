@@ -6,11 +6,11 @@ using namespace cube::gl::matrix;
 
 std::ostream&
 operator <<(std::ostream& out,
-            Matrix44f const& m)
+            mat4f const& m)
 {
 	float const* tab = reinterpret_cast<float const*>(&m);
-	out << "Matrix([";
-	for (size_t i = 0; i < sizeof(m) / sizeof(Matrix44f::value_type); ++i)
+	out << "mat4f([";
+	for (size_t i = 0; i < sizeof(m) / sizeof(mat4f::value_type); ++i)
 	{
 		if (i) out << ", ";
 		if (i % 4 == 0) out << '[';

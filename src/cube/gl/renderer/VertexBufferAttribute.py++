@@ -2,6 +2,7 @@
 
 #include <cube/gl/color.hpp>
 #include <cube/gl/exception.hpp>
+#include <cube/gl/vector.hpp>
 
 #include <etc/to_string.hpp>
 

@@ -30,8 +30,8 @@ namespace cube { namespace gl { namespace rectangle {
 
 		inline
 		Rectangle2(Rectangle2 const& other) noexcept
-			: position{other.position}
-			, size{other.size}
+			: position(other.position)
+			, size(other.size)
 		{}
 
 		inline

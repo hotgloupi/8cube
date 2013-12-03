@@ -3,6 +3,8 @@
 
 # include "fwd.hpp"
 
+# include <cube/gl/content_traits.hpp>
+
 # include <etc/types.hpp>
 # include <etc/memory.hpp>
 # include <etc/log/component.hpp>

@@ -135,7 +135,6 @@ BOOST_PYTHON_MODULE(vector)
 	EXPORT_VECTOR4(uint64_t, ul);
 
 #define _EXPORT_VECTOR_FLOAT_METHODS(__value_type, __type)                    \
-    GLM_STATIC_ASSERT(glm::detail::type<__value_type>::is_float, ""); \
 	py::def(                                                                  \
 		"normalize",                                                          \
 		static_cast<__type (*)(__type const&)>(&normalize)                    \
@@ -164,7 +163,7 @@ BOOST_PYTHON_MODULE(vector)
 			&rotate<__value_type>                                             \
 		)                                                                     \
 	);                                                                        \
-	py::def("cross", &cross<__value_type>);                                   \
+	py::def("cross", static_cast<__type (*)(__type const&, __type const&)>(&cross)); \
 	py::def(                                                                  \
 		"distance",                                                           \
 		static_cast<__value_type(*)(__type const&, __type const&)>(           \

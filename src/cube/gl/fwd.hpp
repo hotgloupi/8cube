@@ -6,14 +6,7 @@
 # include <etc/memory.hpp>
 # include <etc/types.hpp>
 
-namespace glm { namespace detail {
-
-	template<typename T> struct tvec2;
-	template<typename T> struct tvec3;
-	template<typename T> struct tvec4;
-	template<typename T> struct tmat4x4;
-
-}}
+# include <glm/fwd.hpp>
 
 namespace cube { namespace gl {
 
@@ -57,10 +50,15 @@ namespace cube { namespace gl {
 	namespace matrix {
 
 		template<typename T>
-		using Matrix44 = ::glm::detail::tmat4x4<T>;
+		using Matrix33 = ::glm::detail::tmat3x3<T, glm::precision::highp>;
+		typedef Matrix33<float>    mat3f;
+		typedef Matrix33<double>   mat3d;
 
-		typedef Matrix44<float>    Matrix44f;
-		typedef Matrix44<double>   Matrix44d;
+
+		template<typename T>
+		using Matrix44 = ::glm::detail::tmat4x4<T, glm::precision::highp>;
+		typedef Matrix44<float>    mat4f;
+		typedef Matrix44<double>   mat4d;
 
 	}
 
@@ -92,11 +90,14 @@ namespace cube { namespace gl {
 
 	namespace vector {
 
-		template<typename T> using Vector2 = glm::detail::tvec2<T>;
-		template<typename T> using Vector3 = glm::detail::tvec3<T>;
-		template<typename T> using Vector4 = glm::detail::tvec4<T>;
+		template<typename T>
+			using Vector2 = glm::detail::tvec2<T, glm::precision::highp>;
+		template<typename T>
+			using Vector3 = glm::detail::tvec3<T, glm::precision::highp>;
+		template<typename T>
+			using Vector4 = glm::detail::tvec4<T, glm::precision::highp>;
 
-		/// Define {Vector,vec}{2,3,4}{f,d,i,u,il,ul} aliases.
+		/// Define {vec}{2,3,4}{f,d,i,u,il,ul} aliases.
 # define _CUBE_GL_VECTOR_DEF(__arity, __type, __suffix)                       \
 		typedef Vector ## __arity<__type> Vector ## __arity ## __suffix;      \
 		typedef Vector ## __arity<__type> vec ## __arity ## __suffix;         \

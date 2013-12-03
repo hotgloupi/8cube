@@ -16,7 +16,7 @@ Exported classes:
     Font
     Light, SpotLightInfo, PointLightInfo, DirectionalLightInfo
     Material
-    Matrix44f
+    mat4f
     Mesh
     Plane{f,d}
     Sphere{f,d,i,u,il,ul}
@@ -61,7 +61,7 @@ from .cube import Cube3f, Cube3d, Cube3i, Cube3u, Cube3il, Cube3ul
 from .text import Text
 from .font import Font
 from .material import *
-from .matrix import Matrix44f
+from .matrix import mat4f
 from .mesh import Mesh
 from .plane import Planef, Planed
 from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul

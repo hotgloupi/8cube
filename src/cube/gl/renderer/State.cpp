@@ -4,8 +4,11 @@
 #include "Light.hpp"
 #include "Painter.hpp"
 
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
+
+#include <glm/gtc/matrix_inverse.hpp>
 
 #include <unordered_set>
 
@@ -23,10 +26,10 @@ namespace cube { namespace gl { namespace renderer {
 		LightList             lights;
 		Impl() : mvp_dirty{false} {}
 		Impl(Impl const& other)
-			: model{other.model}
-			, view{other.view}
-			, projection{other.projection}
-			, mvp{other.mvp}
+			: model(other.model)
+			, view(other.view)
+			, projection(other.projection)
+			, mvp(other.mvp)
 			, mvp_dirty{other.mvp_dirty}
 			, lights{other.lights}
 		{}
@@ -113,6 +116,11 @@ namespace cube { namespace gl { namespace renderer {
 		return _this->mvp;
 	}
 
+	State::normal_matrix_type State::normal() const noexcept
+	{
+		return glm::inverseTranspose(glm::mat3(_this->view * _this->model));
+	}
+
 	State& State::model(matrix_type const& other) noexcept
 	{ _this->model = other; _this->mvp_dirty = true; return *this; }
 
@@ -125,12 +133,16 @@ namespace cube { namespace gl { namespace renderer {
 	State& State::scale(component_type const x,
 	                    component_type const y,
 	                    component_type const z) noexcept
-	{ return this->model(matrix::scale(this->model(), x, y, z)); }
+	{ return this->model(matrix::scale(this->model(), vector_type(x, y, z))); }
 
 	State& State::translate(component_type const x,
 	                        component_type const y,
 	                        component_type const z) noexcept
-	{ return this->model(matrix::translate(this->model(), x, y, z)); }
+	{
+		return this->model(
+			matrix::translate(this->model(), vector_type(x, y, z))
+		);
+	}
 
 	State& State::rotate(units::Angle const angle,
 	                     vector_type const& axis) noexcept
@@ -145,7 +157,10 @@ namespace cube { namespace gl { namespace renderer {
 	                          component_type const aspect,
 	                          component_type const near,
 	                          component_type const far) noexcept
-	{ return this->projection(matrix::perspective(fov, aspect, near, far)); }
+	{
+		ETC_ASSERT_NEQ(far, near);
+		return this->projection(matrix::perspective(fov, aspect, near, far));
+	}
 
 	State& State::ortho(component_type const x,
 	                    component_type const y,

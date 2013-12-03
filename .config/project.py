@@ -98,6 +98,31 @@ class Assimp(Dependency):
             )
         ]
 
+class GLM(Dependency):
+    def __init__(self, build, compiler, source_directory):
+        super().__init__(
+            build,
+            "GLM",
+            source_directory = source_directory
+        )
+        self.compiler = compiler
+
+    @property
+    def targets(self):
+        return []
+
+    @property
+    def libraries(self):
+        return [
+            cxx.Library(
+                'GLM',
+                self.compiler,
+                search_binary_files = False,
+                include_directories = [self.absolute_source_path()],
+                save_env_vars = False,
+            )
+        ]
+
 def configure(project, build):
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
@@ -194,6 +219,8 @@ def configure(project, build):
         #        python3_shared = True,
     )
 
+    glm = build.add_dependency(GLM, compiler, "deps/glm")
+
     # XXX needed ?
     compiler.include_directories.extend(tools.unique(
         sum((l.include_directories for l in boost.libraries),  [])
@@ -228,7 +255,8 @@ def configure(project, build):
         sdl_image.libraries +
         opengl.libraries +
         #assimp.libraries +
-        freetype2.libraries
+        freetype2.libraries +
+        glm.libraries
     )
     #if not platform.IS_WINDOWS:
     #    list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])

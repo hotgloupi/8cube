@@ -18,9 +18,9 @@ namespace cube { namespace gl { namespace frustum {
 		, ratio{ratio}
 		, near_distance{static_cast<double>(ndist)}
 		, far_distance{static_cast<double>(fdist)}
-		, near_size{_plane_size(fov, ratio, ndist)}
-		, far_size{_plane_size(fov, ratio, fdist)}
-		, _planes{}
+		, near_size(_plane_size(fov, ratio, ndist))
+		, far_size(_plane_size(fov, ratio, fdist))
+		, _planes()
 	{}
 
 	template<typename T>
