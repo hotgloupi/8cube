@@ -58,6 +58,7 @@ namespace cube { namespace gl { namespace renderer {
 		matrix_type const& model() const noexcept;
 		matrix_type const& view() const noexcept;
 		matrix_type const& projection() const noexcept;
+		matrix_type model_view() const noexcept;
 		matrix_type const& mvp() const noexcept;
 		normal_matrix_type normal() const noexcept;
 

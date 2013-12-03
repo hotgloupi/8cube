@@ -21,10 +21,10 @@ namespace cube { namespace gl { namespace renderer {
 		matrix_type           model;
 		matrix_type           view;
 		matrix_type           projection;
-		matrix_type           mvp;
-		bool                  mvp_dirty;
 		LightList             lights;
-		Impl() : mvp_dirty{false} {}
+		bool                  mvp_dirty;
+		matrix_type           mvp;
+		Impl() : mvp_dirty{true} {}
 		Impl(Impl const& other)
 			: model(other.model)
 			, view(other.view)
@@ -106,19 +106,22 @@ namespace cube { namespace gl { namespace renderer {
 	matrix_type const& State::projection() const noexcept
 	{ return _this->projection; }
 
+	matrix_type State::model_view() const noexcept
+	{ return _this->view * _this->model; }
+
 	matrix_type const& State::mvp() const noexcept
 	{
 		if (_this->mvp_dirty)
 		{
 			_this->mvp_dirty = false;
-			_this->mvp = _this->projection * _this->view * _this->model;
+			_this->mvp = _this->projection * this->model_view();
 		}
 		return _this->mvp;
 	}
 
 	State::normal_matrix_type State::normal() const noexcept
 	{
-		return glm::inverseTranspose(glm::mat3(_this->view * _this->model));
+		return glm::inverseTranspose(normal_matrix_type(this->model_view()));
 	}
 
 	State& State::model(matrix_type const& other) noexcept
