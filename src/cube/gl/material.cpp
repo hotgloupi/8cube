@@ -44,12 +44,12 @@ namespace cube { namespace gl { namespace material {
 				_bind_guard.reset(shader, this->bound_state());
 				shader["cube_MVP"] = this->bound_state().mvp();
 				shader["cube_Ambient"] = _material.ambient();
-				shader["cube_Diffuse"] = _material.diffuse();
-				shader["cube_Specular"] = _material.specular();
-				shader["cube_Shininess"] = _material.shininess();
 
 				if (_material.shading_model() == ShadingModel::none)
 					return;
+				shader["cube_Diffuse"] = _material.diffuse();
+				shader["cube_Specular"] = _material.specular();
+				shader["cube_Shininess"] = _material.shininess();
 				int32_t point_light_idx = 0,
 				        spot_light_idx = 0,
 				        dir_light_idx = 0;
