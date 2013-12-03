@@ -130,6 +130,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(Uniform1f);
 		_CUBE_GL_OPENGL_WRAP(Uniform1i);
 		_CUBE_GL_OPENGL_WRAP(Uniform3fv);
+		_CUBE_GL_OPENGL_WRAP(UniformMatrix3fv);
 		_CUBE_GL_OPENGL_WRAP(UniformMatrix4fv);
 		_CUBE_GL_OPENGL_WRAP(UseProgram);
 		_CUBE_GL_OPENGL_WRAP(ValidateProgram);

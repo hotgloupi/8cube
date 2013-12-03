@@ -195,12 +195,18 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			return *_indexes[idx];
 		}
 
-		void _set(matrix_type const& value) override
+		void _set(matrix::mat4f const& value) override
 		{
 			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
 			BindGuard guard(_program);
-			gl::UniformMatrix4fv(_location, 1, GL_FALSE,
-			                     glm::value_ptr(value));
+			gl::UniformMatrix4fv(_location, 1, GL_FALSE, glm::value_ptr(value));
+		}
+
+		void _set(matrix::mat3f const& value) override
+		{
+			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value);
+			BindGuard guard(_program);
+			gl::UniformMatrix3fv(_location, 1, GL_FALSE, glm::value_ptr(value));
 		}
 
 		void _set(int32_t const value) override

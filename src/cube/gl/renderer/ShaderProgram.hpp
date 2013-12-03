@@ -61,7 +61,8 @@ namespace cube { namespace gl { namespace renderer {
 
 	protected:
 		virtual ShaderProgramParameter& _at(etc::size_type const idx) = 0;
-		virtual void _set(matrix_type const& value) = 0;
+		virtual void _set(matrix::mat4f const& value) = 0;
+		virtual void _set(matrix::mat3f const& value) = 0;
 		virtual void _set(int32_t const value) = 0;
 		virtual void _set(float const value) = 0;
 		virtual void _set(vector::vec3f const& value) = 0;
