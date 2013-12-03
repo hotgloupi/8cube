@@ -19,6 +19,7 @@ namespace cube { namespace gl { namespace material {
 		: _name{std::move(name)}
 		, _shininess{0.0f}
 		, _opacity{1.0f}
+		, _shading_model{ShadingModel::none}
 	{}
 
 	namespace {
@@ -26,36 +27,41 @@ namespace cube { namespace gl { namespace material {
 		struct Bindable
 			: public renderer::Bindable
 		{
-			Material const&        material;
-			renderer::ShaderProgramPtr shader_program;
-			etc::stack_ptr<Guard>  bind_guard;
+			Material const& _material;
+			renderer::ShaderProgramPtr _shader_program;
+			etc::stack_ptr<Guard>  _bind_guard;
 
 			Bindable(Material const& material,
 			         renderer::ShaderProgramPtr shader_program)
-				: material(material)
-				, shader_program{std::move(shader_program)}
-				, bind_guard{etc::stack_ptr_no_init}
+				: _material(material)
+				, _shader_program{std::move(shader_program)}
+				, _bind_guard{etc::stack_ptr_no_init}
 			{}
 
 			void _bind() override
 			{
-				auto& shader = *this->shader_program;
-				bind_guard.reset(shader, this->bound_state());
+				auto& shader = *_shader_program;
+				_bind_guard.reset(shader, this->bound_state());
 				shader["cube_MVP"] = this->bound_state().mvp();
-				try {shader["cube_Ambient"] = material.ambient(); }
-				catch (...){}
-				//shader["cube_Diffuse"] = material.diffuse();
-				//shader["cube_Specular"] = material.specular();
+				shader["cube_Ambient"] = _material.ambient();
+				shader["cube_Diffuse"] = _material.diffuse();
+				shader["cube_Specular"] = _material.specular();
+				shader["cube_Shininess"] = _material.shininess();
+
+				if (_material.shading_model() == ShadingModel::none)
+					return;
 				int32_t point_light_idx = 0,
 				        spot_light_idx = 0,
 				        dir_light_idx = 0;
+				shader["cube_ModelView"] = this->bound_state().model_view();
+				shader["cube_Normal"] = this->bound_state().normal();
 				for (auto const& ref: this->bound_state().lights())
 				{
 					auto const& light = ref.get();
 					if (light.kind == renderer::LightKind::point)
 					{
 						auto const& info = light.point();
-						//shader["cube_PointLightPosition[" + std::to_string(point_light_idx) + "]"] = info.position;
+						shader["cube_PointLightPosition"][point_light_idx] = info.position;
 						shader["cube_PointLightAmbient"][point_light_idx] =
 							info.ambient;
 						point_light_idx += 1;
@@ -66,7 +72,7 @@ namespace cube { namespace gl { namespace material {
 
 			void _unbind() noexcept override
 			{
-				bind_guard.clear();
+				_bind_guard.clear();
 			}
 		};
 
@@ -91,6 +97,7 @@ namespace cube { namespace gl { namespace material {
 						"\tgl_Position = cube_MVP * vec4(cube_Vertex, 1);\n"
 						"\tvec4 Color = vec4(cube_Ambient, 1);\n"
 					;
+
 					int idx = 0;
 					for (auto const& ch: _material.colors())
 					{
@@ -105,12 +112,26 @@ namespace cube { namespace gl { namespace material {
 								" for color channel " + std::to_string(idx)
 							};
 					}
-					res +=
+
+					if (_material.shading_model() != ShadingModel::none)
+					{
+						res +=
+						"\tvec3 EyeNorm = "
+							"normalize(cube_Normal * cube_VertexNormal);\n"
+						"\tvec4 Eye = cube_ModelView * vec4(cube_Vertex, 1);\n"
 						"\tfor (int i = 0; i < cube_PointLightCount; i++)\n"
-						"\t{\n"
-						"\t\tColor += vec4(cube_PointLightAmbient[i], 1);\n"
-						"\t}\n"
-						"\tcube_Color = Color;\n";
+						"\t{\n\n\n"
+						"\t\tvec3 s = normalize(cube_PointLightPosition[i].xyz - Eye.xyz);\n\n"
+						"\t\tvec3 v = normalize(-Eye.xyz);\n"
+						"\t\tvec3 r = reflect(-s, EyeNorm);\n"
+						"\t\tColor += vec4(cube_PointLightAmbient[i] * (\n"
+							"\t\t\tcube_Ambient + "
+							"cube_Diffuse * max(dot(s,EyeNorm), 0) + \n"
+							"cube_Specular * pow(max(dot(r, v), 0), cube_Shininess)\n"
+							"), 1);\n"
+						"\t}\n";
+					}
+					res += "\tcube_Color = Color;\n";
 				}
 				else if (proxy.type == renderer::ShaderType::fragment)
 				{
@@ -137,6 +158,8 @@ namespace cube { namespace gl { namespace material {
 			.parameter(ShaderParameterType::vec3, "cube_Ambient")
 			.parameter(ShaderParameterType::vec3, "cube_Specular")
 			.parameter(ShaderParameterType::mat4, "cube_MVP")
+			.parameter(ShaderParameterType::mat4, "cube_ModelView")
+			.parameter(ShaderParameterType::mat3, "cube_Normal")
 			.parameter(ShaderParameterType::int_, "cube_PointLightCount")
 			.parameter(8, ShaderParameterType::vec3, "cube_PointLightPosition")
 			.parameter(8, ShaderParameterType::vec3, "cube_PointLightDiffuse")
@@ -146,6 +169,11 @@ namespace cube { namespace gl { namespace material {
 				ShaderParameterType::vec3,
 				"cube_Vertex",
 				ContentKind::vertex
+			)
+			.input(
+				ShaderParameterType::vec3,
+				"cube_VertexNormal",
+				ContentKind::normal
 			);
 		int idx = 0;
 		for (auto const& channel: _colors)
