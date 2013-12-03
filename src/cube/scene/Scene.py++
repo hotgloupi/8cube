@@ -1,16 +1,49 @@
 #include "Scene.hpp"
 
+#include <cube/gl/mesh.hpp>
+
 #include <wrappers/boost/python.hpp>
+
+namespace {
+
+	using namespace cube::scene;
+	namespace py = boost::python;
+
+	py::list meshes(Scene& self)
+	{
+		py::list res;
+		for (auto const& mesh: self.meshes())
+			res.append(mesh);
+		return res;
+	}
+
+	py::list materials(Scene& self)
+	{
+		py::list res;
+		for (auto const& material: self.materials())
+			res.append(material);
+		return res;
+	}
+
+} // !anonymous
 
 BOOST_PYTHON_MODULE(Scene)
 {
 	using namespace cube::scene;
 	namespace py = boost::python;
 
-	py::class_<Scene, boost::noncopyable>(
+	py::class_<Scene, std::shared_ptr<Scene>, boost::noncopyable>(
 		"Scene",
 		py::init<>()
 	)
+		.add_property(
+			"meshes",
+			&meshes
+		)
+		.add_property(
+			"materials",
+			&materials
+		)
 	;
 
 	py::def("from_file", Scene::from_file);

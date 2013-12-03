@@ -52,7 +52,7 @@ namespace {
 	assimp_mesh(aiMesh const* mesh)
 	{
 		using cube::scene::detail::assimp_cast;
-		auto res = etc::make_unique<Mesh>();
+		auto res = std::make_shared<Mesh>();
 		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 		{
 			ETC_TRACE.debug("Loading face", i);
@@ -252,9 +252,9 @@ namespace cube { namespace scene {
 
 	struct Scene::Impl
 	{
-		std::vector<MeshPtr>     meshes;
-		std::vector<MaterialPtr> materials;
-		Graph                    graph;
+		MeshList     meshes;
+		MaterialList materials;
+		Graph        graph;
 
 		Impl()
 		{}
@@ -299,7 +299,7 @@ namespace cube { namespace scene {
 		: _this{std::move(self)}
 	{ ETC_TRACE_CTOR("not empty"); }
 
-	Scene Scene::from_file(std::string const& path)
+	ScenePtr Scene::from_file(std::string const& path)
 	{
 		aiScene const* assimp_scene = assimp_importer().ReadFile(
 			path.c_str(),
@@ -313,18 +313,16 @@ namespace cube { namespace scene {
 
 		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
 
-		return Scene{etc::make_unique<Impl>(assimp_scene)};
+		return ScenePtr{new Scene{etc::make_unique<Impl>(assimp_scene)}};
 	}
 
-	Scene Scene::from_string(std::string const& str, std::string const& ext)
+	ScenePtr
+	Scene::from_string(std::string const& str, std::string const& ext)
 	{
 		aiScene const* assimp_scene = assimp_importer().ReadFileFromMemory(
 			str.c_str(),
 			str.size(),
-			aiProcess_CalcTangentSpace       |
-			aiProcess_Triangulate            |
-			aiProcess_JoinIdenticalVertices  |
-			aiProcess_SortByPType,
+			aiProcessPreset_TargetRealtime_Fast,
 			ext.c_str()
 		);
 		if (assimp_scene == nullptr)
@@ -332,7 +330,7 @@ namespace cube { namespace scene {
 
 		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
 
-		return Scene{etc::make_unique<Impl>(assimp_scene)};
+		return ScenePtr{new Scene{etc::make_unique<Impl>(assimp_scene)}};
 	}
 
 	Scene::~Scene()
@@ -340,6 +338,12 @@ namespace cube { namespace scene {
 
 	Graph& Scene::graph() noexcept
 	{ return _this->graph; }
+
+	Scene::MeshList const& Scene::meshes() const noexcept
+	{ return _this->meshes; }
+
+	Scene::MaterialList const& Scene::materials() const noexcept
+	{ return _this->materials; }
 
 }}
 

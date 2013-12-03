@@ -3,6 +3,9 @@
 
 # include "fwd.hpp"
 
+# include <cube/gl/fwd.hpp>
+
+# include <vector>
 # include <string>
 
 namespace cube { namespace scene {
@@ -22,24 +25,32 @@ namespace cube { namespace scene {
 
 		/// Build a scene by loading a file.
 		static
-		Scene from_file(std::string const& path);
+		ScenePtr from_file(std::string const& path);
 
 		/// Build a scene from string (You can help the importer by providing
 		/// the extension).
 		static
-		Scene from_string(std::string const& str, std::string const& ext = "");
+		ScenePtr from_string(std::string const& str, std::string const& ext = "");
 
 		Scene(Scene&& other) noexcept;
 
 		~Scene();
 
-	public:
-		Graph& graph() noexcept;
-
 	private:
 		Scene(Scene const&) = delete;
 		Scene& operator =(Scene const&) = delete;
 		Scene& operator =(Scene&& other) = delete;
+
+	public:
+		Graph& graph() noexcept;
+
+	public:
+		typedef std::vector<gl::mesh::MeshPtr> MeshList;
+		MeshList const& meshes() const noexcept;
+
+	public:
+		typedef std::vector<gl::material::MaterialPtr> MaterialList;
+		MaterialList const& materials() const noexcept;
 	};
 
 }}
