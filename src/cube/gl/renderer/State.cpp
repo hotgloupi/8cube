@@ -7,6 +7,7 @@
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
+#include <etc/stack_ptr.hpp>
 
 #include <glm/gtc/matrix_inverse.hpp>
 
@@ -18,21 +19,36 @@ namespace cube { namespace gl { namespace renderer {
 
 	struct State::Impl
 	{
-		matrix_type           model;
-		matrix_type           view;
-		matrix_type           projection;
-		LightList             lights;
-		bool                  mvp_dirty;
-		matrix_type           mvp;
-		Impl() : mvp_dirty{true} {}
+		matrix_type                        model;
+		matrix_type                        view;
+		matrix_type                        projection;
+		LightList                          lights;
+		etc::stack_ptr<matrix_type>        mvp;
+		etc::stack_ptr<matrix_type>        model_view;
+		etc::stack_ptr<normal_matrix_type> normal;
+
+		Impl()
+			: mvp{etc::stack_ptr_no_init}
+			, model_view{etc::stack_ptr_no_init}
+			, normal{etc::stack_ptr_no_init}
+		{}
+
 		Impl(Impl const& other)
 			: model(other.model)
 			, view(other.view)
 			, projection(other.projection)
-			, mvp(other.mvp)
-			, mvp_dirty{other.mvp_dirty}
 			, lights{other.lights}
+			, mvp{other.mvp}
+			, model_view{other.model_view}
+			, normal{other.normal}
 		{}
+
+		void clear()
+		{
+			this->model_view.clear();
+			this->normal.clear();
+			this->mvp.clear();
+		}
 	};
 
 	State::State(Mode const mode)
@@ -81,20 +97,19 @@ namespace cube { namespace gl { namespace renderer {
 		switch (kind)
 		{
 		case MatrixKind::model:
-			_this->model = other;
+			this->model(other);
 			break;
 		case MatrixKind::view:
-			_this->view = other;
+			this->view(other);
 			break;
 		case MatrixKind::projection:
-			_this->projection = other;
+			this->projection(other);
 			break;
 		case MatrixKind::mvp:
 			throw Exception{"mvp Matrix is read only"};
 		default:
 			throw Exception{"Invalid matrix kind"};
 		}
-		_this->mvp_dirty = true;
 	}
 
 	matrix_type const& State::model() const noexcept
@@ -107,31 +122,36 @@ namespace cube { namespace gl { namespace renderer {
 	{ return _this->projection; }
 
 	matrix_type State::model_view() const noexcept
-	{ return _this->view * _this->model; }
+	{
+		if (not _this->model_view)
+			_this->model_view.reset(_this->view * _this->model);
+		return *_this->model_view;
+	}
 
 	matrix_type const& State::mvp() const noexcept
 	{
-		if (_this->mvp_dirty)
-		{
-			_this->mvp_dirty = false;
-			_this->mvp = _this->projection * this->model_view();
-		}
-		return _this->mvp;
+		if (not _this->mvp)
+			_this->mvp.reset(_this->projection * this->model_view());
+		return *_this->mvp;
 	}
 
 	State::normal_matrix_type State::normal() const noexcept
 	{
-		return glm::inverseTranspose(normal_matrix_type(this->model_view()));
+		if (not _this->normal)
+			_this->normal.reset(
+				glm::inverseTranspose(normal_matrix_type(this->model_view()))
+			);
+		return *_this->normal;
 	}
 
 	State& State::model(matrix_type const& other) noexcept
-	{ _this->model = other; _this->mvp_dirty = true; return *this; }
+	{ _this->model = other; _this->clear(); return *this; }
 
 	State& State::view(matrix_type const& other) noexcept
-	{ _this->view = other; _this->mvp_dirty = true; return *this; }
+	{ _this->view = other; _this->clear(); return *this; }
 
 	State& State::projection(matrix_type const& other) noexcept
-	{ _this->projection = other; _this->mvp_dirty = true; return *this; }
+	{ _this->projection = other; _this->mvp.clear(); return *this; }
 
 	State& State::scale(component_type const x,
 	                    component_type const y,
