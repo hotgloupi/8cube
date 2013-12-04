@@ -36,10 +36,19 @@ namespace etc {
 			noexcept(std::is_nothrow_move_constructible<T>::value)
 			: _valid{other._valid}
 		{
-			if (other._valid)
+			if (_valid)
 				// We just move the value of the other stack_ptr, whose dtor
 				// will call the _value dtor.
-				new (&_value) T{std::move(other._value)};
+				new (&_value) T(std::move(other._value));
+		}
+
+		inline
+		stack_ptr(stack_ptr const& other)
+			noexcept(std::is_nothrow_copy_constructible<T>::value)
+			: _valid{other._valid}
+		{
+			if (_valid)
+				new (&_value) T(other._value);
 		}
 
 		inline
@@ -55,7 +64,7 @@ namespace etc {
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 		{
 			this->clear();
-			new (&_value) T{std::forward<Args>(args)...};
+			new (&_value) T(std::forward<Args>(args)...);
 			_valid = true;
 		}
 
