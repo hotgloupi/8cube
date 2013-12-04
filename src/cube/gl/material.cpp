@@ -62,8 +62,10 @@ namespace cube { namespace gl { namespace material {
 					{
 						auto const& info = light.point();
 						shader["cube_PointLightPosition"][point_light_idx] = info.position;
-						shader["cube_PointLightAmbient"][point_light_idx] =
-							info.ambient;
+						shader["cube_PointLightDiffuse"][point_light_idx] =
+							info.diffuse;
+						shader["cube_PointLightSpecular"][point_light_idx] =
+							info.specular;
 						point_light_idx += 1;
 					}
 				}
@@ -120,18 +122,17 @@ namespace cube { namespace gl { namespace material {
 							"normalize(cube_Normal * cube_VertexNormal);\n"
 						"\tvec4 Eye = cube_ModelView * vec4(cube_Vertex, 1);\n"
 						"\tfor (int i = 0; i < cube_PointLightCount; i++)\n"
-						"\t{\n\n\n"
-						"\t\tvec3 s = normalize(cube_PointLightPosition[i].xyz - Eye.xyz);\n\n"
+						"\t{\n"
+						"\t\tvec3 s = normalize(cube_PointLightPosition[i].xyz - Eye.xyz);\n"
 						"\t\tvec3 v = normalize(-Eye.xyz);\n"
 						"\t\tvec3 r = reflect(-s, EyeNorm);\n"
-						"\t\tColor += vec4(cube_PointLightAmbient[i] * (\n"
-							"\t\t\tcube_Ambient + "
-							"cube_Diffuse * max(dot(s,EyeNorm), 0) + \n"
-							"cube_Specular * pow(max(dot(r, v), 0), cube_Shininess)\n"
-							"), 1);\n"
+						"\t\tColor += vec4(\n"
+							"\t\t\tcube_Diffuse * cube_PointLightDiffuse[i] * max(dot(s,EyeNorm), 0) + \n"
+							"\t\t\tcube_Specular * cube_PointLightSpecular[i] * pow(max(dot(r, v), 0), cube_Shininess)\n"
+							"\t\t\t, 1);\n"
 						"\t}\n";
 					}
-					res += "\tcube_Color = Color;\n";
+					res += "\tcube_Color = clamp(Color, 0, 1);\n";
 				}
 				else if (proxy.type == renderer::ShaderType::fragment)
 				{
@@ -163,7 +164,6 @@ namespace cube { namespace gl { namespace material {
 			.parameter(ShaderParameterType::int_, "cube_PointLightCount")
 			.parameter(8, ShaderParameterType::vec3, "cube_PointLightPosition")
 			.parameter(8, ShaderParameterType::vec3, "cube_PointLightDiffuse")
-			.parameter(8, ShaderParameterType::vec3, "cube_PointLightAmbient")
 			.parameter(8, ShaderParameterType::vec3, "cube_PointLightSpecular")
 			.input(
 				ShaderParameterType::vec3,

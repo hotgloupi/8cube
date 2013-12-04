@@ -23,7 +23,6 @@ BOOST_PYTHON_MODULE(Light)
 				  vector::Vector3f
 				, color::Color3f
 				, color::Color3f
-				, color::Color3f
 			>()
 		)
 	;
@@ -32,7 +31,6 @@ BOOST_PYTHON_MODULE(Light)
 			"PointLightInfo",
 			py::init<
 				  vector::Vector3f
-				, color::Color3f
 				, color::Color3f
 				, color::Color3f
 			>()
@@ -44,7 +42,6 @@ BOOST_PYTHON_MODULE(Light)
 			py::init<
 				  vector::Vector3f
 				, vector::Vector3f
-				, color::Color3f
 				, color::Color3f
 				, color::Color3f
 				, float

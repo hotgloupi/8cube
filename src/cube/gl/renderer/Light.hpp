@@ -19,12 +19,10 @@ namespace cube { namespace gl { namespace renderer {
 		LightInfo(LightInfo&&) = default;
 		LightInfo(vector::Vector3f direction,
 		          color::Color3f diffuse,
-		          color::Color3f ambient,
 		          color::Color3f specular);
 
 		vector::Vector3f direction;
 		color::Color3f   diffuse;
-		color::Color3f   ambient;
 		color::Color3f   specular;
 	};
 
@@ -34,12 +32,10 @@ namespace cube { namespace gl { namespace renderer {
 		LightInfo(LightInfo&&) = default;
 		LightInfo(vector::Vector3f position,
 		          color::Color3f diffuse,
-		          color::Color3f ambient,
 		          color::Color3f specular);
 
 		vector::Vector3f position;
 		color::Color3f   diffuse;
-		color::Color3f   ambient;
 		color::Color3f   specular;
 	};
 
@@ -50,7 +46,6 @@ namespace cube { namespace gl { namespace renderer {
 		LightInfo(vector::Vector3f position,
 		          vector::Vector3f direction,
 		          color::Color3f diffuse,
-		          color::Color3f ambient,
 		          color::Color3f specular,
 		          float attenuation,
 		          units::Angle cutoff);
@@ -58,7 +53,6 @@ namespace cube { namespace gl { namespace renderer {
 		vector::Vector3f position;
 		vector::Vector3f direction;
 		color::Color3f   diffuse;
-		color::Color3f   ambient;
 		color::Color3f   specular;
 		float            attenuation;
 		units::Angle     cutoff;
