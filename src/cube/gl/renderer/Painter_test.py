@@ -109,9 +109,9 @@ class PainterSetup:
                 gl.ContentKind.vertex,
                 list(gl.vec3f(*v) for v in [
                     (x, y, 0),
-                    (x + w, y, 0),
+                    (x, y + h, 0),
                     (x + w, y + h, 0),
-                    (x, y + h, 0)
+                    (x + w, y, 0),
                 ]),
                 gl.ContentHint.static_content
             ),
@@ -119,9 +119,9 @@ class PainterSetup:
                 ContentKind.color,
                 [
                     Color3f('#e00'),
-                    Color3f('#00f'),
-                    Color3f('#ffc'),
                     Color3f('#9cd'),
+                    Color3f('#ffc'),
+                    Color3f('#00f'),
                 ],
                 ContentHint.static_content
             )

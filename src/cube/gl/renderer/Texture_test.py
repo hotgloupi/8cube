@@ -60,9 +60,9 @@ class _(PainterSetup, TestCase):
                 gl.ContentKind.vertex,
                 [
                     gl.vec2f(x, y),
-                    gl.vec2f(x + w, y),
+                    gl.vec2f(x, y + h),
                     gl.vec2f(x + w, y + h),
-                    gl.vec2f(x, y + h)
+                    gl.vec2f(x + w, y),
                 ],
                 gl.ContentHint.static_content
             ),
@@ -70,9 +70,9 @@ class _(PainterSetup, TestCase):
                 gl.ContentKind.tex_coord0,
                 [
                     gl.vec2f(0, 0),
-                    gl.vec2f(1, 0),
-                    gl.vec2f(1, 1),
                     gl.vec2f(0, 1),
+                    gl.vec2f(1, 1),
+                    gl.vec2f(1, 0),
                 ],
                 gl.ContentHint.static_content
             )
