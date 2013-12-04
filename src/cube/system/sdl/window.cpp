@@ -144,14 +144,15 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)
 				throw SDLException("GL_BindTexture");
 			ETC_SCOPE_EXIT{ SDL_GL_UnbindTexture(_texture); };
+			static GLenum const tex_kind = GL_TEXTURE_RECTANGLE;
 			int width, height, fmt, red_size, green_size, blue_size, alpha_size;
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_WIDTH, &width);
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_HEIGHT, &height);
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_RED_SIZE, &red_size);
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_GREEN_SIZE, &green_size);
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_BLUE_SIZE, &blue_size);
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_ALPHA_SIZE, &alpha_size);
-			glGetTexLevelParameteriv(GL_TEXTURE_RECTANGLE, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_WIDTH, &width);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_HEIGHT, &height);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_RED_SIZE, &red_size);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_GREEN_SIZE, &green_size);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_BLUE_SIZE, &blue_size);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_ALPHA_SIZE, &alpha_size);
+			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
 			ETC_LOG.debug("Internal texture size is", width, height);
 			ETC_LOG.debug("Internal texture is", gl::renderer::opengl::gl::to_pixel_format(fmt));
 			ETC_LOG.debug("Component sizes:", red_size, green_size, blue_size, alpha_size);
@@ -159,7 +160,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
 			memset(pixels.get(), 0, width * height * bpp);
 			gl::renderer::opengl::gl::GetTexImage(
-				GL_TEXTURE_RECTANGLE,
+				tex_kind,
 				0,
 				GL_BGRA,
 				GL_UNSIGNED_INT_8_8_8_8_REV,
