@@ -203,8 +203,8 @@ namespace cube { namespace gl { namespace material {
 			.routine<Main>("main", *this)
 		;
 
-		etc::print("vertex shader:", vs.source());
-		etc::print("fragment shader:", fs.source());
+		//etc::print("vertex shader:", vs.source());
+		//etc::print("fragment shader:", fs.source());
 
 		auto shader_program = renderer.new_shader_program(
 			vs.shader(),
