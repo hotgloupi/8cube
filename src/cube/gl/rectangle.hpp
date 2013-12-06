@@ -3,6 +3,8 @@
 
 # include "vector.hpp"
 
+# include <etc/compiler.hpp>
+
 namespace cube { namespace gl { namespace rectangle {
 
 	template<typename T>
@@ -23,19 +25,19 @@ namespace cube { namespace gl { namespace rectangle {
 
 	public:
 		inline
-		Rectangle2(T x, T y, T w, T h) noexcept
+		Rectangle2(T x, T y, T w, T h) ETC_NOEXCEPT
 			: position{x, y}
 			, size{w, h}
 		{}
 
 		inline
-		Rectangle2(Rectangle2 const& other) noexcept
+		Rectangle2(Rectangle2 const& other) ETC_NOEXCEPT
 			: position(other.position)
 			, size(other.size)
 		{}
 
 		inline
-		Rectangle2& operator =(Rectangle2 const& other) noexcept
+		Rectangle2& operator =(Rectangle2 const& other) ETC_NOEXCEPT
 		{
 			if (this != &other)
 			{

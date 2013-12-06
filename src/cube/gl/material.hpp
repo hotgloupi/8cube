@@ -6,6 +6,8 @@
 
 # include <cube/gl/renderer/fwd.hpp>
 
+# include <etc/compiler.hpp>
+
 # include <string>
 # include <vector>
 
@@ -97,7 +99,7 @@ namespace cube { namespace gl { namespace material {
 			StackOperation op;
 			inline
 			ColorChannel(renderer::ShaderParameterType const type,
-			             StackOperation const op) noexcept
+			             StackOperation const op) ETC_NOEXCEPT
 				: type{type}
 				, op{op}
 			{}
@@ -121,51 +123,51 @@ namespace cube { namespace gl { namespace material {
 		Material(std::string name = "unamed");
 
 		/// Name.
-		inline std::string const& name() const noexcept { return _name; }
+		inline std::string const& name() const ETC_NOEXCEPT { return _name; }
 
 		/// Set name.
 		inline void name(std::string value)
-			noexcept(std::is_nothrow_move_assignable<std::string>())
+			ETC_NOEXCEPT_IF(std::is_nothrow_move_assignable<std::string>())
 		{ _name = std::move(value); }
 
 		/// Ambient color.
-		inline color_type const& ambient() const noexcept { return _ambient; }
+		inline color_type const& ambient() const ETC_NOEXCEPT { return _ambient; }
 
 		/// Set ambient color.
-		inline void ambient(color_type color) noexcept
+		inline void ambient(color_type color) ETC_NOEXCEPT
 		{ _ambient = std::move(color); }
 
 		/// Diffuse color.
-		inline color_type const& diffuse() const noexcept { return _diffuse; }
+		inline color_type const& diffuse() const ETC_NOEXCEPT { return _diffuse; }
 
 		/// Set diffuse color.
-		inline void diffuse(color_type color) noexcept
+		inline void diffuse(color_type color) ETC_NOEXCEPT
 		{ _diffuse = std::move(color); }
 
 		/// Specular color.
-		inline color_type const& specular() const noexcept
+		inline color_type const& specular() const ETC_NOEXCEPT
 		{ return _specular; }
 
 		/// Set specular color.
-		inline void specular(color_type color) noexcept
+		inline void specular(color_type color) ETC_NOEXCEPT
 		{ _specular = std::move(color); }
 
 		/// Shininess.
-		inline float shininess() const noexcept { return _shininess; }
+		inline float shininess() const ETC_NOEXCEPT { return _shininess; }
 
 		/// Set shininess.
-		inline void shininess(float value) noexcept { _shininess = value; }
+		inline void shininess(float value) ETC_NOEXCEPT { _shininess = value; }
 
 		/// Opacity.
-		inline float opacity() const noexcept { return _opacity; }
+		inline float opacity() const ETC_NOEXCEPT { return _opacity; }
 
 		/// Set opacity.
-		inline void opacity(float value) noexcept { _opacity = value; }
+		inline void opacity(float value) ETC_NOEXCEPT { _opacity = value; }
 
-		inline ShadingModel shading_model() const noexcept
+		inline ShadingModel shading_model() const ETC_NOEXCEPT
 		{ return _shading_model; }
 
-		inline void shading_model(ShadingModel const model) noexcept
+		inline void shading_model(ShadingModel const model) ETC_NOEXCEPT
 		{ _shading_model = model; }
 
 		/// Append a texture channel.
@@ -187,7 +189,7 @@ namespace cube { namespace gl { namespace material {
 		}
 
 		/// Texture channels stack.
-		inline TextureChannels const& textures() const noexcept
+		inline TextureChannels const& textures() const ETC_NOEXCEPT
 		{ return _textures; }
 
 		/// Append a color channel.
@@ -196,7 +198,7 @@ namespace cube { namespace gl { namespace material {
 		{ _colors.emplace_back(type, op); }
 
 		/// Color channels stack.
-		inline ColorChannels const& colors() const noexcept
+		inline ColorChannels const& colors() const ETC_NOEXCEPT
 		{ return _colors; }
 
 	public:

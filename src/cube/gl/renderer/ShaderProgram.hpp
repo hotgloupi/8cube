@@ -38,7 +38,7 @@ namespace cube { namespace gl { namespace renderer {
 		ShaderProgram& program() { return _program; }
 
 		inline
-		std::string const& name() const noexcept { return _name; }
+		std::string const& name() const ETC_NOEXCEPT { return _name; }
 
 	public:
 		template<typename T>

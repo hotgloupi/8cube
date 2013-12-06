@@ -450,7 +450,7 @@ namespace etc { namespace log {
 		return components[name] = res;
 	}
 	void Logger::message(Line const& line,
-	                     std::string message) noexcept
+	                     std::string message) ETC_NOEXCEPT
 	{
 		try {
 			// Fetch the out stream.

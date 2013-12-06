@@ -11,17 +11,17 @@ namespace cube { namespace gl { namespace viewport {
 		: public rectangle::Rectangle2f
 	{
 		inline
-		Viewport(float x, float y, float w, float h) noexcept
+		Viewport(float x, float y, float w, float h) ETC_NOEXCEPT
 			: rectangle::Rectangle2f{x, y, w, h}
 		{}
 
 		inline
-		Viewport(Viewport const& other) noexcept
+		Viewport(Viewport const& other) ETC_NOEXCEPT
 			: rectangle::Rectangle2f{other}
 		{}
 
 		inline
-		Viewport& operator =(Viewport const& other) noexcept
+		Viewport& operator =(Viewport const& other) ETC_NOEXCEPT
 		{
 			this->rectangle::Rectangle2f::operator =(other);
 			return *this;

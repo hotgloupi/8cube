@@ -36,7 +36,7 @@ namespace cube { namespace system { namespace window {
 		{}
 	};
 
-	Window::Window(ImplPtr&& impl) noexcept
+	Window::Window(ImplPtr&& impl) ETC_NOEXCEPT
 		: _impl{std::move(impl)}
 	{
 		ETC_TRACE_CTOR(_impl->title, this->width(), this->height());
@@ -63,16 +63,16 @@ namespace cube { namespace system { namespace window {
 	RendererContext& Window::renderer_context() const
 	{ return *_impl->context; }
 
-	etc::size_type Window::width() const noexcept
+	etc::size_type Window::width() const ETC_NOEXCEPT
 	{ return _impl->context->width(); }
 
-	etc::size_type Window::height() const noexcept
+	etc::size_type Window::height() const ETC_NOEXCEPT
 	{ return _impl->context->height(); }
 
-	Window::Flags Window::flags() const noexcept
+	Window::Flags Window::flags() const ETC_NOEXCEPT
 	{ return _impl->context->flags(); }
 
-	std::string const& Window::title() const noexcept
+	std::string const& Window::title() const ETC_NOEXCEPT
 	{ return _impl->title; }
 
 	void Window::title(std::string const& title)
@@ -142,23 +142,23 @@ namespace cube { namespace system { namespace window {
 	RendererContext::RendererContext(etc::size_type const width,
 	                                 etc::size_type const height,
 	                                 Window::Flags const flags,
-	                                 gl::renderer::Name const name) noexcept
+	                                 gl::renderer::Name const name) ETC_NOEXCEPT
 		: _width{width}
 		, _height{height}
 		, _flags{flags}
 		, _name{name}
 	{}
 
-	etc::size_type RendererContext::width() const noexcept
+	etc::size_type RendererContext::width() const ETC_NOEXCEPT
 	{ return _width; }
 
-	etc::size_type RendererContext::height() const noexcept
+	etc::size_type RendererContext::height() const ETC_NOEXCEPT
 	{ return _height; }
 
-	Window::Flags RendererContext::flags() const noexcept
+	Window::Flags RendererContext::flags() const ETC_NOEXCEPT
 	{ return _flags; }
 
-	gl::renderer::Name RendererContext::name() const noexcept
+	gl::renderer::Name RendererContext::name() const ETC_NOEXCEPT
 	{ return _name; }
 
 	void

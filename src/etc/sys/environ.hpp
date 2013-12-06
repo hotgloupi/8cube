@@ -2,6 +2,7 @@
 # define ETC_SYS_ENVIRON_HPP
 
 # include <etc/api.hpp>
+# include <etc/compiler.hpp>
 # include <etc/exception.hpp>
 
 # ifdef environ
@@ -41,7 +42,7 @@ namespace etc { namespace sys { namespace environ {
 	/**
 	 * @brief Returns whether or not a variable is in the environment.
 	 */
-	ETC_API bool contains(std::string const& key) noexcept;
+	ETC_API bool contains(std::string const& key) ETC_NOEXCEPT;
 
 	/**
 	 * Exception thrown when the key is not found.

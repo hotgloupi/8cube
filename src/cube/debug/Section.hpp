@@ -1,6 +1,8 @@
 #ifndef  CUBE_DEBUG_SECTION_HPP
 # define CUBE_DEBUG_SECTION_HPP
 
+# include <etc/compiler.hpp>
+
 # include <utility>
 
 namespace cube { namespace debug {
@@ -17,14 +19,14 @@ namespace cube { namespace debug {
 	public:
 		template<typename... Args>
 		inline explicit
-		Section(Args&&... args) noexcept
+		Section(Args&&... args) ETC_NOEXCEPT
 			: _id{Manager::instance().begin(
 				info_type(std::forward<Args>(args)...)
 			)}
 		{}
 
 		inline
-		Section(Section&& other) noexcept
+		Section(Section&& other) ETC_NOEXCEPT
 			: _id{other._id}
 		{ other._id = 0; }
 

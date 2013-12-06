@@ -13,16 +13,16 @@ namespace etc { namespace log {
 
 		public:
 			inline
-			Indent() noexcept
+			Indent() ETC_NOEXCEPT
 				: _indent{0}
 			{}
 
 			inline
-			size_type increment() noexcept
+			size_type increment() ETC_NOEXCEPT
 			{ return ++_indent; }
 
 			inline
-			size_type decrement() noexcept
+			size_type decrement() ETC_NOEXCEPT
 			{
 				if (_indent > 0)
 					return --_indent;
@@ -31,7 +31,7 @@ namespace etc { namespace log {
 			}
 
 			inline
-			size_type get() noexcept
+			size_type get() ETC_NOEXCEPT
 			{ return _indent; }
 		};
 
@@ -49,14 +49,14 @@ namespace etc { namespace log {
 	         char const* file,
 	         size_type const line,
 	         char const* function,
-	         std::string const& component) noexcept
+	         std::string const& component) ETC_NOEXCEPT
 		: _line{level, file, line, function, component, indent().increment()}
 		, _logger{&logger(component)}
 		, _should_log{_logger->should_log(_line)}
 		, _message{}
 	{}
 
-	Log::Log(Log&& other) noexcept
+	Log::Log(Log&& other) ETC_NOEXCEPT
 		: _line{std::move(other._line)}
 		, _logger{other._logger}
 		, _should_log{other._should_log}

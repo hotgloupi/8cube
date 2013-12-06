@@ -1,11 +1,13 @@
 #ifndef  CUBE_GL_PLANE_HPP
 # define CUBE_GL_PLANE_HPP
 
-# include <iosfwd>
+# include "vector.hpp"
 
 # include <cube/api.hpp>
 
-# include "vector.hpp"
+# include <etc/compiler.hpp>
+
+# include <iosfwd>
 
 namespace cube { namespace gl { namespace plane {
 
@@ -40,7 +42,7 @@ namespace cube { namespace gl { namespace plane {
 		/**
 		 * @brief Construct a null plane.
 		 */
-		Plane() noexcept
+		Plane() ETC_NOEXCEPT
 			: _coef{}
 		{}
 
@@ -49,32 +51,32 @@ namespace cube { namespace gl { namespace plane {
 		 */
 		Plane(vec3 const& p0,
 		      vec3 const& p1,
-		      vec3 const& p2) noexcept;
+		      vec3 const& p2) ETC_NOEXCEPT;
 
 		/**
 		 * @brief Construct a plane from a point and a normal.
 		 */
-		Plane(vec3 const& point, vec3 const& normal) noexcept;
+		Plane(vec3 const& point, vec3 const& normal) ETC_NOEXCEPT;
 
 		/**
 		 * @brief Retreive plane equation coefficients.
 		 */
 		inline
-		vec4d const& coef() const noexcept
+		vec4d const& coef() const ETC_NOEXCEPT
 		{ return _coef; }
 
 		/**
 		 * @brief Retreive a normal of this plane
 		 */
 		inline
-		vec3 normal() const noexcept
+		vec3 normal() const ETC_NOEXCEPT
 		{ return vec3{_coef[0], _coef[1], _coef[2]}; }
 
 		/**
 		 * @brief Compute the algebraic distance to a point.
 		 */
 		inline
-		double distance(vec3 const& p) const noexcept
+		double distance(vec3 const& p) const ETC_NOEXCEPT
 		{
 			return (
 				p.x * _coef[0] + p.y * _coef[1] + p.z * _coef[2] + _coef[3]

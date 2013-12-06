@@ -28,11 +28,11 @@ namespace cube { namespace scene {
 			: public Graph::Node
 		{
 			inline explicit
-			RootNode(Graph& graph) noexcept
+			RootNode(Graph& graph) ETC_NOEXCEPT
 				: Node{graph, nullptr}
 			{}
 
-			void print(std::ostream& out) const noexcept
+			void print(std::ostream& out) const ETC_NOEXCEPT
 			{ out << "RootNode"; }
 		};
 
@@ -84,7 +84,7 @@ namespace cube { namespace scene {
 		_this->graph.clear();
 	}
 
-	size_t Graph::size() const noexcept
+	size_t Graph::size() const ETC_NOEXCEPT
 	{ return _this->node_index.size(); }
 
 	Graph::Node& Graph::by_data(void const* data)
@@ -147,7 +147,7 @@ namespace cube { namespace scene {
 		return *ptr;
 	}
 
-	void Graph::_remove(Node const& node) noexcept
+	void Graph::_remove(Node const& node) ETC_NOEXCEPT
 	{
 		ETC_LOG.debug("Remove", node, "from index");
 		auto it = _this->node_index.find(node.data());
@@ -160,19 +160,19 @@ namespace cube { namespace scene {
 	///////////////////////////////////////////////////////////////////////////
 	// Graph::Node
 
-	void Graph::Node::print(std::ostream& out) const noexcept
+	void Graph::Node::print(std::ostream& out) const ETC_NOEXCEPT
 	{
 		_begin_print(out);
 		out << "(destroyed)";
 		_end_print(out);
 	}
 
-	void Graph::Node::_begin_print(std::ostream& out) const noexcept
+	void Graph::Node::_begin_print(std::ostream& out) const ETC_NOEXCEPT
 	{
 		out << "<Graph::Node " << _id << ": ";
 	}
 
-	void Graph::Node::_end_print(std::ostream& out) const noexcept
+	void Graph::Node::_end_print(std::ostream& out) const ETC_NOEXCEPT
 	{
 		out << ">";
 	}

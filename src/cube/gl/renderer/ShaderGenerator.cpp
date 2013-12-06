@@ -9,7 +9,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	ShaderGenerator::ShaderGenerator(Renderer& renderer) noexcept
+	ShaderGenerator::ShaderGenerator(Renderer& renderer) ETC_NOEXCEPT
 		: _renderer(renderer)
 	{ ETC_TRACE_CTOR(); }
 
@@ -157,7 +157,7 @@ namespace cube { namespace gl { namespace renderer {
 	ShaderRoutine::~ShaderRoutine()
 	{ ETC_TRACE_DTOR(this->name); }
 
-	bool ShaderRoutine::is_applicable(ShaderType) const noexcept
+	bool ShaderRoutine::is_applicable(ShaderType) const ETC_NOEXCEPT
 	{ return true; }
 
 	std::string ShaderRoutine::source(ShaderLanguage lang) const

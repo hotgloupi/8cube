@@ -7,6 +7,7 @@
 # include <cube/api.hpp>
 # include <cube/units/angle.hpp>
 
+# include <etc/compiler.hpp>
 # include <etc/types.hpp>
 
 # include <glm/glm.hpp>
@@ -27,7 +28,7 @@ namespace cube { namespace gl { namespace matrix {
 	inline
 	Matrix44<T> look_at(vector::Vector3<T> const& eye,
 	                    vector::Vector3<T> const& center,
-	                    vector::Vector3<T> const& up) noexcept
+	                    vector::Vector3<T> const& up) ETC_NOEXCEPT
 	{
 		return ::glm::lookAt(eye, center, up);
 	}
@@ -36,7 +37,7 @@ namespace cube { namespace gl { namespace matrix {
 	inline
 	Matrix44<T> rotate(Matrix44<T> const& mat,
 	                   units::Angle const angle,
-	                   vector::Vector3<T> const& axis) noexcept
+	                   vector::Vector3<T> const& axis) ETC_NOEXCEPT
 	{ return ::glm::rotate(mat, units::deg_value(angle), axis); }
 
 }}}

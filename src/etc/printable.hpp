@@ -1,7 +1,8 @@
 #ifndef  ETC_PRINTABLE_HPP
 # define ETC_PRINTABLE_HPP
 
-# include <etc/api.hpp>
+# include "api.hpp"
+# include "compiler.hpp"
 
 # include <iosfwd>
 
@@ -11,7 +12,7 @@ namespace etc {
 	{
 	public:
 		virtual
-		void print(std::ostream& out) const noexcept = 0;
+		void print(std::ostream& out) const ETC_NOEXCEPT = 0;
 
 		virtual ~Printable();
 	};

@@ -71,7 +71,7 @@ namespace cube { namespace gl { namespace renderer {
 		this->flush();
 	}
 
-	system::window::RendererContext& Renderer::context() const noexcept
+	system::window::RendererContext& Renderer::context() const ETC_NOEXCEPT
 	{ return _this->context; }
 
 	void

@@ -34,7 +34,7 @@ namespace cube { namespace gl { namespace renderer {
 	protected:
 		Renderer& _renderer;
 	public:
-		ShaderGenerator(Renderer& renderer) noexcept;
+		ShaderGenerator(Renderer& renderer) ETC_NOEXCEPT;
 
 		virtual ~ShaderGenerator();
 
@@ -93,7 +93,7 @@ namespace cube { namespace gl { namespace renderer {
 		/// Returns whether or not the routine is applicable for a shader of @a
 		/// type.
 		virtual
-		bool is_applicable(ShaderType type) const noexcept;
+		bool is_applicable(ShaderType type) const ETC_NOEXCEPT;
 
 		/// Call one of the specialized *_source() method.
 		virtual

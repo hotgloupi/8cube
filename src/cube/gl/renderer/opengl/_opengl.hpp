@@ -38,19 +38,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	private:
 		template<ThrowPolicy error_policy>
 		static void _check_error(char const* function_)
-			noexcept(error_policy == no_throw);
+			ETC_NOEXCEPT_IF(error_policy == no_throw);
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");
 
 	public:
 # define _CUBE_GL_OPENGL_PROTO(name, type)                                    \
 		template<ThrowPolicy error_policy = can_throw, typename... T>         \
 		static inline                                                         \
-		type name(T... values) noexcept(error_policy == no_throw)             \
+		type name(T... values) ETC_NOEXCEPT_IF(error_policy == no_throw)      \
 	/**/
 
 // values... is defined in the proto
 # define _CUBE_GL_OPENGL_LOG(gl_name)                                         \
-		ETC_LOG.debug(#gl_name, '(', values..., ')')                        \
+		ETC_LOG.debug(#gl_name, '(', values..., ')')                          \
 	/**/
 
 # define _CUBE_GL_OPENGL_CALL(name, gl_name)                                  \
@@ -185,9 +185,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		{ return _pixel_format_map[(size_t) value]; }
 
 		static
-		renderer::PixelFormat to_pixel_format(GLenum value) noexcept;
+		renderer::PixelFormat to_pixel_format(GLenum value) ETC_NOEXCEPT;
 		static
-		renderer::ContentPacking to_content_packing(GLenum value) noexcept;
+		renderer::ContentPacking to_content_packing(GLenum value) ETC_NOEXCEPT;
 	public:
 		static size_t const _draw_modes = (size_t) renderer::DrawMode::_max_value;
 		static std::array<GLenum, _draw_modes> _draw_mode_map;

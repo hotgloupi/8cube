@@ -5,6 +5,8 @@
 
 # include <cube/api.hpp>
 
+# include <etc/compiler.hpp>
+
 # include <cassert>
 # include <memory>
 # include <string>
@@ -46,8 +48,8 @@ namespace cube { namespace debug {
 
 	private:
 		friend struct Section<Performance>;
-		id_type begin(Info&& info) noexcept;
-		void end(id_type const id) noexcept;
+		id_type begin(Info&& info) ETC_NOEXCEPT;
+		void end(id_type const id) ETC_NOEXCEPT;
 	};
 
 	struct Performance::Info
@@ -64,7 +66,7 @@ namespace cube { namespace debug {
 		Info(char const* name,
 			 char const* file,
 			 int line,
-			 char const* function) noexcept
+			 char const* function) ETC_NOEXCEPT
 			: _parent{nullptr}
 			, _children{}
 			, name{name}
@@ -73,14 +75,14 @@ namespace cube { namespace debug {
 			, function{function}
 		{}
 
-		Info const* parent() const noexcept
+		Info const* parent() const ETC_NOEXCEPT
 		{ return _parent; }
 
-		std::unordered_set<Info const*> const& children() const noexcept
+		std::unordered_set<Info const*> const& children() const ETC_NOEXCEPT
 		{ return _children; }
 
 		inline
-		bool operator ==(cube::debug::Performance::Info const& rhs) const noexcept
+		bool operator ==(cube::debug::Performance::Info const& rhs) const ETC_NOEXCEPT
 		{
 			return (
 				this->parent() == rhs.parent() and
@@ -96,7 +98,7 @@ namespace cube { namespace debug {
 		void add_child(Info const* info)
 		{ _children.insert(info); }
 
-		void set_parent(Info const* info) noexcept
+		void set_parent(Info const* info) ETC_NOEXCEPT
 		{
 			assert(info != nullptr);
 			assert(_parent == nullptr);

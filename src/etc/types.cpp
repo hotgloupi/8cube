@@ -13,7 +13,7 @@ namespace etc {
 	bool
 	demangle(std::string const& sym,
 	         std::string& res,
-	         std::string& error) noexcept
+	         std::string& error) ETC_NOEXCEPT
 	{
 #ifndef BOOST_MSVC
 		size_t size;

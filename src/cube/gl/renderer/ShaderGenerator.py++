@@ -34,7 +34,7 @@ namespace
 			return ShaderRoutine::source(lang);
 		}
 
-		bool is_applicable(ShaderType type) const noexcept override
+		bool is_applicable(ShaderType type) const ETC_NOEXCEPT override
 		{
 			return this->get_override("is_applicable")(type);
 		}

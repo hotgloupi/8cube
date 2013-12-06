@@ -132,7 +132,7 @@ namespace cube { namespace debug {
 	}
 
 	Performance::id_type
-	Performance::begin(Info&& info_) noexcept
+	Performance::begin(Info&& info_) ETC_NOEXCEPT
 	{
 		try {
 			auto const thread_id = std::this_thread::get_id();
@@ -183,7 +183,7 @@ namespace cube { namespace debug {
 	}
 
 	void
-	Performance::end(id_type const id) noexcept
+	Performance::end(id_type const id) ETC_NOEXCEPT
 	{
 		try {
 			auto const thread_id = std::this_thread::get_id();

@@ -2,6 +2,7 @@
 # define ETC_TYPES_HPP
 
 # include "api.hpp"
+# include "compiler.hpp"
 
 # include <cstddef>
 # include <cstdint>
@@ -18,7 +19,7 @@ namespace etc {
 	ETC_API std::string demangle(std::string const& sym);
 	bool demangle(std::string const& sym,
 	              std::string& res,
-	              std::string& error) noexcept;
+	              std::string& error) ETC_NOEXCEPT;
 
 	typedef uint_fast32_t   size_type;
 	typedef size_t          memsize_type;

@@ -21,7 +21,7 @@ namespace etc { namespace sys { namespace environ {
 		return std::string{val};
 	}
 
-	bool contains(std::string const& key) noexcept
+	bool contains(std::string const& key) ETC_NOEXCEPT
 	{ return (::getenv(key.c_str()) != nullptr); }
 
 	std::string set(std::string const& key,

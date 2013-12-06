@@ -78,7 +78,7 @@ namespace cube { namespace gl { namespace renderer {
 		                      etc::size_type const nb_elements,
 		                      size_t const buffer_size,
 		                      void* buffer,
-		                      std::function<void(void*)> deleter) noexcept;
+		                      std::function<void(void*)> deleter) ETC_NOEXCEPT;
 
 	public:
 		/**

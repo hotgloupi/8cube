@@ -10,6 +10,7 @@
 # include <cube/gl/viewport.hpp>
 # include <cube/system/fwd.hpp>
 
+# include <etc/compiler.hpp>
 # include <etc/types.hpp>
 
 # include <memory>
@@ -47,7 +48,7 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ~Renderer();
 
 
-		system::window::RendererContext& context() const noexcept;
+		system::window::RendererContext& context() const ETC_NOEXCEPT;
 	/*************************************************************************
 	 * All renderers act as a state machine. States are pushed with the      *
 	 * Renderer::begin(State) method by implementations classes.             *
@@ -89,7 +90,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		/// default implementation sets _viewport
 		inline
-		viewport::Viewport const& viewport() const noexcept
+		viewport::Viewport const& viewport() const ETC_NOEXCEPT
 		{ return _viewport; }
 		virtual
 		void viewport(cube::gl::viewport::Viewport const& vp);

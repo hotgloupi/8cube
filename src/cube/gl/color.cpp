@@ -27,7 +27,7 @@ namespace {
 
 	template<typename T>
 	std::unordered_map<std::string, Color3<T>>&
-	get_color3_map() noexcept
+	get_color3_map() ETC_NOEXCEPT
 	{
 		static std::unordered_map<std::string, Color3<T>> map;
 		static bool called = false;
@@ -184,7 +184,7 @@ namespace {
 
 	template<typename T>
 	std::unordered_map<std::string, Color4<T>>&
-	get_color4_map() noexcept
+	get_color4_map() ETC_NOEXCEPT
 	{
 		static std::unordered_map<std::string, Color4<T>> map;
 		static bool called = false;
@@ -203,7 +203,7 @@ namespace {
 
 	template<typename T>
 	inline void
-	fill_hex_colors(char const* str, size_t len, T* colors, size_t n) noexcept
+	fill_hex_colors(char const* str, size_t len, T* colors, size_t n) ETC_NOEXCEPT
 	{
 		if (len < n || len % n != 0)
 		{
@@ -250,7 +250,7 @@ namespace cube { namespace gl { namespace color {
 
 	template<typename T>
 	Color3<T> const&
-	parse_color3(std::string const& s) noexcept
+	parse_color3(std::string const& s) ETC_NOEXCEPT
 	{
 		static auto& map = get_color3_map<T>();
 		static Color3<T> const black;
@@ -276,7 +276,7 @@ namespace cube { namespace gl { namespace color {
 
 	template<typename T>
 	Color4<T> const&
-	parse_color4(std::string const& s) noexcept
+	parse_color4(std::string const& s) ETC_NOEXCEPT
 	{
 		static auto& map = get_color4_map<T>();
 		static Color4<T> black{Color3<T>{}};

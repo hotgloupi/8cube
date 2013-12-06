@@ -72,21 +72,21 @@ namespace cube { namespace gl { namespace surface {
 	Surface::~Surface()
 	{ ETC_TRACE_DTOR(); }
 
-	etc::size_type Surface::bytes_per_pixel() const noexcept
+	etc::size_type Surface::bytes_per_pixel() const ETC_NOEXCEPT
 	{ return _this->surface->format->BytesPerPixel; }
 
-	etc::size_type Surface::width() const noexcept
+	etc::size_type Surface::width() const ETC_NOEXCEPT
 	{ return _this->surface->w; }
 
-	etc::size_type Surface::height() const noexcept
+	etc::size_type Surface::height() const ETC_NOEXCEPT
 	{ return _this->surface->h; }
 
-	void const* Surface::pixels() const noexcept
+	void const* Surface::pixels() const ETC_NOEXCEPT
 	{ return _this->surface->pixels; }
 
 	static inline
 	etc::size_type component_difference(unsigned char c1,
-	                                    unsigned char c2) noexcept
+	                                    unsigned char c2) ETC_NOEXCEPT
 	{ return c1 > c2 ? c1 - c2 : c2 - c1; }
 
 	double Surface::difference(Surface const& other) const

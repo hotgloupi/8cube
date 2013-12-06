@@ -10,7 +10,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	std::vector<Node<size_type>>
 	find_nodes(Tree<size_type> const& tree,
 	           cube::gl::vector::Vector3d const& pos,
-	           cube::gl::frustum::Frustumd const& frustum) noexcept
+	           cube::gl::frustum::Frustumd const& frustum) ETC_NOEXCEPT
 	{
 		CUBE_DEBUG_PERFORMANCE_SECTION("app.WorldTree");
 		std::vector<Node<size_type>> res;

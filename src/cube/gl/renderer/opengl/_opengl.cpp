@@ -197,7 +197,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	};
 
 	template<gl::ThrowPolicy error_policy>
-	void gl::_check_error(char const* function_) noexcept(error_policy == gl::no_throw)
+	void gl::_check_error(char const* function_)
+		ETC_NOEXCEPT_IF(error_policy == gl::no_throw)
 	{
 		GLenum code = glGetError();
 
@@ -223,13 +224,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
     }
 
 	template
-	void gl::_check_error<gl::no_throw>(char const* function_) noexcept(true);
+	void gl::_check_error<gl::no_throw>(char const* function_) ETC_NOEXCEPT_IF(true);
 	template
-	void gl::_check_error<gl::can_throw>(char const* function_) noexcept(false);
+	void gl::_check_error<gl::can_throw>(char const* function_) ETC_NOEXCEPT_IF(false);
 
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
-	renderer::PixelFormat gl::to_pixel_format(GLenum value) noexcept
+	renderer::PixelFormat gl::to_pixel_format(GLenum value) ETC_NOEXCEPT
 	{
 		size_t i = 0;
 		while (i < ARRAY_SIZE(_pixel_format_map) &&
@@ -238,7 +239,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		return static_cast<renderer::PixelFormat>(i);
 	}
 
-	renderer::ContentPacking gl::to_content_packing(GLenum value) noexcept
+	renderer::ContentPacking gl::to_content_packing(GLenum value) ETC_NOEXCEPT
 	{
 		size_t i = 0;
 		while (i < ARRAY_SIZE(_content_packing_map) &&

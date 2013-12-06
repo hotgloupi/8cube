@@ -36,7 +36,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		SubVBO(GLuint id,
 		       VertexBufferAttribute const& attr,
 		       GLvoid* offset,
-		       GLsizei stride) noexcept
+		       GLsizei stride) ETC_NOEXCEPT
 			: id{id}
 			, attr{&attr}
 			, gl_kind{gl::get_content_kind(attr.kind)}
@@ -53,7 +53,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		void bind();
 
-		void unbind() noexcept;
+		void unbind() ETC_NOEXCEPT;
 
 		static void vertex_pointer(SubVBO const& self)
 		{
@@ -210,7 +210,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				vbo.bind();
 		}
 
-		void unbind(bool all = true) noexcept
+		void unbind(bool all = true) ETC_NOEXCEPT
 		{
 			ETC_TRACE.debug(*this, "Unbinding the VBO");
 			gl::BindBuffer<gl::no_throw>(_gl_array_type, 0);

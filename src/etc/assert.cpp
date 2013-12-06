@@ -6,14 +6,14 @@ namespace etc {
 
 	ETC_LOG_COMPONENT("etc");
 
-	AssertError::AssertError(std::string message) noexcept
+	AssertError::AssertError(std::string message) ETC_NOEXCEPT
 		: _message{std::move(message)}
 	{}
 
 	AssertError::~AssertError()
 	{}
 
-	std::string const& AssertError::what() const noexcept
+	std::string const& AssertError::what() const ETC_NOEXCEPT
 	{ return _message; }
 
 	namespace detail {

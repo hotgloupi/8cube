@@ -120,7 +120,7 @@ namespace cube { namespace gl { namespace renderer {
 		this->bound_state().enable(*this);
 	}
 
-	void Light::_unbind() noexcept
+	void Light::_unbind() ETC_NOEXCEPT
 	{
 		ETC_LOG.debug("Unbinding", *this);
 		this->bound_state().disable(*this);

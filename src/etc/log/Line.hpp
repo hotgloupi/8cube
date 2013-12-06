@@ -27,7 +27,7 @@ namespace etc { namespace log {
 		     etc::size_type const line,
 		     char const* function,
 		     std::string const& component,
-			 etc::size_type indent) noexcept
+			 etc::size_type indent) ETC_NOEXCEPT
 			: level{level}
 			, file{file}
 			, line{line}
@@ -36,7 +36,7 @@ namespace etc { namespace log {
 			, indent(indent)
 		{}
 
-		Line(Line const& o) noexcept
+		Line(Line const& o) ETC_NOEXCEPT
 			: level{o.level}
 			, file{o.file}
 			, line{o.line}

@@ -11,6 +11,8 @@
 # include <cube/api.hpp>
 # include <cube/units/angle.hpp>
 
+# include <etc/compiler.hpp>
+
 namespace cube { namespace gl { namespace frustum {
 
 	enum class PlanePosition
@@ -53,13 +55,13 @@ namespace cube { namespace gl { namespace frustum {
 		Frustum(units::Angle const fov,
 		        float const ratio,
 		        T const ndist,
-		        T const fdist) noexcept;
+		        T const fdist) ETC_NOEXCEPT;
 
 		void update(vec3f const& front,
-		            vec3f const& up) noexcept;
+		            vec3f const& up) ETC_NOEXCEPT;
 
 		inline
-		plane_t const& plane(PlanePosition const pos) noexcept
+		plane_t const& plane(PlanePosition const pos) ETC_NOEXCEPT
 		{ return _planes[static_cast<etc::size_type>(pos)]; }
 
 		/**
@@ -77,14 +79,14 @@ namespace cube { namespace gl { namespace frustum {
 		/**
 		 * @brief Check whether or not a point is in the frustum.
 		 */
-		bool contains(vec3 const& point) const noexcept;
+		bool contains(vec3 const& point) const ETC_NOEXCEPT;
 
-		bool intersects(sphere_t const& sphere) const noexcept;
+		bool intersects(sphere_t const& sphere) const ETC_NOEXCEPT;
 
 	private:
 		CUBE_API_INTERNAL
 		inline
-		void _plane(PlanePosition const pos, plane_t const& p) noexcept
+		void _plane(PlanePosition const pos, plane_t const& p) ETC_NOEXCEPT
 		{ _planes[static_cast<etc::size_type>(pos)] = p; }
 
 	private:
@@ -92,7 +94,7 @@ namespace cube { namespace gl { namespace frustum {
 		static
 		vec2d _plane_size(units::Angle const fov,
 		                  float const ratio,
-		                  T const distance) noexcept;
+		                  T const distance) ETC_NOEXCEPT;
 	};
 
 }}}

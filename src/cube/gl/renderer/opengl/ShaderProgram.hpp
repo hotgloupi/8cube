@@ -20,7 +20,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		virtual
 		~ShaderProgram();
 
-		inline GLuint opengl_id() const noexcept { return _id; }
+		inline GLuint opengl_id() const ETC_NOEXCEPT { return _id; }
 
 	/**************************************************************************
 	 * renderer::ShaderProgram interface.
@@ -34,7 +34,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	 * renderer::Bindable interface.
 	 */
 	protected:
-		void _unbind() noexcept override;
+		void _unbind() ETC_NOEXCEPT override;
 
 	};
 

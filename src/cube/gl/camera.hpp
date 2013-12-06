@@ -6,6 +6,8 @@
 # include <cube/api.hpp>
 # include <cube/units/angle.hpp>
 
+# include <etc/compiler.hpp>
+
 namespace cube { namespace gl { namespace camera {
 
 	struct CUBE_API Camera
@@ -21,30 +23,30 @@ namespace cube { namespace gl { namespace camera {
 		units::Angle    _vrot;
 
 	public:
-		Camera() noexcept
+		Camera() ETC_NOEXCEPT
 		{ this->rotate(0.0_rad, 0.0_rad); }
 
 		inline
-		vec3 const& position() const noexcept
+		vec3 const& position() const ETC_NOEXCEPT
 		{ return _position; }
 
 		inline
-		vec3 const& front() const noexcept
+		vec3 const& front() const ETC_NOEXCEPT
 		{ return _front; }
 
 		inline
-		vec3 const& up() const noexcept
+		vec3 const& up() const ETC_NOEXCEPT
 		{ return _up; }
 
 		inline
-		vec3 right() const noexcept
+		vec3 right() const ETC_NOEXCEPT
 		{ return vector::normalize(vector::cross(this->_front, this->_up)); }
 
 		Camera& rotate(units::Angle const horizontal_angle,
-		               units::Angle const vertical_angle) noexcept;
+		               units::Angle const vertical_angle) ETC_NOEXCEPT;
 
 		inline
-		Camera& move(vec3 const& v) noexcept
+		Camera& move(vec3 const& v) ETC_NOEXCEPT
 		{
 			_position += v;
 			return *this;

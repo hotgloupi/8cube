@@ -295,11 +295,11 @@ namespace cube { namespace scene {
 		: _this{new Impl}
 	{ ETC_TRACE_CTOR("empty"); }
 
-	Scene::Scene(Scene&& other) noexcept
+	Scene::Scene(Scene&& other) ETC_NOEXCEPT
 		: _this{std::move(other._this)}
 	{}
 
-	Scene::Scene(std::unique_ptr<Impl> self) noexcept
+	Scene::Scene(std::unique_ptr<Impl> self) ETC_NOEXCEPT
 		: _this{std::move(self)}
 	{ ETC_TRACE_CTOR("not empty"); }
 
@@ -340,13 +340,13 @@ namespace cube { namespace scene {
 	Scene::~Scene()
 	{ ETC_TRACE_DTOR(); }
 
-	Graph& Scene::graph() noexcept
+	Graph& Scene::graph() ETC_NOEXCEPT
 	{ return _this->graph; }
 
-	Scene::MeshList const& Scene::meshes() const noexcept
+	Scene::MeshList const& Scene::meshes() const ETC_NOEXCEPT
 	{ return _this->meshes; }
 
-	Scene::MaterialList const& Scene::materials() const noexcept
+	Scene::MaterialList const& Scene::materials() const ETC_NOEXCEPT
 	{ return _this->materials; }
 
 }}

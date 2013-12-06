@@ -109,7 +109,7 @@ namespace etc { namespace log {
 		friend ETC_API Logger& logger(std::string const&);
 
 	public:
-		void message(Line const& line, std::string message) noexcept;
+		void message(Line const& line, std::string message) ETC_NOEXCEPT;
 	};
 
 }} // !etc::log

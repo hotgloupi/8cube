@@ -151,7 +151,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::BindTexture(GL_TEXTURE_2D, _id);
 	}
 
-	void Texture::_unbind() noexcept
+	void Texture::_unbind() ETC_NOEXCEPT
 	{
 		gl::BindTexture<gl::no_throw>(GL_TEXTURE_2D, 0);
 	}

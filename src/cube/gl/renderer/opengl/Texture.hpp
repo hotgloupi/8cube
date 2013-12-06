@@ -35,7 +35,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		         void const* data) override;
 	protected:
 		void _bind() override;
-		void _unbind() noexcept override;
+		void _unbind() ETC_NOEXCEPT override;
 
 		// Bind guard without state.
 		typedef InternalGuard<Texture> Guard;

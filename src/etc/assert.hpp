@@ -1,8 +1,9 @@
 #ifndef ETC_ASSERT_HPP
 # define ETC_ASSERT_HPP
 
-# include <etc/api.hpp>
-# include <etc/to_string.hpp>
+# include "api.hpp"
+# include "compiler.hpp"
+# include "to_string.hpp"
 
 # include <string>
 
@@ -13,9 +14,9 @@ namespace etc {
 	private:
 		std::string _message;
 	public:
-		AssertError(std::string message) noexcept;
+		AssertError(std::string message) ETC_NOEXCEPT;
 		virtual ~AssertError();
-		virtual std::string const& what() const noexcept;
+		virtual std::string const& what() const ETC_NOEXCEPT;
 	};
 
 # define ETC_ENFORCE(expr) \

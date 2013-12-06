@@ -33,7 +33,7 @@ namespace cube { namespace gl { namespace renderer {
 		explicit
 		State(Mode const mode);
 		State(State&& other)
-			noexcept(
+			ETC_NOEXCEPT_IF(
 				std::is_nothrow_move_constructible<std::unique_ptr<Impl>>()
 			);
 		State(State const& other);
@@ -55,19 +55,19 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * @brief Get a matrix.
 		 */
-		matrix_type const& model() const noexcept;
-		matrix_type const& view() const noexcept;
-		matrix_type const& projection() const noexcept;
-		matrix_type model_view() const noexcept;
-		matrix_type const& mvp() const noexcept;
-		normal_matrix_type normal() const noexcept;
+		matrix_type const& model() const ETC_NOEXCEPT;
+		matrix_type const& view() const ETC_NOEXCEPT;
+		matrix_type const& projection() const ETC_NOEXCEPT;
+		matrix_type model_view() const ETC_NOEXCEPT;
+		matrix_type const& mvp() const ETC_NOEXCEPT;
+		normal_matrix_type normal() const ETC_NOEXCEPT;
 
 		/**
 		 * @brief Set a matrix.
 		 */
-		State& model(matrix_type const& other) noexcept;
-		State& view(matrix_type const& other) noexcept;
-		State& projection(matrix_type const& other) noexcept;
+		State& model(matrix_type const& other) ETC_NOEXCEPT;
+		State& view(matrix_type const& other) ETC_NOEXCEPT;
+		State& projection(matrix_type const& other) ETC_NOEXCEPT;
 
 	public:
 		/**
@@ -75,20 +75,20 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		State& scale(component_type const x,
 		             component_type const y,
-		             component_type const z) noexcept;
+		             component_type const z) ETC_NOEXCEPT;
 
 		/**
 		 * Translate the model matrix.
 		 */
 		State& translate(component_type const x,
 		                 component_type const y,
-		                 component_type const z) noexcept;
+		                 component_type const z) ETC_NOEXCEPT;
 
 		/**
 		 * Rotate the model matrix.
 		 */
 		State& rotate(units::Angle const angle,
-		              vector_type const& axis) noexcept;
+		              vector_type const& axis) ETC_NOEXCEPT;
 
 
 	public:
@@ -97,7 +97,7 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		State& look_at(vector_type const& eye,
 		               vector_type const& center,
-		               vector_type const& up) noexcept;
+		               vector_type const& up) ETC_NOEXCEPT;
 
 	public:
 		/**
@@ -106,7 +106,7 @@ namespace cube { namespace gl { namespace renderer {
 		State& perspective(component_type const fov,
 		                   component_type const aspect,
 		                   component_type const near,
-		                   component_type const far) noexcept;
+		                   component_type const far) ETC_NOEXCEPT;
 
 		/**
 		 * Set the projection matrix to an orthogonal frustum.
@@ -114,11 +114,11 @@ namespace cube { namespace gl { namespace renderer {
 		State& ortho(component_type const x,
 		             component_type const y,
 		             component_type const w,
-		             component_type const h) noexcept;
+		             component_type const h) ETC_NOEXCEPT;
 
 	public:
 		typedef std::vector<std::reference_wrapper<Light const>> LightList;
-		LightList const& lights() const noexcept;
+		LightList const& lights() const ETC_NOEXCEPT;
 
 	public:
 		/**

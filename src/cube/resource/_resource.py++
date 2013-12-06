@@ -14,7 +14,7 @@ namespace {
 	using cube::exception::Exception;
 
 
-	size_t resource_refcount(Resource const& resource) noexcept
+	size_t resource_refcount(Resource const& resource) ETC_NOEXCEPT
 	{ return resource.shared_from_this().use_count() - 1; }
 
 	struct WrapManager

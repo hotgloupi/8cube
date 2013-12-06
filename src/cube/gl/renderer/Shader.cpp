@@ -10,7 +10,7 @@ namespace cube { namespace gl { namespace renderer {
 	               Parameters inputs,
 	               Parameters outputs,
 	               Parameters parameters)
-		noexcept(std::is_nothrow_move_constructible<Parameters>())
+		ETC_NOEXCEPT_IF(std::is_nothrow_move_constructible<Parameters>())
 		: type{type}
 		, _inputs{std::move(inputs)}
 		, _outputs{std::move(outputs)}

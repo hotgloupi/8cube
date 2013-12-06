@@ -13,7 +13,7 @@ namespace cube { namespace gl { namespace frustum {
 	Frustum<T>::Frustum(units::Angle const fov,
 	                    float const ratio,
 	                    T const ndist,
-	                    T const fdist) noexcept
+	                    T const fdist) ETC_NOEXCEPT
 		: fov{fov}
 		, ratio{ratio}
 		, near_distance{static_cast<double>(ndist)}
@@ -25,7 +25,7 @@ namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
 	bool
-	Frustum<T>::contains(vec3 const& point) const noexcept
+	Frustum<T>::contains(vec3 const& point) const ETC_NOEXCEPT
 	{
 		vec3d p{point.x, point.y, point.z};
 		for (plane_t const& plane: _planes)
@@ -36,7 +36,7 @@ namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
 	bool
-	Frustum<T>::intersects(sphere_t const& sphere) const noexcept
+	Frustum<T>::intersects(sphere_t const& sphere) const ETC_NOEXCEPT
 	{
 		double const radius = sphere.radius;
 		vec3d const center{
@@ -58,7 +58,7 @@ namespace cube { namespace gl { namespace frustum {
 	vector::Vector2d
 	Frustum<T>::_plane_size(units::Angle const fov,
 	                        float const ratio,
-	                        T const distance) noexcept
+	                        T const distance) ETC_NOEXCEPT
 	{
 		double const height =
 			glm::tan(units::rad_value(fov) / 2.0) * (2.0 * distance);
@@ -68,7 +68,7 @@ namespace cube { namespace gl { namespace frustum {
 	template<typename T>
 	void
 	Frustum<T>::update(vec3f const& direction_,
-	                   vec3f const& up_) noexcept
+	                   vec3f const& up_) ETC_NOEXCEPT
 	{
 		vec3d dir = gl::vector::normalize(
 			vec3d{direction_.x, direction_.y, direction_.z}

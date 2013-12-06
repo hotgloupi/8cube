@@ -47,10 +47,10 @@ namespace cube { namespace gl { namespace surface {
 		        void const* data);
 		~Surface();
 
-		etc::size_type bytes_per_pixel() const noexcept;
-		etc::size_type width() const noexcept;
-		etc::size_type height() const noexcept;
-		void const* pixels() const noexcept;
+		etc::size_type bytes_per_pixel() const ETC_NOEXCEPT;
+		etc::size_type width() const ETC_NOEXCEPT;
+		etc::size_type height() const ETC_NOEXCEPT;
+		void const* pixels() const ETC_NOEXCEPT;
 
 		double difference(Surface const& other) const;
 	};

@@ -38,11 +38,11 @@ namespace cube { namespace system { namespace window {
 		gl::renderer::Renderer& renderer();
 		RendererContext& renderer_context() const;
 		inputs::Inputs& inputs();
-		std::string const& title() const noexcept;
+		std::string const& title() const ETC_NOEXCEPT;
 		void title(std::string const& title);
-		etc::size_type width() const noexcept;
-		etc::size_type height() const noexcept;
-		Flags flags() const noexcept;
+		etc::size_type width() const ETC_NOEXCEPT;
+		etc::size_type height() const ETC_NOEXCEPT;
+		Flags flags() const ETC_NOEXCEPT;
 
 	protected:
 		void size(etc::size_type const width,
@@ -51,7 +51,7 @@ namespace cube { namespace system { namespace window {
 		void _title(std::string const& title) = 0;
 
 	protected:
-		Window(ImplPtr&& impl) noexcept;
+		Window(ImplPtr&& impl) ETC_NOEXCEPT;
 	public:
 		static
 		std::unique_ptr<Window>
@@ -121,20 +121,20 @@ namespace cube { namespace system { namespace window {
 		RendererContext(etc::size_type const width,
 		                etc::size_type const height,
 		                Window::Flags const flags,
-		                gl::renderer::Name const name) noexcept;
+		                gl::renderer::Name const name) ETC_NOEXCEPT;
 
 
 	public:
 		virtual
-		etc::size_type width() const noexcept;
+		etc::size_type width() const ETC_NOEXCEPT;
 
 		virtual
-		etc::size_type height() const noexcept;
+		etc::size_type height() const ETC_NOEXCEPT;
 
 		virtual
-		Window::Flags flags() const noexcept;
+		Window::Flags flags() const ETC_NOEXCEPT;
 
-		gl::renderer::Name name() const noexcept;
+		gl::renderer::Name name() const ETC_NOEXCEPT;
 
 	public:
 		void size(etc::size_type const width, etc::size_type const height);
@@ -161,11 +161,11 @@ namespace cube { namespace system { namespace window {
 
 	inline
 	Window::Flags operator |(Window::Flags const lhs,
-	                         Window::Flags const rhs) noexcept
+	                         Window::Flags const rhs) ETC_NOEXCEPT
 	{ return (Window::Flags) (((int) lhs) | ((int) rhs)); }
 
 	inline
-	bool operator &(Window::Flags const lhs, Window::Flags const rhs) noexcept
+	bool operator &(Window::Flags const lhs, Window::Flags const rhs) ETC_NOEXCEPT
 	{ return (bool) (((int) lhs) & ((int) rhs)); }
 
 }}} // !cube::system::window

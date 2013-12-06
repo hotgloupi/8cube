@@ -9,6 +9,7 @@
 #include "surface.hpp"
 #include "vector.hpp"
 
+#include <etc/compiler.hpp>
 #include <etc/log.hpp>
 #include <etc/memory.hpp>
 
@@ -454,7 +455,7 @@ namespace cube { namespace gl { namespace font {
 	}
 
 	etc::size_type
-	get_faces_count(std::string const& path) noexcept
+	get_faces_count(std::string const& path) ETC_NOEXCEPT
 	{
 		FT_Face face = nullptr;
 		auto res = FT_New_Face(

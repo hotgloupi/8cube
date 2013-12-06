@@ -72,7 +72,7 @@ namespace cube { namespace gl { namespace material {
 				shader["cube_PointLightCount"] = point_light_idx;
 			}
 
-			void _unbind() noexcept override
+			void _unbind() ETC_NOEXCEPT override
 			{
 				_bind_guard.clear();
 			}

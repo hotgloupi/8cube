@@ -27,12 +27,12 @@ namespace cube { namespace scene {
 	public:
 		/// The graph root node its id equals 0, and it's data is nullptr.
 		inline
-		Node& root() noexcept
+		Node& root() ETC_NOEXCEPT
 		{ return _root; }
 
 	public:
 		/// Number of nodes (>= 1).
-		size_t size() const noexcept;
+		size_t size() const ETC_NOEXCEPT;
 
 	public:
 		/// Add an object to the graph and returns the created node.
@@ -72,7 +72,7 @@ namespace cube { namespace scene {
 		template<typename T>
 		struct NodeAdaptor;
 		Node& _add(std::unique_ptr<Node> node, Node* parent);
-		void _remove(Node const& node) noexcept;
+		void _remove(Node const& node) ETC_NOEXCEPT;
 	};
 
 	class Graph::Node
@@ -87,7 +87,7 @@ namespace cube { namespace scene {
 
 	public:
 		inline explicit
-		Node(Graph& graph, void* data) noexcept
+		Node(Graph& graph, void* data) ETC_NOEXCEPT
 			: _graph(graph)
 			, _data{data}
 			, _id{0}
@@ -95,12 +95,12 @@ namespace cube { namespace scene {
 		virtual ~Node();
 
 	public:
-		inline Node& id(id_type id) noexcept { _id = id; return *this; }
-		inline id_type id() const noexcept { return _id; }
+		inline Node& id(id_type id) ETC_NOEXCEPT { _id = id; return *this; }
+		inline id_type id() const ETC_NOEXCEPT { return _id; }
 
 	public:
 		inline
-		void const* data() const noexcept { return _data; }
+		void const* data() const ETC_NOEXCEPT { return _data; }
 
 	public:
 		template<typename T>
@@ -108,10 +108,10 @@ namespace cube { namespace scene {
 		{ return _graph.add(object, this); }
 
 	public:
-		void print(std::ostream& out) const noexcept override;
+		void print(std::ostream& out) const ETC_NOEXCEPT override;
 	protected:
-		void _begin_print(std::ostream& out) const noexcept;
-		void _end_print(std::ostream& out) const noexcept;
+		void _begin_print(std::ostream& out) const ETC_NOEXCEPT;
+		void _end_print(std::ostream& out) const ETC_NOEXCEPT;
 	};
 
 	template<typename T>
@@ -124,7 +124,7 @@ namespace cube { namespace scene {
 		{}
 
 		inline
-		void print(std::ostream& out) const noexcept override
+		void print(std::ostream& out) const ETC_NOEXCEPT override
 		{
 			Node::_begin_print(out);
 			static_cast<T const*>(this->data())->print(out);

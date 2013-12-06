@@ -5,6 +5,8 @@
 
 # include <cube/api.hpp>
 
+# include <etc/compiler.hpp>
+
 namespace cube { namespace resource {
 
 	typedef unsigned int id_type;
@@ -21,7 +23,7 @@ namespace cube { namespace resource {
 
 	public:
 		inline
-		Resource() noexcept
+		Resource() ETC_NOEXCEPT
 			: _id{0}
 			, _manager{nullptr}
 		{}
@@ -30,11 +32,11 @@ namespace cube { namespace resource {
 		~Resource();
 
 		inline
-		id_type id() const noexcept
+		id_type id() const ETC_NOEXCEPT
 		{ return _id; }
 
 		inline
-		bool managed() const noexcept
+		bool managed() const ETC_NOEXCEPT
 		{ return _id != 0; }
 
 	private:

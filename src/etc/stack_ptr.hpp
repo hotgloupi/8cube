@@ -1,6 +1,8 @@
 #ifndef  ETC_STACK_PTR_HPP
 # define ETC_STACK_PTR_HPP
 
+# include "compiler.hpp"
+
 # include <utility>
 # include <type_traits>
 
@@ -19,21 +21,21 @@ namespace etc {
 
 	public:
 		inline explicit
-		stack_ptr(stack_ptr_no_init_t) noexcept
+		stack_ptr(stack_ptr_no_init_t) ETC_NOEXCEPT
 			: _valid{false}
 		{}
 
 		template<typename... Args>
 		inline explicit
 		stack_ptr(Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			ETC_NOEXCEPT_IF(std::is_nothrow_constructible<T, Args...>::value)
 			: _valid{true}
 			, _value{std::forward<Args>(args)...}
 		{}
 
 		inline
 		stack_ptr(stack_ptr&& other)
-			noexcept(std::is_nothrow_move_constructible<T>::value)
+			ETC_NOEXCEPT_IF(std::is_nothrow_move_constructible<T>::value)
 			: _valid{other._valid}
 		{
 			if (_valid)
@@ -44,7 +46,7 @@ namespace etc {
 
 		inline
 		stack_ptr(stack_ptr const& other)
-			noexcept(std::is_nothrow_copy_constructible<T>::value)
+			ETC_NOEXCEPT_IF(std::is_nothrow_copy_constructible<T>::value)
 			: _valid{other._valid}
 		{
 			if (_valid)
@@ -56,31 +58,31 @@ namespace etc {
 		{ this->clear(); }
 
 		inline
-		void clear() noexcept
+		void clear() ETC_NOEXCEPT
 		{ if (_valid) { _value.~T(); _valid = false; }}
 
 		template<typename... Args>
 		void reset(Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			ETC_NOEXCEPT_IF(std::is_nothrow_constructible<T, Args...>::value)
 		{
 			this->clear();
 			new (&_value) T(std::forward<Args>(args)...);
 			_valid = true;
 		}
 
-		inline operator bool() const noexcept { return _valid; }
+		inline operator bool() const ETC_NOEXCEPT { return _valid; }
 
 		inline
-		value_type* operator ->() noexcept { return &_value; }
+		value_type* operator ->() ETC_NOEXCEPT { return &_value; }
 
 		inline
-		value_type const* operator ->() const noexcept { return &_value; }
+		value_type const* operator ->() const ETC_NOEXCEPT { return &_value; }
 
 		inline
-		value_type& operator *() noexcept { return _value; }
+		value_type& operator *() ETC_NOEXCEPT { return _value; }
 
 		inline
-		value_type const& operator *() const noexcept { return _value; }
+		value_type const& operator *() const ETC_NOEXCEPT { return _value; }
 	};
 
 }

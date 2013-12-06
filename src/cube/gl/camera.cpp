@@ -6,7 +6,7 @@ namespace cube { namespace gl { namespace camera {
 
 	Camera&
 	Camera::rotate(units::Angle const horizontal_angle,
-	               units::Angle const vertical_angle) noexcept
+	               units::Angle const vertical_angle) ETC_NOEXCEPT
 	{
 		_hrot += horizontal_angle;
 		while (_hrot < units::rad(0))

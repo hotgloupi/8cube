@@ -36,18 +36,18 @@ namespace cube { namespace gl { namespace renderer {
 		       Parameters inputs,
 		       Parameters outputs,
 		       Parameters parameters)
-			noexcept(std::is_nothrow_move_constructible<Parameters>());
+			ETC_NOEXCEPT_IF(std::is_nothrow_move_constructible<Parameters>());
 
 		virtual
 		~Shader();
 	public:
-		inline Parameters const& inputs() const noexcept
+		inline Parameters const& inputs() const ETC_NOEXCEPT
 		{ return _inputs; }
 
-		inline Parameters const& outputs() const noexcept
+		inline Parameters const& outputs() const ETC_NOEXCEPT
 		{ return _outputs; }
 
-		inline Parameters const& parameters() const noexcept
+		inline Parameters const& parameters() const ETC_NOEXCEPT
 		{ return _parameters; }
 	};
 

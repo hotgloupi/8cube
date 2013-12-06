@@ -1,9 +1,10 @@
 #ifndef  ETC_ABORT_HPP
 # define ETC_ABORT_HPP
 
-# include <string>
+# include "api.hpp"
+# include "compiler.hpp"
 
-# include <etc/api.hpp>
+# include <string>
 
 namespace etc {
 
@@ -12,9 +13,9 @@ namespace etc {
 	private:
 		std::string _message;
 	public:
-		AbortError(std::string message) noexcept;
+		AbortError(std::string message) ETC_NOEXCEPT;
 		virtual ~AbortError();
-		virtual std::string const& what() const noexcept;
+		virtual std::string const& what() const ETC_NOEXCEPT;
 	};
 
 

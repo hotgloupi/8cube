@@ -8,7 +8,7 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	Bindable::Bindable() noexcept
+	Bindable::Bindable() ETC_NOEXCEPT
 		: _bound{0}
 		, _bound_state{nullptr}
 	{}
@@ -50,7 +50,7 @@ namespace cube { namespace gl { namespace renderer {
 				int called;
 				Dummy() : called{0} {}
 				void _bind() override { ++called; }
-				void _unbind() noexcept override { --called; }
+				void _unbind() ETC_NOEXCEPT override { --called; }
 			};
 
 			Dummy dummy;
@@ -81,7 +81,7 @@ namespace cube { namespace gl { namespace renderer {
 				Dummy() : called{0} {}
 				void _bind() override
 				{ ++called; throw std::runtime_error{"lol"}; }
-				void _unbind() noexcept override
+				void _unbind() ETC_NOEXCEPT override
 				{ throw std::logic_error{"never called"}; }
 			};
 

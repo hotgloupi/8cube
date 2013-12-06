@@ -69,7 +69,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	}
 
-	void gl::SubVBO::unbind() noexcept
+	void gl::SubVBO::unbind() ETC_NOEXCEPT
 	{
 		//if (this->gl_kind != 0)
 		//	gl::DisableClientState<gl::no_throw>(this->gl_kind);

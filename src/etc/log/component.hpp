@@ -7,7 +7,7 @@
 
 # define ETC_LOG_COMPONENT(__name)                                            \
 	static inline                                                             \
-	std::string const& etc_log_component() noexcept                           \
+	std::string const& etc_log_component() ETC_NOEXCEPT                       \
 	{ static std::string n{__name}; return n; }                               \
 /**/
 

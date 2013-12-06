@@ -6,8 +6,9 @@
 # include "Drawable.hpp"
 # include "Exception.hpp"
 
-# include <etc/types.hpp>
+# include <etc/compiler.hpp>
 # include <etc/log.hpp>
+# include <etc/types.hpp>
 
 # include <boost/noncopyable.hpp>
 
@@ -158,7 +159,7 @@ namespace cube { namespace gl { namespace renderer {
 		{}
 
 		inline
-		Proxy(Proxy&& other) noexcept
+		Proxy(Proxy&& other) ETC_NOEXCEPT
 			: _self(other._self)
 			, _guards(std::move(other._guards))
 		{}
@@ -167,7 +168,7 @@ namespace cube { namespace gl { namespace renderer {
 		{}
 
 		inline
-		Painter* operator ->() noexcept
+		Painter* operator ->() ETC_NOEXCEPT
 		{ return &_self; }
 
 	private:

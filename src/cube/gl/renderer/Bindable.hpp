@@ -3,6 +3,7 @@
 
 # include "fwd.hpp"
 
+# include <etc/compiler.hpp>
 # include <etc/types.hpp>
 
 namespace cube { namespace gl { namespace renderer {
@@ -14,7 +15,7 @@ namespace cube { namespace gl { namespace renderer {
 		State*         _bound_state;
 
 	public:
-		Bindable() noexcept;
+		Bindable() ETC_NOEXCEPT;
 		virtual ~Bindable();
 
 	protected:
@@ -41,14 +42,14 @@ namespace cube { namespace gl { namespace renderer {
 		 *          method, use the Bindable<>::Guard class.
 		 */
 		virtual
-		void _unbind() noexcept = 0;
+		void _unbind() ETC_NOEXCEPT = 0;
 
 	public:
 		/**
 		 * @brief Check is the bindable is bound.
 		 */
 		inline
-		etc::size_type bound() const noexcept
+		etc::size_type bound() const ETC_NOEXCEPT
 		{ return _bound; }
 
 		/**
@@ -94,7 +95,7 @@ namespace cube { namespace gl { namespace renderer {
 		}
 
 		inline
-		void _unbind(InternalMethod) noexcept
+		void _unbind(InternalMethod) ETC_NOEXCEPT
 		{ if (--_bound == 0) _unbind(); }
 	};
 

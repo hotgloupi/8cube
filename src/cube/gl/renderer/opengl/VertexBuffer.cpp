@@ -49,7 +49,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	template<bool is_indices>
-	void _VertexBuffer<is_indices>::_unbind() noexcept
+	void _VertexBuffer<is_indices>::_unbind() ETC_NOEXCEPT
 	{
 		ETC_TRACE.debug("Unbind vertex buffer");
 		assert(_vbo != nullptr && "Cannot unbind a non finalized VertexBuffer");

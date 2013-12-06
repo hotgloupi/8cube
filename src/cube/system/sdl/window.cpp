@@ -90,7 +90,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				throw SDLException{"SetRenderTarget"};
 		}
 
-		void _unbind() noexcept override
+		void _unbind() ETC_NOEXCEPT override
 		{
 			ETC_TRACE.debug("Unbinding", *this, "to", _texture);
 			if (SDL_SetRenderTarget(_renderer, _previous) != 0)
@@ -108,7 +108,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				SDL_Texture* _texture;
 
 				inline
-				Texture(SDL_Texture* texture) noexcept
+				Texture(SDL_Texture* texture) ETC_NOEXCEPT
 					: _texture{texture}
 				{}
 
@@ -132,7 +132,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)
 						throw SDLException("GL_BindTexture");
 				}
-				void _unbind() noexcept override
+				void _unbind() ETC_NOEXCEPT override
 				{ SDL_GL_UnbindTexture(_texture); }
 			};
 
@@ -377,7 +377,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			}
 		}
 
-		bool allow_render_target() const noexcept
+		bool allow_render_target() const ETC_NOEXCEPT
 		{ return this->renderer != nullptr and this->renderer_info.flags & SDL_RENDERER_TARGETTEXTURE; }
 
 		gl::renderer::RenderTargetPtr

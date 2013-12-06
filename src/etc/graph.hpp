@@ -19,7 +19,7 @@ namespace etc {
 		std::set<shared_node_type> children;
 
 		inline
-		void add_child(shared_node_type& node) noexcept
+		void add_child(shared_node_type& node) ETC_NOEXCEPT
 		{
 			assert(node != nullptr);
 			auto res = this->children.insert(node);
@@ -29,7 +29,7 @@ namespace etc {
 		}
 
 		inline
-		void add_parent(shared_node_type& node) noexcept
+		void add_parent(shared_node_type& node) ETC_NOEXCEPT
 		{
 			assert(node != nullptr);
 			auto res = this->parents.insert(node);
@@ -39,7 +39,7 @@ namespace etc {
 		}
 
 		inline
-		void remove_child(shared_node_type& node) noexcept
+		void remove_child(shared_node_type& node) ETC_NOEXCEPT
 		{
 			assert(node != nullptr);
 			if (this->children.erase(node) == 0)
@@ -48,7 +48,7 @@ namespace etc {
 		}
 
 		inline
-		void remove_parent(shared_node_type& node) noexcept
+		void remove_parent(shared_node_type& node) ETC_NOEXCEPT
 		{
 			assert(node != nullptr);
 			if (this->parents.erase(node) == 0)

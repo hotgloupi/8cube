@@ -23,7 +23,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	protected:
 		void _bind() override;
-		void _unbind() noexcept override;
+		void _unbind() ETC_NOEXCEPT override;
 	};
 
 	typedef _VertexBuffer<false> VertexBuffer;

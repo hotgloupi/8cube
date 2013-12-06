@@ -45,9 +45,9 @@ namespace etc { namespace log {
 		    char const* file,
 		    size_type const line,
 		    char const* function,
-		    std::string const& component) noexcept;
+		    std::string const& component) ETC_NOEXCEPT;
 		/// Send the message to the logger.
-		Log(Log&& o) noexcept;
+		Log(Log&& o) ETC_NOEXCEPT;
 		/// Send the message to the logger is not already done and decrement
 		/// the general indentation.
 		~Log();
@@ -66,13 +66,13 @@ namespace etc { namespace log {
 	public:
 		/// Nothing happens for an empty call.
 		inline
-		Log&& send() noexcept
+		Log&& send() ETC_NOEXCEPT
 		{ return std::move(*this); }
 
 		/// Send values to the logger.
 		template<typename... T>
 		inline
-		Log&& send(T&&... strs) noexcept
+		Log&& send(T&&... strs) ETC_NOEXCEPT
 		{
 			try {
 # ifdef NDEBUG // No debug level if NDEBUG is specified.
@@ -91,13 +91,13 @@ namespace etc { namespace log {
 		/// Forward to send.
 		template<typename... T>
 		inline
-		Log&& operator ()(T&&... strs) noexcept
+		Log&& operator ()(T&&... strs) ETC_NOEXCEPT
 		{ return this->send(std::forward<T>(strs)...); }
 
 #define _ETC_LOG_LEVEL_PRINTER(lvl)                                           \
 		template<typename... T>                                               \
 		inline                                                                \
-		Log&& lvl(T&&... strs) noexcept                                       \
+		Log&& lvl(T&&... strs) ETC_NOEXCEPT                                   \
 		{                                                                     \
 			assert(_message.size() == 0 || _line.level == Level::lvl);        \
 			_line.level = Level::lvl;                                         \
@@ -108,7 +108,7 @@ namespace etc { namespace log {
 # ifdef NDEBUG
 		template<typename... T>
 		inline
-		Log&& debug(T const&...) noexcept
+		Log&& debug(T const&...) ETC_NOEXCEPT
 		{ return std::move(*this); }
 # else
 		_ETC_LOG_LEVEL_PRINTER(debug)
@@ -120,7 +120,7 @@ namespace etc { namespace log {
 # undef _ETC_LOG_LEVEL_PRINTER
 
 		inline
-		operator bool() const noexcept
+		operator bool() const ETC_NOEXCEPT
 		{ return false; }
 	};
 

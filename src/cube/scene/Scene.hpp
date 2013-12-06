@@ -18,7 +18,7 @@ namespace cube { namespace scene {
 		std::unique_ptr<Impl> _this;
 
 	protected:
-		Scene(std::unique_ptr<Impl> self) noexcept;
+		Scene(std::unique_ptr<Impl> self) ETC_NOEXCEPT;
 
 	public:
 		/// Build an empty scene
@@ -33,7 +33,7 @@ namespace cube { namespace scene {
 		static
 		ScenePtr from_string(std::string const& str, std::string const& ext = "");
 
-		Scene(Scene&& other) noexcept;
+		Scene(Scene&& other) ETC_NOEXCEPT;
 
 		~Scene();
 
@@ -43,15 +43,15 @@ namespace cube { namespace scene {
 		Scene& operator =(Scene&& other) = delete;
 
 	public:
-		Graph& graph() noexcept;
+		Graph& graph() ETC_NOEXCEPT;
 
 	public:
 		typedef std::vector<gl::mesh::MeshPtr> MeshList;
-		MeshList const& meshes() const noexcept;
+		MeshList const& meshes() const ETC_NOEXCEPT;
 
 	public:
 		typedef std::vector<gl::material::MaterialPtr> MaterialList;
-		MaterialList const& materials() const noexcept;
+		MaterialList const& materials() const ETC_NOEXCEPT;
 	};
 
 }}
