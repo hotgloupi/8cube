@@ -304,10 +304,16 @@ def configure(project, build):
     graphic_libraries.insert(0, libglew)
 
 
-    stl_pch = compiler.generate_precompiled_header(
-        "src/wrappers/stl.hpp",
-        force_include = True,
-    )
+    precompiled_headers = []
+
+    with_pch = False
+    if with_pch:
+        precompiled_headers.append(
+            compiler.generate_precompiled_header(
+                "src/wrappers/stl.hpp",
+                force_include = True,
+            )
+        )
 
     base_libraries.extend([
         boost.component_library('filesystem'),
@@ -321,29 +327,36 @@ def configure(project, build):
         libraries = base_libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
         shared = True,
-        precompiled_headers = [stl_pch]
+        precompiled_headers = precompiled_headers,
     )
 ################### libcube
-    #boost_python_pch = compiler.generate_precompiled_header(
-    #    "src/wrappers/boost/python.hpp",
-    #    libraries = boost.libraries + python.libraries,
-    #)
+    if with_pch:
+        precompiled_headers.extend([
+            compiler.generate_precompiled_header(
+                "src/wrappers/boost/signals2.hpp",
+                libraries = boost.libraries
+            ),
+        ])
 
-    #boost_signals2_pch = compiler.generate_precompiled_header(
-    #    "src/wrappers/boost/signals2.hpp",
-    #    libraries = boost.libraries
-    #)
+    libcube_libs = base_libraries + [libetc] + assimp.libraries + graphic_libraries
 
     libcube = compiler.link_dynamic_library(
         'libcube',
         rglob("src/cube/*.cpp"),
         directory  = 'release/lib',
-        libraries = base_libraries + [libetc] + assimp.libraries + graphic_libraries,
-        precompiled_headers = [stl_pch],
+        libraries = libcube_libs,
+        precompiled_headers = precompiled_headers,
         defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
     )
 
 
+    if with_pch:
+        precompiled_headers.extend([
+            compiler.generate_precompiled_header(
+                "src/wrappers/boost/python.hpp",
+                libraries = boost.libraries + python.libraries,
+            ),
+        ])
 
     for binding in rglob("cube/*.py++", dir='src'):
         t = compiler.link_dynamic_library(
@@ -352,7 +365,7 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-            precompiled_headers = [stl_pch],
+            precompiled_headers = precompiled_headers,
         )
 
 ################### libcubeapp
@@ -362,7 +375,7 @@ def configure(project, build):
         (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
         libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
-        precompiled_headers = [stl_pch],
+        precompiled_headers = precompiled_headers,
     )
 
     for binding in rglob("cubeapp/*.py++", dir='src'):
@@ -372,7 +385,7 @@ def configure(project, build):
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
             libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
-            precompiled_headers = [stl_pch],
+            precompiled_headers = precompiled_headers,
         )
 
 
