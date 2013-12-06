@@ -33,7 +33,7 @@ class _(PainterSetup, TestCase):
             m.append(gl.vec3f(*v))
         self.assertEqual(str(m), '<Mesh 7 vertice, 7 normals, 7 colors3>')
 
-    @painter_test(gl.mode_2d)
+    @painter_test(gl.mode_2d, delta = 0.05)
     def test_paint(self, painter):
         m = Mesh()
         m.mode = gl.DrawMode.quads
