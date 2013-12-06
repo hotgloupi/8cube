@@ -45,6 +45,7 @@ class Assimp(Dependency):
             '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
             '-DCMAKE_C_COMPILER=%s' % self.c_compiler.binary,
             '-DCMAKE_MAKE_PROGRAM=%s' % self.compiler.build.make_program,
+            '-DCMAKE_BUILD_TYPE=RELEASE',
             '-DBoost_DEBUG=TRUE',
             '-DBoost_DETAILED_FAILURE_MSG=TRUE',
             '-DBoost_NO_SYSTEM_PATHS=TRUE',
@@ -75,7 +76,7 @@ class Assimp(Dependency):
         build_target = Command(
             action = "Building Assimp",
             target = Target(self.build, path.join('Assimp/code', self.library_filename)),
-            command = ['make'],
+            command = [self.build.make_program, '-j4'],
             working_directory = self.absolute_build_path(),
             inputs = [configure_target]
         ).target
@@ -83,7 +84,7 @@ class Assimp(Dependency):
 
     @property
     def libraries(self):
-        return [
+        libs = [
             cxx.Library(
                 'assimp',
                 self.compiler,
@@ -97,6 +98,20 @@ class Assimp(Dependency):
                 save_env_vars = False,
             )
         ]
+        if not self.shared:
+            libs.append(
+                cxx.Library(
+                    'libz',
+                    self.compiler,
+                    shared = self.shared,
+                    search_binary_files = False,
+                    include_directories = [],
+                    directories = [],
+                    files = [self.absolute_build_path('contrib/zlib/libzlib.a')],
+                    save_env_vars = False,
+                )
+            )
+        return libs
 
 class GLM(Dependency):
     def __init__(self, build, compiler, source_directory):
