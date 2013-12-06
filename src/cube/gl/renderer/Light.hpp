@@ -11,9 +11,9 @@
 
 namespace cube { namespace gl { namespace renderer {
 
-	template<LightKind kind> struct LightInfo;
+	template<LightKind kind> struct CUBE_API LightInfo;
 
-	template<> struct LightInfo<LightKind::directional>
+	template<> struct CUBE_API LightInfo<LightKind::directional>
 	{
 		LightInfo(LightInfo const&) = default;
 		LightInfo(LightInfo&&) = default;
@@ -26,7 +26,7 @@ namespace cube { namespace gl { namespace renderer {
 		color::Color3f   specular;
 	};
 
-	template<> struct LightInfo<LightKind::point>
+	template<> struct CUBE_API LightInfo<LightKind::point>
 	{
 		LightInfo(LightInfo const&) = default;
 		LightInfo(LightInfo&&) = default;
@@ -39,7 +39,7 @@ namespace cube { namespace gl { namespace renderer {
 		color::Color3f   specular;
 	};
 
-	template<> struct LightInfo<LightKind::spot>
+	template<> struct CUBE_API LightInfo<LightKind::spot>
 	{
 		LightInfo(LightInfo const&) = default;
 		LightInfo(LightInfo&&) = default;
@@ -58,12 +58,12 @@ namespace cube { namespace gl { namespace renderer {
 		units::Angle     cutoff;
 	};
 
-	template<> struct LightInfo<LightKind::custom>
+	template<> struct CUBE_API LightInfo<LightKind::custom>
 	{
 		virtual ~LightInfo();
 	};
 
-	class Light
+	class CUBE_API Light
 		: public Bindable
 	{
 	public:

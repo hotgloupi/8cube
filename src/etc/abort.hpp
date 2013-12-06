@@ -3,9 +3,11 @@
 
 # include <string>
 
+# include <etc/api.hpp>
+
 namespace etc {
 
-	class AbortError
+	class ETC_API_EXCEPTION AbortError
 	{
 	private:
 		std::string _message;
@@ -17,7 +19,7 @@ namespace etc {
 
 
 	/// Throw an abort error.
-	void abort(std::string message = "");
+	ETC_API void abort(std::string message = "");
 
 }
 

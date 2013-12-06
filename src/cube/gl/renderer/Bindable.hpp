@@ -98,7 +98,7 @@ namespace cube { namespace gl { namespace renderer {
 		{ if (--_bound == 0) _unbind(); }
 	};
 
-	struct Bindable::Guard
+	struct CUBE_API Bindable::Guard
 	{
 	private:
 		Bindable& _bindable;

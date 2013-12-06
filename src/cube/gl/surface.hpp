@@ -14,7 +14,7 @@ namespace cube { namespace gl { namespace surface {
 	using renderer::PixelFormat;
 	using renderer::ContentPacking;
 
-	class Surface
+	class CUBE_API Surface
 	{
 	private:
 		struct Impl;

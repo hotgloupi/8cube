@@ -3,6 +3,7 @@
 
 # include "fwd.hpp"
 
+# include <cube/api.hpp>
 # include <cube/gl/fwd.hpp>
 
 # include <vector>
@@ -10,7 +11,7 @@
 
 namespace cube { namespace scene {
 
-	class Scene
+	class CUBE_API Scene
 	{
 	private:
 		struct Impl;

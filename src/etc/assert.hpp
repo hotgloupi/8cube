@@ -1,13 +1,14 @@
 #ifndef ETC_ASSERT_HPP
 # define ETC_ASSERT_HPP
 
+# include <etc/api.hpp>
 # include <etc/to_string.hpp>
 
 # include <string>
 
 namespace etc {
 
-	class AssertError
+	class ETC_API_EXCEPTION AssertError
 	{
 	private:
 		std::string _message;
@@ -47,6 +48,7 @@ namespace etc {
 
 	namespace detail {
 
+		ETC_API
 		void raise_assert(char const* file,
 		                  unsigned int line,
 		                  std::string message = "");

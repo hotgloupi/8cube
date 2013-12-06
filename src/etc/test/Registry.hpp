@@ -3,11 +3,13 @@
 
 # include "fwd.hpp"
 
+# include <etc/api.hpp>
+
 # include <memory>
 
 namespace etc { namespace test {
 
-	class Registry
+	class ETC_API Registry
 	{
 	private:
 		struct Impl;
@@ -20,7 +22,7 @@ namespace etc { namespace test {
 		bool run();
 	};
 
-	Registry& registry();
+	ETC_API Registry& registry();
 
 }}
 #endif

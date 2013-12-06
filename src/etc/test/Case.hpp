@@ -3,13 +3,14 @@
 
 # include "fwd.hpp"
 
+# include <etc/api.hpp>
 # include <etc/assert.hpp>
 
 # include <string>
 
 namespace etc { namespace test {
 
-	class CaseSetupBase
+	class ETC_API CaseSetupBase
 	{
 	protected:
 		friend class Case;
@@ -22,7 +23,7 @@ namespace etc { namespace test {
 		virtual void tearDown();
 	};
 
-	class Case
+	class ETC_API Case
 	{
 	protected:
 		CaseSetupBase* _setup;
@@ -47,7 +48,7 @@ namespace etc { namespace test {
 		void operator ()() = 0;
 	};
 
-	class CaseSetup
+	class ETC_API CaseSetup
 		: public CaseSetupBase
 	{
 	public:
