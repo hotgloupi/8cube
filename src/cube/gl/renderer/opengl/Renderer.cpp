@@ -53,12 +53,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			ETC_LOG.info("GLSL version",    (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
 			initialized = true;
 		}
-		gl::ClearColor(1.0f, 0, 0, 1.0f);
+		gl::ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	void GLRenderer::shutdown()
 	{
 		ETC_TRACE.debug(*this, "Shutting down");
+		renderer::Renderer::shutdown();
 	}
 
 	renderer::RendererType const&

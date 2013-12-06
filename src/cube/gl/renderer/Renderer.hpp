@@ -100,7 +100,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		///
 		virtual
-		void shutdown() = 0;
+		void shutdown();
 
 		///
 		virtual

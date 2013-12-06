@@ -53,16 +53,22 @@ namespace cube { namespace gl { namespace renderer {
 		: _viewport{0,0, (float)context.width(), (float)context.height()}
 		, _this{new Impl{context}}
 	{
-		ETC_TRACE.debug("Creating", *this, "with", _viewport);
+		ETC_TRACE_CTOR("with", _viewport);
 		_push_state(State(Mode::none));
 	}
 
 	Renderer::~Renderer()
 	{
-		ETC_TRACE.debug("Destroying", *this);
+		ETC_TRACE_DTOR();
 		assert(_this->states.size() == 1);
 		assert(_this->states.back().mode == Mode::none);
 		_pop_state();
+	}
+
+	void Renderer::shutdown()
+	{
+		ETC_LOG.debug("Shutting down the renderer");
+		this->flush();
 	}
 
 	system::window::RendererContext& Renderer::context() const noexcept

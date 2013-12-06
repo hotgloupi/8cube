@@ -61,7 +61,9 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			, _renderer_surface{renderer_surface}
 			, _previous{nullptr}
 		{
-			ETC_TRACE.debug("Creating", *this);
+			ETC_TRACE.debug(
+				"Creating", *this, "of size", _width, 'x', _height
+			);
 			assert(_renderer != nullptr);
 			_texture = SDL_CreateTexture(
 				_renderer,
