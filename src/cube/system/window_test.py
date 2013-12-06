@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 from . import window
-from cube.gl.renderer import Name
+from cube.gl.renderer import Name, mode_2d
 
 class Creation(TestCase):
 
@@ -92,13 +92,15 @@ class _(TestCase):
             window.WindowFlags.none,
             Name.OpenGL
         )
-        self.window.poll()
 
     def tearDown(self):
         window.delete_window(self.window)
 
     def test_render_target(self):
         tgt = self.window.renderer.context.new_render_target()
+        with self.window.renderer.begin(mode_2d) as painter:
+            with painter.bind([tgt]):
+                pass
 
     def test_show_hide(self):
         self.window.show()

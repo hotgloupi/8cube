@@ -39,12 +39,12 @@ namespace cube { namespace system { namespace window {
 	Window::Window(ImplPtr&& impl) noexcept
 		: _impl{std::move(impl)}
 	{
-		ETC_LOG.debug("New window", _impl->title, this->width(), this->height());
+		ETC_TRACE_CTOR(_impl->title, this->width(), this->height());
 	}
 
 	Window::~Window()
 	{
-		ETC_LOG.debug("Deleting window", _impl->title);
+		ETC_TRACE_DTOR(_impl->title);
 		_impl->renderer->shutdown();
 	}
 

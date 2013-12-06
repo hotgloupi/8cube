@@ -235,13 +235,22 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					(int)this->linked.patch
 				);
 				if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+				{
+					counter = 0;
 					throw SDLException("Init");
+				}
 			}
 			int sdl_flags = 0;
 			if (name == gl::renderer::Name::OpenGL)
+			{
+				ETC_LOG.debug("Create an OpenGL window");
 				sdl_flags |= SDL_WINDOW_OPENGL;
+			}
 			if (flags & Window::Flags::hidden)
+			{
+				ETC_LOG.debug("Create an hidden window");
 				sdl_flags |= SDL_WINDOW_HIDDEN;
+			}
 
 			this->window = SDL_CreateWindow(
 				"Default name",
@@ -256,6 +265,14 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			auto window_guard = etc::scope_exit(
 				[&] { SDL_DestroyWindow(window); }
 			);
+
+			if (name == gl::renderer::Name::OpenGL)
+			{
+				ETC_LOG.debug("Create opengl context");
+				this->gl_context = SDL_GL_CreateContext(this->window);
+				if (this->gl_context == nullptr)
+					throw SDLException{"GL_CreateContext"};
+			}
 			if (etc::sys::environ::contains("CUBE_SYSTEM_WINDOW_NO_RENDERER"))
 			{
 				ETC_LOG.warn("Renderer creation was disabled");
@@ -275,9 +292,23 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			else
 			{
 				ETC_TRACE.debug("Create accelerated window and renderer");
+				int num_drivers = SDL_GetNumRenderDrivers();
+				int driver_index = 0;
+				for (; driver_index < num_drivers; ++driver_index)
+				{
+					SDL_RendererInfo info;
+					SDL_GetRenderDriverInfo(
+						driver_index,
+						&info
+					);
+					if (info.name == std::string("opengl"))
+						break;
+				}
+				if (driver_index == num_drivers)
+					throw Exception{"No renderer available"};
 				this->renderer = SDL_CreateRenderer(
 					this->window,
-					-1,
+					driver_index,
 					SDL_RENDERER_ACCELERATED |
 					SDL_RENDERER_PRESENTVSYNC |
 					SDL_RENDERER_TARGETTEXTURE
@@ -299,11 +330,6 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			{
 				memset(&this->renderer_info, 0, sizeof(this->renderer_info));
 			}
-
-			ETC_LOG.debug("Create opengl context");
-			this->gl_context = SDL_GL_CreateContext(this->window);
-			if (this->gl_context == nullptr)
-				throw SDLException{"GL_CreateContext"};
 
 			ETC_LOG.debug("Retreive Window handle");
 			SDL_VERSION(&this->wm.version);
