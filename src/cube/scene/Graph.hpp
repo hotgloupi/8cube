@@ -14,7 +14,7 @@ namespace cube { namespace scene {
 	{
 	public:
 		class Node;
-		typedef unsigned long int id_type;
+		typedef size_t id_type;
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> _this;
@@ -35,7 +35,11 @@ namespace cube { namespace scene {
 		size_t size() const noexcept;
 
 	public:
+		/// Add an object to the graph and returns the created node.
+		/// @param object The value associated to the node. Its lifetime should
+		/// be equal to the node.
 		template<typename T>
+		inline
 		Node& add(T& object, Node* parent = nullptr)
 		{
 			return this->_add(
