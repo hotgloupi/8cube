@@ -18,8 +18,10 @@
 
 # ifdef BOOST_MSVC
 #  define ETC_PRETTY_FUNCTION __FUNCTION__
+#  define ETC_NOINLINE __declspec(noinline)
 # else
 #  define ETC_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#  define ETC_NOINLINE __attribute__((noinline))
 # endif
 
 #endif

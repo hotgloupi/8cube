@@ -1,5 +1,7 @@
 #include "backtrace.hpp"
 
+#include <etc/compiler.hpp>
+#include <etc/scope_exit.hpp>
 #include <etc/to_string.hpp>
 #include <etc/types.hpp>
 #include <etc/test.hpp>
@@ -52,7 +54,11 @@ namespace etc { namespace backtrace {
 	Backtrace::Backtrace()
 		: SuperType()
 	{
+#ifdef _WIN32
+		static const size_t size = 62; // for Windows Server 2003 and Windows XP, size < 63
+#else
 		static const size_t size = 128;
+#endif
 		void* callstack[size];
 
 #ifdef _WIN32
@@ -69,9 +75,11 @@ namespace etc { namespace backtrace {
 		SYMBOL_INFO* symbol = (SYMBOL_INFO*) ::calloc(sizeof(SYMBOL_INFO) + 256, 1);
 		symbol->MaxNameLen = 255;
 		symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+		ETC_SCOPE_EXIT{ free(symbol); };
 #else
 		size_t frames = ::backtrace(callstack, size);
 		char** strs = ::backtrace_symbols(callstack, frames);
+		ETC_SCOPE_EXIT{ free(strs); };
 #endif
 
 
@@ -167,9 +175,6 @@ namespace etc { namespace backtrace {
 #endif
 			this->push_back(frame);
 		}
-#ifndef _WIN32
-		::free(strs);
-#endif
 	}
 
 	void Backtrace::strip_base(Backtrace const& base)
@@ -218,29 +223,21 @@ namespace etc { namespace backtrace {
 		return out;
 	}
 
-	StackFrame::operator std::string() const
-	{
-		std::stringstream s;
-		s << *this;
-		return s.str();
-	}
-
 	namespace {
 
-		extern "C" {
-
-			void func(Backtrace* b)
-			{
-				*b = Backtrace();
-			}
-
+		ETC_NOINLINE
+		Backtrace* func()
+		{
+			Backtrace* inner = new Backtrace;
+			return inner;
 		}
+
 
 		ETC_TEST_CASE(backtrace_simple)
 		{
-			Backtrace b;
-			func(&b);
-			ETC_ENFORCE_EQ(b.at(1).symbol, "func");
+			Backtrace* b = func();
+			ETC_ENFORCE_EQ(b->at(1).symbol, "func");
+			delete b;
 		}
 
 	} // !anonymous

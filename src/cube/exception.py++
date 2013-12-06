@@ -34,7 +34,7 @@ namespace {
 		if (auto const& bt = e.backtrace())
 		{
 			for (auto const& frame: *bt)
-				backtrace.append(static_cast<std::string>(frame));
+				backtrace.append(etc::to_string(frame));
 		}
 		py::object exception_type(py::handle<>(py::borrowed(ExceptionType)));
 		exception_type.attr("backtrace") = backtrace;

@@ -19,7 +19,6 @@ namespace etc { namespace backtrace {
 		std::string symbol_mangled;
 		void* address;
 		int offset;
-		operator std::string() const;
 	};
 
 	class ETC_API Backtrace
