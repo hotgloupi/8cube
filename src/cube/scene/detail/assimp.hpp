@@ -7,6 +7,7 @@
 
 # include <etc/enum.hpp>
 
+# include <cstring> // missing strlen in assimp/types.h
 # include <assimp/Importer.hpp>
 # include <assimp/scene.h>
 # include <assimp/postprocess.h>
