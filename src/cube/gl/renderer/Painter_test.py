@@ -134,6 +134,18 @@ class PainterSetup:
             )
         )
 
+    def tearDown(self):
+        self.renderer = None
+        self.window = None
+        self.indices = None
+        self.vb = None
+        self.shader = None
+        self.vs = None
+        self.fs = None
+        self.target = None
+        import gc
+        gc.collect()
+
 
 def painter_test(mode, delta = 0.01):
     def _painter_test(func):
