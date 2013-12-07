@@ -157,7 +157,7 @@ def configure(project, build):
     else:
         raise Exception("Unknown build type '%s'" % build_type)
 
-    defines += ['GLM_FORCE_CXX11', 'BOOST_ALL_NO_LIB']
+    defines += ['BOOST_ALL_NO_LIB']
 
     #if platform.IS_LINUX:
     #    defines += ['CUBE_WITH_GLX']
