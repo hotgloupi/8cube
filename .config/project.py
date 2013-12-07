@@ -98,7 +98,7 @@ class Assimp(Dependency):
                 save_env_vars = False,
             )
         ]
-        if not self.shared:
+        if not self.shared and platform.IS_WINDOWS:
             libs.append(
                 cxx.Library(
                     'libz',
