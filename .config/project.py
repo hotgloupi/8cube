@@ -364,7 +364,8 @@ def configure(project, build):
             [binding],
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
-            libraries=[libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+            libraries = boost.libraries + python.libraries + base_libraries,
+            include_directories = glm.libraries[0].include_directories,
             precompiled_headers = precompiled_headers,
         )
 
