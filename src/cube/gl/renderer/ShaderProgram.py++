@@ -3,12 +3,14 @@
 #include "Texture.hpp"
 
 #include <cube/gl/vector.hpp>
+#include <cube/gl/color.hpp>
 
 #include <wrappers/boost/python.hpp>
 
 namespace py = boost::python;
 using namespace ::cube::gl::renderer;
 using namespace ::cube::gl::vector;
+using namespace ::cube::gl::color;
 
 namespace {
 
@@ -87,6 +89,7 @@ BOOST_PYTHON_MODULE(ShaderProgram)
 	SHADER_PROGRAM_PARAMETER_SETTER(int32_t);
 	SHADER_PROGRAM_PARAMETER_SETTER(Texture&);
 	SHADER_PROGRAM_PARAMETER_SETTER(Vector3f const&);
+	SHADER_PROGRAM_PARAMETER_SETTER(Color3f const&);
 	SHADER_PROGRAM_PARAMETER_SETTER(float);
 #undef SHADER_PROGRAM_PARAMETER_SETTER
 }
