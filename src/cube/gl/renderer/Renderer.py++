@@ -296,7 +296,8 @@ BOOST_PYTHON_MODULE(Renderer)
 			py::make_function(
 				static_cast<cube::gl::viewport::Viewport const& (Renderer::*)() const>(&Renderer::viewport),
 				py::return_value_policy<py::copy_const_reference>()
-			)
+			),
+			static_cast<void (Renderer::*)(cube::gl::viewport::Viewport const&)>(&Renderer::viewport)
 		)
 		.add_property(
 			"context",
