@@ -64,7 +64,7 @@ class RootWindow:
         if self._new_viewport_size is not None:
             w, h = self._new_viewport_size
             cube.debug("Updating viewport size")
-            self.renderer.viewport(0, 0, w, h);
+            self.renderer.viewport = gl.Viewport(0, 0, w, h);
             if self.__root_widget:
                 self.__root_widget.on_resize(w, h)
             self._new_viewport_size = None

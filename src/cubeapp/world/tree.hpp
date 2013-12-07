@@ -47,11 +47,11 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	public:
 		Tree(level_type const root_level) ETC_NOEXCEPT
 			: _root_level{root_level}
-			, _root_origin{
+			, _root_origin(
 				(std::numeric_limits<size_type>::max()
 				- std::numeric_limits<size_type>::min()) / 2
 				- (size_type{1} << (root_level - 1)) // 2^(root_level - 1)
-			}
+			)
 		{}
 
 	private:

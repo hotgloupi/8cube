@@ -26,7 +26,7 @@ class World:
         Chunk.prepare(renderer)
         self.referential = gl.Vector3il()
         self.__frustum_view = None
-        attr = gl.renderer.make_vertex_buffer_attribute
+        attr = gl.make_vba
         self.__frustum = gl.frustum.Frustumd(units.deg(45), 640.0 / 480.0,0.1,20)
         self.__frustum_colors_vb = renderer.new_vertex_buffer([
             attr(
@@ -123,15 +123,13 @@ class World:
         if self.__frustum_view is not None:
             assert False
             with painter.bind([Chunk.sp, self.__frustum_colors_vb]):
-                state = gl.State(painter.state)
-                state.model = gl.matrix.translate(
-                    state.model,
+                state = painter.push()
+                state.translate(
                     -self.referential.x * Chunk.size,
                     -self.referential.y * Chunk.size,
                     -self.referential.z * Chunk.size,
                 )
-                state.model = gl.matrix.scale(
-                    state.model,
+                state.scale(
                     Chunk.size, Chunk.size, Chunk.size
                 )
                 Chunk.sp.update(state)
@@ -140,7 +138,7 @@ class World:
         if self.__nodes_to_render != self.__nodes_to_render_found:
             self.__nodes_to_render = self.__nodes_to_render_found[:]
 
-        with painter.bind([Chunk.sp, Chunk.vb]):
+        with painter.bind([Chunk.vb]):
             ignored = 0
             for node in self.__nodes_to_render:
                 if node.level > 0:
