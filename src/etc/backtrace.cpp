@@ -225,11 +225,15 @@ namespace etc { namespace backtrace {
 
 	namespace {
 
-		ETC_NOINLINE
-		Backtrace* func()
-		{
-			Backtrace* inner = new Backtrace;
-			return inner;
+		extern "C" {
+
+			ETC_NOINLINE
+			Backtrace* func()
+			{
+				Backtrace* inner = new Backtrace;
+				return inner;
+			}
+
 		}
 
 
