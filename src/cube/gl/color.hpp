@@ -26,7 +26,7 @@ namespace cube { namespace gl { namespace color {
 	struct traits
 	{
 		template<typename K = T>
-		static constexpr
+		static ETC_CONSTEXPR
 		typename std::enable_if<std::is_integral<K>::value, K>::type
 		max_component_value() ETC_NOEXCEPT
 		{
@@ -34,7 +34,7 @@ namespace cube { namespace gl { namespace color {
 		}
 
 		template<typename K = T>
-		static constexpr
+		static ETC_CONSTEXPR
 		typename std::enable_if<std::is_floating_point<K>::value, K>::type
 		max_component_value() ETC_NOEXCEPT
 		{
@@ -56,10 +56,8 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
-		Color3(Color3<T> const&) ETC_NOEXCEPT = default;
-		Color3& operator =(Color3<T> const&) ETC_NOEXCEPT = default;
-		Color3(Color3<T>&&) ETC_NOEXCEPT = default;
-		Color3& operator =(Color3<T>&&) ETC_NOEXCEPT = default;
+		Color3(Color3 const&) = default;
+		Color3& operator =(Color3<T> const&) = default;
 
 		Color3() ETC_NOEXCEPT
 			: r(), g(), b()
@@ -97,10 +95,8 @@ namespace cube { namespace gl { namespace color {
 		};
 
 	public:
-		Color4(Color4<T> const&) ETC_NOEXCEPT = default;
-		Color4& operator =(Color4<T> const&) ETC_NOEXCEPT = default;
-		Color4(Color4<T>&&) ETC_NOEXCEPT = default;
-		Color4& operator =(Color4<T>&&) ETC_NOEXCEPT = default;
+		Color4(Color4 const&) = default;
+		Color4& operator =(Color4<T> const&) = default;
 		Color4() ETC_NOEXCEPT
 			: r{}, g{}, b{}, a{}
 		{}

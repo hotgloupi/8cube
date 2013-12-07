@@ -6,7 +6,6 @@
 # include <etc/exception.hpp>
 
 # ifdef environ
-#  warning "environ" macros conflicts with namespace
 #  undef environ
 # endif
 

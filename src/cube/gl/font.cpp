@@ -147,15 +147,15 @@ namespace cube { namespace gl { namespace font {
 				this->bitmap_glyph = (::FT_BitmapGlyph) this->handle;
 				this->bitmap = this->bitmap_glyph->bitmap;
 
-				this->offset.x = slot->metrics.horiBearingX / 64;
-				this->offset.y = slot->metrics.horiBearingY / 64;
-				this->advance.x = slot->advance.x / 64;
+				this->offset.x = slot->metrics.horiBearingX / 64.0f;
+				this->offset.y = slot->metrics.horiBearingY / 64.0f;
+				this->advance.x = slot->advance.x / 64.0f;
 				this->advance.y = slot->advance.y / 65535.0f;
 				FT_BBox bbox;
 				::FT_Glyph_Get_CBox(this->handle, FT_GLYPH_BBOX_PIXELS, &bbox);
 
-				this->size.x = bbox.xMax - bbox.xMin;
-				this->size.y = bbox.yMax - bbox.yMin;
+				this->size.x = (float) (bbox.xMax - bbox.xMin);
+				this->size.y = (float) (bbox.yMax - bbox.yMin);
 			}
 			~Glyph()
 			{
@@ -237,7 +237,7 @@ namespace cube { namespace gl { namespace font {
 
 
 				if (glyph.size.y > _max_line_height)
-					_max_line_height = glyph.size.y;
+					_max_line_height = (etc::size_type) glyph.size.y;
 
 				dbg("glyph size:", glyph.bitmap.width, ',', glyph.bitmap.rows);
 
@@ -257,7 +257,7 @@ namespace cube { namespace gl { namespace font {
 					_pen.x / _texture_size.x,
 					(_pen.y + glyph.bitmap.rows) / _texture_size.y
 				);
-				uint8_t buffer[glyph.bitmap.width * glyph.bitmap.rows * 4];
+				std::vector<uint8_t> buffer(glyph.bitmap.width * glyph.bitmap.rows * 4);
 				for (int i = 0; i < glyph.bitmap.width; ++i)
 					for (int j = 0; j < glyph.bitmap.rows; ++j)
 					{
@@ -273,7 +273,7 @@ namespace cube { namespace gl { namespace font {
 				                   glyph.bitmap.width, glyph.bitmap.rows,
 				                   renderer::PixelFormat::rgba,
 				                   renderer::ContentPacking::uint8,
-				                   buffer);
+				                   &buffer[0]);
 				_pen.x += glyph.bitmap.width;
 				_pen.y += 0; //glyph.bitmap.rows;
 

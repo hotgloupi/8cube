@@ -228,7 +228,7 @@ namespace cube { namespace gl { namespace renderer {
 	CUBE_API
 	std::ostream& operator <<(std::ostream& out, ContentKind const kind);
 
-	inline constexpr
+	inline ETC_CONSTEXPR
 	ContentKind operator +(ContentKind const lhs, int const rhs)
 	{
 		return (

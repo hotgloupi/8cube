@@ -29,7 +29,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 				center - pos,
 				static_cast<double>(size) * 0.8660254037844386
 			};
-			if (not frustum.intersects(s))
+			if (!frustum.intersects(s))
 				return VisitorAction::stop;
 			if (level == 0)
                 res.emplace_back(Node<size_type>{level, origin, size});

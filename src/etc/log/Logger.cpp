@@ -176,7 +176,7 @@ namespace etc { namespace log {
 				, dropped{0}
 #endif
 				, thread{[this] { this->service.run(); }}
-				, async{not etc::sys::environ::contains("ETC_LOG_SYNC")}
+				, async{!etc::sys::environ::contains("ETC_LOG_SYNC")}
 			{}
 
 			template<typename Fn>

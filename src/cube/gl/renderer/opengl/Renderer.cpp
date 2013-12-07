@@ -190,7 +190,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		for (int* n = major;; n = minor)
 		{
 			*n = 0;
-			while (*str != '\0' && not std::isdigit(*str))
+			while (*str != '\0' && !std::isdigit(*str))
 				++str;
 			while (*str != '\0' && std::isdigit(*str))
 			{

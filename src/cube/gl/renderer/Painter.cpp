@@ -30,7 +30,7 @@ namespace cube { namespace gl { namespace renderer {
 		, _state_count{other._state_count}
 		, _bound_drawables{}
 	{
-		if (not other._bound_drawables.empty())
+		if (!other._bound_drawables.empty())
 			throw Exception{
 				"A painter cannot be moved while it still has bound drawables"
 			};

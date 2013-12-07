@@ -62,9 +62,9 @@ namespace cube { namespace resource {
 	Manager::add_path(std::string const& path)
 	{
 		std::string abs =  etc::path::absolute(path);
-		if (not etc::path::exists(abs))
+		if (!etc::path::exists(abs))
 			throw Exception{"The path '" + path + "' does not exists"};
-		if (not etc::path::is_directory(abs))
+		if (!etc::path::is_directory(abs))
 			throw Exception{"The path '" + path + "' does not refer to a valid directory"};
 		_this->paths.push_back(abs);
 		return *this;

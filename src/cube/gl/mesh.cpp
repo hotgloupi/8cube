@@ -199,42 +199,42 @@ namespace cube { namespace gl { namespace mesh {
 			Kind::vertex,
 			_this->vertice.data
 		));
-		if (not _this->normals.data.empty())
+		if (!_this->normals.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::normal,
 				_this->normals.data
 			));
 		}
-		if (not _this->colors3.data.empty())
+		if (!_this->colors3.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::color,
 				_this->colors3.data
 			));
 		}
-		if (not _this->colors4.data.empty())
+		if (!_this->colors4.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::color,
 				_this->colors4.data
 			));
 		}
-		if (not _this->tex_coords0.data.empty())
+		if (!_this->tex_coords0.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::tex_coord0,
 				_this->tex_coords0.data
 			));
 		}
-		if (not _this->tex_coords1.data.empty())
+		if (!_this->tex_coords1.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::tex_coord1,
 				_this->tex_coords1.data
 			));
 		}
-		if (not _this->tex_coords2.data.empty())
+		if (!_this->tex_coords2.data.empty())
 		{
 			list.push_back(renderer::make_vertex_buffer_attribute(
 				Kind::tex_coord2,
@@ -318,17 +318,17 @@ namespace cube { namespace gl { namespace mesh {
 	{
 		out << "<Mesh " << mesh._this->vertice.data.size() << " vertice";
 
-		if (not mesh._this->normals.data.empty())
+		if (!mesh._this->normals.data.empty())
 			out << ", " << mesh._this->normals.data.size() << " normals";
-		if (not mesh._this->colors3.data.empty())
+		if (!mesh._this->colors3.data.empty())
 			out << ", " << mesh._this->colors3.data.size() << " colors3";
-		if (not mesh._this->colors4.data.empty())
+		if (!mesh._this->colors4.data.empty())
 			out << ", " << mesh._this->colors4.data.size() << " colors3";
-		if (not mesh._this->tex_coords0.data.empty())
+		if (!mesh._this->tex_coords0.data.empty())
 			out << ", " << mesh._this->tex_coords0.data.size() << " tex_coords0";
-		if (not mesh._this->tex_coords1.data.empty())
+		if (!mesh._this->tex_coords1.data.empty())
 			out << ", " << mesh._this->tex_coords1.data.size() << " tex_coords1";
-		if (not mesh._this->tex_coords2.data.empty())
+		if (!mesh._this->tex_coords2.data.empty())
 			out << ", " << mesh._this->tex_coords2.data.size() << " tex_coords2";
 
 		out << ">";

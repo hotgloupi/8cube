@@ -12,6 +12,7 @@
 
 # define ETC_NOEXCEPT BOOST_NOEXCEPT_OR_NOTHROW
 # define ETC_NOEXCEPT_IF(...) BOOST_NOEXCEPT_IF((__VA_ARGS__))
+# define ETC_CONSTEXPR BOOST_CONSTEXPR
 
 # ifndef BOOST_PP_VARIADICS
 #  error "Variadic macros not enabled"

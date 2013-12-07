@@ -40,7 +40,7 @@ namespace etc {
 			inline
 			~scope_exit()
 			{
-				if (not _aborted)
+				if (!_aborted)
 				{
 					try { _callback(); }
 					catch (...) { std::abort(); }

@@ -43,7 +43,7 @@ CUBE_MAIN_PROTO(int argc, char** argv)
 	{
 		if (argv[i] == std::string{"--etc-tests"})
 		{
-			if (not etc::test::registry().run())
+			if (!etc::test::registry().run())
 				return EXIT_FAILURE;
 			return EXIT_SUCCESS;
 		}

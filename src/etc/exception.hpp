@@ -25,7 +25,8 @@ namespace etc { namespace exception {
 		backtrace::Backtrace const*
 		backtrace() const { return _backtrace; }
 
-		friend std::ostream& operator <<(std::ostream& out, Exception const& e);
+		friend
+		ETC_API std::ostream& operator <<(std::ostream& out, Exception const& e);
 	};
 
 	ETC_API std::ostream& operator <<(std::ostream& out, Exception const& e);

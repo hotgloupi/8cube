@@ -45,13 +45,13 @@ namespace etc {
 
 		ETC_TEST_CASE(stack_ptr_of_non_movable)
 		{
-			struct A { A() = default; A(A&&) = delete; };
+			struct A { A() {}; A(A&&) = delete; };
 			stack_ptr<A> a;
 		}
 
 		ETC_TEST_CASE(stack_ptr_of_non_copyable)
 		{
-			struct A { A() = default; A(A const&) = delete; A(A&&) = delete; };
+			struct A { A() {}; A(A const&) = delete; A(A&&) = delete; };
 			stack_ptr<A> a;
 		}
 

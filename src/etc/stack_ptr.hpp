@@ -17,7 +17,7 @@ namespace etc {
 		typedef T value_type;
 	private:
 		bool _valid;
-		union { T _value; };
+		char _storage[sizeof(T)];
 
 	public:
 		inline explicit
@@ -30,8 +30,7 @@ namespace etc {
 		stack_ptr(Args&&... args)
 			ETC_NOEXCEPT_IF(std::is_nothrow_constructible<T, Args...>::value)
 			: _valid{true}
-			, _value{std::forward<Args>(args)...}
-		{}
+		{ new (_storage) T{std::forward<Args>(args)...}; }
 
 		inline
 		stack_ptr(stack_ptr&& other)
@@ -41,7 +40,7 @@ namespace etc {
 			if (_valid)
 				// We just move the value of the other stack_ptr, whose dtor
 				// will call the _value dtor.
-				new (&_value) T(std::move(other._value));
+				new (_storage) T(std::move(other.get()));
 		}
 
 		inline
@@ -50,7 +49,7 @@ namespace etc {
 			: _valid{other._valid}
 		{
 			if (_valid)
-				new (&_value) T(other._value);
+				new (_storage) T(other.get());
 		}
 
 		inline
@@ -59,30 +58,33 @@ namespace etc {
 
 		inline
 		void clear() ETC_NOEXCEPT
-		{ if (_valid) { _value.~T(); _valid = false; }}
+		{ if (_valid) { this->get().~T(); _valid = false; }}
 
 		template<typename... Args>
 		void reset(Args&&... args)
 			ETC_NOEXCEPT_IF(std::is_nothrow_constructible<T, Args...>::value)
 		{
 			this->clear();
-			new (&_value) T(std::forward<Args>(args)...);
+			new (&_storage) T(std::forward<Args>(args)...);
 			_valid = true;
 		}
 
 		inline operator bool() const ETC_NOEXCEPT { return _valid; }
 
-		inline
-		value_type* operator ->() ETC_NOEXCEPT { return &_value; }
+		inline value_type& get() ETC_NOEXCEPT
+		{ return *reinterpret_cast<value_type*>(_storage);}
+		inline value_type const& get() const ETC_NOEXCEPT
+		{ return *reinterpret_cast<value_type const*>(_storage);}
 
 		inline
-		value_type const* operator ->() const ETC_NOEXCEPT { return &_value; }
+		value_type* operator ->() ETC_NOEXCEPT { return &this->get(); }
+		inline
+		value_type const* operator ->() const ETC_NOEXCEPT { return &this->get(); }
 
 		inline
-		value_type& operator *() ETC_NOEXCEPT { return _value; }
-
+		value_type& operator *() ETC_NOEXCEPT { return this->get(); }
 		inline
-		value_type const& operator *() const ETC_NOEXCEPT { return _value; }
+		value_type const& operator *() const ETC_NOEXCEPT { return this->get(); }
 	};
 
 }

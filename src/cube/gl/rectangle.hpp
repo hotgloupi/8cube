@@ -11,41 +11,22 @@ namespace cube { namespace gl { namespace rectangle {
 	struct Rectangle2
 	{
 	public:
-		union
-		{
-			vector::Vector2<T> position;
-			struct { T x, y; };
-		};
-
-		union
-		{
-			vector::Vector2<T> size;
-			struct { T w, h; };
-		};
+		union { struct { T x, y; }; T _position[2]; };
+		union { struct { T w, h; }; T _size[2]; };
 
 	public:
 		inline
 		Rectangle2(T x, T y, T w, T h) ETC_NOEXCEPT
-			: position{x, y}
-			, size{w, h}
+			: x{x}
+			, y{y}
+			, w{w}
+			, h{h}
 		{}
 
 		inline
-		Rectangle2(Rectangle2 const& other) ETC_NOEXCEPT
-			: position(other.position)
-			, size(other.size)
-		{}
-
+		Rectangle2(Rectangle2 const&) = default;
 		inline
-		Rectangle2& operator =(Rectangle2 const& other) ETC_NOEXCEPT
-		{
-			if (this != &other)
-			{
-				this->position = other.position;
-				this->size = other.size;
-			}
-			return *this;
-		}
+		Rectangle2& operator =(Rectangle2 const&) = default;
 	};
 
 	typedef Rectangle2<float> Rectangle2f;

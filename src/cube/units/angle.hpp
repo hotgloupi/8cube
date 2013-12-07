@@ -65,21 +65,13 @@ namespace cube { namespace units {                                            \
 	__from_type __func_name ## _value(T value)                                \
 	{ return static_cast<__to_type>(value).value(); }                         \
 }}                                                                            \
-inline                                                                        \
-auto operator"" _##__func_name(                                               \
-		cube::units::details::suffix_operator_param_type<__from_type>::type v \
-	)                                                                         \
-	-> decltype(cube::units::__func_name(v))                                  \
-{ return cube::units::__func_name(v); }                                       \
 /**/
 
 // Angle rad(double)
-// Angle operator"" _rad(double)
 // double rad_value(T)
 _CUBE_UNITS_ANGLE_CONVERTERS(Angle, rad, float, radian, Radian);
 
 // Angle deg(double)
-// Angle operator"" _deg(double)
 // double deg_value(T)
 _CUBE_UNITS_ANGLE_CONVERTERS(Angle, deg, float, degree, Degree);
 

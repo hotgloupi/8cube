@@ -24,7 +24,7 @@ namespace cube { namespace gl { namespace camera {
 
 	public:
 		Camera() ETC_NOEXCEPT
-		{ this->rotate(0.0_rad, 0.0_rad); }
+		{ this->rotate(units::deg(0.0f), units::deg(0.0f)); }
 
 		inline
 		vec3 const& position() const ETC_NOEXCEPT

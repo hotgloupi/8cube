@@ -16,6 +16,8 @@
 
 # include "platform.hpp"
 
+# include <boost/config.hpp>
+
 # ifdef ETC_PLATFORM_WINDOWS
 #  define ETC_API_IMPORT    __declspec(dllimport)
 #  define ETC_API_EXPORT    __declspec(dllexport)
@@ -37,6 +39,14 @@
 #  define ETC_API_EXCEPTION   ETC_API
 # else
 #  define ETC_API_EXCEPTION   ETC_API_EXPORT // on gcc export everywhere
+# endif
+
+# ifdef BOOST_MSVC
+// non exported type in exported ones need to have a dll-interface.
+// This is ignored since boost is not binary compatible, so are we.
+#  pragma warning(disable: 4251) // for members
+#  pragma warning(disable: 4275) // for base class
+
 # endif
 
 #endif

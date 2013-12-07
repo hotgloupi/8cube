@@ -204,7 +204,7 @@ namespace cube { namespace debug {
 				_this->timers.erase(it);
 
 				// Pop the last stack element.
-				assert(not _this->stacks[thread_id].empty());
+				assert(!_this->stacks[thread_id].empty());
 				_this->stacks[thread_id].pop();
 			});
 		} catch (...) {

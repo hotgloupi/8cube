@@ -10,15 +10,15 @@ namespace cube { namespace gl { namespace camera {
 	{
 		_hrot += horizontal_angle;
 		while (_hrot < units::rad(0))
-			_hrot += units::rad(3.14159265*2);
-		while (_hrot > units::rad(3.14159265*2))
-			_hrot -= units::rad(3.14159265*2);
+			_hrot += units::rad(3.14159265f*2);
+		while (_hrot > units::rad(3.14159265f*2))
+			_hrot -= units::rad(3.14159265f*2);
 
 		_vrot += vertical_angle;
-		if (_vrot > units::rad(3.14159 / 2))
-			_vrot = units::rad(3.14159 / 2 - 0.01);
-		if (_vrot < units::rad(-3.14159 / 2))
-			_vrot = units::rad(-3.14159 / 2 + 0.01);
+		if (_vrot > units::rad(3.14159f / 2))
+			_vrot = units::rad(3.14159f / 2 - 0.01f);
+		if (_vrot < units::rad(-3.14159f / 2))
+			_vrot = units::rad(-3.14159f / 2 + 0.01f);
 
 		_front = vector::rotate_x(vec3{0,0,-1}, units::deg_value(_vrot));
 		_front = vector::rotate_y(_front, units::deg_value(_hrot));

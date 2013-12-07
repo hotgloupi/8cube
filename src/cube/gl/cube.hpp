@@ -26,14 +26,12 @@ namespace cube { namespace gl { namespace cube {
 		T       width;
 
 	public:
-		Cube3(vec3 const& center, T const width)
+		Cube3(vec3 const& center, T const width) ETC_NOEXCEPT
 			: center(center)
 			, width(width)
 		{}
 		Cube3(Cube3 const&) = default;
-		Cube3(Cube3&&) = default;
 		Cube3& operator =(Cube3 const&) = default;
-		Cube3& operator =(Cube3&&) = default;
 
 	public:
 		inline

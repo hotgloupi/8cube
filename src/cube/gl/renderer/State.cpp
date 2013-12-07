@@ -123,21 +123,21 @@ namespace cube { namespace gl { namespace renderer {
 
 	matrix_type State::model_view() const ETC_NOEXCEPT
 	{
-		if (not _this->model_view)
+		if (!_this->model_view)
 			_this->model_view.reset(_this->view * _this->model);
 		return *_this->model_view;
 	}
 
 	matrix_type const& State::mvp() const ETC_NOEXCEPT
 	{
-		if (not _this->mvp)
+		if (!_this->mvp)
 			_this->mvp.reset(_this->projection * this->model_view());
 		return *_this->mvp;
 	}
 
 	State::normal_matrix_type State::normal() const ETC_NOEXCEPT
 	{
-		if (not _this->normal)
+		if (!_this->normal)
 			_this->normal.reset(
 				glm::inverseTranspose(normal_matrix_type(this->model_view()))
 			);
@@ -196,7 +196,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void State::enable(Light const& light)
 	{
-		if (not light.bound())
+		if (!light.bound())
 			throw Exception{"Cannot enable an unbound light"};
 		auto it = _this->lights.begin(), end = _this->lights.end();
 		for (; it != end; ++it)

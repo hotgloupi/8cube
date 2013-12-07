@@ -51,4 +51,5 @@ namespace etc { namespace exception {
 			out << e._msg << ":\n" <<  *e._backtrace;
 		return out;
 	}
+
 }}

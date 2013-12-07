@@ -384,7 +384,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		new_render_target(etc::size_type const width,
 		                  etc::size_type const height) override
 		{
-			if (not this->allow_render_target())
+			if (!this->allow_render_target())
 				throw Exception{"RenderTarget not allowed by this renderer"};
 			return gl::renderer::RenderTargetPtr{
 				new SDLRenderTarget{
@@ -409,7 +409,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 
 		if (this->flags() & Flags::borderless)
 			SDL_SetWindowBordered(_context().window, SDL_FALSE);
-		if (not (this->flags() & Flags::hidden))
+		if (!(this->flags() & Flags::hidden))
 			SDL_ShowWindow(_context().window);
 	}
 
