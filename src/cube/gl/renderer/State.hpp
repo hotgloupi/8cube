@@ -127,6 +127,11 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		void enable(Light const& light);
 		void disable(Light const& light);
+
+
+	private:
+		// contract checks.
+		void _invariant() const;
 	};
 
 }}}

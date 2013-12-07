@@ -171,6 +171,8 @@ BOOST_PYTHON_MODULE(Painter)
 				py::return_internal_reference<>()
 			)
 		)
+		.def("push_state", &Painter::push_state, py::return_internal_reference<>())
+		.def("pop_state", &Painter::pop_state)
 	;
 
 	///////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@
 #include "Painter.hpp"
 
 #include <etc/assert.hpp>
+#include <etc/contract/invariant.hpp>
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
 #include <etc/stack_ptr.hpp>
@@ -54,7 +55,7 @@ namespace cube { namespace gl { namespace renderer {
 	State::State(Mode const mode)
 		: mode(mode)
 		, _this{new Impl{}}
-	{}
+	{ ETC_TRACE_CTOR(mode); ETC_CONTRACT_CLASS_INVARIANT(); }
 
 	State::State(State&& other)
 		ETC_NOEXCEPT_IF(
@@ -62,19 +63,31 @@ namespace cube { namespace gl { namespace renderer {
 		)
 		: mode{other.mode}
 		, _this{std::move(other._this)}
-	{}
+	{
+		ETC_TRACE_CTOR(mode, "copied from", other);
+		ETC_CONTRACT_CLASS_INVARIANT();
+	}
 
 	State::State(State const& other)
 		: mode{other.mode}
 		, _this{new Impl{*other._this}}
-	{}
+	{
+		ETC_TRACE_CTOR(mode, "moved from", other);
+		ETC_CONTRACT_CLASS_INVARIANT();
+	}
 
 	State::~State()
-	{}
+	{
+		if (_this == nullptr)
+			ETC_TRACE_DTOR("drained");
+		else
+			ETC_TRACE_DTOR();
+	}
 
 	matrix_type const&
 	State::matrix(MatrixKind kind) const
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		switch (kind)
 		{
 		case MatrixKind::model:
@@ -93,6 +106,7 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	State::matrix(MatrixKind kind, matrix_type const& other)
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		ETC_TRACE.debug("Set matrix", kind, "to", other);
 		switch (kind)
 		{
@@ -113,16 +127,26 @@ namespace cube { namespace gl { namespace renderer {
 	}
 
 	matrix_type const& State::model() const ETC_NOEXCEPT
-	{ return _this->model; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return _this->model;
+	}
 
 	matrix_type const& State::view() const ETC_NOEXCEPT
-	{ return _this->view; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return _this->view;
+	}
 
 	matrix_type const& State::projection() const ETC_NOEXCEPT
-	{ return _this->projection; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return _this->projection;
+	}
 
 	matrix_type State::model_view() const ETC_NOEXCEPT
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		if (!_this->model_view)
 			_this->model_view.reset(_this->view * _this->model);
 		return *_this->model_view;
@@ -130,6 +154,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	matrix_type const& State::mvp() const ETC_NOEXCEPT
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		if (!_this->mvp)
 			_this->mvp.reset(_this->projection * this->model_view());
 		return *_this->mvp;
@@ -137,6 +162,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	State::normal_matrix_type State::normal() const ETC_NOEXCEPT
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		if (!_this->normal)
 			_this->normal.reset(
 				glm::inverseTranspose(normal_matrix_type(this->model_view()))
@@ -145,23 +171,36 @@ namespace cube { namespace gl { namespace renderer {
 	}
 
 	State& State::model(matrix_type const& other) ETC_NOEXCEPT
-	{ _this->model = other; _this->clear(); return *this; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		_this->model = other; _this->clear(); return *this;
+	}
 
 	State& State::view(matrix_type const& other) ETC_NOEXCEPT
-	{ _this->view = other; _this->clear(); return *this; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		_this->view = other; _this->clear(); return *this;
+	}
 
 	State& State::projection(matrix_type const& other) ETC_NOEXCEPT
-	{ _this->projection = other; _this->mvp.clear(); return *this; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		_this->projection = other; _this->mvp.clear(); return *this;
+	}
 
 	State& State::scale(component_type const x,
 	                    component_type const y,
 	                    component_type const z) ETC_NOEXCEPT
-	{ return this->model(matrix::scale(this->model(), vector_type(x, y, z))); }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return this->model(matrix::scale(this->model(), vector_type(x, y, z)));
+	}
 
 	State& State::translate(component_type const x,
 	                        component_type const y,
 	                        component_type const z) ETC_NOEXCEPT
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		return this->model(
 			matrix::translate(this->model(), vector_type(x, y, z))
 		);
@@ -169,18 +208,25 @@ namespace cube { namespace gl { namespace renderer {
 
 	State& State::rotate(units::Angle const angle,
 	                     vector_type const& axis) ETC_NOEXCEPT
-	{ return this->model(matrix::rotate(this->model(), angle, axis)); }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return this->model(matrix::rotate(this->model(), angle, axis));
+	}
 
 	State& State::look_at(vector_type const& eye,
 	                      vector_type const& center,
 	                      vector_type const& up) ETC_NOEXCEPT
-	{ return this->view(matrix::look_at(eye, center, up)); }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return this->view(matrix::look_at(eye, center, up));
+	}
 
 	State& State::perspective(component_type const fov,
 	                          component_type const aspect,
 	                          component_type const near,
 	                          component_type const far) ETC_NOEXCEPT
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		ETC_ASSERT_NEQ(far, near);
 		return this->projection(matrix::perspective(fov, aspect, near, far));
 	}
@@ -189,13 +235,20 @@ namespace cube { namespace gl { namespace renderer {
 	                    component_type const y,
 	                    component_type const w,
 	                    component_type const h) ETC_NOEXCEPT
-	{ return this->projection(matrix::ortho(x, y, w, h)); }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return this->projection(matrix::ortho(x, y, w, h));
+	}
 
 	State::LightList const& State::lights() const ETC_NOEXCEPT
-	{ return _this->lights; }
+	{
+		ETC_CONTRACT_CLASS_INVARIANT();
+		return _this->lights;
+	}
 
 	void State::enable(Light const& light)
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		if (!light.bound())
 			throw Exception{"Cannot enable an unbound light"};
 		auto it = _this->lights.begin(), end = _this->lights.end();
@@ -207,6 +260,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void State::disable(Light const& light)
 	{
+		ETC_CONTRACT_CLASS_INVARIANT();
 		auto it = _this->lights.begin(), end = _this->lights.end();
 		for (; it != end; ++it)
 			if (&light == &it->get())
@@ -215,6 +269,11 @@ namespace cube { namespace gl { namespace renderer {
 				return;
 			}
 		throw Exception{"Light not found"};
+	}
+
+	void State::_invariant() const
+	{
+		ETC_ENFORCE(_this != nullptr);
 	}
 
 }}} // !cube::gl::renderer
