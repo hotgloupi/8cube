@@ -6,6 +6,7 @@
 #include <cube/gl/renderer/ShaderProgram.hpp>
 #include <cube/gl/renderer/Light.hpp>
 #include <cube/gl/renderer.hpp>
+#include <cube/gl/surface.hpp>
 #include <cube/system/window.hpp>
 
 #include <etc/stack_ptr.hpp>
@@ -30,13 +31,24 @@ namespace cube { namespace gl { namespace material {
 			Material const& _material;
 			renderer::ShaderProgramPtr _shader_program;
 			etc::stack_ptr<Guard>  _bind_guard;
+			std::vector<renderer::TexturePtr> _textures;
 
 			Bindable(Material const& material,
+			         renderer::Renderer& renderer,
 			         renderer::ShaderProgramPtr shader_program)
 				: _material(material)
 				, _shader_program{std::move(shader_program)}
 				, _bind_guard{etc::stack_ptr_no_init}
-			{}
+			{
+				for (auto const& ch: _material.textures())
+				{
+					_textures.emplace_back(
+						renderer.new_texture(
+							surface::Surface(ch.path)
+						)
+					);
+				}
+			}
 
 			void _bind() override
 			{
@@ -70,6 +82,10 @@ namespace cube { namespace gl { namespace material {
 					}
 				}
 				shader["cube_PointLightCount"] = point_light_idx;
+
+				int32_t idx = 0;
+				for (auto& tex: _textures)
+					shader["cube_Texture" + std::to_string(idx++)] = *tex;
 			}
 
 			void _unbind() ETC_NOEXCEPT override
@@ -115,6 +131,14 @@ namespace cube { namespace gl { namespace material {
 							};
 					}
 
+					idx = 0;
+					for (auto const& ch: _material.textures())
+					{
+						(void) ch;
+						auto i = std::to_string(idx);
+						res += "\tcube_TexCoord" + i + " = cube_VertexTexCoord" + i + "\n;";
+					}
+
 					if (_material.shading_model() != ShadingModel::none)
 					{
 						res +=
@@ -136,7 +160,15 @@ namespace cube { namespace gl { namespace material {
 				}
 				else if (proxy.type == renderer::ShaderType::fragment)
 				{
-					res += "\tcube_FragColor = cube_Color;\n";
+					res += "\tvec4 Color = cube_Color;\n";
+					int idx = 0;
+					for (auto const& ch: _material.textures())
+					{
+						auto i = std::to_string(idx);
+						res += "\tColor += texture2D(cube_Texture" + i
+							+ ", cube_TexCoord" + i +");\n";
+					}
+					res += "\tcube_FragColor = Color;\n";
 				}
 
 				return res;
@@ -203,6 +235,30 @@ namespace cube { namespace gl { namespace material {
 			.routine<Main>("main", *this)
 		;
 
+		idx = 0;
+		for (auto const& channel: _textures)
+		{
+			vs.input(
+				ShaderParameterType::vec2,
+				"cube_VertexTexCoord" + std::to_string(idx),
+				ContentKind::tex_coord
+			);
+			vs.output(
+				ShaderParameterType::vec2,
+				"cube_TexCoord" + std::to_string(idx),
+				ContentKind::tex_coord
+			);
+			fs.input(
+				ShaderParameterType::vec2,
+				"cube_TexCoord" + std::to_string(idx),
+				ContentKind::tex_coord
+			);
+			fs.parameter(
+				ShaderParameterType::sampler2d,
+				"cube_Texture" + std::to_string(idx)
+			);
+			idx += 1;
+		}
 		//etc::print("vertex shader:", vs.source());
 		//etc::print("fragment shader:", fs.source());
 
@@ -211,7 +267,7 @@ namespace cube { namespace gl { namespace material {
 			fs.shader()
 		);
 		return renderer::BindablePtr{
-			new Bindable{*this, std::move(shader_program)}
+			new Bindable{*this, renderer, std::move(shader_program)}
 		};
 	}
 

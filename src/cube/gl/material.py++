@@ -96,6 +96,7 @@ BOOST_PYTHON_MODULE(material)
 		ADD_PROPERTY(shading_model)
 #undef ADD_PROPERTY
 		.def("add_color", &Material::add_color)
+		.def("add_texture", &Material::add_texture)
 		.def("bindable", &Material::bindable)
 	;
 
