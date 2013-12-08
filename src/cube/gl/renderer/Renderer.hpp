@@ -57,7 +57,7 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Retreive the current_state.
 		 */
-		State& current_state();
+		std::weak_ptr<State> current_state();
 
 		/**
 		 * Cleanup unused resources.

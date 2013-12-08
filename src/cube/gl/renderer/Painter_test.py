@@ -209,6 +209,18 @@ def painter_test(mode, delta = 0.01):
 
 class _(PainterSetup, TestCase):
 
+    def test_state_stack(self):
+        with self.renderer.begin(mode_2d) as p:
+            s = p.state
+            self.assertIsNotNone(s)
+            self.assertEqual(s, p.state)
+            s2 = p.push_state()
+            self.assertNotEqual(s, s2)
+            self.assertEqual(s2, p.state)
+            p.pop_state()
+            self.assertEqual(s, p.state)
+
+
     @painter_test(mode_2d, delta = 0.06)
     def test_simple(self, painter):
         with painter.bind([self.shader, self.vb]):

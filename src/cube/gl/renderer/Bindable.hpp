@@ -11,8 +11,8 @@ namespace cube { namespace gl { namespace renderer {
 	class CUBE_API Bindable
 	{
 	private:
-		etc::size_type _bound;
-		State*         _bound_state;
+		etc::size_type         _bound;
+		std::shared_ptr<State> _bound_state;
 
 	public:
 		Bindable() ETC_NOEXCEPT;
@@ -56,6 +56,8 @@ namespace cube { namespace gl { namespace renderer {
 		 * Returns the bound state.
 		 */
 		State& bound_state();
+		inline std::shared_ptr<State> const& shared_state()
+		{ return _bound_state; }
 
 	public:
 		/**
@@ -105,7 +107,11 @@ namespace cube { namespace gl { namespace renderer {
 		Bindable& _bindable;
 
 	public:
-		Guard(Bindable& bindable, State& state);
+		Guard(Bindable& bindable, std::shared_ptr<State> const& state);
+		inline
+		Guard(Bindable& bindable, std::weak_ptr<State> const& state)
+			: Guard{bindable, state.lock()}
+		{}
 		~Guard();
 	};
 

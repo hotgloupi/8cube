@@ -10,7 +10,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	Bindable::Bindable() ETC_NOEXCEPT
 		: _bound{0}
-		, _bound_state{nullptr}
+		, _bound_state{}
 	{}
 
 	Bindable::~Bindable()
@@ -23,15 +23,18 @@ namespace cube { namespace gl { namespace renderer {
 		return *_bound_state;
 	}
 
-	Bindable::Guard::Guard(Bindable& bindable, State& state)
+	Bindable::Guard::Guard(Bindable& bindable,
+	                       std::shared_ptr<State> const& state)
 		: _bindable(bindable)
 	{
+		if (state == nullptr)
+			throw Exception{"Cannot bind with a null state"};
 		if (_bindable._bound_state != nullptr &&
-		    _bindable._bound_state != &state)
+		    _bindable._bound_state != state)
 			throw Exception{
 				"Cannot bind the same object to two different state"
 			};
-		_bindable._bound_state = &state;
+		_bindable._bound_state = state;
 		_bindable._bind(Bindable::internal_method);
 	}
 
@@ -54,7 +57,7 @@ namespace cube { namespace gl { namespace renderer {
 			};
 
 			Dummy dummy;
-			State state(Mode::_2d);
+			auto state = std::make_shared<State>(Mode::_2d);
 			ETC_ENFORCE_EQ(dummy.bound(), 0);
 			ETC_ENFORCE_EQ(dummy.called, 0);
 			{
@@ -86,7 +89,7 @@ namespace cube { namespace gl { namespace renderer {
 			};
 
 			Dummy dummy;
-			State state(Mode::_2d);
+			auto state = std::make_shared<State>(Mode::_2d);
 
 			try {
 				Bindable::Guard g(dummy, state);

@@ -41,7 +41,7 @@ namespace cube { namespace gl { namespace material {
 			void _bind() override
 			{
 				auto& shader = *_shader_program;
-				_bind_guard.reset(shader, this->bound_state());
+				_bind_guard.reset(shader, this->shared_state());
 				shader["cube_MVP"] = this->bound_state().mvp();
 				shader["cube_Ambient"] = _material.ambient();
 

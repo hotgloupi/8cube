@@ -34,18 +34,27 @@
 # undef isalpha
 # undef isalnum
 
-# include <boost/python.hpp>
 
 # include <memory>
 
 namespace boost { namespace python {
 
+	template<class T>
+	T* get_pointer(std::weak_ptr<T> const& ptr)
+	{ return ptr.lock().get(); };
+
+}}
+
+# include <boost/python.hpp>
+
+namespace boost { namespace python {
+
 	// Register std::unique_ptr as an HelderType
 	template<class T>
-	struct pointee<std::unique_ptr<T>>
-	{
-		typedef T type;
-	};
+	struct pointee<std::unique_ptr<T>> { typedef T type; };
+
+	template<class T>
+	struct pointee<std::weak_ptr<T>> { typedef T type; };
 
 	template<typename T>
 	std::string stringof(T const& val)

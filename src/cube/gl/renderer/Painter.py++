@@ -166,12 +166,12 @@ BOOST_PYTHON_MODULE(Painter)
 		.def("draw", &Wrap::Painter::draw_list)
 		.add_property(
 			"state",
-			py::make_function(
-				&Painter::state,
-				py::return_internal_reference<>()
-			)
+			&Painter::state
 		)
-		.def("push_state", &Painter::push_state, py::return_internal_reference<>())
+		.def(
+			"push_state",
+			&Painter::push_state
+		)
 		.def("pop_state", &Painter::pop_state)
 	;
 

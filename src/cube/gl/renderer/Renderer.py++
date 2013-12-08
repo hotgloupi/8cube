@@ -310,10 +310,7 @@ BOOST_PYTHON_MODULE(Renderer)
 		)
 		.add_property(
 			"state",
-			py::make_function(
-				&Renderer::current_state,
-				py::return_internal_reference<>()
-			)
+			&Renderer::current_state
 		)
 		.def(
 			"new_vertex_buffer",

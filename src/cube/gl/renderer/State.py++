@@ -1,6 +1,27 @@
 #include "State.hpp"
-
+#include <etc/print.hpp>
 #include <wrappers/boost/python.hpp>
+
+namespace {
+
+	using namespace ::cube::gl::renderer;
+	bool compare_state(State const& lhs, State const& rhs)
+	{ return &lhs == &rhs; }
+
+	class StateHolder
+	{
+	private:
+		std::shared_ptr<State> _state;
+
+	public:
+		StateHolder(Mode const mode)
+			: _state{new State{mode}}
+		{}
+
+		std::weak_ptr<State> state() { return _state; }
+	};
+
+}
 
 BOOST_PYTHON_MODULE(State)
 {
@@ -10,8 +31,22 @@ BOOST_PYTHON_MODULE(State)
 	typedef State& (State::*set_matrix_t)(matrix_type const&);
 	typedef matrix_type const& (State::*get_matrix_t)() const;
 
-	py::class_<State, boost::noncopyable>("State", py::init<Mode>())
+	py::class_<StateHolder, boost::noncopyable>("StateHolder", py::init<Mode>())
+		.add_property(
+			"state",
+			py::make_function(
+				&StateHolder::state,
+				py::return_value_policy<
+					py::return_by_value,
+					py::with_custodian_and_ward_postcall<0, 1>
+				>()
+			)
+		)
+	;
 
+	py::class_<State, boost::noncopyable, std::weak_ptr<State>>(
+		"State", py::no_init
+	)
 # define EXPORT_STATE_MATRIX(__name)                                          \
 		.add_property(                                                        \
 			#__name,                                                          \
@@ -42,5 +77,6 @@ BOOST_PYTHON_MODULE(State)
 		.def("look_at", &State::look_at, py::return_self<>())
 		.def("perspective", &State::perspective, py::return_self<>())
 		.def("ortho", &State::ortho, py::return_self<>())
+		.def("__eq__", compare_state)
 	;
 }

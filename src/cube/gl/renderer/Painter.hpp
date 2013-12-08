@@ -27,7 +27,6 @@ namespace cube { namespace gl { namespace renderer {
 	{
 	private:
 		Renderer&               _renderer;
-		State*                  _current_state;
 		etc::size_type          _state_count;
 		std::set<Bindable*>     _bound_drawables;
 
@@ -41,9 +40,7 @@ namespace cube { namespace gl { namespace renderer {
 		friend class Renderer;
 
 	public:
-		inline
-		State& state()
-		{ return *_current_state; }
+		std::weak_ptr<State> state();
 
 		/**
 		 * Push a new state bound to this painter. When the painter is
@@ -52,7 +49,7 @@ namespace cube { namespace gl { namespace renderer {
 		 *
 		 * The returned new state is an exact copy of the current one.
 		 */
-		State& push_state();
+		std::weak_ptr<State> push_state();
 
 		/**
 		 * Pop a previously pushed state. If there is no more state to pop, an
@@ -153,7 +150,7 @@ namespace cube { namespace gl { namespace renderer {
 			, _guards{{
 				Bindable::Guard{
 					std::forward<Args>(bindables),
-					self.state(),
+					self.state().lock(),
 				}...
 			}}
 		{}

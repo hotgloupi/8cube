@@ -19,13 +19,11 @@ namespace cube { namespace gl { namespace renderer {
 	// Painter class
 	Painter::Painter(Renderer& renderer)
 		: _renderer(renderer)
-		, _current_state(&_renderer.current_state())
 		, _state_count{1}
 	{ ETC_TRACE_CTOR(); }
 
 	Painter::Painter(Painter&& other)
 		: _renderer(other._renderer)
-		, _current_state(other._current_state)
 		, _state_count{other._state_count}
 		, _bound_drawables{}
 	{
@@ -45,13 +43,15 @@ namespace cube { namespace gl { namespace renderer {
 			_renderer._pop_state();
 	}
 
-	State& Painter::push_state()
+	std::weak_ptr<State> Painter::state()
+	{ return _renderer.current_state(); }
+
+	std::weak_ptr<State> Painter::push_state()
 	{
 		ETC_TRACE.debug(*this, "Pushing new state");
-		_renderer._push_state(State(*_current_state));
+		_renderer._push_state(State{*this->state().lock()});
 		_state_count += 1;
-		_current_state = &_renderer.current_state();
-		return *_current_state;
+		return this->state();
 	}
 
 	void Painter::pop_state()
@@ -60,7 +60,6 @@ namespace cube { namespace gl { namespace renderer {
 		ETC_ENFORCE_GT(_state_count, 1);
 		_renderer._pop_state();
 		_state_count -= 1;
-		_current_state = &_renderer.current_state();
 	}
 
 	void Painter::draw_elements(DrawMode mode,

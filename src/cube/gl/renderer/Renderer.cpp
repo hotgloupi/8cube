@@ -15,6 +15,7 @@
 #include <cube/resource/Manager.hpp>
 #include <cube/system/window.hpp>
 
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
 
 namespace cube { namespace gl { namespace renderer {
@@ -34,7 +35,7 @@ namespace cube { namespace gl { namespace renderer {
 	struct Renderer::Impl
 	{
 		system::window::RendererContext& context;
-		std::vector<State> states;
+		std::vector<std::shared_ptr<State>> states;
 		ShaderGeneratorPtr shader_generator;
 		resource::Manager  resource_manager;
 
@@ -61,7 +62,7 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		ETC_TRACE_DTOR();
 		assert(_this->states.size() == 1);
-		assert(_this->states.back().mode == Mode::none);
+		assert(_this->states.back()->mode == Mode::none);
 		_pop_state();
 	}
 
@@ -77,20 +78,20 @@ namespace cube { namespace gl { namespace renderer {
 	void
 	Renderer::update_projection_matrix()
 	{
+		auto state = this->current_state().lock();
 		CUBE_DEBUG_PERFORMANCE_SECTION("cube.Renderer");
 		ETC_TRACE.debug("Update projection matrix with for ", _viewport,
-		                "in mode", this->current_state().mode);
-		switch (this->current_state().mode)
+		                "in mode", state->mode);
+		switch (state->mode)
 		{
 		case Mode::none:
 			break;
 		case Mode::_2d:
-			this->current_state().ortho(
+			state->ortho(
 				_viewport.x, _viewport.w - _viewport.x,
 				_viewport.h - _viewport.y, _viewport.y
 			);
-			ETC_LOG.debug("New mvp matrix:",
-			              this->current_state().mvp());
+			ETC_LOG.debug("New mvp matrix:", state->mvp());
 			break;
 		case Mode::_3d:
 			break;
@@ -126,11 +127,11 @@ namespace cube { namespace gl { namespace renderer {
 		this->update_projection_matrix();
 	}
 
-	State& Renderer::current_state()
+	std::weak_ptr<State> Renderer::current_state()
 	{
 		if (_this->states.size() == 0)
 			throw Exception{"No state available"};
-		return _this->states.back();
+		return std::weak_ptr<State>{_this->states.back()};
 	}
 
 	void Renderer::flush()
@@ -139,12 +140,15 @@ namespace cube { namespace gl { namespace renderer {
 	void Renderer::_push_state(State&& state)
 	{
 		ETC_TRACE.debug("Pushing new state");
-		_this->states.push_back(std::move(state));
+		_this->states.emplace_back(new State(std::move(state)));
 	}
 
 	void Renderer::_pop_state()
 	{
 		ETC_TRACE.debug("pop state");
+		ETC_ASSERT_GT(_this->states.size(), 0);
+		if (_this->states.back().use_count() > 1)
+			throw Exception{"Cannot pop a state in use"};
 		_this->states.pop_back();
 	}
 
