@@ -95,7 +95,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				surface.width(),
 				surface.height(),
 				0,
-				GL_BGRA,
+				bpp == 3 ? GL_BGR : GL_BGRA,
 				GL_UNSIGNED_BYTE,
 				surface.pixels()
 			);
