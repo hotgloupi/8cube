@@ -123,28 +123,3 @@ class _(PainterSetup, TestCase):
         painter.state.rotate(angle.deg(32), gl.vec3f(0, 1, 0))
         with painter.bind([material.bindable(self.renderer)]):
             painter.draw([cube_view])
-
-  #  @painter_test(gl.mode_3d)
-  #  def test_cube_light(self, painter):
-  #      material = Material()
-  #      cube_view = self.cube.view(self.renderer)
-  #      painter.state.look_at(
-  #          gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
-  #      )
-  #      painter.state.perspective(
-  #          35, 200 / 200, 0.005, 30.0
-  #      )
-  #      painter.state.rotate(angle.deg(self.deg), gl.vec3f(0, 1, 0))
-  #      self.deg += 1
-  #      light = self.renderer.new_light(
-  #          gl.PointLightInfo(
-  #              gl.vec3f(-1, -1, 0),
-  #              gl.Color3f("red"),
-  #              gl.Color3f("blue"),
-  #              gl.Color3f("green"),
-  #          )
-  #      )
-  #      with painter.bind([light, material.bindable(self.renderer)]):
-  #          painter.draw([cube_view])
-
-
