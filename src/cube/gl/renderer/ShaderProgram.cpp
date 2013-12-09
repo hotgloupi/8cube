@@ -33,13 +33,29 @@ namespace cube { namespace gl { namespace renderer {
 		{
 			auto it = _bound_textures.find(&tex);
 			if (it == _bound_textures.end())
-				texture_unit = _bound_textures[&tex] = _bound_textures.size();
+			{
+				texture_unit = _bound_textures.size();
+				_bound_textures[&tex] = texture_unit;
+				ETC_LOG.debug(
+					"First time binding", tex, "to unit", texture_unit
+				);
+			}
 			else
-				texture_unit = _bound_textures[&tex];
+			{
+				texture_unit = it->second;
+				ETC_LOG.debug(
+					tex, "assigned to unit", texture_unit
+				);
+			}
 		}
 
 		tex.bind_unit(texture_unit, param);
+	}
 
+	void ShaderProgram::_unbind() ETC_NOEXCEPT
+	{
+		ETC_LOG.debug("Clear texture unit map");
+		_bound_textures.clear();
 	}
 
 	ShaderProgram::ParameterMap&
@@ -83,35 +99,5 @@ namespace cube { namespace gl { namespace renderer {
 			return nullptr;
 		return it->second.get();
 	}
-
-	//void
-	//ShaderProgram::update(State const& state)
-	//{
-	//	ETC_TRACE.debug("Update shader parameters from state");
-	//	struct MatrixGetter
-	//	{
-	//		std::string name;
-	//		matrix_type const& (State::*getter)() const;
-	//	};
-	//	static MatrixGetter matrix_get[] = {
-	//		{"cube_ModelMatrix", &State::model},
-	//		{"cube_ViewMatrix", &State::view},
-	//		{"cube_ProjectionMatrix", &State::projection},
-	//		{"cube_ModelViewProjectionMatrix", &State::mvp},
-	//	};
-
-	//	Guard guard(*this);
-	//	auto& map = _parameters();
-	//	auto end = map.end();
-	//	for (auto const& matrix: matrix_get)
-	//	{
-	//		auto it = map.find(matrix.name);
-	//		if (it != end)
-	//		{
-	//			assert(it->second != nullptr);
-	//			*(it->second) = (state.*(matrix.getter))(); // beuark
-	//		}
-	//	}
-	//}
 
 }}} // !cube::gl::renderer

@@ -124,6 +124,8 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		ParameterMap& _parameters();
 
+		void _unbind() ETC_NOEXCEPT override;
+
 		friend struct InternalGuard<ShaderProgram>;
 		typedef InternalGuard<ShaderProgram> Guard;
 
