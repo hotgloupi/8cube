@@ -7,18 +7,18 @@ class _(PainterSetup, TestCase):
     class VSRoutine(gl.ShaderRoutine):
         def source(self, lang):
             return """
-                gl_Position = cube_MVP * vec4(cube_Vertex, 1);
-                gl_TexCoord[0] = vec4(cube_TexCoord0, 1);
+                gl_Position = cube_MVP * vec4(cube_Vertex, 0, 1);
+                gl_TexCoord[0] = vec4(cube_TexCoord0, 0, 1);
             """
 
     vs_inputs = [
         (
-            gl.ShaderParameterType.vec3,
+            gl.ShaderParameterType.vec2,
             "cube_Vertex",
             gl.ContentKind.vertex
         ),
         (
-            gl.ShaderParameterType.vec3,
+            gl.ShaderParameterType.vec2,
             "cube_TexCoord0",
             gl.ContentKind.tex_coord0
         ),
@@ -29,7 +29,8 @@ class _(PainterSetup, TestCase):
     class FSRoutine(gl.ShaderRoutine):
         def source(self, lang):
             return """
-                cube_FragColor = texture2D(sampler0, vec2(gl_TexCoord[0]));
+                vec4 color = texture2D(sampler0, vec2(gl_TexCoord[0]));
+                cube_FragColor = color;
             """
 
     fs_parameters = [
@@ -94,4 +95,13 @@ class _(PainterSetup, TestCase):
     def test_simple_load(self, painter):
         with painter.bind([self.texture, self.shader, self.vb]):
             self.shader['cube_MVP'] = painter.state.mvp
+            self.shader['sampler0'] = self.texture
             painter.draw_elements(gl.DrawMode.quads, self.indices, 0, 4)
+
+    @painter_test(gl.mode_2d)
+    def test_draw_arrays(self, painter):
+        with painter.bind([self.texture, self.shader]):
+            self.shader['cube_MVP'] = painter.state.mvp
+            self.shader['sampler0'] = self.texture
+            painter.draw_arrays(gl.DrawMode.quads, self.vb, 0, 4)
+
