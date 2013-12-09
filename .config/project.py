@@ -414,16 +414,13 @@ def configure(project, build):
                     build.fs.copy(lib, dest_dir = 'release/bin')
 
 
-    for src in rglob("cube/*.py", dir = 'src'):
-        build.fs.copy(src, 'release/lib/python/' + src[4:])
+    exts = ['py', 'bmp', 'ttf']
 
-    for src in rglob("cubeapp/*.py", dir = 'src'):
-        build.fs.copy(src, 'release/lib/python/' + src[4:])
-
-    for src in rglob("cube/*.bmp", dir = 'src'):
-        build.fs.copy(src, 'release/lib/python/' + src[4:])
-    for src in rglob("cubeapp/*.bmp", dir = 'src'):
-        build.fs.copy(src, 'release/lib/python/' + src[4:])
+    for ext in exts:
+        for src in rglob("cube/*.%s" % ext, dir = 'src'):
+            build.fs.copy(src, 'release/lib/python/' + src[4:])
+        for src in rglob("cubeapp/*.%s" % ext, dir = 'src'):
+            build.fs.copy(src, 'release/lib/python/' + src[4:])
 
     for src in rglob("games/*.py", dir = 'share'):
         build.fs.copy(src, 'release/share/8cube/' + src[6:])
