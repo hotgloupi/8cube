@@ -11,6 +11,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		: public renderer::ShaderProgram
 	{
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgram");
+	public:
+		typedef renderer::ShaderProgram Super;
 	private:
 		GLuint          _id;
 

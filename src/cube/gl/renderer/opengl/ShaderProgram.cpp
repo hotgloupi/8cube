@@ -131,6 +131,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	void ShaderProgram::_unbind() ETC_NOEXCEPT
 	{
+		Super::_unbind();
 		ETC_TRACE.debug(*this, "Unbind current shader program", _id);
 		gl::UseProgram<gl::no_throw>(0);
 	}
