@@ -36,8 +36,8 @@ namespace cube { namespace gl { namespace text {
 	void Text::draw(renderer::Painter& painter,
 	                renderer::ShaderProgramParameter& sampler)
 	{
-		auto proxy = painter.with(_font.texture());
-		sampler = _font.texture();
+		auto proxy = painter.with(*_font.texture());
+		sampler = *_font.texture();
 		proxy->draw_arrays(renderer::DrawMode::quads, *_vertices);
 	}
 
