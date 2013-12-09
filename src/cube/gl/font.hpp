@@ -55,7 +55,7 @@ namespace cube { namespace gl { namespace font {
 		 *          bound. however, you can safely keep a reference to it, it
 		 *          will be updated inplace.
 		 */
-		renderer::Texture& texture();
+		renderer::TexturePtr& texture();
 	};
 
 

@@ -9,9 +9,11 @@
 #include "surface.hpp"
 #include "vector.hpp"
 
+#include <etc/assert.hpp>
 #include <etc/compiler.hpp>
 #include <etc/log.hpp>
 #include <etc/memory.hpp>
+#include <etc/stack_ptr.hpp>
 
 #include <wrappers/freetype.hpp>
 
@@ -187,7 +189,7 @@ namespace cube { namespace gl { namespace font {
 				, _glyphs{}
 				, _full{false}
 				, _face(face)
-				, _texture_size{1024, 1024}
+				, _texture_size{512, 512}
 				, _texture{renderer.new_texture(
 				    surface::Surface{
 						renderer::PixelFormat::rgba,
@@ -213,7 +215,10 @@ namespace cube { namespace gl { namespace font {
 				return _tex_coords[index];
 			}
 
-			renderer::Texture& texture() { return *_texture.get(); }
+			renderer::TexturePtr& texture() { return _texture; }
+
+			bool has_glyph(uint32_t c)
+			{ return _glyphs.find(c) != _glyphs.end(); }
 
 			Glyph& get_glyph(uint32_t c)
 			{
@@ -227,7 +232,7 @@ namespace cube { namespace gl { namespace font {
 
 			Glyph& _gen_glyph(uint32_t c)
 			{
-				auto dbg = ETC_LOG.debug("Generate glyph", c, "at", _pen, "with id =", _next_id);
+				ETC_TRACE.debug("Generate glyph", c, "at", _pen, "with id =", _next_id);
 				_vertex_buffer.reset(); // tex coord buffer needs to be regenerated
 
 				_glyphs[c].reset(new Glyph(_face, c, _next_id++));
@@ -239,25 +244,26 @@ namespace cube { namespace gl { namespace font {
 				if (glyph.size.y > _max_line_height)
 					_max_line_height = (etc::size_type) glyph.size.y;
 
-				dbg("glyph size:", glyph.bitmap.width, ',', glyph.bitmap.rows);
+				ETC_LOG.debug("glyph size:", glyph.bitmap.width, ',', glyph.bitmap.rows);
 
 				_tex_coords.emplace_back(
 					_pen.x / _texture_size.x,
 					_pen.y / _texture_size.y
 				);
 				_tex_coords.emplace_back(
-					(_pen.x + glyph.bitmap.width) / _texture_size.x,
-					_pen.y / _texture_size.y
-				);
-				_tex_coords.emplace_back(
-					(_pen.x + glyph.bitmap.width) / _texture_size.x,
-					(_pen.y + glyph.bitmap.rows) / _texture_size.y
-				);
-				_tex_coords.emplace_back(
 					_pen.x / _texture_size.x,
 					(_pen.y + glyph.bitmap.rows) / _texture_size.y
 				);
+				_tex_coords.emplace_back(
+					(_pen.x + glyph.bitmap.width) / _texture_size.x,
+					(_pen.y + glyph.bitmap.rows) / _texture_size.y
+				);
+				_tex_coords.emplace_back(
+					(_pen.x + glyph.bitmap.width) / _texture_size.x,
+					_pen.y / _texture_size.y
+				);
 				std::vector<uint8_t> buffer(glyph.bitmap.width * glyph.bitmap.rows * 4);
+				ETC_ASSERT_EQ(buffer.size(), glyph.bitmap.width * glyph.bitmap.rows * 4);
 				for (int i = 0; i < glyph.bitmap.width; ++i)
 					for (int j = 0; j < glyph.bitmap.rows; ++j)
 					{
@@ -311,12 +317,16 @@ namespace cube { namespace gl { namespace font {
 
 
 		template<typename CharType>
+		bool has_glyph(CharType c)
+		{ return _glyphs.has_glyph(c); }
+
+		template<typename CharType>
 		freetype::Glyph& get_glyph(CharType c)
 		{
 			return _glyphs.get_glyph(c);
 		}
 
-		renderer::Texture& texture()
+		renderer::TexturePtr& texture()
 		{
 			return _glyphs.texture();
 		}
@@ -338,22 +348,40 @@ namespace cube { namespace gl { namespace font {
 	renderer::VertexBufferPtr
 	Font::generate_text(std::basic_string<CharType> const& str)
 	{
+		ETC_TRACE.debug("Generate text of", str);
 		std::vector<vector::Vector2f>   vertices(str.size() * 4);
 		std::vector<vector::Vector2f>   tex_coords(str.size() * 4);
 
 		vector::Vector2f pos{0,0};
 
 		vector::Vector2f max_offset{0, 0};
-		for (auto c: str)
+
 		{
-			freetype::Glyph& glyph = _impl->get_glyph(c);
-			if (glyph.offset.x > max_offset.y)
-				max_offset.x = glyph.offset.y;
-			if (glyph.offset.y > max_offset.y)
-				max_offset.y = glyph.offset.y;
+			// Compute max offset and generate all glyphs.
+			etc::stack_ptr<renderer::Bindable::Guard> guard{etc::stack_ptr_no_init};
+			for (auto c: str)
+			{
+				if (!_impl->has_glyph(c))
+				{
+					// Bind texture once and for all.
+					guard.reset(
+						*this->texture(),
+						_impl->renderer.current_state().lock()
+					);
+				}
+				freetype::Glyph& glyph = _impl->get_glyph(c);
+				if (glyph.offset.x > max_offset.x)
+					max_offset.x = glyph.offset.x;
+				if (glyph.offset.y > max_offset.y)
+					max_offset.y = glyph.offset.y;
+			}
+			guard.clear();
+			ETC_LOG.debug("Computed max offset:", max_offset);
 		}
+
 		for (etc::size_type i = 0; i < str.size(); ++i)
 		{
+			ETC_LOG.debug("Adding char", str[i]);
 			freetype::Glyph& glyph = _impl->get_glyph(str[i]);
 
 			etc::size_type idx0 = i * 4 + 0;
@@ -365,9 +393,16 @@ namespace cube { namespace gl { namespace font {
 			{
 				vector::Vector2f orig(pos.x + glyph.offset.x, pos.y + (max_offset.y - glyph.offset.y));
 				vertices[idx0] = orig;
-				vertices[idx1] = vector::Vector2f(orig.x + glyph.size.x, orig.y);
+				vertices[idx1] = vector::Vector2f(orig.x, orig.y + glyph.size.y);
 				vertices[idx2] = vector::Vector2f(orig.x + glyph.size.x, orig.y + glyph.size.y);
-				vertices[idx3] = vector::Vector2f(orig.x, orig.y + glyph.size.y);
+				vertices[idx3] = vector::Vector2f(orig.x + glyph.size.x, orig.y);
+				ETC_LOG.debug(
+					"Stored vertices",
+					vertices[idx0],
+					vertices[idx1],
+					vertices[idx2],
+					vertices[idx3]
+				);
 			}
 
 			pos.x += glyph.advance.x;
@@ -415,7 +450,7 @@ namespace cube { namespace gl { namespace font {
 	renderer::VertexBufferPtr
 	Font::generate_text<char32_t>(std::basic_string<char32_t> const& str);
 
-	renderer::Texture& Font::texture()
+	renderer::TexturePtr& Font::texture()
 	{
 		return _impl->texture();
 	}

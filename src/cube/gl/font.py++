@@ -116,7 +116,10 @@ BOOST_PYTHON_MODULE(font)
 			"texture",
 			py::make_function(
 				&font::Font::texture,
-				py::return_internal_reference<>()
+				py::return_value_policy<
+					py::return_by_value,
+					py::with_custodian_and_ward_postcall<0, 1>
+				>()
 			)
 		)
 	;
