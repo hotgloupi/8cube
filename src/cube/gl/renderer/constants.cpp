@@ -44,6 +44,25 @@ namespace cube { namespace gl { namespace renderer {
 		return out;
 	}
 
+	std::ostream& operator <<(std::ostream& out, TextureFilter const filter)
+	{
+		switch (filter)
+		{
+#define _CASE(name)                                                           \
+		case TextureFilter::name:                                             \
+			out << "TextureFilter::" #name;                                   \
+			break                                                             \
+/**/
+		_CASE(linear);
+		_CASE(nearest);
+#undef _CASE
+		default:
+			out << "Unknown TextureFilter value";
+		}
+		return out;
+
+	}
+
 	std::ostream& operator <<(std::ostream& out, LightKind const kind)
 	{
 		switch (kind)

@@ -105,26 +105,41 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			struct Texture
 				: public gl::renderer::Texture
 			{
+				typedef gl::renderer::Texture Super;
+				typedef gl::renderer::TextureFilter TextureFilter;
 				SDL_Texture* _texture;
 
 				inline
-				Texture(SDL_Texture* texture) ETC_NOEXCEPT
-					: _texture{texture}
+				Texture(etc::size_type const width,
+				        etc::size_type const height,
+				        SDL_Texture* texture) ETC_NOEXCEPT
+					: Super{width, height}
+					, _texture{texture}
 				{}
 
 				void
-				set_data(unsigned int x,
-						 unsigned int y,
-						 unsigned int width,
-						 unsigned int height,
-						 gl::renderer::PixelFormat const data_format,
-						 gl::renderer::ContentPacking const data_packing,
-						 void const* data) override
+				set_data(unsigned int,
+						 unsigned int,
+						 unsigned int,
+						 unsigned int,
+						 gl::renderer::PixelFormat const,
+						 gl::renderer::ContentPacking const,
+						 void const*) override
 				{ throw Exception{"Not implemented"}; }
 
 				void
-				bind_unit(etc::size_type unit,
-				          gl::renderer::ShaderProgramParameter& param)
+				bind_unit(etc::size_type,
+				          gl::renderer::ShaderProgramParameter&)
+				{ throw Exception{"Not implemented"}; }
+				void mag_filter(TextureFilter const) override
+				{ throw Exception{"Not implemented"}; }
+				void min_filter(TextureFilter const) override
+				{ throw Exception{"Not implemented"}; }
+				void min_filter_bilinear(TextureFilter const) override
+				{ throw Exception{"Not implemented"}; }
+				void min_filter_trilinear(TextureFilter const) override
+				{ throw Exception{"Not implemented"}; }
+				void generate_mipmap(etc::size_type const) override
 				{ throw Exception{"Not implemented"}; }
 
 				void _bind() override
@@ -136,7 +151,9 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				{ SDL_GL_UnbindTexture(_texture); }
 			};
 
-			return gl::renderer::TexturePtr{new Texture{_texture}};
+			return gl::renderer::TexturePtr{
+				new Texture{_width, _height, _texture}
+			};
 		}
 
 		void

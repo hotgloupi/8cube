@@ -12,9 +12,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	class Texture
 		: public renderer::Texture
 	{
+	public:
+		typedef renderer::Texture Super;
 	private:
 		GLuint          _id;
 		etc::size_type  _unit;
+		bool            _has_mipmaps;
 
 	public:
 		Texture(surface::Surface const& surface);
@@ -33,6 +36,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		         renderer::PixelFormat const data_format,
 		         renderer::ContentPacking const data_packing,
 		         void const* data) override;
+		void mag_filter(TextureFilter const filter) override;
+		void min_filter(TextureFilter const filter) override;
+		void min_filter_bilinear(TextureFilter const filter) override;
+		void min_filter_trilinear(TextureFilter const filter) override;
+		void generate_mipmap(etc::size_type const levels) override;
 	protected:
 		void _bind() override;
 		void _unbind() ETC_NOEXCEPT override;

@@ -36,6 +36,11 @@ BOOST_PYTHON_MODULE(constants)
 		.value("tex_coord2", ContentKind::tex_coord2)
 	;
 
+	py::enum_<TextureFilter>("TextureFilter")
+		.value("linear", TextureFilter::linear)
+		.value("nearest", TextureFilter::nearest)
+	;
+
 	py::enum_<ShaderLanguage>("ShaderLanguage")
 		.value("glsl", ShaderLanguage::glsl)
 		.value("hlsl", ShaderLanguage::hlsl)

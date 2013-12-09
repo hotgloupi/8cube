@@ -5,6 +5,8 @@
 
 #include <cube/gl/surface.hpp>
 
+#include <etc/assert.hpp>
+#include <etc/scope_exit.hpp>
 #include <etc/to_string.hpp>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
@@ -12,12 +14,17 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Texture");
 
 	Texture::Texture(surface::Surface const& surface)
-		: _id(0)
+		: Super{surface.width(), surface.height()}
+		, _id(0)
 		, _unit(-1)
+		, _has_mipmaps{false}
 	{
 		ETC_TRACE_CTOR();
 		gl::GenTextures(1, &_id);
-		gl::BindTexture(GL_TEXTURE_2D, _id);
+		auto cleanup = etc::scope_exit([&] {
+			gl::DeleteTextures<gl::no_throw>(1, &_id);
+		});
+		Guard bind_guard(*this);
 		int bpp = surface.bytes_per_pixel();
 		if (bpp != 3 && bpp != 4)
 			throw Exception{etc::to_string(
@@ -100,11 +107,105 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				surface.pixels()
 			);
 		}
+		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		cleanup.dismiss();
+	}
+
+	void Texture::mag_filter(TextureFilter const filter)
+	{
+		Guard guard(*this);
+		switch (filter)
+		{
+		case TextureFilter::nearest:
+			gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+		case TextureFilter::linear:
+			gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		default:
+			throw Exception{"Unknown filter value"};
+		}
+	}
+
+	void Texture::min_filter(TextureFilter const filter)
+	{
+		Guard guard(*this);
+		switch (filter)
+		{
+		case TextureFilter::nearest:
+			gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			break;
+		case TextureFilter::linear:
+			gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			break;
+		default:
+			throw Exception{"Unknown filter value"};
+		}
+	}
+
+	void Texture::min_filter_bilinear(TextureFilter const filter)
+	{
+		if (!_has_mipmaps)
+			throw Exception{"Cannot set a bilinear filter without mipmap"};
+		Guard guard(*this);
+		switch (filter)
+		{
+		case TextureFilter::nearest:
+			gl::TexParameteri(
+				GL_TEXTURE_2D,
+				GL_TEXTURE_MIN_FILTER,
+				GL_NEAREST_MIPMAP_NEAREST
+			);
+			break;
+		case TextureFilter::linear:
+			gl::TexParameteri(
+				GL_TEXTURE_2D,
+				GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_NEAREST
+			);
+			break;
+		default:
+			throw Exception{"Unknown filter value"};
+		}
+	}
+
+	void Texture::min_filter_trilinear(TextureFilter const filter)
+	{
+		if (!_has_mipmaps)
+			throw Exception{"Cannot set a trilinear filter without mipmap"};
+		Guard guard(*this);
+		switch (filter)
+		{
+		case TextureFilter::nearest:
+			gl::TexParameteri(
+				GL_TEXTURE_2D,
+				GL_TEXTURE_MIN_FILTER,
+				GL_NEAREST_MIPMAP_LINEAR
+			);
+			break;
+		case TextureFilter::linear:
+			gl::TexParameteri(
+				GL_TEXTURE_2D,
+				GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_LINEAR
+			);
+			break;
+		default:
+			throw Exception{"Unknown filter value"};
+		}
+	}
+
+	void Texture::generate_mipmap(etc::size_type const)
+	{
+		// XXX levels not used
+		Guard guard(*this);
 		gl::GenerateMipmap(GL_TEXTURE_2D);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		_has_mipmaps = true;
 	}
 
 	/*
@@ -175,7 +276,16 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	                  renderer::ContentPacking const data_packing,
 	                  void const* data)
 	{
-		ETC_TRACE.debug("Set data of texture", _id);
+		ETC_TRACE.debug(
+			"Set data of texture", _id,
+			"at", x, y, "of size", width, height,
+			data_format, data_packing
+		);
+		if (width == 0 || height == 0)
+			return;
+		if (width + x > this->width || height + y > this->height)
+			throw Exception{"Trying to write outside of the texture"};
+
 		Guard guard(*this);
 		gl::TexSubImage2D(GL_TEXTURE_2D, 0,
 		                  x, y, width, height,

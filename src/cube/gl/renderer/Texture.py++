@@ -21,5 +21,25 @@ BOOST_PYTHON_MODULE(Texture)
 			"bind_unit",
 			&Texture::bind_unit
 		)
+		.def(
+			"mag_filter",
+			&Texture::mag_filter
+		)
+		.def(
+			"min_filter",
+			&Texture::min_filter
+		)
+		.def(
+			"min_filter_bilinear",
+			&Texture::min_filter_bilinear
+		)
+		.def(
+			"min_filter_trilinear",
+			&Texture::min_filter_trilinear
+		)
+		.def(
+			"generate_mipmap",
+			static_cast<void(Texture::*)()>(&Texture::generate_mipmap)
+		)
 	;
 }

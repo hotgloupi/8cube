@@ -51,6 +51,16 @@ namespace cube { namespace gl { namespace renderer {
 	CUBE_API
 	std::ostream& operator <<(std::ostream& out, MatrixKind kind);
 
+	enum class TextureFilter
+	{
+		linear = 0,
+		nearest,
+
+		_max_value
+	};
+	CUBE_API
+	std::ostream& operator <<(std::ostream& out, TextureFilter const kind);
+
 	enum class LightKind
 	{
 		directional,
