@@ -103,3 +103,34 @@ class _(PainterSetup, TestCase):
             painter.draw([cube_view])
 
 
+    @painter_test(gl.mode_3d)
+    def test_texture_raw(self, painter):
+        material = Material()
+        import os
+        texture = self.renderer.new_texture(
+            gl.Surface(
+                os.path.join(os.path.dirname(__file__), "material_test.bmp")
+            )
+        )
+        texture.generate_mipmap()
+        texture.mag_filter(gl.TextureFilter.linear)
+        texture.min_filter_bilinear(gl.TextureFilter.linear)
+        material.add_texture(
+            texture,
+            gl.TextureType.ambient,
+            gl.TextureMapping.uv,
+            gl.StackOperation.add,
+            gl.TextureMapMode.wrap,
+            gl.BlendMode.basic
+        )
+        cube_view = self.cube.view(self.renderer)
+        painter.state.look_at(
+            gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
+        )
+        painter.state.perspective(
+            35, 200 / 200, 0.005, 30.0
+        )
+        painter.state.rotate(angle.deg(42), gl.vec3f(1, 1, 0))
+        self.deg += 1
+        with painter.bind([material.bindable(self.renderer)]):
+            painter.draw([cube_view])

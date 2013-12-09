@@ -24,6 +24,7 @@ BOOST_PYTHON_MODULE(material)
 {
 	namespace py = boost::python;
 	using namespace cube::gl::material;
+	namespace renderer = cube::gl::renderer;
 
 	py::enum_<TextureMapping>("TextureMapping")
 		.value("uv", TextureMapping::uv)
@@ -73,6 +74,20 @@ BOOST_PYTHON_MODULE(material)
 		.value("gouraud", ShadingModel::gouraud)
 	;
 
+	typedef void (Material::*add_texture_t)(renderer::TexturePtr&,
+	                                        TextureType,
+	                                        TextureMapping,
+	                                        StackOperation,
+	                                        TextureMapMode,
+	                                        float);
+
+	typedef void (Material::*add_texture_path_t)(std::string,
+	                                             TextureType,
+	                                             TextureMapping,
+	                                             StackOperation,
+	                                             TextureMapMode,
+	                                             float);
+
 	py::class_<Material, boost::noncopyable, MaterialPtr>("Material")
 		.def(py::init<std::string>())
 #define ADD_PROPERTY(__name) \
@@ -96,7 +111,14 @@ BOOST_PYTHON_MODULE(material)
 		ADD_PROPERTY(shading_model)
 #undef ADD_PROPERTY
 		.def("add_color", &Material::add_color)
-		.def("add_texture", &Material::add_texture)
+		.def(
+			"add_texture",
+			static_cast<add_texture_t>(&Material::add_texture)
+		)
+		.def(
+			"add_texture",
+			static_cast<add_texture_path_t>(&Material::add_texture)
+		)
 		.def("bindable", &Material::bindable)
 	;
 

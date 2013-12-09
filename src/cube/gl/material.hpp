@@ -74,6 +74,7 @@ namespace cube { namespace gl { namespace material {
 		struct TextureChannel
 		{
 			std::string path;
+			renderer::TexturePtr texture;
 			TextureType type;
 			TextureMapping mapping;
 			StackOperation operation;
@@ -86,6 +87,21 @@ namespace cube { namespace gl { namespace material {
 			               TextureMapMode map_mode,
 			               float blend)
 				: path{std::move(path)}
+				, texture{nullptr}
+				, type{type}
+				, mapping{mapping}
+				, operation{operation}
+				, map_mode{map_mode}
+				, blend{blend}
+			{}
+			TextureChannel(renderer::TexturePtr& texture,
+			               TextureType type,
+			               TextureMapping mapping,
+			               StackOperation operation,
+			               TextureMapMode map_mode,
+			               float blend)
+				: path{}
+				, texture{texture}
 				, type{type}
 				, mapping{mapping}
 				, operation{operation}
@@ -188,8 +204,27 @@ namespace cube { namespace gl { namespace material {
 			);
 		}
 
+		inline void add_texture(renderer::TexturePtr& texture,
+		                        TextureType type,
+		                        TextureMapping mapping,
+		                        StackOperation operation,
+		                        TextureMapMode map_mode,
+		                        float blend)
+		{
+			_textures.emplace_back(
+				texture,
+				type,
+				mapping,
+				operation,
+				map_mode,
+				blend
+			);
+		}
+
 		/// Texture channels stack.
 		inline TextureChannels const& textures() const ETC_NOEXCEPT
+		{ return _textures; }
+		inline TextureChannels& textures() ETC_NOEXCEPT
 		{ return _textures; }
 
 		/// Append a color channel.
@@ -203,7 +238,7 @@ namespace cube { namespace gl { namespace material {
 
 	public:
 		renderer::BindablePtr
-		bindable(renderer::Renderer& renderer) const;
+		bindable(renderer::Renderer& renderer);
 	};
 
 }}}

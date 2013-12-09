@@ -4,6 +4,7 @@
 #include <cube/gl/renderer/Bindable.hpp>
 #include <cube/gl/renderer/ShaderGenerator.hpp>
 #include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/Texture.hpp>
 #include <cube/gl/renderer/Light.hpp>
 #include <cube/gl/renderer.hpp>
 #include <cube/gl/surface.hpp>
@@ -28,69 +29,77 @@ namespace cube { namespace gl { namespace material {
 		struct Bindable
 			: public renderer::Bindable
 		{
-			Material const& _material;
+			Material& _material;
 			renderer::ShaderProgramPtr _shader_program;
-			etc::stack_ptr<Guard>  _bind_guard;
-			std::vector<renderer::TexturePtr> _textures;
+			std::vector<Guard> _guards;
 
-			Bindable(Material const& material,
+			Bindable(Material& material,
 			         renderer::Renderer& renderer,
 			         renderer::ShaderProgramPtr shader_program)
 				: _material(material)
 				, _shader_program{std::move(shader_program)}
-				, _bind_guard{etc::stack_ptr_no_init}
+				, _guards{}
 			{
-				for (auto const& ch: _material.textures())
+				_guards.reserve(1 + _material.textures().size());
+				for (Material::TextureChannel& ch: _material.textures())
 				{
-					_textures.emplace_back(
-						renderer.new_texture(
-							surface::Surface(ch.path)
-						)
-					);
+					if (ch.texture == nullptr)
+					{
+						if (ch.path.empty())
+							throw Exception{"Empty texture path"};
+						ch.texture = renderer.new_texture(
+						    surface::Surface(ch.path)
+						);
+					}
 				}
 			}
 
 			void _bind() override
 			{
 				auto& shader = *_shader_program;
-				_bind_guard.reset(shader, this->shared_state());
+				_guards.emplace_back(shader, this->shared_state());
 				shader["cube_MVP"] = this->bound_state().mvp();
 				shader["cube_Ambient"] = _material.ambient();
 
-				if (_material.shading_model() == ShadingModel::none)
-					return;
-				shader["cube_Diffuse"] = _material.diffuse();
-				shader["cube_Specular"] = _material.specular();
-				shader["cube_Shininess"] = _material.shininess();
-				int32_t point_light_idx = 0,
-				        spot_light_idx = 0,
-				        dir_light_idx = 0;
-				shader["cube_ModelView"] = this->bound_state().model_view();
-				shader["cube_Normal"] = this->bound_state().normal();
-				for (auto const& ref: this->bound_state().lights())
+				if (_material.shading_model() != ShadingModel::none)
 				{
-					auto const& light = ref.get();
-					if (light.kind == renderer::LightKind::point)
+					shader["cube_Diffuse"] = _material.diffuse();
+					shader["cube_Specular"] = _material.specular();
+					shader["cube_Shininess"] = _material.shininess();
+					int32_t point_light_idx = 0,
+							spot_light_idx = 0,
+							dir_light_idx = 0;
+					shader["cube_ModelView"] = this->bound_state().model_view();
+					shader["cube_Normal"] = this->bound_state().normal();
+					for (auto const& ref: this->bound_state().lights())
 					{
-						auto const& info = light.point();
-						shader["cube_PointLightPosition"][point_light_idx] = info.position;
-						shader["cube_PointLightDiffuse"][point_light_idx] =
-							info.diffuse;
-						shader["cube_PointLightSpecular"][point_light_idx] =
-							info.specular;
-						point_light_idx += 1;
+						auto const& light = ref.get();
+						if (light.kind == renderer::LightKind::point)
+						{
+							auto const& info = light.point();
+							shader["cube_PointLightPosition"][point_light_idx] = info.position;
+							shader["cube_PointLightDiffuse"][point_light_idx] =
+								info.diffuse;
+							shader["cube_PointLightSpecular"][point_light_idx] =
+								info.specular;
+							point_light_idx += 1;
+						}
 					}
+					shader["cube_PointLightCount"] = point_light_idx;
 				}
-				shader["cube_PointLightCount"] = point_light_idx;
 
 				int32_t idx = 0;
-				for (auto& tex: _textures)
-					shader["cube_Texture" + std::to_string(idx++)] = *tex;
+				for (auto& ch: _material.textures())
+				{
+					_guards.emplace_back(*ch.texture, this->shared_state());
+					shader["cube_Texture" + std::to_string(idx)] = *ch.texture;
+					idx += 1;
+				}
 			}
 
 			void _unbind() ETC_NOEXCEPT override
 			{
-				_bind_guard.clear();
+				_guards.clear();
 			}
 		};
 
@@ -136,7 +145,7 @@ namespace cube { namespace gl { namespace material {
 					{
 						(void) ch;
 						auto i = std::to_string(idx);
-						res += "\tcube_TexCoord" + i + " = cube_VertexTexCoord" + i + "\n;";
+						res += "\tcube_TexCoord" + i + " = cube_VertexTexCoord" + i + ";\n";
 					}
 
 					if (_material.shading_model() != ShadingModel::none)
@@ -178,7 +187,7 @@ namespace cube { namespace gl { namespace material {
 	} // !anonymous
 
 	renderer::BindablePtr
-	Material::bindable(renderer::Renderer& renderer) const
+	Material::bindable(renderer::Renderer& renderer)
 	{
 		using renderer::ShaderType;
 		using renderer::ShaderParameterType;
