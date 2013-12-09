@@ -227,6 +227,11 @@ class _(PainterSetup, TestCase):
             self.shader['cube_MVP'] = painter.state.mvp
             painter.draw_elements(DrawMode.quads, self.indices, 0, 4)
 
+    @painter_test(mode_2d, delta = 0.06)
+    def test_draw_arrays(self, painter):
+        with painter.bind([self.shader]):
+            self.shader['cube_MVP'] = painter.state.mvp
+            painter.draw_arrays(DrawMode.quads, self.vb, 0, 4)
 
     @painter_test(mode_2d, delta = 0.02)
     def test_transform(self, painter):

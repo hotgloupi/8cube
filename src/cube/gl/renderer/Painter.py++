@@ -163,6 +163,10 @@ BOOST_PYTHON_MODULE(Painter)
 			"draw_elements",
 			&Painter::draw_elements
 		)
+		.def(
+			"draw_arrays",
+			&Painter::draw_arrays
+		)
 		.def("draw", &Wrap::Painter::draw_list)
 		.add_property(
 			"state",
