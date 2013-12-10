@@ -108,6 +108,21 @@ namespace cube { namespace gl { namespace font {
 				);
 
 				FT_CALL(Select_Charmap, this->handle, FT_ENCODING_UNICODE);
+				//FT_Set_Charmap(this->handle, this->handle->charmaps[1]);
+				for (int i = 0; i < this->handle->num_charmaps; ++i)
+				{
+					char enc[4];
+					auto cm = this->handle->charmaps[i];
+					enc[0] = (cm->encoding & 0xff000000) >> 24;
+					enc[1] = (cm->encoding & 0x00ff0000) >> 16;
+					enc[2] = (cm->encoding & 0x0000ff00) >> 8;
+					enc[3] = (cm->encoding & 0x000000ff) >> 0;
+					ETC_LOG.debug(
+						"Found charmap", i, ":",
+						std::string{enc, 4},
+						(cm == this->handle->charmap ? "active" : "inactive")
+					);
+				}
 			}
 
 			~Face()
