@@ -174,8 +174,22 @@ namespace cube { namespace gl { namespace material {
 					for (auto const& ch: _material.textures())
 					{
 						auto i = std::to_string(idx);
-						res += "\tColor += texture2D(cube_Texture" + i
-							+ ", cube_TexCoord" + i +");\n";
+						auto tex = "cube_Texture" + i;
+						auto coord = "cube_TexCoord" + i;
+						if (ch.type == TextureType::ambient)
+						{
+							res += "\tColor += texture2D(" + tex
+								+ ", " + coord +");\n";
+						}
+						else if (ch.type == TextureType::opacity)
+						{
+							res += "\tColor.a = texture2D(" + tex
+								+ ", " + coord + ").r;\n";
+						}
+						else
+						{
+							throw Exception{"Unimplemented texture type"};
+						}
 					}
 					res += "\tcube_FragColor = Color;\n";
 				}
