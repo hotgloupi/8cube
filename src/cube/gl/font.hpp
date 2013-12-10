@@ -41,9 +41,9 @@ namespace cube { namespace gl { namespace font {
 		 * The vertex buffer returned is filled with vertices and font texture
 		 * coordinates.
 		 */
-		template<typename CharType>
+		//template<typename CharType>
 		renderer::VertexBufferPtr
-		generate_text(std::basic_string<CharType> const& str);
+		generate_text(std::string const& str);
 
 		/**
 		 * @brief The texture of the font.

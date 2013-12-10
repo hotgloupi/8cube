@@ -17,6 +17,8 @@
 
 #include <wrappers/freetype.hpp>
 
+#include <boost/regex/pending/unicode_iterator.hpp>
+
 #include <unordered_map>
 
 ETC_LOG_COMPONENT("cube.gl.font.Font");
@@ -344,22 +346,29 @@ namespace cube { namespace gl { namespace font {
 	Font::~Font()
 	{}
 
-	template<typename CharType>
 	renderer::VertexBufferPtr
-	Font::generate_text(std::basic_string<CharType> const& str)
+	Font::generate_text(std::string const& str)
 	{
-		ETC_TRACE.debug("Generate text of", str);
+		ETC_TRACE.debug("Generate text of", str, str.size());
 		std::vector<vector::Vector2f>   vertices(str.size() * 4);
 		std::vector<vector::Vector2f>   tex_coords(str.size() * 4);
-
 		vector::Vector2f pos{0,0};
-
 		vector::Vector2f max_offset{0, 0};
+
+		std::basic_string<char32_t> wstr;
+		{
+			typedef
+				boost::u8_to_u32_iterator<char const*>
+				iterator;
+			iterator it = str.c_str(), end = (str.c_str() + str.size());
+			wstr.append(it, end);
+			ETC_TRACE.debug(">>", wstr.size(), "<<");
+		}
 
 		{
 			// Compute max offset and generate all glyphs.
 			etc::stack_ptr<renderer::Bindable::Guard> guard{etc::stack_ptr_no_init};
-			for (auto c: str)
+			for (auto c: wstr)
 			{
 				if (!_impl->has_glyph(c))
 				{
@@ -379,10 +388,10 @@ namespace cube { namespace gl { namespace font {
 			ETC_LOG.debug("Computed max offset:", max_offset);
 		}
 
-		for (etc::size_type i = 0; i < str.size(); ++i)
+		for (etc::size_type i = 0; i < wstr.size(); ++i)
 		{
-			ETC_LOG.debug("Adding char", str[i]);
-			freetype::Glyph& glyph = _impl->get_glyph(str[i]);
+			ETC_LOG.debug("Adding char", wstr[i]);
+			freetype::Glyph& glyph = _impl->get_glyph(wstr[i]);
 
 			etc::size_type idx0 = i * 4 + 0;
 			etc::size_type idx1 = idx0 + 1;
@@ -430,6 +439,7 @@ namespace cube { namespace gl { namespace font {
 		return vb;
 	}
 
+	/*
 	template
 	CUBE_API
 	renderer::VertexBufferPtr
@@ -449,7 +459,7 @@ namespace cube { namespace gl { namespace font {
 	CUBE_API
 	renderer::VertexBufferPtr
 	Font::generate_text<char32_t>(std::basic_string<char32_t> const& str);
-
+*/
 	renderer::TexturePtr& Font::texture()
 	{
 		return _impl->texture();
