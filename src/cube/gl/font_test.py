@@ -8,6 +8,7 @@ from cube.gl.renderer.Painter_test import PainterSetup, painter_test
 class _(PainterSetup, TestCase):
 
     font_path = os.path.join(os.path.dirname(__file__), 'font_test.ttf')
+    takao_font_path = os.path.join(os.path.dirname(__file__), 'font_test_takao.ttf')
 
     def setUp(self):
         super().setUp()
@@ -111,3 +112,23 @@ class _(PainterSetup, TestCase):
         with painter.bind([mat]):
             painter.draw_arrays(gl.DrawMode.quads, utf8, 0 , 40)
         painter.pop_state()
+
+    @painter_test(gl.mode_2d)
+    def test_opacity_channel(self, painter):
+        info = gl.font.get_infos(self.takao_font_path)[0]
+        font = gl.Font(self.renderer, info, 75)
+        text = font.generate_text("東京")
+        material = gl.Material()
+        material.add_texture(
+            font.texture,
+            gl.TextureType.opacity,
+            gl.TextureMapping.uv,
+            gl.StackOperation.add,
+            gl.TextureMapMode.wrap,
+            gl.BlendMode.basic
+        )
+        material.ambient = gl.Color3f("#551")
+        mat = material.bindable(self.renderer)
+        painter.state.translate(0, 50, 0)
+        with painter.bind([mat]):
+            painter.draw_arrays(gl.DrawMode.quads, text, 0, 16)
