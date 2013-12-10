@@ -107,6 +107,8 @@ namespace cube { namespace resource {
 		for (auto const& pair: _this->resources)
 			if (pair.second.use_count() == 1)
 				to_remove.push_back(pair.first);
+		ETC_LOG.debug("Flushing resources (remove",
+		              to_remove.size(), "/", _this->resources.size(), ")");
 		for (id_type id: to_remove)
 			_this->resources.erase(id);
 	}
