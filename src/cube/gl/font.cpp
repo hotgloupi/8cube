@@ -142,14 +142,16 @@ namespace cube { namespace gl { namespace font {
 			vector::Vector2f    offset;
 			vector::Vector2f    advance;
 
-			Glyph(Face& face, uint32_t charcode, uint32_t id)
+			Glyph(Face& face, char32_t charcode, uint32_t id)
 				: handle(nullptr)
 				, bitmap()
 				, id(id)
 			{
 				::FT_GlyphSlot slot = face.handle->glyph;
 				ETC_TRACE.debug("New FreeType Glyph of", charcode);
-				//auto index = ::FT_Get_Char_Index(face.handle, charcode);
+				auto index = ::FT_Get_Char_Index(face.handle, charcode);
+				if (index == 0)
+				ETC_LOG.warn("Couldn't find glyph for charcode " + etc::to_string(charcode));
 				//if (index == 0)
 				//	throw Exception{
 				//		"Couldn't find glyph for charcode " + etc::to_string(charcode)
@@ -190,7 +192,7 @@ namespace cube { namespace gl { namespace font {
 			typedef renderer::VertexBufferPtr VertexBufferPtr;
 		private:
 			renderer::Renderer&                     _renderer;
-			std::unordered_map<uint32_t, GlyphPtr>  _glyphs;
+			std::unordered_map<char32_t, GlyphPtr>  _glyphs;
 			bool                                    _full;
 			Face&                                   _face;
 			vector::Vector2f                        _texture_size;
@@ -234,10 +236,10 @@ namespace cube { namespace gl { namespace font {
 
 			renderer::TexturePtr& texture() { return _texture; }
 
-			bool has_glyph(uint32_t c)
+			bool has_glyph(char32_t c)
 			{ return _glyphs.find(c) != _glyphs.end(); }
 
-			Glyph& get_glyph(uint32_t c)
+			Glyph& get_glyph(char32_t c)
 			{
 				auto it = _glyphs.find(c);
 				if (it != _glyphs.end())
@@ -247,9 +249,9 @@ namespace cube { namespace gl { namespace font {
 			}
 		private:
 
-			Glyph& _gen_glyph(uint32_t c)
+			Glyph& _gen_glyph(char32_t c)
 			{
-				ETC_TRACE.debug("Generate glyph", c, "at", _pen, "with id =", _next_id);
+				ETC_TRACE.debug("Generate glyph", c, "at", _pen, "with id =", _next_id + 1);
 				_vertex_buffer.reset(); // tex coord buffer needs to be regenerated
 
 				_glyphs[c].reset(new Glyph(_face, c, _next_id++));
@@ -375,7 +377,6 @@ namespace cube { namespace gl { namespace font {
 	renderer::VertexBufferPtr
 	Font::generate_text(std::string const& str)
 	{
-		ETC_TRACE.debug("Generate text of", str, str.size());
 		std::vector<vector::Vector2f>   vertices(str.size() * 4);
 		std::vector<vector::Vector2f>   tex_coords(str.size() * 4);
 		vector::Vector2f pos{0,0};
@@ -385,6 +386,7 @@ namespace cube { namespace gl { namespace font {
 			boost::u8_to_u32_iterator<char const*>{str.c_str()},
 			boost::u8_to_u32_iterator<char const*>{str.c_str() + str.size()}
 		};
+		ETC_TRACE.debug("Generate text of", str, wstr.size());
 
 		{
 			// Compute max offset and generate all glyphs.
