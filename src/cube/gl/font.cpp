@@ -366,15 +366,10 @@ namespace cube { namespace gl { namespace font {
 		vector::Vector2f pos{0,0};
 		vector::Vector2f max_offset{0, 0};
 
-		std::basic_string<char32_t> wstr;
-		{
-			typedef
-				boost::u8_to_u32_iterator<char const*>
-				iterator;
-			iterator it = str.c_str(), end = (str.c_str() + str.size());
-			wstr.append(it, end);
-			ETC_TRACE.debug(">>", wstr.size(), "<<");
-		}
+		std::basic_string<char32_t> wstr{
+			boost::u8_to_u32_iterator<char const*>{str.c_str()},
+			boost::u8_to_u32_iterator<char const*>{str.c_str() + str.size()}
+		};
 
 		{
 			// Compute max offset and generate all glyphs.
