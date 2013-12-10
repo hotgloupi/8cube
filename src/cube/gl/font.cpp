@@ -240,6 +240,17 @@ namespace cube { namespace gl { namespace font {
 				_glyphs[c].reset(new Glyph(_face, c, _next_id++));
 				Glyph& glyph = *_glyphs[c].get();
 
+				if (_pen.x + glyph.bitmap.width >= _texture->width)
+				{
+					_pen.x = 0;
+					_pen.y += _max_line_height;
+					ETC_LOG.debug("Carriage return in the texture, y =", _pen.y);
+					_max_line_height = 0;
+
+					if (_pen.y + glyph.bitmap.rows >= _texture->height)
+						throw Exception{"Texture too small !"};
+				}
+
 				glyph.position = _pen;
 
 
