@@ -216,11 +216,18 @@ def configure(project, build):
         ]
     elif project.env.BUILD_TYPE == 'RELEASE':
         defines = ['NDEBUG']
+        if platform.IS_WINDOWS:
+            defines.append(('_SCL_SECURE', '0'))
     else:
         raise Exception("Unknown build type '%s'" % build_type)
 
     defines += ['BOOST_ALL_NO_LIB']
 
+    if platform.IS_WINDOWS:
+        defines.extend([
+            ('_WIN32_WINNT', '0x0600'),
+            ('WINVER', '0x600'),
+        ])
     #if platform.IS_LINUX:
     #    defines += ['CUBE_WITH_GLX']
 
@@ -265,7 +272,7 @@ def configure(project, build):
         'deps/freetype2'
     )
     if platform.IS_WINDOWS:
-        python = c.libraries.PythonLibrary(c_compiler, shared = False)
+        python = c.libraries.PythonLibrary(c_compiler, shared = True)
     else:
         python = build.add_dependency(
             c.libraries.PythonDependency,
@@ -309,14 +316,16 @@ def configure(project, build):
         'deps/assimp',
         boost = boost,
         c_compiler = c_compiler,
-        shared = False
+        shared = True
     )
 
     sdl = build.add_dependency(
-        c.libraries.SDLDependency, c_compiler, 'deps/SDL',
+        c.libraries.SDLDependency, c_compiler, 'deps/SDL', shared = True,
     )
     sdl_image = build.add_dependency(
-        c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image', sdl = sdl
+        c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image',
+        sdl = sdl,
+        shared = True
     )
     #sdl = c.libraries.SDLLibrary(
     #    compiler,
@@ -325,7 +334,11 @@ def configure(project, build):
     #)
 
 
-    opengl = c.libraries.OpenGLLibrary(compiler, system = True)
+    opengl = c.libraries.OpenGLLibrary(
+        compiler,
+        system = True,
+        shared = compiler.name != 'msvc'
+    )
 
     graphic_libraries = (
         sdl.libraries +
@@ -347,6 +360,15 @@ def configure(project, build):
                 'Gdi32',
                 'mswsock',
                 'Dbghelp',
+                'winmm',
+                'version',
+                'imm32',
+                'Shell32',
+                'User32',
+                'Ole32',
+                'OleAut32',
+                'Advapi32',
+                'Kernel32',
             ]
         )
     else: #elif platform.IS_MACOSX:
@@ -359,7 +381,7 @@ def configure(project, build):
         'libglew',
         ['src/glew/glew.c'],
         directory = 'release/lib',
-        libraries = graphic_libraries,
+        libraries = opengl.libraries,
         defines = ['GLEW_NO_GLU', 'GLEW_STATIC'],
     )
 
@@ -420,25 +442,30 @@ def configure(project, build):
             ),
         ])
 
+    python_module_libraries = boost.libraries + python.libraries
+    if platform.IS_WINDOWS:
+        python_module_libraries.extend([libcube, libetc])
     for binding in rglob("cube/*.py++", dir='src'):
         t = compiler.link_dynamic_library(
             path.splitext(path.basename(binding))[0],
             [binding],
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
-            libraries = boost.libraries + python.libraries + base_libraries,
+            libraries = python_module_libraries + base_libraries,
             include_directories = glm.libraries[0].include_directories,
             precompiled_headers = precompiled_headers,
+            allow_unresolved_symbols = True,
         )
 
 ################### libcubeapp
 
-    libcubeapp = compiler.link_static_library(
+    libcubeapp = compiler.link_dynamic_library(
         'libcubeapp',
         (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
-        libraries = [libcube, libetc] + graphic_libraries + boost.libraries + python.libraries,
+        libraries = [libetc, libcube] + boost.libraries + python.libraries + glm.libraries,
         precompiled_headers = precompiled_headers,
+        defines = ['CUBEAPP_BUILD_DYNAMIC_LIBRARY'],
     )
 
     for binding in rglob("cubeapp/*.py++", dir='src'):
@@ -465,14 +492,24 @@ def configure(project, build):
         libraries = infinit_cube_libraries,
     )
 
+    test = compiler.link_executable(
+        "test",
+        ["test.cpp"],
+        directory = "release/bin",
+        libraries = [libetc, libcube, boost.component_library('system')]
+    )
+
     if platform.IS_WINDOWS:
-        for lib in infinit_cube_libraries:
+        for lib in infinit_cube_libraries + assimp.libraries:
             if not isinstance(lib, Target):
+                print("lib %s" % lib.files, lib.shared, lib.system)
                 if lib.shared and not lib.system:
                     for f in lib.files:
+                        print("copy", f)
                         build.fs.copy(f, dest_dir = 'release/bin')
             else:
                 if lib.shared:
+                    print("copy %s" % lib.path)
                     build.fs.copy(lib, dest_dir = 'release/bin')
 
 
