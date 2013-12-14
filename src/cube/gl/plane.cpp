@@ -53,9 +53,9 @@ namespace cube { namespace gl { namespace plane {
 	}
 
 	template
-	std::ostream& operator <<<float>(std::ostream& out, Plane<float> const& plane);
+	CUBE_API std::ostream& operator <<<float>(std::ostream& out, Plane<float> const& plane);
 	template
-	std::ostream& operator <<<double>(std::ostream& out, Plane<double> const& plane);
+	CUBE_API std::ostream& operator <<<double>(std::ostream& out, Plane<double> const& plane);
 	/*
 	template
 	std::ostream& operator <<<int32_t>(std::ostream& out, Plane<int32_t> const& plane);

@@ -52,15 +52,31 @@ namespace etc {
 		return false;
 	}
 
+	template<throw_policy tp>
+	ETC_API
 	std::string demangle(std::string const& sym)
+		ETC_NOEXCEPT_IF(tp == no_throw_policy)
 	{
 		std::string error;
 		std::string res;
 		if (!demangle(sym, res, error))
-			throw std::runtime_error(
-				etc::to_string("couldn't demangle", sym, ":", error)
-			);
+			if (tp == can_throw_policy)
+				throw std::runtime_error(
+					etc::to_string("couldn't demangle", sym, ":", error)
+				);
+			else
+				return sym;
 		return res;
 	}
+
+	template
+	ETC_API
+	std::string demangle<can_throw_policy>(std::string const& sym)
+		ETC_NOEXCEPT_IF(false);
+
+	template
+	ETC_API
+	std::string demangle<no_throw_policy>(std::string const& sym)
+		ETC_NOEXCEPT_IF(true);
 
 }

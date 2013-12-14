@@ -16,7 +16,6 @@ namespace cube { namespace gl { namespace renderer {
 	template<> struct CUBE_API LightInfo<LightKind::directional>
 	{
 		LightInfo(LightInfo const&) = default;
-		LightInfo(LightInfo&&) = default;
 		LightInfo(vector::Vector3f direction,
 		          color::Color3f diffuse,
 		          color::Color3f specular);
@@ -29,7 +28,6 @@ namespace cube { namespace gl { namespace renderer {
 	template<> struct CUBE_API LightInfo<LightKind::point>
 	{
 		LightInfo(LightInfo const&) = default;
-		LightInfo(LightInfo&&) = default;
 		LightInfo(vector::Vector3f position,
 		          color::Color3f diffuse,
 		          color::Color3f specular);
@@ -42,7 +40,6 @@ namespace cube { namespace gl { namespace renderer {
 	template<> struct CUBE_API LightInfo<LightKind::spot>
 	{
 		LightInfo(LightInfo const&) = default;
-		LightInfo(LightInfo&&) = default;
 		LightInfo(vector::Vector3f position,
 		          vector::Vector3f direction,
 		          color::Color3f diffuse,
@@ -76,13 +73,8 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		LightKind const kind;
 	private:
-		union
-		{
-			directional_type _directional;
-			point_type       _point;
-			spot_type        _spot;
-			custom_ptr_type  _custom;
-		};
+		struct Impl;
+		std::unique_ptr<Impl> _this;
 
 	public:
 		explicit

@@ -30,28 +30,19 @@ namespace cube { namespace gl { namespace sphere {
 		return out;
 	}
 
-	template
-	std::ostream&
-	operator <<<float>(std::ostream& out, Sphere<float> const& sphere);
+#define INSTANCIATE_FOR(__type) \
+	template struct CUBE_API Sphere<__type>; \
+	template CUBE_API \
+	std::ostream& operator <<<__type>(std::ostream& out, \
+	                                  Sphere<__type> const& sphere) \
+/**/
 
-	template
-	std::ostream&
-	operator <<<double>(std::ostream& out, Sphere<double> const& sphere);
-
-	template
-	std::ostream&
-	operator <<<int32_t>(std::ostream& out, Sphere<int32_t> const& sphere);
-
-	template
-	std::ostream&
-	operator <<<uint32_t>(std::ostream& out, Sphere<uint32_t> const& sphere);
-
-	template
-	std::ostream&
-	operator <<<int64_t>(std::ostream& out, Sphere<int64_t> const& sphere);
-
-	template
-	std::ostream&
-	operator <<<uint64_t>(std::ostream& out, Sphere<uint64_t> const& sphere);
+	INSTANCIATE_FOR(float);
+	INSTANCIATE_FOR(double);
+	INSTANCIATE_FOR(int32_t);
+	INSTANCIATE_FOR(uint32_t);
+	INSTANCIATE_FOR(int64_t);
+	INSTANCIATE_FOR(uint64_t);
+#undef INSTANCIATE_FOR
 
 }}}

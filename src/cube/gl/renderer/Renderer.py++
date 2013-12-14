@@ -78,8 +78,8 @@ namespace {
 
 			template<
 				  typename T
-				, template<typename...> class smart_ptr = std::unique_ptr
-				, template<typename...> class storage_ptr = std::auto_ptr
+				, template<typename...> class smart_ptr = std::shared_ptr
+				, template<typename...> class storage_ptr = std::shared_ptr
 			>
 			static
 			std::vector<smart_ptr<T>>
@@ -100,7 +100,7 @@ namespace {
 							std::move(ptr)
 						)
 					);
-					args[i] = boost::python::object{};
+					args[i] = boost::python::object();
 				}
 				return ptrs;
 			}
@@ -111,7 +111,7 @@ namespace {
 			                   boost::python::list args)
 			{
 				return self.new_shader_program(
-					_list_to_vector<renderer::Shader, std::shared_ptr, std::shared_ptr>(args)
+					_list_to_vector<renderer::Shader>(args)
 				);
 			}
 
@@ -136,11 +136,9 @@ namespace {
 			static
 			renderer::VertexBufferPtr
 			new_index_buffer(renderer::Renderer& self,
-			                 std::auto_ptr<renderer::VertexBufferAttribute>& attr)
+			                 renderer::VertexBufferAttributePtr& attr)
 			{
-				return self.new_index_buffer(
-					renderer::VertexBufferAttributePtr{attr.release()}
-				);
+				return self.new_index_buffer(std::move(attr));
 			}
 
 

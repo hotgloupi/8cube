@@ -1,6 +1,8 @@
 #include "assert.hpp"
 
 #include <etc/log.hpp>
+#include <etc/to_string.hpp>
+#include <etc/backtrace.hpp>
 
 namespace etc {
 
@@ -22,7 +24,8 @@ namespace etc {
 		                  unsigned int line,
 		                  std::string message)
 		{
-			ETC_LOG.error(message);
+			std::string bt = to_string(backtrace::Backtrace());
+			ETC_LOG.error(message, ":", bt);
 			throw AssertError{
 				std::string(file) + ":" + std::to_string(line) + ": " +
 				std::move(message)

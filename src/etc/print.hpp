@@ -63,12 +63,12 @@ namespace etc {
 		public:
 			explicit
 			Separator(char const* s)
-				: sep{s}
+				: sep(s)
 			{}
 
 			explicit
 			Separator(char const c)
-				: sep{&c, 1}
+				: sep(&c, 1)
 			{}
 		};
 
@@ -79,7 +79,7 @@ namespace etc {
 		inline
 		Separator const sep(T&& s)
 		{
-			return Separator{std::forward<T>(s)};
+			return Separator(std::forward<T>(s));
 		}
 
 		/// no separator
@@ -123,12 +123,12 @@ namespace etc {
 		public:
 			explicit
 			EndOfLine(char const* s)
-				: endl{s}
+				: endl(s)
 			{}
 
 			explicit
 			EndOfLine(char const c)
-				: endl{&c, 1}
+				: endl(&c, 1)
 			{}
 		};
 
@@ -152,7 +152,7 @@ namespace etc {
 		inline
 		EndOfLine const endl(T&& s)
 		{
-			return EndOfLine{std::forward<T>(s)};
+			return EndOfLine(std::forward<T>(s));
 		}
 
 	} // !iomanip

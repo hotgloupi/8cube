@@ -217,8 +217,8 @@ BOOST_PYTHON_MODULE(inputs)
 
 #define DEF_CONNECT(cls, name) do {                                           \
 	typedef SignalExport<Inputs::on_ ## name ## _t> Signal;                   \
-	typedef typename Signal::type signal_t;                   \
-	typedef typename Inputs::on_ ## name ## _signature_t signature_t; \
+	typedef Signal::type signal_t;                   \
+	typedef Inputs::on_ ## name ## _signature_t signature_t; \
                                                                               \
 	cls.add_property(                                                         \
 		"on_" #name,                                                          \

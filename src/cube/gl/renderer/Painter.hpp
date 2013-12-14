@@ -178,10 +178,10 @@ namespace cube { namespace gl { namespace renderer {
 	Painter::Proxy<sizeof...(Args)>
 	Painter::with(Args&&... drawables)
 	{
-		return Proxy<sizeof...(Args)>{
+		return Proxy<sizeof...(Args)>(
 			*this,
 			std::forward<Args>(drawables)...
-		};
+			);
 	}
 
 }}}

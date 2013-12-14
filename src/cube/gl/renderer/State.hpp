@@ -9,6 +9,8 @@
 
 # include <etc/compiler.hpp>
 
+# include <vector>
+
 namespace cube { namespace gl { namespace renderer {
 
 	///////////////////////////////////////////////////////////////////////////

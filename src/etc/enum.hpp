@@ -7,7 +7,7 @@ namespace etc {
 
 	// Cast any enums to integer.
 	template <typename To = size_t, typename E>
-	inline constexpr
+	inline ETC_CONSTEXPR
 	typename std::enable_if<std::is_enum<E>::value, To>::type
 	enum_cast(E const value)
 	{
@@ -20,7 +20,7 @@ namespace etc {
 	struct enum_hash
 	{
 		template <typename E>
-		inline constexpr
+		inline ETC_CONSTEXPR
 		size_t operator ()(E const value) const
 		{
 			return ::etc::enum_cast<size_t>(value);

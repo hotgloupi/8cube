@@ -62,6 +62,11 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		struct ReturnType
 		{
+			inline
+			ReturnType(bool is_void, ShaderParameterType type)
+				: is_void{is_void}
+				, type{type}
+			{}
 			bool is_void;
 			ShaderParameterType type;
 		};
@@ -208,9 +213,11 @@ namespace cube { namespace gl { namespace renderer {
 		inline
 		ShaderGeneratorProxy& routine(Args&&... args)
 		{
-			return raw_routine(ShaderRoutinePtr{
-				new RoutineType{*this, std::forward<Args>(args)...}
-			});
+			return raw_routine(
+				ShaderRoutinePtr(
+					new RoutineType(*this, std::forward<Args>(args)...)
+				)
+			);
 		}
 
 		ShaderGeneratorProxy& raw_routine(ShaderRoutinePtr routine);

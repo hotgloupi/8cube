@@ -1,6 +1,8 @@
 #ifndef  CUBEAPP_CORE_WORLD_TREE_HPP
 # define CUBEAPP_CORE_WORLD_TREE_HPP
 
+# include <cubeapp/api.hpp>
+
 # include <cube/gl/vector.hpp>
 # include <cube/gl/fwd.hpp>
 
@@ -128,7 +130,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		  typename size_type
 		, typename vector_type = typename Tree<size_type>::vector_type
 	>
-	struct Node
+	struct CUBEAPP_API Node
 	{
 		unsigned int const level;
 		vector_type const origin;
@@ -136,6 +138,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	};
 
 	template<typename size_type>
+	CUBEAPP_API
 	std::vector<Node<size_type>>
 	find_nodes(Tree<size_type> const& tree,
 	           cube::gl::vector::Vector3d const& pos,

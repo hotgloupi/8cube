@@ -15,7 +15,8 @@ namespace cube { namespace gl { namespace cube {
 	}
 
 #define SPECIALIZE_OSTREAM(__type)                                            \
-	template                                                                  \
+	template struct CUBE_API Cube3<__type>;                                   \
+	template CUBE_API                                                         \
 	std::ostream& operator <<<__type>(std::ostream&, Cube3<__type> const&)    \
 /**/
 

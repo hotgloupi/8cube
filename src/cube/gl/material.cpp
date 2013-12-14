@@ -113,7 +113,6 @@ namespace cube { namespace gl { namespace material {
 				: renderer::ShaderRoutine{proxy, std::move(name)}
 				, _material(material)
 			{}
-
 			std::string
 			glsl_source() const override
 			{

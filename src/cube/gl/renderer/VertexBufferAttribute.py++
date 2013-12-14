@@ -105,7 +105,7 @@ BOOST_PYTHON_MODULE(VertexBufferAttribute)
 
 	py::class_<
 		VertexBufferAttribute
-	  , std::auto_ptr<VertexBufferAttribute>
+	  , VertexBufferAttributePtr
 	  , boost::noncopyable
 	>("VertexBufferAttribute", py::no_init)
 		.def("__str__", &__str__)

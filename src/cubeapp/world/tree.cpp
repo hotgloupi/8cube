@@ -39,7 +39,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	}
 
 	template
-	std::vector<Node<int64_t>>
+	CUBEAPP_API std::vector<Node<int64_t>>
 	find_nodes(Tree<int64_t> const& tree,
 	           cube::gl::vector::Vector3d const& pos,
 	           cube::gl::frustum::Frustumd const& frustum);

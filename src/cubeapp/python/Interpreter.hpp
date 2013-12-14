@@ -1,14 +1,15 @@
 #ifndef  CUBEAPP_PYTHON_INTERPRETER_HPP
 # define CUBEAPP_PYTHON_INTERPRETER_HPP
 
-# include <wrappers/boost/filesystem.hpp>
+# include <cubeapp/api.hpp>
 
+# include <wrappers/boost/filesystem.hpp>
 
 # include <string>
 
 namespace cubeapp { namespace python {
 
-	class Interpreter
+	class CUBEAPP_API Interpreter
 	{
 	private:
 		struct Impl;

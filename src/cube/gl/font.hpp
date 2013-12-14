@@ -154,6 +154,7 @@ namespace cube { namespace gl { namespace font {
 		      etc::size_type face_index);
 
 		friend
+		CUBE_API
 		std::unique_ptr<Infos>
 		get_face_infos(std::string const& path,
 		               etc::size_type face_index);

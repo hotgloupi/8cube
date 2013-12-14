@@ -27,11 +27,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		Guard bind_guard(*this);
 		int bpp = surface.bytes_per_pixel();
 		if (bpp != 3 && bpp != 4)
-			throw Exception{etc::to_string(
-				"Cannot load image with",
- 				surface.bytes_per_pixel(),
-				"bytes per pixel"
-			)};
+			throw Exception(
+				"Cannot load image with "
+ 				+ std::to_string(surface.bytes_per_pixel()) +
+				" bytes per pixel"
+			);
 		int mode = 0;
 		if (bpp == 3)
 			mode = GL_RGB;
@@ -208,35 +208,33 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_has_mipmaps = true;
 	}
 
-	/*
-	Texture::Texture(renderer::PixelFormat const internal_format,
-	                 unsigned int width,
-	                 unsigned int height,
-	                 renderer::PixelFormat const data_format,
-	                 renderer::ContentPacking const data_packing,
-	                 void const* data)
-		: _surface(nullptr)
-		, _id(0)
-		, _unit(-1)
-	{
-		ETC_TRACE_CTOR("from data");
-		gl::GenTextures(1, &_id);
-		gl::BindTexture(GL_TEXTURE_2D, _id);
-		gl::TexImage2D(
-			GL_TEXTURE_2D,
-			0,                  // level
-			gl::get_pixel_format(internal_format),                // 1, 2, 3, 4
-			width,
-			height,
-			0,                  // border
-			gl::get_pixel_format(data_format),
-			gl::get_content_packing(data_packing),
-			data
-		);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-	*/
+	//Texture::Texture(renderer::PixelFormat const internal_format,
+	//                 unsigned int width,
+	//                 unsigned int height,
+	//                 renderer::PixelFormat const data_format,
+	//                 renderer::ContentPacking const data_packing,
+	//                 void const* data)
+	//	: _surface(nullptr)
+	//	, _id(0)
+	//	, _unit(-1)
+	//{
+	//	ETC_TRACE_CTOR("from data");
+	//	gl::GenTextures(1, &_id);
+	//	gl::BindTexture(GL_TEXTURE_2D, _id);
+	//	gl::TexImage2D(
+	//		GL_TEXTURE_2D,
+	//		0,                  // level
+	//		gl::get_pixel_format(internal_format),                // 1, 2, 3, 4
+	//		width,
+	//		height,
+	//		0,                  // border
+	//		gl::get_pixel_format(data_format),
+	//		gl::get_content_packing(data_packing),
+	//		data
+	//	);
+	//	gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//	gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//}
 
 	Texture::~Texture()
 	{

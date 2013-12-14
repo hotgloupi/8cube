@@ -7,28 +7,41 @@
 
 namespace etc { namespace meta {
 
+		namespace detail {
+
+			template<typename T>
+			struct is_printable
+			{
+				typedef char yes[1];
+				typedef char no[2];
+
+				static std::ostream& stream();
+				typedef typename meta::clean_type<T>::type type;
+
+				template<typename U>
+				static
+				typename std::enable_if<
+					true
+#ifdef BOOST_MSVC
+					// enum class object cause an internal compiler error ...
+					&& !std::is_enum<U>::value
+#endif
+					, yes&
+				>::type
+				test(
+					decltype(*static_cast<std::ostream*>(0) << * static_cast<U*>(0)));
+
+				template<typename U> static no& test(...);
+
+				static bool const value = sizeof(test<type>(stream())) == sizeof(yes);
+			};
+
+		}
+
 		template<typename T>
 		struct is_printable
-		{
-			typedef typename meta::clean_type<T>::type clean_type;
-			struct yes { static bool const value = true; };
-			struct no { static bool const value = false; };
-
-			template<int i> struct helper { typedef int type; };
-			static no sfinae(...);
-			template<typename U>
-			static yes sfinae(
-				U*,
-				typename helper<
-					sizeof(
-						std::declval<std::ostream&>() << std::declval<U const&>()
-					)
-				>::type val = 0);
-
-			static bool const value = decltype(
-				sfinae(std::declval<clean_type*>())
-			)::value;
-		};
+			: public detail::is_printable<T>
+		{};
 
 }}
 

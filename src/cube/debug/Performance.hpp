@@ -85,10 +85,10 @@ namespace cube { namespace debug {
 		bool operator ==(cube::debug::Performance::Info const& rhs) const ETC_NOEXCEPT
 		{
 			return (
-				this->parent() == rhs.parent() and
-				this->line == rhs.line and
-				this->function == rhs.function and
-				this->file == rhs.file and
+				this->parent() == rhs.parent() &&
+				this->line == rhs.line &&
+				this->function == rhs.function &&
+				this->file == rhs.file &&
 				this->name == rhs.name
 			);
 		}

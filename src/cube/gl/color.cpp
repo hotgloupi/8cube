@@ -309,6 +309,9 @@ namespace cube { namespace gl { namespace color {
 		return black;
 	}
 
+	template struct Color3<float>;
+	template struct Color4<float>;
+
 	template Color3<float> const& parse_color3(std::string const&);
 	template Color4<float> const& parse_color4(std::string const&);
 
@@ -329,9 +332,9 @@ namespace cube { namespace gl { namespace color {
 		return out;
 	}
 
-	template std::ostream& operator <<(std::ostream&, Color3<float> const&);
-	template std::ostream& operator <<(std::ostream&, Color4<float> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color3<float> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color4<float> const&);
 
-	template std::ostream& operator <<(std::ostream&, Color3<int> const&);
-	template std::ostream& operator <<(std::ostream&, Color4<int> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color3<int> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color4<int> const&);
 }}}

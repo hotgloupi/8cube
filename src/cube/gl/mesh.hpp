@@ -163,6 +163,7 @@ namespace cube { namespace gl { namespace mesh {
 		void _push(Kind const kind, Mode const mode, color4_t const& el);
 
 		friend
+		CUBE_API
 		std::ostream& operator <<(std::ostream& out, Mesh const& mesh);
 	};
 

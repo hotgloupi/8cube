@@ -173,7 +173,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	void GLRenderer::viewport(cube::gl::viewport::Viewport const& vp)
 	{
 		this->Renderer::viewport(vp);
-		gl::Viewport(vp.x, vp.y, vp.w, vp.h);
+		gl::Viewport(
+			(int) vp.x,
+			(int) vp.y,
+			(int) vp.w,
+			(int) vp.h
+		);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -191,9 +196,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		for (int* n = major;; n = minor)
 		{
 			*n = 0;
-			while (*str != '\0' && !std::isdigit(*str))
+			while (*str != '\0' && !::isdigit(*str))
 				++str;
-			while (*str != '\0' && std::isdigit(*str))
+			while (*str != '\0' && ::isdigit(*str))
 			{
 				*n = *n * 10 + (*str - '0');
 				++str;
@@ -204,8 +209,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	RendererType::RendererType()
-		: opengl{0, 0}
-		, glsl{0, 0}
+		: opengl{{0, 0}}
+		, glsl{{0, 0}}
 	{
 		int major, minor;
 		find_version(glGetString(GL_VERSION), &major, &minor);

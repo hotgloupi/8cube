@@ -89,7 +89,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		std::string input_source(Proxy const& proxy, Parameter const& p) const
 		{
 			std::string result;
-			if (this->glsl_version <= 120 and
+			if (this->glsl_version <= 120 &&
 				proxy.type != ShaderType::vertex)
 			{
 				static std::unordered_map<ContentKind, std::string, etc::enum_hash> builtin_names{

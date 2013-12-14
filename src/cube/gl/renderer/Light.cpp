@@ -5,6 +5,8 @@
 
 #include <etc/log.hpp>
 
+#include <boost/variant.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	ETC_LOG_COMPONENT("cube.gl.renderer.Light");
@@ -55,63 +57,78 @@ namespace cube { namespace gl { namespace renderer {
 	{}
 
 	///////////////////////////////////////////////////////////////////////////
+	// Light implem.
+
+	struct Light::Impl
+	{
+		boost::variant<
+			  Light::directional_type
+			, Light::spot_type
+			, Light::point_type
+			, Light::custom_ptr_type
+		> light;
+		template<typename T>
+		Impl(T&& value)
+			: light{std::forward<T>(value)}
+		{}
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////
 	// Light class.
 
 	Light::Light(directional_type info)
 		: kind{LightKind::directional}
-		, _directional(std::move(info))
+		, _this{new Impl{std::move(info)}}
 	{}
 
 	Light::Light(point_type info)
 		: kind{LightKind::point}
-		, _point(std::move(info))
+		, _this{new Impl{std::move(info)}}
 	{}
 
 	Light::Light(spot_type info)
 		: kind{LightKind::spot}
-		, _spot(std::move(info))
+		, _this{new Impl{std::move(info)}}
 	{}
 
 	Light::Light(custom_ptr_type info)
 		: kind{LightKind::custom}
-		, _custom{std::move(info)}
+		, _this{new Impl{std::move(info)}}
 	{
-		if (_custom == nullptr)
+		if (boost::get<custom_ptr_type>(_this->light) == nullptr)
 			throw Exception{"The custom light info is null"};
 	}
 
 	Light::~Light()
-	{
-		if (this->kind == LightKind::custom)
-			_custom.reset();
-	}
+	{}
 
 	Light::directional_type const& Light::directional() const
 	{
 		if (this->kind != LightKind::directional)
 			throw Exception{"This is not a directional light"};
-		return _directional;
+		return boost::get<directional_type>(_this->light);
 	}
 
 	Light::point_type const& Light::point() const
 	{
 		if (this->kind != LightKind::point)
 			throw Exception{"This is not a point light"};
-		return _point;
+		return boost::get<point_type>(_this->light);
 	}
 
 	Light::spot_type const& Light::spot() const
 	{
 		if (this->kind != LightKind::spot)
 			throw Exception{"This is not a spot light"};
-		return _spot;
+		return boost::get<spot_type>(_this->light);
 	}
 
 	Light::custom_type const& Light::custom() const
 	{
 		if (this->kind != LightKind::custom)
 			throw Exception{"This is not a custom light"};
-		return *_custom;
+		return *boost::get<custom_ptr_type>(_this->light);
 	}
 
 	void Light::_bind()

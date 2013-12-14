@@ -17,12 +17,12 @@ namespace {
 		        std::string const& file,
 		        int const line,
 		        std::string const& function)
-			: info{
+			: info(
 				name.c_str(),
 				file.c_str(),
 				line,
-				function.c_str(),
-			}
+				function.c_str()
+			)
 		{}
 
 		void __enter__()

@@ -18,6 +18,7 @@
 
 #ifdef _WIN32
 # include <Windows.h>
+# include <WinBase.h>
 # include <Dbghelp.h>
 #else
 # include <execinfo.h>
@@ -71,7 +72,7 @@ namespace etc { namespace backtrace {
 				return;
 			sym_initialized = true;
 		}
-		frames = ::CaptureStackBackTrace(0, size, callstack, nullptr);
+		frames = CaptureStackBackTrace(0, size, callstack, nullptr);
 		SYMBOL_INFO* symbol = (SYMBOL_INFO*) ::calloc(sizeof(SYMBOL_INFO) + 256, 1);
 		symbol->MaxNameLen = 255;
 		symbol->SizeOfStruct = sizeof(SYMBOL_INFO);

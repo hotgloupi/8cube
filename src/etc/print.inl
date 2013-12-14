@@ -22,8 +22,8 @@ namespace etc {
 		public:
 			explicit
 			PrintFlags()
-				: endl{"\n"}
-				, sep{" "}
+				: endl("\n")
+				, sep(" ")
 			{}
 		};
 

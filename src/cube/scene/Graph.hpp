@@ -53,7 +53,7 @@ namespace cube { namespace scene {
 
 		template<typename T>
 		inline
-		typename std::enable_if<not std::is_integral<T>::value, Node&>::type
+		typename std::enable_if<!std::is_integral<T>::value, Node&>::type
 		operator [](T const& object)
 		{ return this->by_data(&object); }
 

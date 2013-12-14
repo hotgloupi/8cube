@@ -88,23 +88,15 @@ namespace cube { namespace gl { namespace renderer {
 
 	private:
 		enum InternalMethod { internal_method };
-		inline
-		void _bind(InternalMethod)
-		{
-			if (++_bound == 1)
-				try { _bind(); }
-				catch (...) { _bound = 0; throw; }
-		}
+		void _bind(InternalMethod);
 
-		inline
-		void _unbind(InternalMethod) ETC_NOEXCEPT
-		{ if (--_bound == 0) _unbind(); }
+		void _unbind(InternalMethod) ETC_NOEXCEPT;
 	};
 
 	struct CUBE_API Bindable::Guard
 	{
 	private:
-		Bindable& _bindable;
+		Bindable* _bindable;
 
 	public:
 		Guard(Bindable& bindable, std::shared_ptr<State> const& state);
@@ -112,7 +104,17 @@ namespace cube { namespace gl { namespace renderer {
 		Guard(Bindable& bindable, std::weak_ptr<State> const& state)
 			: Guard{bindable, state.lock()}
 		{}
+
+		inline
+		Guard(Guard&& other)
+			: _bindable(other._bindable)
+		{ other._bindable = nullptr; }
+
 		~Guard();
+	private:
+		Guard(Guard const&) = delete;
+		Guard& operator =(Guard const&) = delete;
+		Guard& operator =(Guard&&) = delete;
 	};
 
 	template<typename T>

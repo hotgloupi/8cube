@@ -26,6 +26,9 @@ namespace {
 		return mat[row];
 	}
 
+	matrix::mat4f perspective(float a, float b, float c, float d)
+	{ return matrix::perspective(a, b, c, d); }
+
 }
 
 BOOST_PYTHON_MODULE(matrix)
@@ -38,7 +41,9 @@ BOOST_PYTHON_MODULE(matrix)
 		.def(py::self == py::self)
 		.def(py::self * py::self)
 	;
-	py::def("perspective", &matrix::perspective<float>);
+	py::def(
+		"perspective", &perspective
+	);
 	py::def("look_at", &matrix::look_at<float>);
 	py::def(
 		"translate",

@@ -153,13 +153,12 @@ BOOST_PYTHON_MODULE(font)
 		.def_readonly("has_bitmaps", &font::Infos::has_bitmaps)
 		.def_readonly("support_kerning", &font::Infos::support_kerning)
 		.def("__str__", &Proxy::Infos::str)
-		.def_pickle(FontInfosPickleSuite{})
+		.def_pickle(FontInfosPickleSuite())
 	;
 
 	py::def(
 		"get_infos",
-		&Proxy::Font::get_infos/*,
-		py::return_value_policy<py::manage_new_object>()*/
+		&Proxy::Font::get_infos
 	);
 
 	{

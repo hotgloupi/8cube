@@ -28,6 +28,10 @@ namespace cube { namespace gl { namespace renderer {
 		{
 			Deleter deleter;
 
+			WrapDeleter(Deleter deleter)
+				: deleter(deleter)
+			{}
+
 			void operator ()(void* ptr)
 			{
 				(this->deleter)((T*)ptr);
@@ -96,7 +100,7 @@ namespace cube { namespace gl { namespace renderer {
 		                      std::unique_ptr<T, Deleter>&& data,
 		                      etc::size_type const nb_elements,
 		                      ContentHint const hint = ContentHint::static_content)
-			: VertexBufferAttribute{
+			: VertexBufferAttribute(
 				kind,
 				detail::extract_content_type<T>::value,
 				hint,
@@ -104,8 +108,8 @@ namespace cube { namespace gl { namespace renderer {
 				nb_elements,
 				nb_elements * sizeof(T),
 				data.get(),
-				detail::WrapDeleter<T, Deleter>{data.get_deleter()}
-			}
+				detail::WrapDeleter<T, Deleter>(data.get_deleter())
+			)
 		{data.release();}
 
 		/**
@@ -165,12 +169,12 @@ namespace cube { namespace gl { namespace renderer {
 		VertexBufferAttribute(ContentKind const kind,
 		                      std::vector<T> const& data,
 		                      ContentHint const hint = ContentHint::static_content)
-			: VertexBufferAttribute{
+			: VertexBufferAttribute(
 				kind,
 				&data[0],
 				static_cast<etc::size_type>(data.size()),
-				hint,
-			}
+				hint
+			)
 		{}
 
 		/**
@@ -211,7 +215,7 @@ namespace cube { namespace gl { namespace renderer {
 	VertexBufferAttributePtr
 	make_vertex_buffer_attribute(Args&&... args)
 	{
-		return etc::make_unique<VertexBufferAttribute>(
+		return std::make_shared<VertexBufferAttribute>(
 			std::forward<Args>(args)...
 		);
 	}

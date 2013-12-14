@@ -395,7 +395,12 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		}
 
 		bool allow_render_target() const ETC_NOEXCEPT
-		{ return this->renderer != nullptr and this->renderer_info.flags & SDL_RENDERER_TARGETTEXTURE; }
+		{
+			return (
+				this->renderer != nullptr &&
+				this->renderer_info.flags & SDL_RENDERER_TARGETTEXTURE
+			);
+		}
 
 		gl::renderer::RenderTargetPtr
 		new_render_target(etc::size_type const width,
