@@ -138,31 +138,64 @@ namespace cube { namespace gl { namespace renderer {
 	template<etc::size_type const bounds>
 	struct Painter::Proxy
 	{
+	public:
+		typedef Bindable::Guard guard_type;
+
 	private:
-		Painter&                            _self;
-		std::array<Bindable::Guard, bounds> _guards;
+		Painter&               _self;
+		std::shared_ptr<State> _state;
+		char            _guards[sizeof(guard_type) * bounds];
 
 	public:
 		template<typename... Args>
 		explicit
 		Proxy(Painter& self, Args&&... bindables)
 			: _self(self)
-			, _guards{{
-				Bindable::Guard{
-					std::forward<Args>(bindables),
-					self.state().lock(),
-				}...
-			}}
-		{}
+			, _state(_self.state().lock())
+		{
+			_init<0>(std::forward<Args>(bindables)...);
+		}
+
+		template<int i>
+		inline
+		void _init()
+		{ /* recursion ends here */ }
+
+		template<int i, typename... Args>
+		inline
+		void _init(Bindable& bindable, Args&&... bindables)
+		{
+			auto ptr = ((guard_type*) _guards) + i;
+			new (ptr) guard_type(bindable, _state);
+			try { _init<i + 1>(std::forward<Args>(bindables)...); }
+			catch (...)
+			{
+				ptr->~guard_type();
+				throw;
+			}
+		}
 
 		inline
 		Proxy(Proxy&& other) ETC_NOEXCEPT
 			: _self(other._self)
-			, _guards(std::move(other._guards))
-		{}
+			, _state(std::move(other._state))
+		{
+			for (int i = 0; i < bounds; ++i)
+			{
+				auto ptr = ((guard_type*) _guards) + i;
+				auto other = ((guard_type*) other._guards) + i;
+				new (ptr) guard_type(std::move(*other), _state);
+			}
+		}
 
 		~Proxy()
-		{}
+		{
+			for (int i = 0; i < bounds; ++i)
+			{
+				auto ptr = ((guard_type*) _guards) + i;
+				ptr->~guard_type();
+			}
+		}
 
 		inline
 		Painter* operator ->() ETC_NOEXCEPT

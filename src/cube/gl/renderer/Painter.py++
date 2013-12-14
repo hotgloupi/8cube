@@ -6,6 +6,8 @@
 #include "VertexBuffer.hpp"
 #include "VertexBufferAttribute.hpp"
 
+#include <etc/log.hpp>
+
 #include <wrappers/boost/python.hpp>
 
 namespace {
@@ -16,6 +18,8 @@ namespace {
 	{
 		struct PainterBindProxy
 		{
+			ETC_LOG_COMPONENT("cube.gl.renderer.PainterBindProxy");
+
 			typedef std::unique_ptr<void, std::function<void(void*)>> ProxyPtr;
 
 			renderer::Painter&  _painter;
@@ -29,7 +33,10 @@ namespace {
 				, _bindables{bindables}
 				, _len{(size_t)boost::python::len(bindables)}
 				, _proxy{}
-			{}
+			{ ETC_TRACE_CTOR(); }
+
+			~PainterBindProxy()
+			{ ETC_TRACE_DTOR(); }
 
 			// This shit convert a dynamic list to a static list of arguments.
 			// Generating for 100 elements takes 60 seconds on my machine...
@@ -42,6 +49,7 @@ namespace {
 			{
 				renderer::Bindable& bindable =
 					boost::python::extract<renderer::Bindable&>(_bindables[size]);
+				ETC_TRACE.debug("Extracted first arg", bindable);
 				_build_proxy<size + 1>(std::forward<Args>(args)..., bindable);
 			}
 
@@ -54,15 +62,19 @@ namespace {
 				{
 					renderer::Bindable& bindable =
 						boost::python::extract<renderer::Bindable&>(_bindables[size]);
+					ETC_TRACE.debug("Extracted arg", size, bindable);
 					_build_proxy<size + 1>(std::forward<Args>(args)..., bindable);
 				}
 				else
 				{
+					ETC_TRACE.debug("Create the bindable proxy for", size, "elements");
 					_proxy = ProxyPtr{
 						new renderer::Painter::Proxy<size>{
 							_painter.with(std::forward<Args>(args)...)
 						},
-						[] (void* ptr) { delete (renderer::Painter::Proxy<size>*) ptr; }
+						[] (void* ptr) {
+							delete (renderer::Painter::Proxy<size>*) ptr;
+						}
 					};
 				}
 			}
@@ -77,10 +89,12 @@ namespace {
 
 			renderer::Painter& __enter__()
 			{
+				namespace py = boost::python;
+				ETC_TRACE.debug(*this, "Bind", py::len(_bindables), "elements");
 				if (_len > MAX_BIND_LIST_SIZE)
 					throw renderer::Exception{"Bindable list too big"};
-
 				_build_proxy<0>();
+				ETC_LOG.debug(*this, "All elements are bound");
 				return _painter;
 			}
 
@@ -88,6 +102,8 @@ namespace {
 			              PyObject*,
 			              PyObject*)
 			{
+				namespace py = boost::python;
+				ETC_TRACE.debug(*this, "Unbind", py::len(_bindables), "elements");
 				_proxy.reset();
 			}
 		};
