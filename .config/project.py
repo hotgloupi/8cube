@@ -19,99 +19,161 @@ from tupcfg.lang import c
 from tupcfg.tools import glob, rglob, status
 from tupcfg import path
 
-class Assimp(Dependency):
+from tupcfg.dependency.cmake import CMakeDependency
 
-    def __init__(self, build, compiler, source_directory, boost = None, shared = True, c_compiler = None):
-        super(Assimp, self).__init__(
+class Assimp(CMakeDependency):
+    def __init__(self,
+                 build,
+                 compiler,
+                 source_directory,
+                 boost = None,
+                 shared = True,
+                 c_compiler = None):
+        super().__init__(
             build,
             "Assimp",
-            source_directory = source_directory
+            compiler = compiler,
+            source_directory = source_directory,
+            libraries = [
+                {
+                    'name': 'assimp',
+                    'shared': shared,
+                }
+            ],
+            configure_variables = [
+                ('CMAKE_C_COMPILER', c_compiler.binary),
+                ('Boost_DEBUG', True),
+                ('Boost_DETAILED_FAILURE_MSG', True),
+                ('Boost_NO_SYSTEM_PATHS', True),
+                ('Boost_NO_CMAKE', True,),
+                ('Boost_ADDITIONAL_VERSIONS', '1.55'),
+                ('ASSIMP_BUILD_ASSIMP_TOOLS', False),
+                ('ASSIMP_BUILD_STATIC_LIB', not shared),
+                ('ASSIMP_BUILD_SAMPLES', False),
+                ('ASSIMP_BUILD_TESTS', False),
+                ('ASSIMP_NO_EXPORT', True),
+                ('ASSIMP_DEBUG_POSTFIX', ''),
+            ],
+            configure_env = {
+                'BOOST_ROOT': boost.root_directory,
+                'BOOST_INCLUDEDIR': boost.include_directory,
+                'BOOST_LIBRARYDIR': boost.library_directory,
+            }
         )
-        self.compiler = compiler
-        self.c_compiler = c_compiler
-        self.shared = shared
-        self.boost = boost
-        ext = self.compiler.library_extension(shared)
-        self.library_filename = 'libassimp.%s' % ext
-
-    @property
-    def targets(self):
-        cmake_cmd = [
-            'cmake',
-            path.relative(
-                self.absolute_source_path(),
-                start = self.absolute_build_path()
-            ),
-            '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
-            '-DCMAKE_C_COMPILER=%s' % self.c_compiler.binary,
-            '-DCMAKE_MAKE_PROGRAM=%s' % self.compiler.build.make_program,
-            '-DCMAKE_BUILD_TYPE=RELEASE',
-            '-DBoost_DEBUG=TRUE',
-            '-DBoost_DETAILED_FAILURE_MSG=TRUE',
-            '-DBoost_NO_SYSTEM_PATHS=TRUE',
-            '-DBoost_NO_CMAKE=TRUE',
-            '-DBoost_ADDITIONAL_VERSIONS=1.55',
-            '-DASSIMP_BUILD_ASSIMP_TOOLS=FALSE',
-            '-DASSIMP_BUILD_STATIC_LIB=%s' % (self.shared and "FALSE" or "TRUE"),
-            '-DASSIMP_BUILD_SAMPLES=FALSE',
-            '-DASSIMP_BUILD_TESTS=FALSE',
-            '-DASSIMP_NO_EXPORT=TRUE',
-        ]
-        if platform.IS_WINDOWS:
-            cmake_cmd.extend([
-                '-G', 'MinGW Makefiles',
-            ])
-        configure_target = Command(
-            action = "Configure Assimp",
-            target = Target(self.build, 'assimp/Makefile'),
-            command = cmake_cmd,
-            working_directory = self.absolute_build_path(),
-            env = {
-                'BOOST_ROOT': self.boost.root_directory,
-                'BOOST_INCLUDEDIR': self.boost.include_directory,
-                'BOOST_LIBRARYDIR': self.boost.library_directory,
-            },
-            inputs = self.boost.targets,
-        ).target
-        build_target = Command(
-            action = "Building Assimp",
-            target = Target(self.build, path.join('Assimp/code', self.library_filename)),
-            command = [self.build.make_program, '-j4'],
-            working_directory = self.absolute_build_path(),
-            inputs = [configure_target]
-        ).target
-        return [build_target]
-
-    @property
-    def libraries(self):
-        libs = [
-            cxx.Library(
-                'assimp',
-                self.compiler,
-                shared = self.shared,
-                search_binary_files = False,
-                include_directories = [
-                    self.absolute_source_path('include')
-                ],
-                directories = [self.absolute_build_path('code')],
-                files = [self.absolute_build_path('code', self.library_filename)],
-                save_env_vars = False,
-            )
-        ]
-        if not self.shared and platform.IS_WINDOWS:
-            libs.append(
-                cxx.Library(
+        if not shared and platform.IS_WINDOWS:
+            dir = self.absolute_build_path('build/contrib/zlib')
+            if compiler.name == 'msvc':
+                dir = path.join(dir, self.build_type)
+                files = [path.join(dir, 'zlib.lib')]
+            else:
+                files = [path.join(dir, 'libzlib.a')]
+            self.libraries.append(
+                compiler.Library(
                     'libz',
                     self.compiler,
-                    shared = self.shared,
+                    shared = False,
                     search_binary_files = False,
                     include_directories = [],
-                    directories = [],
-                    files = [self.absolute_build_path('contrib/zlib/libzlib.a')],
+                    directories = [dir],
+                    files = files,
                     save_env_vars = False,
                 )
             )
-        return libs
+
+
+#class Assimp(Dependency):
+#
+#    def __init__(self, build, compiler, source_directory, boost = None, shared = True, c_compiler = None):
+#        super(Assimp, self).__init__(
+#            build,
+#            "Assimp",
+#            source_directory = source_directory
+#        )
+#        self.compiler = compiler
+#        self.c_compiler = c_compiler
+#        self.shared = shared
+#        self.boost = boost
+#        ext = self.compiler.library_extension(shared)
+#        self.library_filename = 'libassimp.%s' % ext
+#
+#    @property
+#    def targets(self):
+#        cmake_cmd = [
+#            'cmake',
+#            path.relative(
+#                self.absolute_source_path(),
+#                start = self.absolute_build_path()
+#            ),
+#            '-DCMAKE_CXX_COMPILER=%s' % self.compiler.binary,
+#            '-DCMAKE_C_COMPILER=%s' % self.c_compiler.binary,
+#            '-DCMAKE_MAKE_PROGRAM=%s' % self.compiler.build.make_program,
+#            '-DCMAKE_BUILD_TYPE=RELEASE',
+#            '-DBoost_DEBUG=TRUE',
+#            '-DBoost_DETAILED_FAILURE_MSG=TRUE',
+#            '-DBoost_NO_SYSTEM_PATHS=TRUE',
+#            '-DBoost_NO_CMAKE=TRUE',
+#            '-DBoost_ADDITIONAL_VERSIONS=1.55',
+#            '-DASSIMP_BUILD_ASSIMP_TOOLS=FALSE',
+#            '-DASSIMP_BUILD_STATIC_LIB=%s' % (self.shared and "FALSE" or "TRUE"),
+#            '-DASSIMP_BUILD_SAMPLES=FALSE',
+#            '-DASSIMP_BUILD_TESTS=FALSE',
+#            '-DASSIMP_NO_EXPORT=TRUE',
+#        ]
+#        if platform.IS_WINDOWS:
+#            cmake_cmd.extend([
+#                '-G', 'MinGW Makefiles',
+#            ])
+#        configure_target = Command(
+#            action = "Configure Assimp",
+#            target = Target(self.build, 'assimp/Makefile'),
+#            command = cmake_cmd,
+#            working_directory = self.absolute_build_path(),
+#            env = {
+#                'BOOST_ROOT': self.boost.root_directory,
+#                'BOOST_INCLUDEDIR': self.boost.include_directory,
+#                'BOOST_LIBRARYDIR': self.boost.library_directory,
+#            },
+#            inputs = self.boost.targets,
+#        ).target
+#        build_target = Command(
+#            action = "Building Assimp",
+#            target = Target(self.build, path.join('Assimp/code', self.library_filename)),
+#            command = [self.build.make_program, '-j4'],
+#            working_directory = self.absolute_build_path(),
+#            inputs = [configure_target]
+#        ).target
+#        return [build_target]
+#
+#    @property
+#    def libraries(self):
+#        libs = [
+#            cxx.Library(
+#                'assimp',
+#                self.compiler,
+#                shared = self.shared,
+#                search_binary_files = False,
+#                include_directories = [
+#                    self.absolute_source_path('include')
+#                ],
+#                directories = [self.absolute_build_path('code')],
+#                files = [self.absolute_build_path('code', self.library_filename)],
+#                save_env_vars = False,
+#            )
+#        ]
+#        if not self.shared and platform.IS_WINDOWS:
+#            libs.append(
+#                cxx.Library(
+#                    'libz',
+#                    self.compiler,
+#                    shared = self.shared,
+#                    search_binary_files = False,
+#                    include_directories = [],
+#                    directories = [],
+#                    files = [self.absolute_build_path('contrib/zlib/libzlib.a')],
+#                    save_env_vars = False,
+#                )
+#            )
+#        return libs
 
 class GLM(Dependency):
     def __init__(self, build, compiler, source_directory):
