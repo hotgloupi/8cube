@@ -100,7 +100,7 @@ usage()
 debug "Updating boost"
 if [ ! -d boost ]
 then
-	svn co http://svn.boost.org/svn/boost/trunk boost
+	svn co http://svn.boost.org/svn/boost/tags/release/Boost_1_55_0 boost
 else
 	( cd boost && svn update )
 fi
