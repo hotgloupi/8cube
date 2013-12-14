@@ -175,18 +175,23 @@ namespace etc { namespace log {
 #ifdef ETC_DEBUG
 				, dropped{0}
 #endif
-				, thread{[this] { this->service.run(); }}
+				, thread{[this] {
+					while (!this->stopped)
+					{
+						try { this->service.run(); }
+						catch (std::exception const& err)
+						{ logger_log("Couldn't log: ", err.what()); }
+					}
+				}}
 				, async{!etc::sys::environ::contains("ETC_LOG_SYNC")}
 			{}
 
-			template<typename Fn>
-			inline
-			void post(Fn fn)
+			void post(std::function<void()> fn)
 			{
-				if (this->async)
+				if (this->async && !this->stopped)
 				{
 #ifdef ETC_DEBUG
-				this->service.post([=] {
+				this->service.post([this, fn] {
 					if (!this->stopped)
 						fn();
 					else
@@ -212,13 +217,12 @@ namespace etc { namespace log {
 		                      Line line,
 		                      std::string message)
 		{
-
 			static std::string level_strings[] = {
-				etc::to_string(Level::debug),
-				etc::to_string(Level::info),
-				etc::to_string(Level::warn),
-				etc::to_string(Level::error),
-				etc::to_string(Level::fatal),
+				"DEBUG",
+				"INFO",
+				"WARN",
+				"ERROR",
+				"FATAL",
 			};
 			std::string const& level_string = level_strings[(size_t)line.level];
 			std::string line_string{std::to_string(line.line)};
@@ -399,7 +403,8 @@ namespace etc { namespace log {
 		});
 		std::thread waiter_thread{[&] {s.run();}};
 #endif
-		runner().thread.join();
+		if (runner().thread.joinable())
+			runner().thread.join();
 #ifdef ETC_DEBUG
 		timer.cancel();
 		waiter_thread.join();
@@ -468,7 +473,16 @@ namespace etc { namespace log {
 					std::move(message)
 				)
 			);
-		} catch (...) { assert(false && "Couldn't log a message"); }
+		}
+		catch (std::exception const& err)
+		{
+			std::cerr << "Couldn't log a message: "
+			          << err.what() << std::endl;
+		}
+		catch (...)
+		{
+			std::cerr << "Couldn't log a message" << std::endl;
+		}
 	}
 
 }} // !etc::log

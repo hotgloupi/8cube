@@ -8,6 +8,8 @@
 # include <cxxabi.h>
 #endif
 
+#include <iostream>
+
 namespace etc {
 
 	bool
@@ -15,7 +17,10 @@ namespace etc {
 	         std::string& res,
 	         std::string& error) ETC_NOEXCEPT
 	{
-#ifndef BOOST_MSVC
+#ifdef BOOST_MSVC
+		error = "Not implemented";
+		return false;
+#else
 		size_t size;
 		int status;
 		char* demangled;
