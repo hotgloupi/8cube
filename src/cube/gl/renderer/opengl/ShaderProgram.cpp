@@ -276,6 +276,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 					continue;
 				}
 				std::string valid_name{&name[0], static_cast<size_t>(written)};
+				if (valid_name.find('[') != std::string::npos)
+				{
+					// Nvidia choose to expose names ending with '[0]' for
+					// arrays, we ignore silently the fact  that we have an
+					// array (as it's not portable).
+					valid_name.resize(valid_name.find('['));
+				}
 				location = gl::GetUniformLocation(_id, valid_name.c_str());
 				if (location < 0)
 				{
