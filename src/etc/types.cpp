@@ -65,12 +65,14 @@ namespace etc {
 		std::string error;
 		std::string res;
 		if (!demangle(sym, res, error))
+		{
 			if (tp == can_throw_policy)
 				throw std::runtime_error(
 					etc::to_string("couldn't demangle", sym, ":", error)
 				);
 			else
 				return sym;
+		}
 		return res;
 	}
 
