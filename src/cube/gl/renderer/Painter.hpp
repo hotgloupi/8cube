@@ -183,8 +183,8 @@ namespace cube { namespace gl { namespace renderer {
 			for (int i = 0; i < bounds; ++i)
 			{
 				auto ptr = ((guard_type*) _guards) + i;
-				auto other = ((guard_type*) other._guards) + i;
-				new (ptr) guard_type(std::move(*other), _state);
+				auto guards = ((guard_type*) other._guards) + i;
+				new (ptr) guard_type(std::move(*guards));
 			}
 		}
 
