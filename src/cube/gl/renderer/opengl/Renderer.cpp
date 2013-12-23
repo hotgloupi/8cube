@@ -209,8 +209,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	RendererType::RendererType()
-		: opengl{{0, 0}}
-		, glsl{{0, 0}}
+		: opengl{}
+		, glsl{}
 	{
 		int major, minor;
 		find_version(glGetString(GL_VERSION), &major, &minor);
