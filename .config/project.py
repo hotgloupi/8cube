@@ -374,7 +374,7 @@ def configure(project, build):
         )
     else: #elif platform.IS_MACOSX:
         base_libraries.extend(
-            c.libraries.simple(name, compiler, shared=True) for name in ['z', 'bz2',]
+            c.libraries.simple(name, compiler, system = True) for name in ['z', 'bz2',]
         )
 
 
