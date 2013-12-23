@@ -8,7 +8,7 @@ class _(PainterSetup, TestCase):
         def source(self, lang):
             return """
                 gl_Position = cube_MVP * vec4(cube_Vertex, 0, 1);
-                gl_TexCoord[0] = vec4(cube_TexCoord0, 0, 1);
+                cube_TexCoord0 = cube_VertexTexCoord0;
             """
 
     vs_inputs = [
@@ -19,17 +19,23 @@ class _(PainterSetup, TestCase):
         ),
         (
             gl.ShaderParameterType.vec2,
+            "cube_VertexTexCoord0",
+            gl.ContentKind.tex_coord0
+        ),
+    ]
+
+    vs_outputs = [
+        (
+            gl.ShaderParameterType.vec2,
             "cube_TexCoord0",
             gl.ContentKind.tex_coord0
         ),
     ]
 
-    vs_outputs = []
-
     class FSRoutine(gl.ShaderRoutine):
         def source(self, lang):
             return """
-                vec4 color = texture2D(sampler0, vec2(gl_TexCoord[0]));
+                vec4 color = texture2D(sampler0, vec2(cube_TexCoord0));
                 cube_FragColor = color;
             """
 
@@ -40,7 +46,13 @@ class _(PainterSetup, TestCase):
         ),
     ]
 
-    fs_inputs = []
+    fs_inputs = [
+        (
+            gl.ShaderParameterType.vec2,
+            "cube_TexCoord0",
+            gl.ContentKind.tex_coord0
+        ),
+    ]
     fs_outputs = [
         (
             gl.ShaderParameterType.vec4,
