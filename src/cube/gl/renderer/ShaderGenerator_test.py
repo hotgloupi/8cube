@@ -32,6 +32,10 @@ class _(RendererSetup, TestCase):
             gl.ShaderParameterType.vec4,
             "cube_Color",
             gl.ContentKind.color
+        ).output(
+            gl.ShaderParameterType.vec2,
+            "cube_TexCoord",
+            gl.ContentKind.tex_coord0
         )
         self.assertIsInstance(gen.source, str)
 
