@@ -147,7 +147,7 @@ namespace cube { namespace system { namespace window {
 		, _height{height}
 		, _flags{flags}
 		, _name{name}
-	{}
+	{ ETC_TRACE_CTOR(); }
 
 	etc::size_type RendererContext::width() const ETC_NOEXCEPT
 	{ return _width; }
@@ -171,8 +171,6 @@ namespace cube { namespace system { namespace window {
 	}
 
 	RendererContext::~RendererContext()
-	{
-		ETC_LOG.debug(this, "Deleting renderer context");
-	}
+	{ ETC_TRACE_DTOR(); }
 
 }}} // !cube::system::window
