@@ -348,10 +348,11 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				memset(&this->renderer_info, 0, sizeof(this->renderer_info));
 			}
 
-			ETC_LOG.debug("Retreive Window handle");
-			SDL_VERSION(&this->wm.version);
-			if (SDL_GetWindowWMInfo(this->window, &this->wm) == SDL_FALSE)
-				throw SDLException{"GetWindowWMInfo"};
+			// GetWindowWMInfo seems to write 4 bytes more than this->wm ...
+			// ETC_LOG.debug("Retreive Window handle");
+			// SDL_VERSION(&this->wm.version);
+			// if (SDL_GetWindowWMInfo(this->window, &this->wm) == SDL_FALSE)
+			// 	throw SDLException{"GetWindowWMInfo"};
 /*
 			SDL_WindowShapeMode shape_mode;
 			shape_mode.mode = ShapeModeDefault;
