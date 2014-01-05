@@ -10,14 +10,27 @@
 
 namespace cube { namespace scene {
 
+	/**
+	 * Generic graph.
+	 *
+	 * Stores any kind of object in nodes
+	 */
 	class CUBE_API Graph
 	{
 	public:
+		/// Node interface.
 		class Node;
+
+		/// Node id type.
 		typedef size_t id_type;
+
 	private:
+		// Pimpl.
 		struct Impl;
 		std::unique_ptr<Impl> _this;
+
+	private:
+		// Root node.
 		Node& _root;
 
 	public:
@@ -25,7 +38,7 @@ namespace cube { namespace scene {
 		~Graph();
 
 	public:
-		/// The graph root node its id equals 0, and it's data is nullptr.
+		/// The graph root node its id equals 0, and its data is nullptr.
 		inline
 		Node& root() ETC_NOEXCEPT
 		{ return _root; }
@@ -37,7 +50,7 @@ namespace cube { namespace scene {
 	public:
 		/// Add an object to the graph and returns the created node.
 		/// @param object The value associated to the node. Its lifetime should
-		/// be equal to the node.
+		/// be longer than the node's one.
 		template<typename T>
 		inline
 		Node& add(T& object, Node* parent = nullptr)
@@ -75,6 +88,9 @@ namespace cube { namespace scene {
 		void _remove(Node const& node) ETC_NOEXCEPT;
 	};
 
+	/**
+	 * Hold some data in the graph.
+	 */
 	class Graph::Node
 		: public etc::Printable
 	{

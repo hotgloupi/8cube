@@ -11,6 +11,9 @@
 
 namespace cube { namespace scene {
 
+	/**
+	 * Stores meshes and materials relative to a scene.
+	 */
 	class CUBE_API Scene
 	{
 	private:
