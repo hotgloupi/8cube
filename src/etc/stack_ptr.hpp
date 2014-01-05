@@ -30,7 +30,11 @@ namespace etc {
 		stack_ptr(Args&&... args)
 			ETC_NOEXCEPT_IF(std::is_nothrow_constructible<T, Args...>::value)
 			: _valid{true}
-		{ new (_storage) T{std::forward<Args>(args)...}; }
+		{
+			// We don't care about resetting _valid to false in case of
+			// exception because the destructor is not called.
+			new (_storage) T{std::forward<Args>(args)...};
+		}
 
 		inline
 		stack_ptr(stack_ptr&& other)
@@ -38,8 +42,8 @@ namespace etc {
 			: _valid{other._valid}
 		{
 			if (_valid)
-				// We just move the value of the other stack_ptr, whose dtor
-				// will call the _value dtor.
+				// We don't care about resetting _valid to false in case of
+				// exception because the destructor is not called.
 				new (_storage) T(std::move(other.get()));
 		}
 
@@ -49,6 +53,8 @@ namespace etc {
 			: _valid{other._valid}
 		{
 			if (_valid)
+				// We don't care about resetting _valid to false in case of
+				// exception because the destructor is not called.
 				new (_storage) T(other.get());
 		}
 
