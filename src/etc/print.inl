@@ -52,9 +52,9 @@ namespace etc {
 		template <typename T>
 		struct is_iomanip<T const> { static bool const value = is_iomanip<T>::value; };
 		template <>
-		struct is_iomanip<iomanip::Separator> { static bool const value = true; };
+		struct is_iomanip<io::Separator> { static bool const value = true; };
 		template <>
-		struct is_iomanip<iomanip::EndOfLine> { static bool const value = true; };
+		struct is_iomanip<io::EndOfLine> { static bool const value = true; };
 
 		// generic value sprint
 		template<typename T>
@@ -72,32 +72,32 @@ namespace etc {
 
 		// specialization to treat separator classes
 		ETC_API bool
-		sprint_value(std::ostream&                      out,
-		             PrintFlags&                        flags,
-		             bool                               is_first,
-		             etc::iomanip::Separator const&     value);
+		sprint_value(std::ostream& out,
+		             PrintFlags& flags,
+		             bool is_first,
+		             io::Separator const& value);
 
 		// specialization to treat end of line classes
 		ETC_API bool
-		sprint_value(std::ostream&                      out,
-		             PrintFlags&                        flags,
-		             bool                               is_first,
-		             etc::iomanip::EndOfLine const&     value);
+		sprint_value(std::ostream& out,
+		             PrintFlags& flags,
+		             bool is_first,
+		             io::EndOfLine const &value);
 
 		// sprint recursion ends here
 		ETC_API void
-		sprint(std::ostream&                            out,
-		       PrintFlags&                              flags,
-		       bool                                     is_first);
+		sprint(std::ostream& out,
+		       PrintFlags& flags,
+		       bool is_first);
 
 		// Generic sprint
 		template <typename T, typename... U>
 		void
-		sprint(std::ostream&                            out,
-		       PrintFlags&                              flags,
-		       bool                                     is_first,
-		       T&&                                      value,
-		       U&&...                                   values)
+		sprint(std::ostream& out,
+		       PrintFlags& flags,
+		       bool is_first,
+		       T&& value,
+		       U&&... values)
 		{
 			is_first = sprint_value(out, flags, is_first, std::forward<T>(value));
 			sprint(out, flags, is_first, std::forward<U>(values)...);
@@ -157,7 +157,7 @@ namespace etc {
 	std::string stringify(T&&... values)
 	{
 		std::ostringstream ss;
-		sprint(ss, iomanip::nonewline(), std::forward<T>(values)...);
+		sprint(ss, io::nonewline(), std::forward<T>(values)...);
 		return ss.str();
 	}
 

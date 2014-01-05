@@ -91,7 +91,7 @@ namespace {
 			self.hint,
 			"arity=" + etc::to_string(self.arity),
 			"nb_elements=" + etc::to_string(self.nb_elements),
-			etc::iomanip::nosep(),
+			etc::io::nosep(),
 			'>'
 		);
 	}

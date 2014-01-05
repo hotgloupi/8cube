@@ -39,7 +39,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		std::string version_source() const
 		{
 			return etc::to_string(
-				etc::iomanip::nosep(), "#version ", this->glsl_version
+				etc::io::nosep(), "#version ", this->glsl_version
 			);
 		}
 

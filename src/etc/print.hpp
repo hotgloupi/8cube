@@ -11,7 +11,7 @@
 /**
  * This module defines straightforward functions devoted to print or convert
  * to string any values. In addition, some manipulators are defined in the
- * `iomanip' namespace, when the default behavior does not fit.
+ * `io' namespace, when the default behavior does not fit.
  */
 
 namespace etc {
@@ -45,13 +45,13 @@ namespace etc {
 	/**
 	 * Same as `sprint' but returns a string instead of printing it, and do not
 	 * terminate the line with a line feed (this can be overriden with
-	 * etc::iomanip::newline manipulator).
+	 * etc::io::newline manipulator).
 	 */
 	template<typename... T>
 	std::string stringify(T&&... values);
 
     /// manipulators for print functions are defined here
-	namespace iomanip {
+	namespace io {
 
 		/// You can define your own separator with this class, but common
 		/// separators are defined as constants.
@@ -155,7 +155,7 @@ namespace etc {
 			return EndOfLine(std::forward<T>(s));
 		}
 
-	} // !iomanip
+	} // !io
 
 } // !etc
 

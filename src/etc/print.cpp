@@ -10,7 +10,7 @@ namespace etc {
 		sprint_value(std::ostream&                      /*out*/,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
-		             etc::iomanip::Separator const&     value)
+		             etc::io::Separator const&     value)
 		{
 			flags.sep = value.sep;
 			return is_first;
@@ -20,7 +20,7 @@ namespace etc {
 		sprint_value(std::ostream&                      /*out*/,
 		             PrintFlags&                        flags,
 		             bool                               is_first,
-		             etc::iomanip::EndOfLine const&     value)
+		             etc::io::EndOfLine const&     value)
 		{
 			flags.endl = value.endl;
 			return is_first;

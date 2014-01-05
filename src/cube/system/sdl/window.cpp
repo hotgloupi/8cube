@@ -242,12 +242,12 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			{
 				ETC_TRACE("First renderer context, initialize SDL");
 				ETC_LOG(
-					"Compiled SDL version ", etc::iomanip::nosep(),
+					"Compiled SDL version ", etc::io::nosep(),
 					(int)this->compiled.major, '.', (int)this->compiled.minor, '-',
 					(int)this->compiled.patch
 				);
 				ETC_LOG(
-					"Linked SDL version ", etc::iomanip::nosep(),
+					"Linked SDL version ", etc::io::nosep(),
 					(int)this->linked.major, '.', (int)this->linked.minor, '-',
 					(int)this->linked.patch
 				);
