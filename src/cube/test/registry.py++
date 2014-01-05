@@ -1,0 +1,78 @@
+#include <etc/test/Registry.hpp>
+#include <etc/test/Case.hpp>
+
+#include <etc/memory.hpp>
+
+#include <wrappers/boost/python.hpp>
+
+using namespace etc::test;
+namespace py = boost::python;
+
+namespace {
+
+	class PythonTestCase
+		: public Case
+	{
+		py::object _callable;
+
+	public:
+		PythonTestCase(py::object callable,
+		               std::string file,
+		               unsigned int line,
+		               std::string name,
+		               CaseSetupBase* setup)
+			: Case(std::move(file), line, std::move(name), setup)
+			, _callable{callable}
+		{}
+
+		void operator ()() override
+		{ _callable(); }
+	};
+
+	class PythonSetupTestCase
+		: public CaseSetupBase
+	{
+	private:
+		py::object _setup;
+		py::object _teardown;
+
+	public:
+		PythonSetupTestCase(py::object setup, py::object teardown)
+			: _setup(setup)
+			, _teardown(teardown)
+		{}
+		void setUp() override { _setup(); }
+		void tearDown() override { _teardown(); }
+	};
+
+	void registry_add(py::object setup,
+	                  py::object teardown,
+	                  py::object callable,
+	                  std::string file,
+	                  unsigned int line,
+	                  std::string name)
+	{
+		auto case_setup = etc::make_unique<PythonSetupTestCase>(setup, teardown);
+		registry().add(
+			new PythonTestCase(
+				callable,
+				std::move(file),
+				line,
+				std::move(name),
+				case_setup.get()
+			)
+		);
+		case_setup.release();
+	}
+
+	bool registry_run() { return registry().run(); }
+
+} // !anonymous
+
+BOOST_PYTHON_MODULE(registry)
+{
+
+	py::def("add", &registry_add);
+	py::def("run", &registry_run);
+}
+
