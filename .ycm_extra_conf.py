@@ -38,10 +38,17 @@ elif sys.platform.startswith('darwin'):
         '/Users/hotgloupi/local/lib/c++/v1',
     ])
 elif sys.platform.startswith('linux'):
-    include_dirs.extend([
-        '/usr/include/c++/4.8',
-        '/usr/include/c++/4.7',
-    ])
+    for gcc_version in ['4.8', '4.7']:
+        include_dirs.extend([
+            '/usr/include/c++/%s' % gcc_version,
+            '/usr/include/i386-linux-gnu/c++/%s' % gcc_version,
+            '/usr/include/c++/%s/backward' % gcc_version,
+            '/usr/lib/gcc/i686-linux-gnu/%s/include' % gcc_version,
+            '/usr/local/include',
+            '/usr/lib/gcc/i686-linux-gnu/%s/include-fixed' % gcc_version,
+            '/usr/include/i386-linux-gnu',
+            '/usr/include'
+        ])
 
 flags = [
     '-Wall',
@@ -51,6 +58,7 @@ flags = [
     '-x', 'c++',
 ]
 
+print(include_dirs)
 for d in include_dirs:
     flags.append('-I')
     flags.append(d)
