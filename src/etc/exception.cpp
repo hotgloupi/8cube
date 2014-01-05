@@ -5,11 +5,24 @@
 #include <etc/log.hpp>
 #include <etc/sys/environ.hpp>
 
+#include <exception>
 #include <iostream>
 
 namespace etc { namespace exception {
 
 	ETC_LOG_COMPONENT("etc.exception.Exception");
+
+	std::string string()
+	{ return string(std::current_exception()); }
+
+	std::string string(std::exception_ptr e)
+	{
+		try { std::rethrow_exception(e); }
+		catch (std::exception const& err)
+		{ return err.what(); }
+		catch (...)
+		{ return "Unknown error type"; }
+	}
 
 	Exception::Exception(std::string const& msg)
 		: std::runtime_error(msg)

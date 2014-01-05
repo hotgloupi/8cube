@@ -9,6 +9,9 @@
 
 namespace etc { namespace exception {
 
+	std::string string();
+	std::string string(std::exception_ptr e);
+
 	class ETC_API_EXCEPTION Exception
 		: public std::runtime_error
 	{
