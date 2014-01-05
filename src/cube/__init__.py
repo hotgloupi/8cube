@@ -16,5 +16,5 @@ from .log import \
     trace, trace_info, trace_warn, trace_error, trace_fatal
 
 from .application import Application
-from . import constants, resource, system, gl, gui, scene
+from . import constants, resource, system, gl, gui, scene, test
 
