@@ -16,6 +16,11 @@ def console():
             pass
     if readline is None:
         cube.warn("Couldn't import any readline module")
+    else:
+        import rlcompleter
+        readline.set_completer(rlcompleter.Completer(locals_).complete)
+        readline.parse_and_bind("tab: complete")
+
     code.InteractiveConsole(locals_).interact(
         banner="Type 'help(cube)' to get started."
     )
