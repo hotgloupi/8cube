@@ -374,6 +374,9 @@ namespace cube { namespace gl { namespace font {
 	Font::~Font()
 	{}
 
+	renderer::Renderer& Font::renderer() ETC_NOEXCEPT
+	{ return _impl->renderer; }
+
 	renderer::VertexBufferPtr
 	Font::generate_text(std::string const& str)
 	{

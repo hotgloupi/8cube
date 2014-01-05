@@ -36,6 +36,11 @@ namespace cube { namespace gl { namespace font {
 		~Font();
 
 		/**
+		 * Retreive the associated renderer
+		 */
+		renderer::Renderer& renderer() ETC_NOEXCEPT;
+
+		/**
 		 * @brief Generate a vertex buffer corresponding to a string.
 		 *
 		 * The vertex buffer returned is filled with vertices and font texture
