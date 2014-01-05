@@ -4,6 +4,7 @@
 #include <etc/assert.hpp>
 #include <etc/abort.hpp>
 #include <etc/log.hpp>
+#include <etc/scope_exit.hpp>
 
 #include <vector>
 
