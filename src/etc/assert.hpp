@@ -19,9 +19,14 @@ namespace etc {
 		virtual std::string const& what() const ETC_NOEXCEPT;
 	};
 
-# define ETC_ENFORCE(expr) \
-	if (!(expr)) ::etc::detail::raise_assert(__FILE__, __LINE__, #expr) \
+# define ETC_ERROR(message)                                                   \
+	::etc::detail::raise_assert(__FILE__, __LINE__, message)                  \
 /**/
+
+# define ETC_ENFORCE(expr)                                                    \
+	if (!(expr)) ETC_ERROR(#expr)                                             \
+/**/
+
 # define ETC_ENFORCE_EQ(v1, v2)  ETC_ASSERT_DETAIL_OP(eq, v1, v2)
 # define ETC_ENFORCE_NEQ(v1, v2) ETC_ASSERT_DETAIL_OP(neq, v1, v2)
 # define ETC_ENFORCE_GT(v1, v2)  ETC_ASSERT_DETAIL_OP(gt, v1, v2)
