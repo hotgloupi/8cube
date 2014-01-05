@@ -36,6 +36,8 @@ namespace etc { namespace test {
 			std::string error;
 			try {
 				ETC_TRACE.debug("Running test", ptr->name, "at", ptr->file, ptr->line);
+				ptr->setUp();
+				ETC_SCOPE_EXIT{ ptr->tearDown(); };
 				(*ptr)();
 				success = true;
 			} catch (std::exception const& e) {
