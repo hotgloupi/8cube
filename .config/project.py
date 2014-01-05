@@ -298,7 +298,9 @@ def configure(project, build):
             'filesystem',
             'python',
             'signals2',
-            'thread'
+            'thread',
+            'coroutine',
+            'context',
         ],
         #preferred_shared = False,
         #        python3_shared = True,
