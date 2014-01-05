@@ -1,11 +1,13 @@
 #include "text.hpp"
 
 #include "font.hpp"
-#include "renderer/Painter.hpp"
-#include "renderer/Renderer.hpp"
-#include "renderer/ShaderProgram.hpp"
-#include "renderer/VertexBuffer.hpp"
-#include "renderer/Texture.hpp"
+
+#include <cube/gl/material.hpp>
+#include <cube/gl/renderer/Painter.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/VertexBuffer.hpp>
+#include <cube/gl/renderer/Texture.hpp>
 
 namespace cube { namespace gl { namespace text {
 
@@ -15,7 +17,19 @@ namespace cube { namespace gl { namespace text {
 		: _font(font)
 		, _size(str.size())
 		, _vertices{_font.generate_text(str)}
-	{}
+		, _material{new material::Material}
+		, _material_view{nullptr}
+	{
+		_material->add_texture(
+		    _font.texture(),
+		    material::TextureType::opacity,
+		    material::TextureMapping::uv,
+		    material::StackOperation::add,
+		    material::TextureMapMode::wrap,
+		    1.0// material::BlendMode::basic
+		);
+		_material->ambient(color::Color3f("black"));
+	}
 
 	template
 	CUBE_API
@@ -33,12 +47,13 @@ namespace cube { namespace gl { namespace text {
 	Text::~Text()
 	{}
 
-	void Text::draw(renderer::Painter& painter,
-	                renderer::ShaderProgramParameter& sampler)
+	void Text::draw(renderer::Painter& painter)
 	{
-		auto proxy = painter.with(*_font.texture());
-		sampler = *_font.texture();
-		proxy->draw_arrays(renderer::DrawMode::quads, *_vertices);
+		if (_material_view == nullptr)
+			_material_view = _material->bindable(_font.renderer());
+
+		painter.with(*_material_view)
+			->draw_arrays(renderer::DrawMode::quads, *_vertices);
 	}
 
 }}}

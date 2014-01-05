@@ -21,6 +21,8 @@ namespace cube { namespace gl { namespace text {
 		font::Font&               _font;
 		etc::size_type            _size;
 		renderer::VertexBufferPtr _vertices;
+		material::MaterialPtr     _material;
+		renderer::BindablePtr     _material_view;
 
 	public:
 		template<typename CharType>
@@ -32,8 +34,7 @@ namespace cube { namespace gl { namespace text {
 		{}
 		~Text();
 
-		void draw(renderer::Painter& painter,
-		          renderer::ShaderProgramParameter& sampler);
+		void draw(renderer::Painter& painter);
 	};
 
 }}}
