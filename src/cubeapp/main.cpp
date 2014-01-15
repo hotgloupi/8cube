@@ -1,7 +1,6 @@
 
 #include "python/Interpreter.hpp"
 
-#include <cube/main_proto.hpp>
 #include <cube/debug/Performance.hpp>
 
 #include <etc/log.hpp>
@@ -30,7 +29,7 @@ static std::string safe_path(std::string const& path)
 
 ETC_LOG_COMPONENT("cubeapp.main");
 
-CUBE_MAIN_PROTO(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	ETC_SCOPE_EXIT{
 		cube::debug::Performance::instance().shutdown();
