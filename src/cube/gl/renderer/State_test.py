@@ -3,9 +3,9 @@ from cube import gl
 from cube.gl.renderer.State import StateHolder
 from cube.units import angle
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def setUp(self):
         self.s = StateHolder(gl.mode_2d).state

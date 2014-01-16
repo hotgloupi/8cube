@@ -1,10 +1,10 @@
 # -*- encoding: utf8 -*-
 
-from unittest import TestCase
+from cube.test import Case
 
 from .angle import Angle, rad, deg, rad_value, deg_value
 
-class _(TestCase):
+class _(Case):
 
     def test_angle(self):
         a = Angle()

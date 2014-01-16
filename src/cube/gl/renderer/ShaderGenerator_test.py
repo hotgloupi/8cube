@@ -3,9 +3,9 @@ from .Renderer_test import RendererSetup
 
 from cube import gl
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(RendererSetup, TestCase):
+class _(RendererSetup, Case):
 
     def test_create_proxy(self):
         gen = self.renderer.generate_shader(gl.ShaderType.vertex)

@@ -3,9 +3,9 @@
 from .plane import Planef, Planed
 from . import vec3f
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def test_normalized(self):
         p = Planef(vec3f(0,0,0), vec3f(0,1,0))

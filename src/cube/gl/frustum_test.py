@@ -3,9 +3,9 @@
 from cube.gl import frustum, vec3il, vec3f, Sphereil, vec3d, vector
 from cube.units import deg
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def setUp(self):
         fov = deg(45.0)

@@ -2,9 +2,9 @@
 
 from .channel import Channel
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def test_init(self):
         c = Channel('test')

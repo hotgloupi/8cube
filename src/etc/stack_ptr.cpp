@@ -7,14 +7,14 @@ namespace etc {
 
 	namespace {
 
-		ETC_TEST_CASE(stack_ptr_no_init)
+		ETC_TEST_CASE(no_init)
 		{
 			struct A { A() { etc::abort(); } };
 			stack_ptr<A> ptr{stack_ptr_no_init};
 			ETC_ENFORCE_EQ(ptr, false);
 		}
 
-		ETC_TEST_CASE(stack_ptr_default_ctor)
+		ETC_TEST_CASE(default_ctor)
 		{
 			struct A { A() { i = 42; } int i; };
 			stack_ptr<A> ptr;
@@ -22,7 +22,7 @@ namespace etc {
 			ETC_ENFORCE_EQ(ptr->i, 42);
 		}
 
-		ETC_TEST_CASE(stack_ptr_move_ctor)
+		ETC_TEST_CASE(move_ctor)
 		{
 			struct A { int i; A() { i = 42; } A(A&& o) : A{} { o.i *= -1; } };
 			stack_ptr<A> a;
@@ -32,7 +32,7 @@ namespace etc {
 			ETC_ENFORCE_EQ(a->i, -42);
 		}
 
-		ETC_TEST_CASE(stack_ptr_dtor_called)
+		ETC_TEST_CASE(dtor_called)
 		{
 			bool called = false;
 			{
@@ -43,13 +43,13 @@ namespace etc {
 			ETC_ENFORCE_EQ(called, true);
 		}
 
-		ETC_TEST_CASE(stack_ptr_of_non_movable)
+		ETC_TEST_CASE(of_non_movable)
 		{
 			struct A { A() {}; A(A&&) = delete; };
 			stack_ptr<A> a;
 		}
 
-		ETC_TEST_CASE(stack_ptr_of_non_copyable)
+		ETC_TEST_CASE(of_non_copyable)
 		{
 			struct A { A() {}; A(A const&) = delete; A(A&&) = delete; };
 			stack_ptr<A> a;

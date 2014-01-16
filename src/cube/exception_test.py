@@ -2,9 +2,9 @@
 
 from . import exception
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def test_raise_from_cpp(self):
         try:

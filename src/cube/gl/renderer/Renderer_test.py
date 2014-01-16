@@ -6,7 +6,7 @@ from cube.system.window import create_renderer_context,\
 from cube.gl.renderer import Name, mode_2d, mode_3d, Painter
 from cube.gl.viewport import Viewport
 
-from unittest import TestCase
+from cube.test import Case
 
 class RendererSetup:
 
@@ -26,7 +26,7 @@ class RendererSetup:
         import gc
         gc.collect()
 
-class _(RendererSetup, TestCase):
+class _(RendererSetup, Case):
     def test_viewport(self):
         self.assertEqual(self.renderer.viewport.x, 0)
         self.assertEqual(self.renderer.viewport.y, 0)

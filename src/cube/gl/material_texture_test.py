@@ -2,10 +2,10 @@ from .material import Material
 from .renderer.Painter_test import PainterSetup, painter_test
 from cube.units import angle
 from cube import gl
-from unittest import TestCase
+from cube.test import Case
 
 
-class _(PainterSetup, TestCase):
+class _(PainterSetup, Case):
     __cube = None
 
     @property

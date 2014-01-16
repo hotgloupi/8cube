@@ -2,9 +2,9 @@
 
 from .object import Object
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def setUp(self):
         class EventManager:

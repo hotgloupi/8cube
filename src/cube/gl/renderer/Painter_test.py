@@ -19,7 +19,7 @@ import time
 import sys
 import inspect
 
-from unittest import TestCase
+from cube.test import Case
 
 class PainterSetup:
     class VSRoutine(gl.ShaderRoutine):
@@ -202,12 +202,10 @@ def painter_test(mode, delta = 0.01):
             self.assertAlmostEqual(diff, 0, delta = delta,
                                    msg = "%s and %s are not the same" % (thruth, img))
             os.unlink(img)
-
-        wrapper.__name__ = func.__name__
         return wrapper
     return _painter_test
 
-class _(PainterSetup, TestCase):
+class _(PainterSetup, Case):
 
     def test_state_stack(self):
         with self.renderer.begin(mode_2d) as p:

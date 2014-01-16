@@ -238,7 +238,7 @@ namespace etc { namespace backtrace {
 		}
 
 
-		ETC_TEST_CASE(backtrace_simple)
+		ETC_TEST_CASE(simple)
 		{
 			Backtrace* b = func();
 			ETC_ENFORCE_EQ(b->at(1).symbol, "func");

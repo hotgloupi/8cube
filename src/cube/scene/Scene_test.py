@@ -2,10 +2,10 @@ from cube import scene
 from cube import gl
 from cube.units import angle
 
-from unittest import TestCase
+from cube.test import Case
 from cube.gl.renderer.Painter_test import PainterSetup, painter_test
 
-class _(PainterSetup, TestCase):
+class _(PainterSetup, Case):
 
     @painter_test(gl.mode_2d)
     def test_sphere(self, painter):

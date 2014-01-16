@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 
-from unittest import TestCase
+from cube.test import Case
 
 from cube.exception import Exception as CubeException
 
@@ -33,7 +33,7 @@ class ShaderSetup(RendererSetup):
         self.fs = None
         super().tearDown()
 
-class _(ShaderSetup, TestCase):
+class _(ShaderSetup, Case):
 
     def test_init(self):
         import cube

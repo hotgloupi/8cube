@@ -4,9 +4,9 @@ from .channel import Channel
 from .manager import Manager
 from . import Event
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def setUp(self):
         self.manager = Manager()

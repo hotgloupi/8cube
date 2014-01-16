@@ -1,11 +1,11 @@
 import os
 
-from unittest import TestCase
+from cube.test import Case
 
 from cube import gl
 from cube.gl.renderer.Painter_test import PainterSetup, painter_test
 
-class _(PainterSetup, TestCase):
+class _(PainterSetup, Case):
 
     font_path = os.path.join(os.path.dirname(__file__), 'font_test.ttf')
     takao_font_path = os.path.join(os.path.dirname(__file__), 'font_test_takao.ttf')

@@ -4,9 +4,9 @@ from .mesh import Mesh
 from cube.gl.renderer.Painter_test import painter_test, PainterSetup
 from cube import gl
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(PainterSetup, TestCase):
+class _(PainterSetup, Case):
 
     def test_simple(self):
         m = Mesh()

@@ -1,9 +1,9 @@
 from . import Resource, Manager
 
-from unittest import TestCase
+from cube.test import Case
 import gc
 
-class Core(TestCase):
+class Core(Case):
 
     def setUp(self):
         self.manager = Manager()

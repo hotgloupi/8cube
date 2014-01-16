@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 
-from unittest import TestCase
+from cube.test import Case
 
 from cube.gl.matrix import mat4f
 from cube.gl import vec3f
@@ -17,7 +17,7 @@ class ShaderProgramSetup(ShaderSetup):
         self.shader = None
         super().tearDown()
 
-class ShaderProgramTestCase(ShaderProgramSetup, TestCase):
+class ShaderProgramTestCase(ShaderProgramSetup, Case):
 
     def test_init(self):
         pass

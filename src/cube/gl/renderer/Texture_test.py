@@ -1,19 +1,19 @@
 from .Painter_test import PainterSetup, painter_test
 
 from cube import gl
-from unittest import TestCase
+from cube.test import Case
 
-class _(PainterSetup, TestCase):
+class _(PainterSetup, Case):
     class VSRoutine(gl.ShaderRoutine):
         def source(self, lang):
             return """
-                gl_Position = cube_MVP * vec4(cube_Vertex, 0, 1);
+                gl_Position = cube_MVP * vec4(cube_Vertex, 1);
                 cube_TexCoord0 = cube_VertexTexCoord0;
             """
 
     vs_inputs = [
         (
-            gl.ShaderParameterType.vec2,
+            gl.ShaderParameterType.vec3,
             "cube_Vertex",
             gl.ContentKind.vertex
         ),
@@ -35,8 +35,7 @@ class _(PainterSetup, TestCase):
     class FSRoutine(gl.ShaderRoutine):
         def source(self, lang):
             return """
-                vec4 color = texture2D(sampler0, vec2(cube_TexCoord0));
-                cube_FragColor = color;
+                cube_FragColor = texture2D(sampler0, vec2(cube_TexCoord0));
             """
 
     fs_parameters = [
@@ -53,6 +52,7 @@ class _(PainterSetup, TestCase):
             gl.ContentKind.tex_coord0
         ),
     ]
+
     fs_outputs = [
         (
             gl.ShaderParameterType.vec4,

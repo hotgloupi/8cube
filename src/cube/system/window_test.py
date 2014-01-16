@@ -1,10 +1,10 @@
 #-*- encoding: utf8 -*-
 
-from unittest import TestCase
+from cube.test import Case
 from . import window
 from cube.gl.renderer import Name, mode_2d
 
-class Creation(TestCase):
+class Creation(Case):
 
     def setUp(self):
         self.context = window.create_renderer_context(
@@ -83,7 +83,7 @@ class Creation(TestCase):
         window.delete_window(w1)
         window.delete_window(w2)
 
-class _(TestCase):
+class _(Case):
     def setUp(self):
         self.window = window.create_window(
             "Testing window",

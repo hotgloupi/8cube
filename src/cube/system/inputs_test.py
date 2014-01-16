@@ -2,10 +2,10 @@
 
 from . import inputs
 
-from unittest import TestCase
+from cube.test import Case
 import functools
 
-class _(TestCase):
+class _(Case):
     slots = [
         'on_expose',
         'on_idle',

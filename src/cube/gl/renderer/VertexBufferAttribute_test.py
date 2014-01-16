@@ -3,9 +3,9 @@ from .VertexBufferAttribute import *
 from .constants import ContentKind, ContentHint
 from cube.gl.color import Color3f, Color4f
 from .. import vec2f, vec3f, vec4f
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     content_hints = [
         ContentHint.stream_content,

@@ -3,9 +3,9 @@
 from .event import Event
 from .controller import Controller, ChannelError
 
-from unittest import TestCase
+from cube.test import Case
 
-class _(TestCase):
+class _(Case):
 
     def test_target(self):
         class Target: pass
