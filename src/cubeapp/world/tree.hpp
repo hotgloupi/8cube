@@ -9,6 +9,7 @@
 # include <etc/meta/math/power.hpp>
 # include <etc/types.hpp>
 
+# include <cstdlib>
 # include <cstring>
 # include <limits>
 # include <tuple>
