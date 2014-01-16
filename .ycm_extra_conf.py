@@ -36,6 +36,7 @@ if sys.platform.startswith('win32'):
 elif sys.platform.startswith('darwin'):
     include_dirs.extend([
         '/Users/hotgloupi/local/lib/c++/v1',
+        '/usr/lib/c++/v1',
     ])
 elif sys.platform.startswith('linux'):
     for gcc_version in ['4.8', '4.7']:
@@ -63,6 +64,8 @@ for d in include_dirs:
     flags.append('-I')
     flags.append(d)
 
+if sys.platform.startswith('darwin'):
+    flags.append('-stdlib=libc++')
 
 # Set this to the absolute path to the folder (NOT the file!) containing the
 # compile_commands.json file to use that instead of 'flags'. See here for
