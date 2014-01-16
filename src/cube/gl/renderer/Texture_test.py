@@ -101,7 +101,18 @@ class _(PainterSetup, Case):
         self.texture = self.renderer.new_texture(
             gl.Surface(path.join(path.dirname(__file__), "texture_test.bmp"))
         )
+        self.texture.generate_mipmap()
+        self.texture.min_filter_bilinear(gl.TextureFilter.linear)
+        self.texture.mag_filter(gl.TextureFilter.linear)
 
+    def tearDown(self):
+        self.texture = None
+        self.indices = None
+        self.vb = None
+        super().tearDown()
+        import gc
+        gc.collect()
+        # XXX destroy the old renderer so there is no context mixup
 
     @painter_test(gl.mode_2d)
     def test_simple_load(self, painter):
