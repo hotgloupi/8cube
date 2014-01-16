@@ -14,8 +14,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		RendererType const& description;
 		int glsl_version;
-		std::string in_qualifier;
-		std::string out_qualifier;
+		std::string vertex_in_qualifier;
+		std::string vertex_out_qualifier;
+		std::string fragment_in_qualifier;
+		std::string fragment_out_qualifier;
 
 		Impl(RendererType const& description)
 			: description(description)
@@ -26,13 +28,17 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		{
 			if (this->glsl_version > 120) // XXX check version
 			{
-				this->in_qualifier = "in";
-				this->out_qualifier = "out";
+				this->vertex_in_qualifier = "in";
+				this->vertex_out_qualifier = "out";
+				this->fragment_in_qualifier = "in";
+				this->fragment_out_qualifier = "out";
 			}
 			else
 			{
-				this->in_qualifier = "attribute";
-				this->out_qualifier = "varying";
+				this->vertex_in_qualifier = "attribute";
+				this->vertex_out_qualifier = "varying";
+				this->fragment_in_qualifier = "varying";
+				this->fragment_out_qualifier = "varying";
 			}
 		}
 
@@ -86,27 +92,49 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			);
 		}
 
+		typedef
+			std::unordered_map<ContentKind, std::string, etc::enum_hash>
+			builtin_map_type;
+
+		static builtin_map_type vertex_attribute_builtins;
+		static builtin_map_type vertex_varying_builtins;
+		static builtin_map_type fragment_varying_builtins;
+
 		std::string input_source(Proxy const& proxy, Parameter const& p) const
 		{
 			std::string result;
-			if (this->glsl_version <= 120 &&
-				proxy.type != ShaderType::vertex)
+			if (this->glsl_version < 120)
 			{
-				static std::unordered_map<ContentKind, std::string, etc::enum_hash> builtin_names{
-					{ContentKind::color, "gl_Color"},
-					{ContentKind::vertex, "gl_VertexPosition"},
-					{ContentKind::tex_coord0, "gl_TexCoord0"},
-				};
-				if (builtin_names.find(p.content_kind) != builtin_names.end())
+				builtin_map_type* map = nullptr;
+				if (proxy.type == ShaderType::vertex)
+					map = &vertex_attribute_builtins;
+				else if (proxy.type == ShaderType::fragment)
+					map = &fragment_varying_builtins;
+
+				std::string builtin;
+				if (map != nullptr)
+				{
+					auto it = map->find(p.content_kind);
+					if (it != map->end())
+						builtin = it->second;
+				}
+
+				if (!builtin.empty())
+				{
 					result += etc::to_string(
 						"#define",
 						p.name,
-						"gl_Color"
+						builtin
 					) + "\n";
-				result += "// ";
+					result += "// ";
+				}
 			}
 			result += etc::to_string(
-				this->in_qualifier,
+				(
+					proxy.type == ShaderType::vertex ?
+					this->vertex_in_qualifier :
+					this->fragment_in_qualifier
+				),
 				this->parameter_type_source(p.type),
 				p.name + ";"
 			);
@@ -120,19 +148,22 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			{
 				if (p.content_kind == ContentKind::vertex)
 				{
+
 					result += etc::to_string(
-						"#define",
-						p.name,
-						"gl_Position"
-					) + "\n//";
+							"#define",
+							p.name,
+							"gl_Position"
+						) + "\n//";
 				}
-				else if (p.content_kind == ContentKind::color && this->glsl_version <= 120)
+				else if (this->glsl_version < 120)
 				{
-					result += etc::to_string(
-						"#define",
-						p.name,
-						"gl_FrontColor"
-					) + "\n//";
+					auto it = vertex_varying_builtins.find(p.content_kind);
+					if (it != vertex_varying_builtins.end())
+						result += etc::to_string(
+							"#define",
+							p.name,
+							it->second
+						) + "\n//";
 				}
 			}
 			else if (proxy.type == ShaderType::fragment)
@@ -148,7 +179,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 			}
 			result += etc::to_string(
-				this->out_qualifier,
+				(
+					proxy.type == ShaderType::vertex ?
+					this->vertex_out_qualifier :
+					this->fragment_out_qualifier
+				),
 				this->parameter_type_source(p.type),
 				p.name + ";"
 			);
@@ -185,6 +220,51 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			result += "}\n";
 			return result;
 		}
+	};
+
+	ShaderGenerator::Impl::builtin_map_type
+	ShaderGenerator::Impl::vertex_attribute_builtins = {
+		{ContentKind::color, "gl_Color"},
+		{ContentKind::color1, "gl_SecondaryColor"},
+		{ContentKind::normal, "gl_Normal"},
+		{ContentKind::vertex, "gl_Vertex"},
+		{ContentKind::tex_coord0, "gl_MultiTexCoord0"},
+		{ContentKind::tex_coord1, "gl_MultiTexCoord1"},
+		{ContentKind::tex_coord2, "gl_MultiTexCoord2"},
+		{ContentKind::tex_coord3, "gl_MultiTexCoord3"},
+		{ContentKind::tex_coord4, "gl_MultiTexCoord4"},
+		{ContentKind::tex_coord5, "gl_MultiTexCoord5"},
+		{ContentKind::tex_coord6, "gl_MultiTexCoord6"},
+		{ContentKind::tex_coord7, "gl_MultiTexCoord7"},
+	};
+
+	ShaderGenerator::Impl::builtin_map_type
+	ShaderGenerator::Impl::vertex_varying_builtins = {
+		{ContentKind::color, "gl_FrontColor"},
+		//{ContentKind::, "gl_BackColor"},
+		{ContentKind::color1, "gl_FrontSecondaryColor"},
+		//{"gl_BackSecondaryColor"},
+		{ContentKind::tex_coord0, "gl_TexCoord[0]"},
+		{ContentKind::tex_coord1, "gl_TexCoord[1]"},
+		{ContentKind::tex_coord2, "gl_TexCoord[2]"},
+		{ContentKind::tex_coord3, "gl_TexCoord[3]"},
+		{ContentKind::tex_coord4, "gl_TexCoord[4]"},
+		{ContentKind::tex_coord5, "gl_TexCoord[5]"},
+		{ContentKind::tex_coord6, "gl_TexCoord[6]"},
+		{ContentKind::tex_coord7, "gl_TexCoord[7]"},
+	};
+	ShaderGenerator::Impl::builtin_map_type
+	ShaderGenerator::Impl::fragment_varying_builtins = {
+		{ContentKind::color0, "gl_Color"},
+		{ContentKind::color1, "gl_SecondaryColor"},
+		{ContentKind::tex_coord0, "gl_TexCoord[0]"},
+		{ContentKind::tex_coord1, "gl_TexCoord[1]"},
+		{ContentKind::tex_coord2, "gl_TexCoord[2]"},
+		{ContentKind::tex_coord3, "gl_TexCoord[3]"},
+		{ContentKind::tex_coord4, "gl_TexCoord[4]"},
+		{ContentKind::tex_coord5, "gl_TexCoord[5]"},
+		{ContentKind::tex_coord6, "gl_TexCoord[6]"},
+		{ContentKind::tex_coord7, "gl_TexCoord[7]"},
 	};
 
 	ShaderGenerator::ShaderGenerator(Renderer& renderer)
