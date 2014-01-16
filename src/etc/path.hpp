@@ -47,6 +47,21 @@ namespace etc { namespace path {
 	inline
 	std::string join(T1&& arg1, T2&& arg2, Args&&... args);
 
+	/**
+	 * @brief Split a path into one or more parts.
+	 *
+	 * Trailing separators are ignored. Redundant separators are merged. If the
+	 * path is absolute, the first token is an empty string on unices or a
+	 * drive on windows.
+	 */
+	ETC_API std::vector<std::string> split(std::string path);
+
+	/**
+	 * Test whether a filename or pathname matches a shell-style pattern.
+	 */
+	ETC_API bool match(std::string const& pattern,
+	                   std::string const& str);
+
 }}
 
 # include "path.inl"
