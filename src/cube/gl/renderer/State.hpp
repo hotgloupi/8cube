@@ -130,6 +130,13 @@ namespace cube { namespace gl { namespace renderer {
 		void enable(Light const& light);
 		void disable(Light const& light);
 
+	public:
+		/**
+		 * @brief Enable or disable a texture.
+		 * @note Called automatically when a texture is bound.
+		 */
+		void enable(Texture const& texture);
+		void disable(Texture const& texture);
 
 	private:
 		// contract checks.
