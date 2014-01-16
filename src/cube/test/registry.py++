@@ -101,6 +101,8 @@ namespace {
 	}
 
 	bool registry_run() { return registry().run(); }
+	bool registry_run_matching(std::string const& pattern)
+	{ return registry().run(pattern); }
 
 } // !anonymous
 
@@ -109,5 +111,6 @@ BOOST_PYTHON_MODULE(registry)
 
 	py::def("add", &registry_add);
 	py::def("run", &registry_run);
+	py::def("run", &registry_run_matching);
 }
 
