@@ -53,7 +53,7 @@ def parse_args(args):
         help = "Eval a script file"
     )
     parser.add_argument(
-        '--unittests',
+        '--unittests', '-U',
         help = "Launch unit tests",
         action = 'store_true'
     )
