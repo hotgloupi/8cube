@@ -159,8 +159,8 @@ def configure(project, build):
         static_libstd = False,
         use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
-        force_architecture = True,
-        target_architecture = '32bit',
+        #force_architecture = True,
+        #target_architecture = '32bit',
         forbidden_warnings = ['return-type',]
 #        additional_link_flags = {
 #            'gcc': ['-ldl', '-lpthread', '-lutil', '-lz', '-lX11', '-Xlinker', '-export-dynamic'],
@@ -224,16 +224,16 @@ def configure(project, build):
         'deps/assimp',
         boost = boost,
         c_compiler = c_compiler,
-        shared = True
+        shared = False
     )
 
     sdl = build.add_dependency(
-        c.libraries.SDLDependency, c_compiler, 'deps/SDL', shared = True,
+        c.libraries.SDLDependency, c_compiler, 'deps/SDL', shared = False,
     )
     sdl_image = build.add_dependency(
         c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image',
         sdl = sdl,
-        shared = True
+        shared = False
     )
     #sdl = c.libraries.SDLLibrary(
     #    compiler,
@@ -284,6 +284,14 @@ def configure(project, build):
             c.libraries.simple(name, compiler, system = True) for name in ['z', 'bz2',]
         )
 
+    if platform.IS_MACOSX:
+        base_libraries.extend(
+            c.libraries.simple(name, compiler, macosx_framework = True)
+            for name in [
+                'ForceFeedback', 'IOKit', 'Cocoa', 'Carbon', 'AudioUnit', 'CoreAudio',
+                'AudioToolbox',
+            ]
+        )
 
     libglew = compiler.link_static_library(
         'libglew',
@@ -311,6 +319,8 @@ def configure(project, build):
         boost.component_library('filesystem'),
         boost.component_library('system'),
         boost.component_library('thread'),
+        boost.component_library('coroutine'),
+        boost.component_library('context'),
     ])
     libetc = compiler.link_library(
         'libetc',
