@@ -32,9 +32,9 @@ namespace etc { namespace test {
 		unsigned int const line;
 		std::string const name;
 	public:
-		Case(std::string file,
+		Case(std::string const& file,
 		     unsigned int line,
-		     std::string name,
+		     std::string const& name,
 		     CaseSetupBase* setup);
 		virtual ~Case();
 
