@@ -90,14 +90,12 @@ namespace {
 	                  std::string name)
 	{
 		auto case_setup = etc::make_unique<PythonSetupTestCase>(setup, teardown);
-		registry().add(
-			new PythonTestCase(
-				callable,
-				std::move(file),
-				line,
-				std::move(name),
-				case_setup.get()
-			)
+		new PythonTestCase(
+			callable,
+			std::move(file),
+			line,
+			std::move(name),
+			case_setup.get()
 		);
 		case_setup.release();
 	}
