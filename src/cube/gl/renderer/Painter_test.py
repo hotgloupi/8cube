@@ -149,6 +149,8 @@ class PainterSetup:
 
 def painter_test(mode, delta = 0.01):
     def _painter_test(func):
+        from functools import wraps
+        @wraps(func)
         def wrapper(self):
             fname = list(filter(
                 lambda e: bool(e),
