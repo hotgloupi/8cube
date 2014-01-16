@@ -32,35 +32,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
  				+ std::to_string(surface.bytes_per_pixel()) +
 				" bytes per pixel"
 			);
-		int mode = 0;
-		if (bpp == 3)
-			mode = GL_RGB;
-		else if (bpp == 4)
-			mode = GL_RGBA;
-		else
-			assert(false && "Unreachable.");
-
-		//gl::TexImage2D(
-		//	GL_TEXTURE_2D,
-		//	0,                  // level
-		//	bpp,                // 1, 2, 3, 4
-		//	_surface->w,
-		//	_surface->h,
-		//	0,                  // border
-		//	mode,               // storage format
-		//	GL_UNSIGNED_BYTE,   // component size
-		//	_surface->pixels
-		//);
-
-		//gluBuild2DMipmaps(
-		//	GL_TEXTURE_2D,
-		//	bpp,
-		//	_surface->w,
-		//	_surface->h,
-		//	mode,
-		//	GL_UNSIGNED_BYTE,
-		//	_surface->pixels
-		//);
 
 		// calculate mipmap levels
 		etc::size_type levels = 1;
@@ -77,40 +48,20 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		// Bug in ATI drivers
 		gl::Enable(GL_TEXTURE_2D);
 
-#if 0 //ndef __APPLE__
-		if (GLEW_VERSION_3_0)
-		{
-			ETC_LOG.debug(levels, mode == GL_RGB ? "RGB" : "RGBA", surface.width(), surface.height());
-			gl::TexStorage2D(GL_TEXTURE_2D, levels, mode, surface.width(), surface.height());
-			gl::TexSubImage2D(
-				GL_TEXTURE_2D,
-				0, 0, 0,
-				surface.width(),
-				surface.height(),
-				GL_BGRA,
-				GL_UNSIGNED_BYTE,
-				surface.pixels()
-			);
-		}
-		else
-#endif // __APPLE__
-		{
-			gl::TexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				mode,
-				surface.width(),
-				surface.height(),
-				0,
-				bpp == 3 ? GL_BGR : GL_BGRA,
-				GL_UNSIGNED_BYTE,
-				surface.pixels()
-			);
-		}
-		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		gl::TexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			bpp == 3 ? GL_RGB : GL_RGBA,
+			surface.width(),
+			surface.height(),
+			0,
+			bpp == 3 ? GL_BGR : GL_BGRA,
+			GL_UNSIGNED_BYTE,
+			surface.pixels()
+		);
+
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		gl::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		cleanup.dismiss();
@@ -260,8 +211,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	                   renderer::ShaderProgramParameter& param)
 	{
 		ETC_TRACE.debug("Bind texture unit", unit, "of texture", _id);
-		Guard guard(*this);
 		gl::ActiveTexture(GL_TEXTURE0 + unit);
+		Guard guard(*this);
 		param = (int32_t)unit;
 	}
 
