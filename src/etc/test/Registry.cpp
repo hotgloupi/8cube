@@ -1,9 +1,10 @@
 #include "Registry.hpp"
 #include "Case.hpp"
 
-#include <etc/assert.hpp>
 #include <etc/abort.hpp>
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
+#include <etc/path.hpp>
 #include <etc/scope_exit.hpp>
 
 #include <vector>
@@ -25,14 +26,22 @@ namespace etc { namespace test {
 	{}
 
 	void Registry::add(Case* test_case)
-	{ _this->cases.push_back(test_case); }
+	{
+		_this->cases.push_back(test_case);
+	}
 
 	bool Registry::run()
+	{ return this->run("*"); }
+
+	bool Registry::run(std::string const& pattern)
 	{
 		size_t failure = 0;
+		size_t count = 0;
 		ETC_TRACE("Launching tests");
 		for (auto ptr: _this->cases)
 		{
+			if (!path::match(pattern, ptr->name))
+				continue;
 			bool success = false;
 			std::string error;
 			try {
@@ -58,11 +67,12 @@ namespace etc { namespace test {
 				ETC_LOG.error(" -> Test", ptr->name, "failed:", error);
 				failure++;
 			}
+			count++;
 		}
 		if (failure == 0)
-			ETC_LOG("Ran successfully", _this->cases.size(), "tests");
+			ETC_LOG("Ran successfully", count, "tests");
 		else
-			ETC_LOG("Failed", failure, "tests /", _this->cases.size());
+			ETC_LOG("Failed", failure, "tests /", count);
 		return (failure == 0);
 	}
 

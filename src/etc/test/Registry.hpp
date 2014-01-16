@@ -20,6 +20,7 @@ namespace etc { namespace test {
 		~Registry();
 		void add(Case* test_case);
 		bool run();
+		bool run(std::string const& pattern);
 	};
 
 	ETC_API Registry& registry();
