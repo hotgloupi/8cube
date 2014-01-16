@@ -251,7 +251,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					(int)this->linked.major, '.', (int)this->linked.minor, '-',
 					(int)this->linked.patch
 				);
-				if (::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+				//SDL_SetMainReady();
+				if (::SDL_Init(SDL_INIT_VIDEO) != 0)
 				{
 					counter = 0;
 					throw SDLException("Init");
