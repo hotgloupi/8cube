@@ -65,6 +65,26 @@ def parse_args(args):
     )
     return parser, parser.parse_args(args=args)
 
+
+def import_test_file(root_dir, path):
+    import cube
+    old_python_path = sys.path
+    sys.path = [root_dir] + sys.path
+    try:
+        parts = os.path.relpath(path, start = root_dir).split(os.path.sep)
+        cube.log.debug("Found test", '.'.join(parts))
+        __import__('.'.join(parts))
+    finally:
+        sys.path = old_python_path
+
+def import_tests(root_dir, lib):
+    lib_dir = os.path.join(root_dir, lib)
+    for rootpath, dirs, files in os.walk(lib_dir):
+        for f in files:
+            if f.endswith('_test.py'):
+                path = os.path.join(rootpath, f)
+                import_test_file(root_dir, path[:-3])
+
 def main(args):
     sys.argv = ['cubeapp.main'] + args
     try:
@@ -81,12 +101,6 @@ def main(args):
     try:
         parser, args = parse_args(args)
         if args.unittests or args.unittest:
-            cube.log.set_mode(cube.log.Mode.synchroneous)
-            if args.unittest:
-                pattern = '*%s*.py' % args.unittest
-            else:
-                pattern = '*.py'
-            import unittest
             lib_dir = os.path.abspath(
                 os.path.join(
                     os.path.dirname(__file__),
@@ -94,22 +108,16 @@ def main(args):
                 )
             )
             for lib in ['cube', 'cubeapp']:
-                with cube.trace_info("Testing the module '%s'" % lib):
-                    runner = unittest.TestProgram(
-                        argv = [
-                            'cubeapp.main',
-                            'discover',
-                            '-s', os.path.join(lib_dir, lib),
-                            '-t', lib_dir,
-                            '-p', pattern,
-                            #'-v',
-                        ],
-                        verbosity = 0,
-                        exit = False
-                    )
-                    if not runner.result.wasSuccessful():
-                        sys.exit(1)
-            cube.info("All tests passed")
+                import_tests(lib_dir, lib)
+
+            cube.log.set_mode(cube.log.Mode.synchroneous)
+            if args.unittest:
+                pattern = '*%s*' % args.unittest
+            else:
+                pattern = '*'
+            if cube.test.registry.run(pattern):
+                cube.info("All tests passed")
+
             return
         if args.console:
             cube.log.set_mode(cube.log.Mode.synchroneous)
