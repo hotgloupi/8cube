@@ -3,11 +3,12 @@
 
 #include <etc/abort.hpp>
 
+#include <array>
 #include <map>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	std::array<GLenum, gl::_draw_modes> gl::_draw_mode_map{
+	std::array<GLenum, gl::_draw_modes> gl::_draw_mode_map{{
 		GL_POINTS,
 		GL_LINES,
 		GL_LINE_STRIP,
@@ -18,13 +19,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GL_QUADS,
 		GL_QUAD_STRIP,
 		GL_POLYGON,
-	};
+	}};
 
-	std::array<GLenum, gl::_content_types> gl::_content_type_map{
+	std::array<GLenum, gl::_content_types> gl::_content_type_map{{
 		GL_BYTE,    GL_UNSIGNED_BYTE,   GL_SHORT,   GL_UNSIGNED_SHORT,
 		GL_INT,     GL_UNSIGNED_INT,    GL_FLOAT
-	};
-	std::array<GLenum, gl::_content_packings> gl::_content_packing_map{
+	}};
+
+	std::array<GLenum, gl::_content_packings> gl::_content_packing_map{{
 		GL_UNSIGNED_BYTE,
 		GL_BYTE,
 		GL_UNSIGNED_SHORT,
@@ -44,7 +46,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		GL_UNSIGNED_INT_8_8_8_8_REV,
 		GL_UNSIGNED_INT_10_10_10_2,
 		GL_UNSIGNED_INT_2_10_10_10_REV,
-	};
+	}};
 
 	GLenum gl::get_content_kind(renderer::ContentKind value)
 	{
@@ -79,17 +81,17 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		return content_kind_map[(int)value];
 	}
 
-	std::array<GLenum, gl::_content_hints> gl::_content_hint_map{
+	std::array<GLenum, gl::_content_hints> gl::_content_hint_map{{
 		GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW,
-	};
+	}};
 
-	std::array<GLenum, gl::_shader_types> gl::_shader_type_map{
+	std::array<GLenum, gl::_shader_types> gl::_shader_type_map{{
 		GL_FRAGMENT_SHADER,
 		GL_VERTEX_SHADER,
-	};
+	}};
 
 
-	std::array<GLenum, gl::_pixel_formats> gl::_pixel_format_map{
+	std::array<GLenum, gl::_pixel_formats> gl::_pixel_format_map{{
 
 		//////////// Table 1. Base Internal Formats
 		// Base Internal Format     RGBA, Depth and Stencil Values  Internal Components
@@ -180,7 +182,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		//GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM,   // GL_RGBA                   Specific
 		//GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT,   // GL_RGB                    Specific
 		//GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, // GL_RGB                    Specific
-	};
+	}};
 
 	static std::map<GLenum, std::pair<std::string, std::string>> errors{
 #define _ERR(enum, str)                                                       \
