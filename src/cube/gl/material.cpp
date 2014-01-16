@@ -178,12 +178,12 @@ namespace cube { namespace gl { namespace material {
 						if (ch.type == TextureType::ambient)
 						{
 							res += "\tColor += texture2D(" + tex
-								+ ", " + coord +");\n";
+								+ ", " + coord + ".xy);\n";
 						}
 						else if (ch.type == TextureType::opacity)
 						{
 							res += "\tColor.a = texture2D(" + tex
-								+ ", " + coord + ").r;\n";
+								+ ", " + coord + ".xy).r;\n";
 						}
 						else
 						{
