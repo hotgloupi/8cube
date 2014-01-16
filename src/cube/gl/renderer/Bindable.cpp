@@ -22,9 +22,12 @@ namespace cube { namespace gl { namespace renderer {
 	void Bindable::_bind(InternalMethod)
 	{
 		ETC_TRACE.debug("Bind", *this);
-		if (++_bound == 1)
+		_bound++;
+		if (_bound == 1)
+		{
 			try { _bind(); }
 			catch (...) { _bound = 0; throw; }
+		}
 	}
 
 	void Bindable::_unbind(InternalMethod) ETC_NOEXCEPT
@@ -123,6 +126,17 @@ namespace cube { namespace gl { namespace renderer {
 
 			ETC_ENFORCE_EQ(dummy.called, 1);
 			ETC_ENFORCE_EQ(dummy.bound(), 0);
+		}
+
+		ETC_TEST_CASE(bound_in_bind_method)
+		{
+			struct Dummy : public Bindable
+			{
+				void _bind() override { ETC_ENFORCE(this->bound()); }
+				void _unbind() ETC_NOEXCEPT override {}
+			};
+			Dummy d;
+			Bindable::Guard g(d, std::make_shared<State>(Mode::_2d));
 		}
 
 	} // !anonymous
