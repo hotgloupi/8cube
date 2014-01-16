@@ -148,7 +148,11 @@ namespace cube { namespace gl { namespace renderer {
 		ETC_TRACE.debug("pop state");
 		ETC_ASSERT_GT(_this->states.size(), 0);
 		if (_this->states.back().use_count() > 1)
-			throw Exception{"Cannot pop a state in use"};
+			ETC_LOG.warn(
+				"Popping a state in use ("
+				+ etc::to_string(_this->states.back().use_count() - 1)
+				+ " instance left)"
+			);
 		_this->states.pop_back();
 	}
 
