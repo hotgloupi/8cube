@@ -35,6 +35,9 @@ namespace cube { namespace gl { namespace text {
 		~Text();
 
 		void draw(renderer::Painter& painter);
+
+		void color(color::Color3f const& color);
+		color::Color3f const& color() const;
 	};
 
 }}}

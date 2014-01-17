@@ -2,6 +2,7 @@
 
 #include "font.hpp"
 
+#include <cube/gl/color.hpp>
 #include <cube/gl/material.hpp>
 #include <cube/gl/renderer/Painter.hpp>
 #include <cube/gl/renderer/Renderer.hpp>
@@ -28,7 +29,7 @@ namespace cube { namespace gl { namespace text {
 		    material::TextureMapMode::wrap,
 		    1.0// material::BlendMode::basic
 		);
-		_material->ambient(color::Color3f("black"));
+		_material->ambient(color::Color3f("white"));
 	}
 
 	template
@@ -54,6 +55,15 @@ namespace cube { namespace gl { namespace text {
 
 		painter.with(*_material_view)
 			->draw_arrays(renderer::DrawMode::quads, *_vertices);
+	}
+
+	color::Color3f const& Text::color() const
+	{ return _material->ambient(); }
+
+	void Text::color(color::Color3f const& color)
+	{
+		_material->ambient(color);
+		_material_view = nullptr;
 	}
 
 }}}

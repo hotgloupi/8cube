@@ -1,10 +1,11 @@
-#include <wrappers/boost/python.hpp>
-
-#include "font.hpp"
 #include "text.hpp"
 
-#include "renderer/ShaderProgram.hpp"
-#include "renderer/Painter.hpp"
+#include <cube/gl/font.hpp>
+#include <cube/gl/color.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/Painter.hpp>
+
+#include <wrappers/boost/python.hpp>
 
 namespace py = boost::python;
 using namespace cube::gl;
@@ -20,6 +21,18 @@ BOOST_PYTHON_MODULE(text)
 			py::init<font::Font&, std::basic_string<char> const&>()
 		)
 		.def("draw", &text::Text::draw)
+		.add_property(
+			"color",
+			py::make_function(
+				static_cast<color::Color3f const&(text::Text::*)() const>(
+					&text::Text::color
+				),
+				py::return_value_policy<py::return_by_value>()
+			),
+			static_cast<void(text::Text::*)(color::Color3f const&)>(
+				&text::Text::color
+			)
+		)
 	;
 }
 
