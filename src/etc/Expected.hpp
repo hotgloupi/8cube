@@ -30,8 +30,8 @@ namespace etc {
 		 * Construct an Expected.
 		 *
 		 * Arguments are forwarded the the Value constructor unless:
-		 *    - The only argument is an instance of an exception (and derives
-		 *    from std::exception).
+		 *    - The only argument is an instance of an exception (derives from
+		 *    std::exception).
 		 *    - The only argument is an std::exception_ptr instance.
 		 *    - The only argument is an Expected instance.
 		 *
@@ -166,6 +166,7 @@ namespace etc {
 			std::forward<Args>(args)...
 		);
 	}
+
 }
 
 #endif
