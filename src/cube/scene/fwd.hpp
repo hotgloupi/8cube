@@ -11,9 +11,10 @@ namespace cube { namespace scene {
 	class Graph;
 
 	class Node;
-	typedef std::unique_ptr<Node> NodePtr;
+	typedef std::shared_ptr<Node> NodePtr;
 
 	class GroupNode;
+	typedef std::weak_ptr<GroupNode> ParentNodePtr;
 
 
 }}

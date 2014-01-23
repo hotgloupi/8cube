@@ -2,6 +2,7 @@
 # define CUBE_SCENE_NODE_HPP
 
 # include "fwd.hpp"
+# include "NodeVisitor.hpp"
 
 # include <cube/api.hpp>
 
@@ -9,19 +10,25 @@
 
 # include <boost/noncopyable.hpp>
 
+# include <memory>
 # include <string>
-# include <vector>
+# include <map>
 
 namespace cube { namespace scene {
 
 	class CUBE_API Node
-		: public etc::Printable
+		: public std::enable_shared_from_this<Node>
+		, public VisitableNode<Node>
+		, public etc::Printable
 		, private boost::noncopyable
 	{
 	protected:
-		std::string             _name;
-		Graph&                  _graph;
-		std::vector<GroupNode*> _parents;
+		typedef std::weak_ptr<GroupNode> parent_node_type;
+
+	protected:
+		std::string                       _name;
+		Graph&                            _graph;
+		std::map<Node*, parent_node_type> _parents;
 
 	public:
 		explicit Node(Graph& graph, std::string name);
@@ -35,15 +42,17 @@ namespace cube { namespace scene {
 		Node& name(std::string name) { _name = std::move(name); return *this; }
 
 	public:
-		Node& add_parent(GroupNode& node);
-
-		Node& remove_parent(GroupNode& node);
-
-		bool has_parent(GroupNode& node) const ETC_NOEXCEPT;
+		/// Graph owning this node.
+		Graph& graph() const ETC_NOEXCEPT { return _graph; }
 
 	public:
 		// Implement printable interface.
 		void print(std::ostream& out) const ETC_NOEXCEPT override;
+
+	protected:
+		friend class GroupNode;
+		void _add_parent(GroupNode& parent);
+		void _remove_parent(GroupNode& parent);
 	};
 
 }}

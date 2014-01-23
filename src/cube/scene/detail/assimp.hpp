@@ -159,6 +159,16 @@ namespace cube { namespace scene { namespace detail {
 		return map.at(value);
 	}
 
+
+	inline
+	gl::matrix::mat4f const&
+	assimp_cast(aiMatrix4x4 const& mat)
+	{
+		static_assert(sizeof(cube::gl::matrix::mat4f) == sizeof(aiMatrix4x4),
+		              "");
+		return reinterpret_cast<gl::matrix::mat4f const&>(mat);
+	}
+
 }}}
 
 #endif

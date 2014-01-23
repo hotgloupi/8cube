@@ -1,7 +1,11 @@
 #include "Scene.hpp"
 
-#include "detail/assimp.hpp"
+#include "ContentNode.hpp"
 #include "Graph.hpp"
+#include "GroupNode.hpp"
+#include "Node.hpp"
+#include "Transform.hpp"
+#include "detail/assimp.hpp"
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
@@ -15,6 +19,9 @@
 #include <boost/thread/tss.hpp>
 
 #include <vector>
+#include <string>
+
+ETC_LOG_COMPONENT("cube.scene.Scene");
 
 using cube::exception::Exception;
 using cube::gl::mesh::Mesh;
@@ -23,8 +30,6 @@ using cube::gl::material::Material;
 using cube::gl::material::MaterialPtr;
 using cube::gl::renderer::DrawMode;
 using cube::gl::renderer::ContentKind;
-
-ETC_LOG_COMPONENT("cube.scene.Scene");
 
 namespace {
 
@@ -288,6 +293,40 @@ namespace cube { namespace scene {
 					);
 				}
 			}
+
+			_load_node(assimp_scene->mRootNode, &graph.root());
+		}
+
+		void _load_node(aiNode* assimp_node, GroupNode* node)
+		{
+			if (assimp_node == nullptr)
+				return;
+			ETC_ASSERT(node != nullptr);
+			std::string name = (
+				assimp_node->mName.length > 0 ?
+				assimp_node->mName.C_Str() :
+				"unnamed"
+			);
+			if (!assimp_node->mTransformation.IsIdentity())
+			{
+				node = &node->emplace<Transform>(
+					name + "-transformation",
+					detail::assimp_cast(assimp_node->mTransformation)
+				);
+			}
+			for (unsigned int i = 0; i < assimp_node->mNumMeshes; ++i)
+			{
+				node->emplace<ContentNode<MeshPtr>>(
+					name + "-mesh" + std::to_string(i),
+					MeshPtr{this->meshes[i]}
+				);
+			}
+
+			for (unsigned int i = 0; i < assimp_node->mNumChildren; ++i)
+				_load_node(
+					assimp_node->mChildren[i],
+					&node->emplace<GroupNode>(name + "-group")
+				);
 		}
 	};
 
@@ -313,7 +352,10 @@ namespace cube { namespace scene {
 			aiProcess_SortByPType
 		);
 		if (assimp_scene == nullptr)
-			throw AssimpException{"Couldn't load file '" + path + "'"};
+			throw AssimpException{
+				"Couldn't load scene at '" + path + "': "
+				+ assimp_importer().GetErrorString()
+			};
 
 		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
 
@@ -330,7 +372,10 @@ namespace cube { namespace scene {
 			ext.c_str()
 		);
 		if (assimp_scene == nullptr)
-			throw Exception{"Couldn't load model from string '" + str + "'"};
+			throw Exception{
+				"Couldn't load scene from string '" + str + "': "
+				+ assimp_importer().GetErrorString()
+			};
 
 		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
 

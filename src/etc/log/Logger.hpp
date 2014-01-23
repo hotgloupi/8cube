@@ -82,7 +82,7 @@ namespace etc { namespace log {
 		};
 
 		static
-		ComponentConfig const& _component_config(std::string const& name);
+		ComponentConfig& _component_config(std::string const& name);
 
 	public:
 		inline
@@ -96,6 +96,20 @@ namespace etc { namespace log {
 			}
 			return true;
 		}
+
+		static
+		void enable_component(std::string const& name, Level lvl = Level::_maxvalue)
+		{
+			if (lvl == Level::_maxvalue)
+				lvl = logger(name)._level;
+			_component_config(name).level = lvl;
+			_component_config(name).enabled = true;
+		}
+
+		static
+		void disable_component(std::string const& name)
+		{ _component_config(name).enabled = false; }
+
 	private:
 		std::string     _name;
 		Level           _level;
@@ -107,6 +121,10 @@ namespace etc { namespace log {
 		       Level lvl = Level::debug,
 		       Flag const flags = Flag::level | Flag::component);
 		friend ETC_API Logger& logger(std::string const&);
+
+	public:
+		Level level() const ETC_NOEXCEPT { return _level; }
+		Logger& level(Level const level) { _level = level; return *this; }
 
 	public:
 		void message(Line const& line, std::string message) ETC_NOEXCEPT;

@@ -20,26 +20,31 @@ namespace cube { namespace scene {
 
 	struct Graph::Impl
 	{
-		GroupNode root;
-		std::unordered_set<Node*> nodes;
-
-		Impl(Graph& g)
-			: root(g, "root")
-		{}
+		std::unordered_set<Node*>  nodes;
+		std::unique_ptr<GroupNode> root;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// Graph
 
 	Graph::Graph()
-		: _this{new Impl{*this}}
-	{ ETC_TRACE_CTOR(); }
+		: _this{new Impl}
+	{
+		ETC_TRACE_CTOR();
+		// Node creation act on the graph, that's why we initialize root node
+		// last.
+		_this->root.reset(new GroupNode{*this, "root"});
+	}
 
 	Graph::~Graph()
-	{ ETC_TRACE_DTOR(); }
+	{
+		ETC_TRACE_DTOR();
+		// Node destruction act on the graph too, we need to do it manually.
+		_this->root.reset();
+	}
 
 	GroupNode& Graph::root() ETC_NOEXCEPT
-	{ return _this->root; }
+	{ return *_this->root; }
 
 	size_t Graph::size() const ETC_NOEXCEPT
 	{ return _this->nodes.size(); }
@@ -63,6 +68,7 @@ namespace cube { namespace scene {
 		{
 			Graph g;
 			ETC_ENFORCE_EQ(g.size(), 1u);
+			ETC_ENFORCE_EQ(&g.root().graph(), &g);
 		}
 
 	} // !anonymous
