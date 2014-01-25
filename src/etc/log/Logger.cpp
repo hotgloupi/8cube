@@ -429,7 +429,7 @@ namespace etc { namespace log {
 			stream = OutStream(&std::cerr, false);
 	}
 
-	Logger::ComponentConfig const&
+	Logger::ComponentConfig&
 	Logger::_component_config(std::string const& name)
 	{
 		static std::unordered_map<std::string, ComponentConfig> components;
