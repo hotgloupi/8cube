@@ -415,14 +415,14 @@ def configure(project, build):
     if platform.IS_WINDOWS:
         for lib in infinit_cube_libraries + assimp.libraries:
             if not isinstance(lib, Target):
-                print("lib %s" % lib.files, lib.shared, lib.system)
+                #print("lib %s" % lib.files, lib.shared, lib.system)
                 if lib.shared and not lib.system:
                     for f in lib.files:
-                        print("copy", f)
+                        #print("copy", f)
                         build.fs.copy(f, dest_dir = 'release/bin')
             else:
                 if lib.shared:
-                    print("copy %s" % lib.path)
+                    #print("copy %s" % lib.path)
                     build.fs.copy(lib, dest_dir = 'release/bin')
 
 
