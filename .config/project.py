@@ -36,6 +36,7 @@ class Assimp(CMakeDependency):
             source_directory = source_directory,
             libraries = [
                 {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'assimp',
                     'shared': shared,
                 }
@@ -130,8 +131,8 @@ def configure(project, build):
 
     if platform.IS_WINDOWS:
         defines.extend([
-            ('_WIN32_WINNT', '0x0600'),
-            ('WINVER', '0x600'),
+        #    ('_WIN32_WINNT', '0x0600'),
+        #    ('WINVER', '0x0600'),
         ])
     #if platform.IS_LINUX:
     #    defines += ['CUBE_WITH_GLX']
@@ -228,7 +229,7 @@ def configure(project, build):
     )
 
     sdl = build.add_dependency(
-        c.libraries.SDLDependency, c_compiler, 'deps/SDL', shared = False,
+        c.libraries.SDLDependency, c_compiler, 'deps/SDL', shared = platform.IS_WINDOWS,
     )
     sdl_image = build.add_dependency(
         c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image',
@@ -277,6 +278,7 @@ def configure(project, build):
                 'OleAut32',
                 'Advapi32',
                 'Kernel32',
+        #'msvcrt', 'libcmt'
             ]
         )
     else: #elif platform.IS_MACOSX:
