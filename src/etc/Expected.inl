@@ -4,6 +4,8 @@
 # include <etc/assert.hpp>
 # include <etc/compiler.hpp>
 
+# include <boost/config.hpp>
+
 # include <exception>
 # include <stdexcept>
 # include <type_traits>
@@ -46,10 +48,24 @@ namespace etc { namespace detail {
 			}
 		}
 
+#ifndef BOOST_MSVC
 		template<typename... Args>
-		typename std::enable_if<(sizeof...(Args) != 1)>::type
-		_init(Args&&... args) ETC_NOEXCEPT
+		 auto _init(Args&&... args) ETC_NOEXCEPT
+		 	-> typename std::enable_if<(sizeof...(Args) != 1)>::type
 		{ _init_value(std::forward<Args>(args)...); }
+#else
+		void _init()
+		{ _init_value(); }
+		template<typename T1, typename T2, typename... Args>
+		void _init(T1&& arg1, T2&& arg2, Args&&... args) ETC_NOEXCEPT
+		{
+			_init_value(
+				std::forward<T1>(arg1),
+				std::forward<T2>(arg2),
+				std::forward<Args>(args)...
+			);
+		}
+#endif
 
 		void _init(value_type&& value) ETC_NOEXCEPT
 		{ _init_value(std::move(value)); }

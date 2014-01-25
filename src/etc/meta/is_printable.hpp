@@ -5,6 +5,8 @@
 
 # include <iosfwd>
 
+// XXX Use http://www.boost.org/doc/libs/1_55_0/libs/type_traits/doc/html/boost_typetraits/reference/has_left_shift.html
+
 namespace etc { namespace meta {
 
 		namespace detail {

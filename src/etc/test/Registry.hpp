@@ -6,6 +6,7 @@
 # include <etc/api.hpp>
 
 # include <memory>
+# include <string>
 
 namespace etc { namespace test {
 
