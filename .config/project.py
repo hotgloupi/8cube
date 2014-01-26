@@ -285,6 +285,11 @@ def configure(project, build):
         base_libraries.extend(
             c.libraries.simple(name, compiler, system = True) for name in ['z', 'bz2',]
         )
+        if platform.IS_LINUX:
+            base_libraries.extend(
+                c.libraries.simple(name, compiler, system = True) for name in ['audio',]
+            )
+
 
     if platform.IS_MACOSX:
         base_libraries.extend(
