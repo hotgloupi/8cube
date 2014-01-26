@@ -122,81 +122,81 @@ namespace cube { namespace scene {
 				using VisitableNode<Specialized>::visit;
 			};
 
-			struct Visitor : NodeVisitor<Specialized>
-			{
-				int& _visited;
-				Visitor(int& visited) : _visited(visited) {}
-				bool visit(Specialized&)
-				{ _visited++; return true; }
-			};
+			//struct Visitor : NodeVisitor<Specialized>
+			//{
+			//	int& _visited;
+			//	Visitor(int& visited) : _visited(visited) {}
+			//	bool visit(Specialized&) override
+			//	{ _visited++; return true; }
+			//};
 
-			Graph g;
-			int visited = 0;
-			Visitor v(visited);
-			{
-				g.root().visit(v);
-				ETC_ENFORCE_EQ(visited, 0);
-			}
+			//Graph g;
+			//int visited = 0;
+			//Visitor v(visited);
+			//{
+			//	g.root().visit(v);
+			//	ETC_ENFORCE_EQ(visited, 0);
+			//}
 
-			{
-				visited = 0;
-				auto& sp = g.root().emplace<Specialized>();
-				sp.visit(v);
-				ETC_ENFORCE_EQ(visited, 1);
-			}
+			//{
+			//	visited = 0;
+			//	auto& sp = g.root().emplace<Specialized>();
+			//	sp.visit(v);
+			//	ETC_ENFORCE_EQ(visited, 1);
+			//}
 		}
 
 		ETC_TEST_CASE(multiple_visitor)
 		{
-			struct Specialized1
-				: public Node
-				, public VisitableNode<Specialized1>
-			{
-				Specialized1(Graph& g)
-					: Node{g, "specialized1"}
-				{}
-				using VisitableNode<Specialized1>::visit;
-			};
-			struct Specialized2
-				: public Node
-				, public VisitableNode<Specialized2>
-			{
-				Specialized2(Graph& g)
-					: Node{g, "specialized2"}
-				{}
-				using VisitableNode<Specialized2>::visit;
-			};
-			struct Visitor
-				: MultipleNodeVisitor<GroupNode, Specialized1, Specialized2>
-			{
-				int s1, s2;
-				Visitor() : s1{0}, s2{0} {}
-				using MultipleNodeVisitor<Specialized1, Specialized2>::visit;
-				bool visit(Specialized1&) override
-				{ return ++s1; }
-				bool visit(Specialized2&) override
-				{ return ++s2; }
-				bool visit(GroupNode& n) override
-				{ n.visit_children(*this); return true; }
-			};
-			Graph g;
-			g.root().emplace<Specialized1>();
-			g.root().emplace<Specialized2>();
-			g.root().emplace<GroupNode>("lol").emplace<Specialized2>();
+			//struct Specialized1
+			//	: public Node
+			//	, public VisitableNode<Specialized1>
+			//{
+			//	Specialized1(Graph& g)
+			//		: Node{g, "specialized1"}
+			//	{}
+			//	using VisitableNode<Specialized1>::visit;
+			//};
+			//struct Specialized2
+			//	: public Node
+			//	, public VisitableNode<Specialized2>
+			//{
+			//	Specialized2(Graph& g)
+			//		: Node{g, "specialized2"}
+			//	{}
+			//	using VisitableNode<Specialized2>::visit;
+			//};
+			//struct Visitor
+			//	: MultipleNodeVisitor<GroupNode, Specialized1, Specialized2>
+			//{
+			//	int s1, s2;
+			//	Visitor() : s1{0}, s2{0} {}
+			//	using MultipleNodeVisitor<Specialized1, Specialized2>::visit;
+			//	bool visit(Specialized1&) override
+			//	{ return ++s1; }
+			//	bool visit(Specialized2&) override
+			//	{ return ++s2; }
+			//	bool visit(GroupNode& n) override
+			//	{ n.visit_children(*this); return true; }
+			//};
+			//Graph g;
+			//g.root().emplace<Specialized1>();
+			//g.root().emplace<Specialized2>();
+			//g.root().emplace<GroupNode>("lol").emplace<Specialized2>();
 
-			{
-				Visitor v;
-				g.root().visit(v);
-				ETC_ENFORCE_EQ(v.s1, 1);
-				ETC_ENFORCE_EQ(v.s2, 2);
-			}
+			//{
+			//	Visitor v;
+			//	g.root().visit(v);
+			//	ETC_ENFORCE_EQ(v.s1, 1);
+			//	ETC_ENFORCE_EQ(v.s2, 2);
+			//}
 
-			{
-				Visitor v;
-				static_cast<Node&>(g.root()).visit(v);
-				ETC_ENFORCE_EQ(v.s1, 1);
-				ETC_ENFORCE_EQ(v.s2, 2);
-			}
+			//{
+			//	Visitor v;
+			//	static_cast<Node&>(g.root()).visit(v);
+			//	ETC_ENFORCE_EQ(v.s1, 1);
+			//	ETC_ENFORCE_EQ(v.s2, 2);
+			//}
 		}
 
 	} //!anonymous

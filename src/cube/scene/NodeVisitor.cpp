@@ -5,7 +5,7 @@
 
 namespace cube { namespace scene {
 
-	template
+	//template
 	void VisitableNode<Node>::visit(NodeVisitor<Node>& visitor)
 	{ visitor.visit(static_cast<Node&>(*this)); }
 

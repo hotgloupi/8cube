@@ -6,7 +6,7 @@
 
 # include <cube/api.hpp>
 
-# include <etc/Printable.hpp>
+# include <etc/printable.hpp>
 
 # include <boost/noncopyable.hpp>
 
@@ -44,6 +44,9 @@ namespace cube { namespace scene {
 	public:
 		/// Graph owning this node.
 		Graph& graph() const ETC_NOEXCEPT { return _graph; }
+
+	public:
+		using VisitableNode<Node>::visit;
 
 	public:
 		// Implement printable interface.
