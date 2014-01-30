@@ -3,3 +3,11 @@ let $PYTHONPATH = "$PYTHONPATH:$PWD/build/release/lib/python"
 
 au BufNewFile,BufRead *.[ch]pp,*.cc,*.hh,*.hxx set syntax=cpp11 ts=4 sts=4 sw=4 noexpandtab
 au BufNewFile,BufRead *.py setlocal syntax=python ts=4 sts=4 sw=4 expandtab
+
+
+function! Format()
+	execute "pyfile " . getcwd() . "/.config/clang-format.py"
+endfunction
+
+map <C-K> :call Format()<CR>
+imap <C-K> <ESC>:call Format()<CR>i
