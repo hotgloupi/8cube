@@ -45,8 +45,7 @@ namespace cube { namespace gl { namespace camera {
 		Camera& rotate(units::Angle const horizontal_angle,
 		               units::Angle const vertical_angle) ETC_NOEXCEPT;
 
-		inline
-		Camera& move(vec3 const& v) ETC_NOEXCEPT
+		inline Camera& move(vec3 const& v) ETC_NOEXCEPT
 		{
 			_position += v;
 			return *this;

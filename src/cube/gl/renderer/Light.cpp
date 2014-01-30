@@ -15,8 +15,8 @@ namespace cube { namespace gl { namespace renderer {
 	// Directional light info.
 
 	LightInfo<LightKind::directional>::LightInfo(vector::Vector3f direction,
-	                                             color::Color3f diffuse,
-	                                             color::Color3f specular)
+		                                         color::Color3f diffuse,
+		                                         color::Color3f specular)
 		: direction(direction)
 		, diffuse(diffuse)
 		, specular(specular)
@@ -26,8 +26,8 @@ namespace cube { namespace gl { namespace renderer {
 	// Point light info.
 
 	LightInfo<LightKind::point>::LightInfo(vector::Vector3f position,
-	                                       color::Color3f diffuse,
-	                                       color::Color3f specular)
+		                                   color::Color3f diffuse,
+		                                   color::Color3f specular)
 		: position(position)
 		, diffuse(diffuse)
 		, specular(specular)
@@ -37,11 +37,11 @@ namespace cube { namespace gl { namespace renderer {
 	// Custom light info.
 
 	LightInfo<LightKind::spot>::LightInfo(vector::Vector3f position,
-	                                      vector::Vector3f direction,
-	                                      color::Color3f diffuse,
-	                                      color::Color3f specular,
-	                                      float attenuation,
-	                                      units::Angle cutoff)
+		                                  vector::Vector3f direction,
+		                                  color::Color3f diffuse,
+		                                  color::Color3f specular,
+		                                  float attenuation,
+		                                  units::Angle cutoff)
 		: position(position)
 		, direction(direction)
 		, diffuse(diffuse)
@@ -61,15 +61,9 @@ namespace cube { namespace gl { namespace renderer {
 
 	struct Light::Impl
 	{
-		boost::variant<
-			  Light::directional_type
-			, Light::spot_type
-			, Light::point_type
-			, Light::custom_ptr_type
-		> light;
-		template<typename T>
-		Impl(T&& value)
-			: light{std::forward<T>(value)}
+		boost::variant<Light::directional_type, Light::spot_type,
+			           Light::point_type, Light::custom_ptr_type> light;
+		template <typename T> Impl(T&& value) : light{std::forward<T>(value)}
 		{}
 	};
 
