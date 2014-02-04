@@ -15,6 +15,7 @@ namespace {
 
 	ETC_LOG_COMPONENT("cube.test.registry");
 
+	// XXX use the one in wrappers/boost/python.hpp
 	template<typename Fn>
 	void propagate_exception(Fn&& fn)
 	{
