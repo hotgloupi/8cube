@@ -38,7 +38,7 @@ namespace etc { namespace exception {
 			catch (std::exception const&) {}
 		}
 		static bool const logging_exception =
-			etc::sys::environ::contains("ETC_LOG_EXCEPTION");
+			etc::sys::environ::try_as<bool>("ETC_LOG_EXCEPTION");
 		if (logging_exception)
 			ETC_LOG.warn("Raising:", *this);
 	}
