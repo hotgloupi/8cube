@@ -65,4 +65,12 @@ namespace etc { namespace exception {
 		return out;
 	}
 
+	KeyError::KeyError(std::string key)
+		: Exception{"KeyError: " + key}
+	{}
+
+	ValueError::ValueError(std::string msg)
+		: Exception{"ValueError: " + msg}
+	{}
+
 }}

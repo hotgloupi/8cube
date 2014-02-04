@@ -28,11 +28,26 @@ namespace etc { namespace exception {
 		backtrace::Backtrace const*
 		backtrace() const { return _backtrace; }
 
-		friend
-		ETC_API std::ostream& operator <<(std::ostream& out, Exception const& e);
+		friend ETC_API std::ostream& operator<<(std::ostream& out,
+		                                        Exception const& e);
 	};
 
 	ETC_API std::ostream& operator <<(std::ostream& out, Exception const& e);
+
+
+	class ETC_API_EXCEPTION KeyError
+		: public Exception
+	{
+	public:
+		explicit KeyError(std::string key);
+	};
+
+	class ETC_API_EXCEPTION ValueError
+		: public Exception
+	{
+	public:
+		explicit ValueError(std::string msg);
+	};
 
 }} // !etc::exception
 

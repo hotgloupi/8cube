@@ -1,6 +1,8 @@
 #ifndef  ETC_MEMORY_HPP
 # define ETC_MEMORY_HPP
 
+# include <etc/exception.hpp>
+
 # include <memory>
 
 namespace etc {
