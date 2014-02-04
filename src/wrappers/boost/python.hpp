@@ -102,6 +102,37 @@ namespace boost { namespace python {
 		to_python_converter<std::unique_ptr<T>, unique_ptr_converter<T>>();
 	}
 
+	template<typename Fn, typename... Args>
+	void propagate_exception(Fn&& fn, Args&&... args)
+	{
+		try { fn(std::forward<Args>(args)...); }
+		catch (error_already_set const&)
+		{
+			object exception, value, traceback;
+
+			{
+				PyObject* py_exception;
+				PyObject* py_value;
+				PyObject* py_traceback;
+				PyErr_Fetch(&py_exception, &py_value, &py_traceback);
+
+				if (py_exception == nullptr)
+					throw std::runtime_error(
+						"Internal boost python error while catching a python "
+						"exception"
+					);
+				exception = object(handle<>(py_exception));
+				value = object(handle<>(allow_null(py_value)));
+				traceback = object(handle<>(allow_null(py_traceback)));
+			}
+
+			auto msg = to_string(exception.attr("__name__")) + ": "
+			           + to_string(value);
+			// XXX missing traceback
+			throw std::runtime_error(msg);
+		}
+	}
+
 }}
 
 #define BOOST_PYTHON_DOCSTRING_OPTIONS()                                      \
