@@ -1,0 +1,53 @@
+#include "Graph.hpp"
+#include "Node.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+namespace py = boost::python;
+using namespace cube::scene;
+
+namespace {
+
+	std::string get_node_name(Node const& n)
+	{ return n.name(); }
+
+	void set_node_name(Node& n, std::string value)
+	{ n.name(std::move(value)); }
+
+	class PythonVisitor
+		: public NodeVisitor<Node>
+	{
+	private:
+		py::object& _visitor;
+
+	public:
+		PythonVisitor(py::object& visitor)
+			: _visitor(visitor)
+		{}
+
+		bool visit(Node& n) override
+		{
+			// boost::ref is needed, otherwise boost::python would search for
+			// a converter.
+			_visitor(boost::ref(n));
+			return true;
+		}
+	};
+
+	void visit_node(Node& self, py::object callable)
+	{
+		PythonVisitor visitor(callable);
+		self.visit(visitor);
+	}
+
+}
+
+
+
+BOOST_PYTHON_MODULE(Node)
+{
+	py::class_<Node, boost::noncopyable>("Node", py::init<std::string>())
+	    .add_property("name", &get_node_name, &set_node_name)
+	    .def( "__str__", &py::stringof<Node> )
+	    .def("visit", &visit_node);
+}

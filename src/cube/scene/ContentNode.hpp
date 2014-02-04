@@ -15,10 +15,12 @@ namespace cube { namespace scene {
 
 	public:
 		template<typename... Args>
-		ContentNode(Graph& g, std::string name, Args&&... args)
-			: Node{g, std::move(name)}
+		explicit
+		ContentNode(std::string name, Args&&... args)
+			: Node{std::move(name)}
 			, _content(std::forward<Args>(args)...)
 		{}
+
 	public:
 		using VisitableNode<ContentNode<T>>::visit;
 	};

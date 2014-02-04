@@ -7,6 +7,7 @@
 # include <cube/api.hpp>
 
 # include <etc/printable.hpp>
+# include <etc/log/component.hpp>
 
 # include <boost/noncopyable.hpp>
 
@@ -17,21 +18,24 @@
 namespace cube { namespace scene {
 
 	class CUBE_API Node
-		: public std::enable_shared_from_this<Node>
-		, public VisitableNode<Node>
+		: public VisitableNode<Node>
 		, public etc::Printable
 		, private boost::noncopyable
 	{
-	protected:
-		typedef std::weak_ptr<GroupNode> parent_node_type;
+		ETC_LOG_COMPONENT("cube.scene.Node");
+	public:
+		typedef size_t id_type;
 
 	protected:
-		std::string                       _name;
-		Graph&                            _graph;
-		std::map<Node*, parent_node_type> _parents;
+		std::string _name;
+		Graph*      _graph;
+		id_type     _id;
 
 	public:
-		explicit Node(Graph& graph, std::string name);
+		/// Construct a Node with a name.
+		explicit Node(std::string name);
+
+		/// Node class is meant to be subclassed.
 		virtual ~Node();
 
 	public:
@@ -41,9 +45,19 @@ namespace cube { namespace scene {
 		/// Set the name.
 		Node& name(std::string name) { _name = std::move(name); return *this; }
 
-	public:
-		/// Graph owning this node.
-		Graph& graph() const ETC_NOEXCEPT { return _graph; }
+		/// Whether or not the node is attached to a graph.
+		bool attached() const ETC_NOEXCEPT { return _graph != nullptr; }
+
+		/// Get the node id. If the node has not been attached to any graph,
+		/// throws an exception.
+		id_type id() const;
+
+		/// Get the graph containing this node or throw an error.
+		Graph& graph() const;
+
+		/// Attach a node into the graph, ensuring that the node is not already
+		/// attached to another graph.
+		void attach(Graph& g, id_type const id);
 
 	public:
 		using VisitableNode<Node>::visit;
@@ -51,11 +65,6 @@ namespace cube { namespace scene {
 	public:
 		// Implement printable interface.
 		void print(std::ostream& out) const ETC_NOEXCEPT override;
-
-	protected:
-		friend class GroupNode;
-		void _add_parent(GroupNode& parent);
-		void _remove_parent(GroupNode& parent);
 	};
 
 }}

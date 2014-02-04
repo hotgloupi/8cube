@@ -2,7 +2,6 @@
 
 #include "ContentNode.hpp"
 #include "Graph.hpp"
-#include "GroupNode.hpp"
 #include "Node.hpp"
 #include "Transform.hpp"
 #include "detail/assimp.hpp"
@@ -294,10 +293,10 @@ namespace cube { namespace scene {
 				}
 			}
 
-			_load_node(assimp_scene->mRootNode, &graph.root());
+			_load_node(assimp_scene->mRootNode, &this->graph.root());
 		}
 
-		void _load_node(aiNode* assimp_node, GroupNode* node)
+		void _load_node(aiNode* assimp_node, Node* node)
 		{
 			if (assimp_node == nullptr)
 				return;
@@ -309,14 +308,16 @@ namespace cube { namespace scene {
 			);
 			if (!assimp_node->mTransformation.IsIdentity())
 			{
-				node = &node->emplace<Transform>(
+				node = &this->graph.emplace_child<Transform>(
+					*node,
 					name + "-transformation",
 					detail::assimp_cast(assimp_node->mTransformation)
 				);
 			}
 			for (unsigned int i = 0; i < assimp_node->mNumMeshes; ++i)
 			{
-				node->emplace<ContentNode<MeshPtr>>(
+				this->graph.emplace_child<ContentNode<MeshPtr>>(
+					*node,
 					name + "-mesh" + std::to_string(i),
 					MeshPtr{this->meshes[i]}
 				);
@@ -325,7 +326,7 @@ namespace cube { namespace scene {
 			for (unsigned int i = 0; i < assimp_node->mNumChildren; ++i)
 				_load_node(
 					assimp_node->mChildren[i],
-					&node->emplace<GroupNode>(name + "-group")
+					&this->graph.emplace_child<Node>(*node, name + "-group")
 				);
 		}
 	};

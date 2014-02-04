@@ -1,0 +1,22 @@
+#include "Graph.hpp"
+#include "Node.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+BOOST_PYTHON_MODULE(Graph)
+{
+	namespace py = boost::python;
+	using namespace cube::scene;
+
+	py::class_<Graph, boost::noncopyable>("Graph")
+		.add_property(
+			"root",
+			py::make_function(
+				&Graph::root,
+				py::return_internal_reference<>()
+			)
+		)
+		.add_property("size", &Graph::size)
+	;
+}
+

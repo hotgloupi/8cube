@@ -1,14 +1,14 @@
 #ifndef CUBE_SCENE_TRANSFORM_HPP
 # define CUBE_SCENE_TRANSFORM_HPP
 
-# include "GroupNode.hpp"
+# include "Node.hpp"
 
 # include <cube/gl/matrix.hpp>
 
 namespace cube { namespace scene {
 
 	class Transform
-		: public GroupNode
+		: public Node
 		, public VisitableNode<Transform>
 	{
 	public:
@@ -18,12 +18,12 @@ namespace cube { namespace scene {
 		matrix_type _transformation;
 
 	public:
-		explicit Transform(Graph& graph,
-		                   std::string name,
+		explicit Transform(std::string name,
 		                   matrix_type const& transformation)
-			: GroupNode{graph, std::move(name)}
+			: Node{std::move(name)}
 			, _transformation(transformation)
 		{}
+
 	public:
 		using VisitableNode<Transform>::visit;
 	};
