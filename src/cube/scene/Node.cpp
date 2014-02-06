@@ -46,6 +46,9 @@ namespace cube { namespace scene {
 		_id = id; // XXX Should ensure that id is valid in the graph.
 	}
 
+	Node& Node::_insert(std::unique_ptr<Node> node)
+	{ return this->graph().insert_child(*this, std::move(node)); }
+
 	void Node::print(std::ostream& out) const ETC_NOEXCEPT
 	{
 		out << "<Node " << _name << ">";

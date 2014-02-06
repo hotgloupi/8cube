@@ -25,6 +25,8 @@ namespace cube { namespace scene {
 		// Pimpl.
 		struct Impl;
 		std::unique_ptr<Impl> _this;
+	public:
+		Impl& impl() const ETC_NOEXCEPT { return *_this; }
 
 	public:
 		Graph();
@@ -78,6 +80,10 @@ namespace cube { namespace scene {
 
 	public:
 		void traverse(NodeVisitor<Node>& visitor);
+
+	public:
+		template<typename Visitor>
+		void breadth_first_search(Visitor&& v);
 
 	private:
 		Node& _insert(std::unique_ptr<Node> node);

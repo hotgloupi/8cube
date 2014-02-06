@@ -6,6 +6,8 @@
 
 # include <cube/api.hpp>
 
+# include <etc/cast.hpp>
+# include <etc/memory.hpp>
 # include <etc/printable.hpp>
 # include <etc/log/component.hpp>
 
@@ -58,6 +60,21 @@ namespace cube { namespace scene {
 		/// Attach a node into the graph, ensuring that the node is not already
 		/// attached to another graph.
 		void attach(Graph& g, id_type const id);
+
+		template<typename NodeType, typename... Args>
+		NodeType& emplace(Args&&... args)
+		{
+			return this->insert(
+				etc::make_unique<NodeType>(std::forward<Args>(args)...)
+			);
+		}
+
+		template<typename T>
+		T& insert(std::unique_ptr<T> node)
+		{ return etc::cast<T&>(_insert(etc::cast<Node>(std::move(node)))); }
+
+	private:
+		Node& _insert(std::unique_ptr<Node> node);
 
 	public:
 		using VisitableNode<Node>::visit;

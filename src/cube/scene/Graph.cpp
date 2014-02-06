@@ -1,4 +1,5 @@
 #include "Graph.hpp"
+#include "GraphImpl.hpp"
 #include "Node.hpp"
 #include "NodeVisitor.hpp"
 
@@ -9,10 +10,6 @@
 #include <etc/types.hpp>
 #include <etc/scope_exit.hpp>
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graph_traits.hpp>
-#include <boost/bimap/bimap.hpp>
-
 #include <unordered_set>
 
 namespace cube { namespace scene {
@@ -20,43 +17,6 @@ namespace cube { namespace scene {
 	using cube::exception::Exception;
 
 	ETC_LOG_COMPONENT("cube.scene.Graph");
-
-	///////////////////////////////////////////////////////////////////////////
-	// Graph::Impl
-	struct Graph::Impl
-	{
-		struct NodeDeleter
-		{
-			bool released;
-			NodeDeleter() : released{false} {}
-			NodeDeleter(NodeDeleter const&) = default;
-			NodeDeleter& operator =(NodeDeleter const&) = default;
-			void operator ()(Node* ptr)
-			{ if (!this->released) delete ptr; }
-		};
-
-		typedef
-			boost::adjacency_list<
-				  boost::vecS
-				, boost::vecS
-				, boost::directedS
-				, std::shared_ptr<Node>
-				, boost::no_property
-			>
-			graph_type;
-
-		typedef
-			boost::graph_traits<graph_type>::vertex_descriptor
-			vertex_descriptor_type;
-
-		static_assert(
-			std::is_same<vertex_descriptor_type, Node::id_type>::value,
-			"Adapt Node::id_type to match vertex descriptor type"
-		);
-
-		graph_type graph;
-		Node* root;
-	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// Graph
