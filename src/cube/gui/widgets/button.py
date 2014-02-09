@@ -14,25 +14,25 @@ class Button(Label):
             0, 0,
             self.size.x, self.size.y
         )
-        attr = gl.renderer.make_vertex_buffer_attribute
+        attr = gl.renderer.make_vba
         self.__vb = renderer.new_vertex_buffer([
             attr(
                 gl.ContentKind.vertex,
                 list(gl.Vector2f(*v) for v in [
                     (x, y),
-                    (x + w, y),
+                    (x, y + h),
                     (x + w, y + h),
-                    (x, y + h)
+                    (x + w, y),
                 ]),
                 gl.ContentHint.static_content
             ),
             attr(
                 gl.ContentKind.color,
                 [
-                    gl.Color3f('#ccc'),
-                    gl.Color3f('#ccc'),
-                    gl.Color3f('#ccc'),
-                    gl.Color3f('#ccd'),
+                    gl.Color3f('#fff'),
+                    gl.Color3f('#fff'),
+                    gl.Color3f('#fff'),
+                    gl.Color3f('#fff'),
                 ],
                 gl.ContentHint.static_content
             )
@@ -64,7 +64,8 @@ class Button(Label):
 
     def render(self, _):
         with self.renderer.begin(gl.renderer.mode_2d) as painter:
-            painter.state.model = gl.matrix.translate(painter.state.model, self.position.x, self.position.y, .0)
+            painter.state.translate(self.position.x, self.position.y, .0)
+            self.__sp["cube_ModelViewProjectionMatrix"] = painter.state.mvp
             with painter.bind([self.__sp, self.__vb]):
                 painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
             super(Button, self).render(painter)
