@@ -161,7 +161,7 @@ namespace etc { namespace log {
 		{
 			boost::asio::io_service                        service;
 			std::unique_ptr<boost::asio::io_service::work> work;
-			bool                                           stopped;
+			std::atomic<bool>                              stopped;
 #ifdef ETC_DEBUG
 			size_t                                         dropped;
 #endif
@@ -176,11 +176,15 @@ namespace etc { namespace log {
 				, dropped{0}
 #endif
 				, thread{[this] {
-					while (!this->stopped)
+					while (true)
 					{
-						try { this->service.run(); }
+						try {
+							// Exceptions thrown run the service again.
+							this->service.run();
+							break;
+						}
 						catch (std::exception const& err)
-						{ logger_log("Couldn't log: ", err.what()); }
+						{ etc::print("log error: ", err.what()); }
 					}
 				}}
 				, async{!etc::sys::environ::contains("ETC_LOG_SYNC")}
@@ -394,12 +398,9 @@ namespace etc { namespace log {
 #ifdef ETC_DEBUG
 		boost::asio::io_service s;
 		boost::asio::deadline_timer timer(s, boost::posix_time::seconds(2));
-		timer.async_wait([] (boost::system::error_code const& ec) {
-			if (!ec)
-			{
-				logger_log("Force all remaining logs to be dropped");
-				runner().stopped = true;
-			}
+		timer.async_wait([&] (boost::system::error_code const&) {
+			logger_log("Force all remaining logs to be dropped");
+			runner().stopped = true;
 		});
 		std::thread waiter_thread{[&] {s.run();}};
 #endif
@@ -407,6 +408,7 @@ namespace etc { namespace log {
 			runner().thread.join();
 #ifdef ETC_DEBUG
 		timer.cancel();
+		s.stop();
 		waiter_thread.join();
 		logger_log("Dropped logs:", runner().dropped);
 #endif
