@@ -1,4 +1,6 @@
 #include "Scheduler.hpp"
+#include "StrandImpl.hpp"
+#include "Context.hpp"
 
 #include <etc/log.hpp>
 #include <etc/test.hpp>
@@ -24,80 +26,35 @@ namespace etc { namespace scheduler {
 	typedef boost::asio::io_service              service_type;
 	typedef boost::asio::io_service::work        work_type;
 	typedef boost::asio::io_service::strand      strand_type;
-	typedef boost::coroutines::coroutine<void()> coroutine_type;
-
-	struct Context
-		: private boost::noncopyable
-	{
-		coroutine_type* _yield;
-		Context* _parent;
-		std::string name;
-		coroutine_type coro;
-		std::exception_ptr exception;
-
-		template<typename Handler>
-		Context(std::string name,
-		        Context* parent,
-		        Handler&& hdlr)
-			: _yield{nullptr}
-			, _parent{parent}
-			, name(std::move(name))
-			, coro(
-				[hdlr, this] (coroutine_type& ca) {
-					ETC_LOG.debug("Initiated context", this->name, &ca, &this->coro);
-					ca();
-					ETC_LOG.debug("Awaken context", this->name);
-					_yield = &ca;
-					hdlr(*this);
-					_yield = nullptr;
-				}
-			)
-		{ ETC_TRACE_CTOR(this->name); }
-
-		~Context()
-		{ ETC_TRACE_DTOR(this->name); }
-
-		void yield()
-		{
-			ETC_TRACE.debug("Context", this, this->name, "yields");
-			if (_yield == nullptr)
-				throw Exception{"Context not ready"};
-			(*_yield)();
-			if (this->exception != nullptr)
-			{
-				ETC_SCOPE_EXIT{ this->exception = std::exception_ptr{}; };
-				std::rethrow_exception(this->exception);
-			}
-		}
-	};
 
 	struct Scheduler::Impl
 	{
 	public:
 		service_type                 service;
-		strand_type                  strand;
+		strand_type                  coro_strand;
 	private:
 		etc::stack_ptr<work_type>    _work;
 		bool                         _running;
 		std::vector<std::thread>     _threads;
+		etc::size_type               _thread_count;
 		std::queue<Context*>         _jobs;
 		std::unordered_set<Context*> _frozen;
 		std::vector<Context*>        _jobs_stack;
 
 	public:
-		Impl()
+		Impl(etc::size_type const thread_count = 1)
 			: service()
-			, strand(service)
+			, coro_strand(service)
 			, _work(etc::stack_ptr_no_init)
 			, _running{false}
 			, _threads{}
-		{}
+			, _thread_count{thread_count != 0 ? thread_count : 1}
+		{ ETC_TRACE_CTOR("with", _thread_count, "threads"); }
 
 		~Impl()
 		{
+			ETC_TRACE_DTOR();
 			_work.clear();
-			for (auto& thread: _threads)
-				thread.join();
 		}
 
 		Context* current()
@@ -110,16 +67,48 @@ namespace etc { namespace scheduler {
 			_running = true;
 			ETC_SCOPE_EXIT{ _running = false; };
 
-			this->service.post([&] { _poll(); });
-			try { this->service.run(); }
-			catch (...) {
-				ETC_LOG.error(
-					"Exiting Scheduler::run() with:",
-					exception::string()
-				);
-				throw;
+			std::map<etc::size_type, std::exception_ptr> thread_errors;
+
+			// Service runner stores exceptions (and stop the scheduler).
+			auto runner = [&](etc::size_type const thread_index) {
+				try { this->service.run(); }
+				catch (...) {
+					ETC_LOG.error("Thread",
+					              thread_index,
+					              "exited with error:",
+					              exception::string());
+					thread_errors[thread_index] = std::current_exception();
+					this->stop();
+				}
+			};
+
+			// Poll coroutines.
+			this->coro_strand.post([&] { _poll(); });
+
+			// Launch threads.
+			for (etc::size_type i = 1; i < _thread_count; ++i)
+				_threads.emplace_back(runner, i);
+
+			// Block main thread.
+			runner(0);
+
+			// Wait until every thread is done.
+			for (auto& thread: _threads)
+				if (thread.joinable()) thread.join();
+
+			if (!thread_errors.empty())
+			{
+				std::string error_msg = "Scheduler errors:\n";
+				for (auto& pair: thread_errors)
+					error_msg += "  * " + exception::string(pair.second) + "\n";
+
+				ETC_LOG.error(error_msg);
+				throw Exception{error_msg}; // XXX Should have an exception list.
 			}
 		}
+
+		void stop()
+		{ _work.clear(); this->service.stop(); }
 
 		void _poll()
 		{
@@ -131,7 +120,7 @@ namespace etc { namespace scheduler {
 
 			ETC_SCOPE_EXIT{
 				if (!_jobs.empty())
-					this->service.post([&] { _poll(); });
+					this->coro_strand.post([&] { _poll(); });
 			};
 
 			if (_frozen.find(job) != _frozen.end())
@@ -182,7 +171,11 @@ namespace etc { namespace scheduler {
 			ETC_TRACE.debug("Creating new job", name);
 			bool needs_poll = _jobs.empty();
 			_jobs.push(
-				new Context(std::move(name), this->current(), std::forward<Handler>(hdlr))
+				new Context{
+					std::move(name),
+					this->current(),
+					std::forward<Handler>(hdlr)
+				}
 			);
 			ETC_LOG.debug("New job", _jobs.front());
 			if (needs_poll)
@@ -215,8 +208,8 @@ namespace etc { namespace scheduler {
 	Scheduler::~Scheduler()
 	{}
 
-	void Scheduler::run()
-	{ _this->run(); }
+	void Scheduler::run() { _this->run(); }
+	void Scheduler::stop() { _this->stop(); }
 
 	void Scheduler::sleep(int sec)
 	{
@@ -244,6 +237,9 @@ namespace etc { namespace scheduler {
 		_this->push(std::move(name), fn);
 	}
 
+	Strand Scheduler::strand()
+	{ return Strand{*this, etc::make_unique<Strand::Impl>(_this->service)}; }
+
 	namespace {
 
 		ETC_TEST_CASE(run)
@@ -259,20 +255,18 @@ namespace etc { namespace scheduler {
 
 		ETC_TEST_CASE(spawn_exception)
 		{
-			{
-				Scheduler r;
-				r.spawn("test", [&] (Context&){ throw std::runtime_error{"lol"}; });
-				try { r.run(); }
-				catch (std::exception const& e)
-				{ ETC_ENFORCE_EQ(e.what(), std::string("lol")); }
-				catch (...) { ETC_ERROR("Should have thrown a bool"); }
+			Scheduler r;
+			r.spawn("test", [&] (Context&){ throw std::runtime_error{"lol"}; });
+			try { r.run(); }
+			catch (std::exception const& e)
+			{ ETC_ENFORCE_EQ(e.what(), std::string("lol")); }
+			catch (...) { ETC_ERROR("Should have thrown a bool"); }
 
-				bool fired = false;
-				r.spawn("test2", [&] (Context&) { fired = true; });
-				ETC_ENFORCE_EQ(fired, false);
-				r.run();
-				ETC_ENFORCE_EQ(fired, true);
-			}
+			bool fired = false;
+			r.spawn("test2", [&] (Context&) { fired = true; });
+			ETC_ENFORCE_EQ(fired, false);
+			r.run();
+			ETC_ENFORCE_EQ(fired, true);
 		}
 
 		ETC_TEST_CASE(yield)
@@ -362,6 +356,18 @@ namespace etc { namespace scheduler {
 			{ ETC_ENFORCE_EQ(err.what(), std::string("inner")); }
 			catch (...)
 			{ ETC_ERROR("Invalid exception type caught: " + exception::string()); }
+		}
+
+		ETC_TEST_CASE(interrupt)
+		{
+			Scheduler r;
+			std::exception_ptr e;
+			r.spawn("Interruptible", [&] (Context& ctx) {
+				while (true)
+					try {ctx.yield();}
+					catch (...) { e = std::current_exception(); }
+			});
+			r.spawn("Stop", [&] (Context&) { r.stop(); });
 		}
 
 	} // !anonymous

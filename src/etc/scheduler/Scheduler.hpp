@@ -1,6 +1,8 @@
 #ifndef  ETC_SCHEDULER_SCHEDULER_HPP
 # define ETC_SCHEDULER_SCHEDULER_HPP
 
+# include "fwd.hpp"
+
 # include <etc/memory.hpp>
 
 # include <functional>
@@ -8,7 +10,6 @@
 
 namespace etc { namespace scheduler {
 
-	struct Context;
 	class Scheduler
 	{
 	public:
@@ -22,8 +23,11 @@ namespace etc { namespace scheduler {
 		~Scheduler();
 
 		void run();
+		void stop();
 		void spawn(std::string name, handler_type const& fn);
 		void sleep(int sec);
+
+		Strand strand();
 	};
 
 
