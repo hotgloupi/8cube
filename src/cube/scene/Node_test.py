@@ -30,3 +30,11 @@ class _(Case):
             self.assertEqual(str(e), "COUCOU")
         else:
             self.fail("Should have thrown COUCOU")
+
+    def test_emplace(self):
+        g = Graph()
+        self.assertEqual(g.size, 1)
+        child = g.root.emplace(Node, "lol")
+        self.assertEqual(child.name, "lol")
+        self.assertEqual(g.size, 2)
+
