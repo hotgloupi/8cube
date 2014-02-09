@@ -46,6 +46,14 @@ namespace cube { namespace scene {
 		_id = id; // XXX Should ensure that id is valid in the graph.
 	}
 
+	void Node::detach(Graph& g)
+	{
+		ETC_LOG.debug("Detach", *this, "from", g, "with id", _id);
+		ETC_ASSERT_EQ(_graph, &g);
+		_graph = nullptr;
+		_id = 0;
+	}
+
 	Node& Node::_insert(std::unique_ptr<Node> node)
 	{ return this->graph().insert_child(*this, std::move(node)); }
 

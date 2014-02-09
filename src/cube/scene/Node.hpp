@@ -61,6 +61,9 @@ namespace cube { namespace scene {
 		/// attached to another graph.
 		void attach(Graph& g, id_type const id);
 
+		/// Detach a node from its graph. id() and graph() methods will throw.
+		void detach(Graph& g);
+
 		template<typename NodeType, typename... Args>
 		NodeType& emplace(Args&&... args)
 		{
