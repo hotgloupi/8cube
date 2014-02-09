@@ -14,28 +14,19 @@ namespace cube { namespace scene {
 
 	struct Graph::Impl
 	{
-		struct NodeDeleter
-		{
-			bool released;
-			NodeDeleter() : released{false} {}
-			NodeDeleter(NodeDeleter const&) = default;
-			NodeDeleter& operator =(NodeDeleter const&) = default;
-			void operator ()(Node* ptr)
-			{ if (!this->released) delete ptr; }
-		};
-
 		typedef
 			boost::adjacency_list<
 				  boost::vecS
 				, boost::vecS
 				, boost::directedS
 				, std::shared_ptr<Node>
-				//, boost::no_property
+				, boost::no_property
 			>
 			graph_type;
 
 		typedef boost::graph_traits<graph_type> graph_traits;
 		typedef graph_traits::vertex_descriptor vertex_descriptor_type;
+		typedef graph_traits::adjacency_iterator adjacency_iterator;
 
 		static_assert(
 			std::is_same<vertex_descriptor_type, Node::id_type>::value,
