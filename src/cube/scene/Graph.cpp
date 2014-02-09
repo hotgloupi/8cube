@@ -49,17 +49,36 @@ namespace cube { namespace scene {
 		// Release the pointer and insert it in the graph.
 		_this->graph[id] = std::shared_ptr<Node>{
 			node.get(),
-			Impl::NodeDeleter{}
+			[] (Node* n) { if (!n->attached()) delete n; }
 		};
 		auto& node_ref = *node.release();
 
 		// Set the node id.
 		node_ref.attach(*this, id);
 
-
 		// Every thing went well, release the guard.
 		remove_vertex.dismiss();
 		return node_ref;
+	}
+
+
+	Node& Graph::insert(Node& node, std::function<void(Node*)> deleter)
+	{
+		ETC_TRACE.debug("Insert weak node ", node);
+
+		// Insert in the graph.
+		Node::id_type const id = boost::add_vertex(_this->graph);
+		auto remove_vertex
+			= etc::scope_exit([&] { boost::remove_vertex(id, _this->graph); });
+		// Release the pointer and insert it in the graph.
+		_this->graph[id] = std::shared_ptr<Node>{&node, deleter};
+
+		// Set the node id.
+		node.attach(*this, id);
+
+		// Every thing went well, release the guard.
+		remove_vertex.dismiss();
+		return node;
 	}
 
 	std::unique_ptr<Node> Graph::remove(Node& node)
@@ -68,14 +87,14 @@ namespace cube { namespace scene {
 
 		auto ptr = _this->graph[node.id()];
 		ETC_ASSERT_EQ(ptr.get(), &node);
+		ETC_ASSERT_EQ(ptr.use_count(), 2);
 
 		auto id = node.id();
 		boost::clear_vertex(id, _this->graph);
 		boost::remove_vertex(id, _this->graph);
-		ETC_ASSERT(ptr.unique());
-		auto deleter = std::get_deleter<Impl::NodeDeleter>(ptr);
-		ETC_ASSERT_NEQ(deleter, nullptr);
-		deleter->released = true;
+		ETC_ASSERT_EQ(ptr.unique(), 2);
+
+		ptr->detach(*this);
 		return std::unique_ptr<Node>{ptr.get()};
 	}
 

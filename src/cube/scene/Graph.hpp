@@ -44,6 +44,9 @@ namespace cube { namespace scene {
 		T& insert(std::unique_ptr<T> node)
 		{ return etc::cast<T&>(_insert(etc::cast<Node>(std::move(node)))); }
 
+		/// Insert a node owned outside of the graph.
+		Node& insert(Node& node, std::function<void(Node*)> deleter);
+
 		/// Insert a node as a child of `parent`.
 		template<typename T>
 		T& insert_child(Node& parent, std::unique_ptr<T> node)
