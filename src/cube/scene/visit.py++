@@ -1,0 +1,39 @@
+#include <wrappers/boost/python.hpp>
+
+#include "visit/breadth_first_search.hpp"
+#include "visit/depth_first_search.hpp"
+
+namespace py = boost::python;
+using namespace cube::scene;
+
+namespace {
+
+	struct bfs_callback_visitor
+		: public visit::DefaultBreadthFirstVisitor
+	{
+		py::object _cb;
+		bfs_callback_visitor(py::object cb) : _cb{cb} {}
+		void discover_vertex(Node& n) { _cb(boost::ref(n)); }
+	};
+
+	class bfs_default_visitor
+		: public visit::DefaultBreadthFirstVisitor
+	{
+		virtual ~bfs_default_visitor() {}
+	};
+
+	void bfs(Graph& g, py::object o)
+	{
+		if (PyCallable_Check(o.ptr()))
+		{
+			visit::breadth_first_search(g, bfs_callback_visitor{o});
+		}
+	}
+
+}
+
+BOOST_PYTHON_MODULE(visit)
+{
+	py::def("breadth_first_search", &bfs);
+	py::def("bfs", &bfs);
+}
