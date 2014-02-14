@@ -33,10 +33,12 @@ namespace cube { namespace scene { namespace visit {
 		struct BreadthFirstVisitorWrapper
 			: public boost::default_bfs_visitor
 		{
+			typedef boost::default_bfs_visitor super_type;
 			Visitor& _visitor;
 			BreadthFirstVisitorWrapper(Visitor& visitor) : _visitor(visitor) {}
 			BreadthFirstVisitorWrapper(BreadthFirstVisitorWrapper const& other)
-				: _visitor(other._visitor)
+				: super_type(other)
+				, _visitor(other._visitor)
 			{}
 # define _CUBE_SCENE_VISIT_BFS_FORWARD(__name)                                \
 			template<typename V, typename G>                                  \
