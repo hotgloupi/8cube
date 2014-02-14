@@ -30,16 +30,17 @@ class Application(cube.gui.Application):
         )
         #self.window.confine_mouse(True)
 
-        self.__fps_label = cube.gui.widgets.Label(
-            "FPS:", x = 0, y = 400, w = 400, h = 90
-        )
-        self._main_menu = cube.gui.widgets.VerticalLayout(
+        self._main_menu = self.viewport.emplace_child(
+            cube.gui.widgets.VerticalLayout,
             renderer = self.window.renderer
         )
-        self._main_menu.add_child(self.__fps_label)
+        self.__fps_label = self._main_menu.emplace_child(
+            cube.gui.widgets.Label,
+            "FPS:", x = 0, y = 400, w = 400, h = 90,
+            renderer = self.window.renderer
+        )
         self._game_menu = self._game.gui
-        self.viewport.add_child(self._game_menu)
-        self.viewport.add_child(self._main_menu)
+        self.viewport.insert_child(self._game_menu)
 
     def run(self):
         self._running = True

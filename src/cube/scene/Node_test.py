@@ -34,7 +34,7 @@ class _(Case):
     def test_emplace(self):
         g = Graph()
         self.assertEqual(g.size, 1)
-        child = g.root.emplace(Node, "lol")
+        child = g.root.emplace_child(Node, "lol")
         self.assertEqual(child.name, "lol")
         self.assertEqual(g.size, 2)
 
