@@ -78,23 +78,31 @@ namespace etc { namespace scheduler {
 					              "exited with error:",
 					              exception::string());
 					thread_errors[thread_index] = std::current_exception();
+					ETC_LOG.debug("Stopping scheduler");
 					this->stop();
 				}
 			};
 
 			// Poll coroutines.
-			this->coro_strand.post([&] { _poll(); });
+			this->coro_strand.post(
+				[&] { ETC_LOG.debug(*this, "First poll"); _poll(); }
+			);
 
 			// Launch threads.
 			for (etc::size_type i = 1; i < _thread_count; ++i)
 				_threads.emplace_back(runner, i);
 
 			// Block main thread.
+			ETC_LOG.debug(*this, "Running on main thread");
 			runner(0);
 
 			// Wait until every thread is done.
+			ETC_LOG.debug(*this, "Joining", _threads.size(), "threads");
 			for (auto& thread: _threads)
 				if (thread.joinable()) thread.join();
+			_threads.clear();
+
+			this->service.reset();
 
 			if (!thread_errors.empty())
 			{
@@ -102,7 +110,7 @@ namespace etc { namespace scheduler {
 				for (auto& pair: thread_errors)
 					error_msg += "  * " + exception::string(pair.second) + "\n";
 
-				ETC_LOG.error(error_msg);
+				ETC_LOG.error(*this, error_msg);
 				throw Exception{error_msg}; // XXX Should have an exception list.
 			}
 		}
@@ -252,7 +260,6 @@ namespace etc { namespace scheduler {
 			ETC_ENFORCE(fired == true);
 		}
 
-
 		ETC_TEST_CASE(spawn_exception)
 		{
 			Scheduler r;
@@ -260,7 +267,17 @@ namespace etc { namespace scheduler {
 			try { r.run(); }
 			catch (std::exception const& e)
 			{ /*ETC_ENFORCE_EQ(e.what(), std::string("lol"));*/ }
-			catch (...) { ETC_ERROR("Should have thrown a bool"); }
+			catch (...) { ETC_ERROR("Should have thrown"); }
+		}
+
+		ETC_TEST_CASE(exception_recovery)
+		{
+			Scheduler r;
+			r.spawn("test", [&] (Context&){ throw std::runtime_error{"lol"}; });
+			try { r.run(); }
+			catch (std::exception const& e)
+			{ /*ETC_ENFORCE_EQ(e.what(), std::string("lol"));*/ }
+			catch (...) { ETC_ERROR("Should have thrown"); }
 
 			bool fired = false;
 			r.spawn("test2", [&] (Context&) { fired = true; });
