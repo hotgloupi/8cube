@@ -3,6 +3,8 @@
 
 #include <cube/exception.hpp>
 
+#include <etc/scope_exit.hpp>
+
 #include <wrappers/boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 
@@ -99,6 +101,28 @@ namespace {
 		n.graph().connect(self, n);
 		return result;
 	}
+
+	py::object node_insert_child(Node& self, py::object py_child)
+	{
+		PyObject* py_child_ptr = py_child.ptr();
+		Node& result = self.graph().insert(
+			py::extract<Node&>(py_child),
+			[=] (Node*) { Py_DECREF(py_child_ptr); }
+		);
+
+		// Insertion succeeded, the deleter will be called.
+		Py_INCREF(py_child_ptr);
+
+		// In case of errors, we remove the inserted Node.
+		auto insert_guard =
+			etc::scope_exit([&] { self.graph().remove(result); });
+
+		// Motherly bound.
+		self.graph().connect(self, result);
+
+		insert_guard.dismiss();
+		return py_child;
+	}
 }
 
 
@@ -109,6 +133,7 @@ BOOST_PYTHON_MODULE(Node)
 		.add_property("name", &get_node_name, &set_node_name)
 		.def( "__str__", &py::stringof<Node> )
 		.def("visit", &visit_node)
-		.def("emplace", py::raw_function(&node_emplace))
+		.def("emplace_child", py::raw_function(&node_emplace))
+		.def("insert_child", &node_insert_child)
 	;
 }

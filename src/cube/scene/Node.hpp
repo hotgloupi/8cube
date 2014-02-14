@@ -67,17 +67,17 @@ namespace cube { namespace scene {
 		template<typename NodeType, typename... Args>
 		NodeType& emplace(Args&&... args)
 		{
-			return this->insert(
+			return this->insert_child(
 				etc::make_unique<NodeType>(std::forward<Args>(args)...)
 			);
 		}
 
 		template<typename T>
-		T& insert(std::unique_ptr<T> node)
-		{ return etc::cast<T&>(_insert(etc::cast<Node>(std::move(node)))); }
+		T& insert_child(std::unique_ptr<T> node)
+		{ return etc::cast<T&>(_insert_child(etc::cast<Node>(std::move(node)))); }
 
 	private:
-		Node& _insert(std::unique_ptr<Node> node);
+		Node& _insert_child(std::unique_ptr<Node> node);
 
 	public:
 		using VisitableNode<Node>::visit;

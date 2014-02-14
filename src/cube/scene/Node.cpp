@@ -54,7 +54,7 @@ namespace cube { namespace scene {
 		_id = 0;
 	}
 
-	Node& Node::_insert(std::unique_ptr<Node> node)
+	Node& Node::_insert_child(std::unique_ptr<Node> node)
 	{ return this->graph().insert_child(*this, std::move(node)); }
 
 	void Node::print(std::ostream& out) const ETC_NOEXCEPT
