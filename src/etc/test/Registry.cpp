@@ -61,7 +61,7 @@ namespace etc { namespace test {
 			}
 
 			if (success)
-				ETC_LOG.debug(" -> Test", ptr->name, "succeded.");
+				ETC_LOG.info(" -> Test", ptr->name, "succeded.");
 			else
 			{
 				ETC_LOG.error(" -> Test", ptr->name, "failed:", error);
