@@ -6,10 +6,10 @@ from .channel import Channel
 class Manager:
     """Store and forward events to registered controllers."""
 
-    def __init__(self):
+    def __init__(self, tick_channel = Channel('tick')):
         self.__queue = []
         self.__controllers = dict()
-        self.__tick = Channel('tick')
+        self.__tick = tick_channel
         self.__tick_event = Event(self.__tick)
 
     def push(self, event):
