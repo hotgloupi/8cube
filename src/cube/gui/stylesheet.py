@@ -8,7 +8,7 @@ class StyleDefinition(dict):
         self.id_ = id_
         self.class_ = class_
         self.tag = tag
-        super(StyleDefinition).__init__()
+        super().__init__()
 
 class Stylesheet:
     _fonts = None
