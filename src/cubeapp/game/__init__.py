@@ -20,7 +20,7 @@ class Game():
     """Base class for every games
     """
 
-    def __init__(self, window, client, bindings, world):
+    def __init__(self, window, client, bindings, world = None):
         self.window = window
         self.renderer = window.renderer
         self.client = client
@@ -54,7 +54,9 @@ class Game():
         """
         self.input_translator.poll()
         self.event_manager.poll(delta)
-        self.world.update(delta, self.player, self.projection_matrix)
+        if self.world is not None:
+            self.world.update(delta, self.player, self.projection_matrix)
 
     def _on_quit(self):
-        self.world.stop()
+        if self.world is not None:
+            self.world.stop()
