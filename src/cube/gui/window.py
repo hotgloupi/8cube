@@ -7,7 +7,7 @@ from cube import system
 from cube.gui.widgets.viewport import Viewport
 from cube.gui.view import View
 
-class RootWindow:
+class Window:
 
     def __init__(self, title, width, height):
         self.__window = system.create_window(

@@ -9,7 +9,7 @@ class Application(cube.Application):
             'idle', 'quit',
         ]
         self._handlers = {}
-        self._window = cube.gui.RootWindow(name, width, height)
+        self._window = cube.gui.Window(name, width, height)
         for event in events:
             connection = getattr(
                 self._window.inputs, 'on_' + event
