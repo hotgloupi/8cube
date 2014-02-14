@@ -42,7 +42,7 @@ namespace cube { namespace scene { namespace visit {
 			{}
 # define _CUBE_SCENE_VISIT_BFS_FORWARD(__name)                                \
 			template<typename V, typename G>                                  \
-			void __name ## _vertex(V vertex, G const& g)                      \
+			inline void __name ## _vertex(V vertex, G const& g)               \
 			{ _visitor.__name ## _vertex(*g[vertex]); }                       \
 /**/
 			_CUBE_SCENE_VISIT_BFS_FORWARD(discover);
@@ -63,7 +63,7 @@ namespace cube { namespace scene { namespace visit {
 	};
 
 	template<typename Visitor>
-	void breadth_first_search(Graph& graph, Visitor& v)
+	void breadth_first_search(Graph& graph, Visitor&& v)
 	{
 		BOOST_CONCEPT_ASSERT(( detail::BreadthFirstVisitorConcept<Visitor> ));
 		auto& graph_impl = graph.impl().graph;
