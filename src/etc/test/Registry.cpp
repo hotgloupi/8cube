@@ -3,6 +3,7 @@
 
 #include <etc/abort.hpp>
 #include <etc/assert.hpp>
+#include <etc/exception.hpp>
 #include <etc/log.hpp>
 #include <etc/path.hpp>
 #include <etc/scope_exit.hpp>
@@ -46,7 +47,12 @@ namespace etc { namespace test {
 			std::string error;
 			try {
 				ETC_TRACE.debug("Running test", ptr->name, "at", ptr->file, ptr->line);
-				ptr->setUp();
+				try { ptr->setUp(); }
+				catch (...) {
+					ETC_TRACE.warn("Setup of", ptr->name, "at", ptr->file,
+					               ptr->line, "failed:", exception::string());
+					throw;
+				}
 				ETC_SCOPE_EXIT{ ptr->tearDown(); };
 				(*ptr)();
 				success = true;
