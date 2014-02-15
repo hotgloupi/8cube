@@ -44,6 +44,7 @@ namespace {
 			auto msg = py::to_string(exception.attr("__name__"))
 				+ ": " + py::to_string(value);
 			// XXX missing traceback
+			ETC_LOG.warn("Python exception caught:", msg);
 			throw cube::exception::Exception(msg);
 		}
 	}
@@ -79,8 +80,8 @@ namespace {
 			: _setup(setup)
 			, _teardown(teardown)
 		{}
-		void setUp() override { _setup(); }
-		void tearDown() override { _teardown(); }
+		void setUp() override { propagate_exception(_setup); }
+		void tearDown() override { propagate_exception(_teardown); }
 	};
 
 	void registry_add(py::object setup,
