@@ -27,13 +27,14 @@ class _AutoRegister(type):
                     os.path.relpath(inspect.getfile(cls), start = cls.root_dir),
                     inspect.getsourcelines(v)[1],
                 )
+                test_name = name + '.' + k
                 registry.add(
                     case.setUp,
                     case.tearDown,
                     method,
                     file,
                     line,
-                    k
+                    test_name
                 )
 
 class Case(metaclass = _AutoRegister):
