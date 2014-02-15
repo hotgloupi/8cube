@@ -3,8 +3,10 @@
 
 #include <etc/path.hpp>
 
+#include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 namespace etc { namespace test {
 
@@ -35,6 +37,9 @@ namespace etc { namespace test {
 		auto parts = etc::path::split(
 			dot != std::string::npos ? file.substr(0, dot) : file
 		);
+		parts.push_back(name);
+
+		// Find a usefull starting point.
 		auto it = parts.begin(), end = parts.end();
 		for (; it != end; ++it)
 		{
@@ -44,11 +49,20 @@ namespace etc { namespace test {
 				break;
 			}
 		}
-		if (it == end)
+		if (it == end) // Start at the begining otherwise.
 			it = parts.begin();
-		std::vector<std::string> selected_parts(it, end);
-		selected_parts.push_back(name);
 
+		// Split dotted names and add them to the selected parts.
+		std::vector<std::string> selected_parts;
+		for (; it != end; ++it)
+		{
+			std::vector<std::string> parts;
+			boost::algorithm::split(parts, *it, boost::is_any_of("."), boost::token_compress_on);
+			for (auto& p: parts)
+				selected_parts.push_back(std::move(p));
+		}
+
+		// Fix names and ignore empty ones.
 		std::vector<std::string> res;
 		for (auto p: selected_parts)
 		{
@@ -56,6 +70,13 @@ namespace etc { namespace test {
 				p = p.substr(5, std::string::npos);
 			if (boost::algorithm::ends_with(p, "_test"))
 				p = p.substr(0, p.size() - 5);
+			while (!p.empty() && p[0] == '_') // XXX lstrip
+				p = p.substr(1, std::string::npos);
+			while (!p.empty() && p[p.size() - 1] == '_') // XXX rstrip
+				p = p.substr(0, p.size() - 1);
+
+			if (p.empty()) continue;
+
 			res.emplace_back(std::move(p));
 		}
 		return boost::join(res, ".");
