@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
 
+from .. import view
 
-from . import container
-
-class Viewport(container.Container):
+class Viewport(view.View):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('tag', 'viewport')
@@ -14,5 +13,6 @@ class Viewport(container.Container):
 
     def on_resize(self, w, h):
         """Forward event to its children."""
-        for child in self._childs:
-            child.on_resize(w, h)
+        #for child in self._childs:
+        #    child.on_resize(w, h)
+        pass

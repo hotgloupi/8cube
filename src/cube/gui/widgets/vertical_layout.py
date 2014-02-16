@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from .container import Container
+from .. import view
 
-class VerticalLayout(Container):
+class VerticalLayout(view.View):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('tag', 'vlayout')
