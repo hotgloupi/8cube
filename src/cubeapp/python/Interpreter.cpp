@@ -38,12 +38,15 @@ namespace cubeapp { namespace python {
 
 	Interpreter::Interpreter()
 		: _impl(new Impl)
-	{}
+	{ ETC_TRACE_CTOR(); }
 
 	Interpreter::~Interpreter()
 	{
+		ETC_TRACE_DTOR();
 		delete _impl;
 		_impl = nullptr;
+		if (Py_IsInitialized())
+			Py_Finalize();
 	}
 
 	bool Interpreter::exec(std::string const& script)
@@ -92,7 +95,7 @@ namespace cubeapp { namespace python {
 
 	Interpreter& Interpreter::instance(boost::filesystem::path lib_dir)
 	{
-		static Interpreter* _interpreter = nullptr;
+		static std::unique_ptr<Interpreter> _interpreter = nullptr;
 
 		if (_interpreter == nullptr)
 		{
@@ -127,7 +130,7 @@ namespace cubeapp { namespace python {
 			ETC_LOG("Compiled with python", PY_VERSION);
 			::Py_Initialize();
 			ETC_LOG("Linked with python", ::Py_GetVersion());
-			_interpreter = new Interpreter;
+			_interpreter.reset(new Interpreter);
 
 			etc::sys::environ::set("PATH", old_path);
 		}

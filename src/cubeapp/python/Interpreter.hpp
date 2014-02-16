@@ -22,6 +22,7 @@ namespace cubeapp { namespace python {
 
 	private:
 		Interpreter();
+	public:
 		~Interpreter();
 
 	public:
