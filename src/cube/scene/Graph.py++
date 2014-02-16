@@ -1,19 +1,49 @@
 #include "Graph.hpp"
 #include "Node.hpp"
 
+#include <etc/log.hpp>
+
 #include <wrappers/boost/python.hpp>
+#include <boost/python/make_constructor.hpp>
+
+namespace py = boost::python;
+using namespace cube::scene;
+
+namespace {
+
+	ETC_LOG_COMPONENT("cube.scene.Graph");
+
+	Graph* graph_with_root_node(py::object o)
+	{
+		PyObject* ptr = py::incref(o.ptr());
+		return new Graph{
+			py::extract<Node&>(o)(),
+			[ptr] (Node* n) {
+				ETC_LOG.debug(
+					"Decrement python instance",
+					*ptr,
+					"of",
+					*n
+				);
+				py::decref(ptr);
+			}
+		};
+	}
+
+}
 
 BOOST_PYTHON_MODULE(Graph)
 {
-	namespace py = boost::python;
-	using namespace cube::scene;
-
-	py::class_<Graph, boost::noncopyable>("Graph")
+	py::class_<Graph, boost::noncopyable>("Graph", py::init<>())
+		.def(
+			"__init__",
+			py::make_constructor(&graph_with_root_node)
+		)
 		.add_property(
 			"root",
 			py::make_function(
 				&Graph::root,
-				py::return_internal_reference<>()
+				py::return_value_policy<py::return_by_value>()
 			)
 		)
 		.add_property("size", &Graph::size)
