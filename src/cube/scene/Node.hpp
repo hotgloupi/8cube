@@ -24,8 +24,8 @@ namespace cube { namespace scene {
 		, public etc::Printable
 		, private boost::noncopyable
 	{
-		ETC_LOG_COMPONENT("cube.scene.Node");
 	public:
+		ETC_LOG_COMPONENT("cube.scene.Node");
 		typedef size_t id_type;
 
 	protected:
