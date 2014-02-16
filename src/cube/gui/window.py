@@ -17,10 +17,19 @@ class Window:
             system.WindowFlags.none,
             gl.renderer.Name.OpenGL
         )
-        self.root_widget = Viewport(
-            renderer=self.renderer,
-            x=0, y=0, w=width, h=height,
+
+        self.__graph = cube.scene.Graph(
+            Viewport(
+                renderer = self.renderer,
+                id_ = "root widget",
+                x = 0,
+                y = 0,
+                w = width,
+                h = height,
+            )
         )
+
+        self.__root_widget = self.__graph.root
         self._hdlrs = {}
         for e in ['expose', 'resize', 'keydown']:
             self._hdlrs[e] = getattr(self.inputs, 'on_' + e).connect(
@@ -30,7 +39,7 @@ class Window:
 
     @property
     def size(self):
-        return self._root_widget.size
+        return self.__root_widget.size
 
     @property
     def renderer(self):
@@ -64,12 +73,14 @@ class Window:
         if self._new_viewport_size is not None:
             w, h = self._new_viewport_size
             cube.debug("Updating viewport size")
-            self.renderer.viewport = gl.Viewport(0, 0, w, h);
+            self.renderer.viewport = gl.Viewport(0, 0, w, h)
             if self.__root_widget:
                 self.__root_widget.on_resize(w, h)
             self._new_viewport_size = None
-        if self.__root_widget is not None:
-            self.__root_widget.render(painter)
+        cube.scene.visit.dfs(
+            self.__graph,
+            lambda v: v.render(painter)
+        )
         self.__window.swap_buffers()
 
     def swap_buffers(self):
