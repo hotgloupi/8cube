@@ -20,7 +20,7 @@ class Game():
     """Base class for every games
     """
 
-    def __init__(self, window, client, bindings, world = None):
+    def __init__(self, window, client, bindings = {}, world = None, view = None):
         self.window = window
         self.renderer = window.renderer
         self.client = client
@@ -31,11 +31,7 @@ class Game():
             45, 1, 0.005, 300.0
         )
         self.window.inputs.on_quit.connect(self._on_quit)
-
-    @property
-    def gui(self):
-        """Game menu GUI"""
-        raise Exception("Not implemented")
+        self.view = view
 
     @property
     def player(self):
