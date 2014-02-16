@@ -1,19 +1,23 @@
-#include <wrappers/boost/python.hpp>
-
 #include "visit/breadth_first_search.hpp"
 #include "visit/depth_first_search.hpp"
 
+#include <cube/exception.hpp>
+
+#include <wrappers/boost/python.hpp>
+
 namespace py = boost::python;
 using namespace cube::scene;
+using cube::exception::Exception;
 
 namespace {
 
-	struct bfs_callback_visitor
-		: public visit::DefaultBreadthFirstVisitor
+	template<typename VisitorDefaults>
+	struct callback_visitor
+		: public VisitorDefaults
 	{
 		py::object _cb;
-		bfs_callback_visitor(py::object cb) : _cb{cb} {}
-		void discover_vertex(Node& n) { _cb(boost::ref(n)); }
+		callback_visitor(py::object cb) : _cb{cb} {}
+		void discover_vertex(Node& n) { _cb(n); }
 	};
 
 	class bfs_default_visitor
@@ -26,14 +30,27 @@ namespace {
 	{
 		if (PyCallable_Check(o.ptr()))
 		{
-			visit::breadth_first_search(g, bfs_callback_visitor{o});
+			visit::breadth_first_search(g, callback_visitor<visit::DefaultBreadthFirstVisitor>{o});
 		}
+		else
+			throw Exception{"Visitor must be callable"};
 	}
 
+	void dfs(Graph& g, py::object o)
+	{
+		if (PyCallable_Check(o.ptr()))
+		{
+			visit::depth_first_search(g, callback_visitor<visit::DefaultDepthFirstVisitor>{o});
+		}
+		else
+			throw Exception{"Visitor must be callable"};
+	}
 }
 
 BOOST_PYTHON_MODULE(visit)
 {
 	py::def("breadth_first_search", &bfs);
 	py::def("bfs", &bfs);
+	py::def("depth_first_search", &dfs);
+	py::def("dfs", &dfs);
 }
