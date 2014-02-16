@@ -48,7 +48,7 @@ namespace cube { namespace scene { namespace visit {
 	};
 
 	template<typename Visitor>
-	void depth_first_search(Graph& graph, Visitor& v)
+	void depth_first_search(Graph& graph, Visitor&& v)
 	{
 		BOOST_CONCEPT_ASSERT(( detail::DepthFirstSearchVisitorConcept<Visitor> ));
 		auto& graph_impl = graph.impl().graph;
