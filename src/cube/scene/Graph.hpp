@@ -21,6 +21,9 @@ namespace cube { namespace scene {
 	 */
 	class CUBE_API Graph
 	{
+	public:
+		typedef std::function<void(Node*)> node_deleter_type;
+
 	private:
 		// Pimpl.
 		struct Impl;
@@ -30,6 +33,9 @@ namespace cube { namespace scene {
 
 	public:
 		Graph();
+		Graph(Graph&& other);
+		Graph(std::unique_ptr<Node> node);
+		Graph(Node& node, node_deleter_type deleter);
 		~Graph();
 
 	public:
@@ -79,7 +85,10 @@ namespace cube { namespace scene {
 		void connect(Node& from, Node& to);
 
 		/// Remove a node and returns it.
-		std::unique_ptr<Node> remove(Node& node);
+		std::shared_ptr<Node> remove(Node& node);
+
+		/// Return child nodes.
+		std::vector<Node*> children(Node& node);
 
 	public:
 		void traverse(NodeVisitor<Node>& visitor);
