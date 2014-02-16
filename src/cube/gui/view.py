@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-import cube
+from cube.gl import Color4f, vec2f
+from cube.scene import Node
 from .stylesheet import Stylesheet
 
 class SizeHint:
@@ -14,21 +15,18 @@ class ComputedStyles:
     """Compute styles"""
 
     def __init__(self, view):
-        self.__view = view
-
-    def reload(self):
         for prop in ['color', 'background-color', 'border-color']:
             setattr(
                 self,
                 prop.replace('-', '_'),
-                cube.gl.Color4f(self.__view.style(prop))
+                Color4f(view.style(prop))
             )
 
         for prop in ['margin', 'padding', 'border-size']:
             setattr(
                 self,
                 prop.replace('-', '_'),
-                Stylesheet.to_pixel(self.__view.style(prop))
+                Stylesheet.to_pixel(view.style(prop))
             )
 
 
@@ -45,7 +43,7 @@ def _make_default_stylesheet():
 
 DEFAULT_STYLESHEET = _make_default_stylesheet()
 
-class View:
+class View(Node):
 
     _registered_ids = set()
     _view_count = {}
@@ -58,12 +56,10 @@ class View:
         self._tag = tag
         self._id = self._gen_id(tag, id_)
         self._class = class_
-        self._position = cube.gl.Vector2f(x, y);
-        self._size = cube.gl.Vector2f(w, h)
+        self._position = vec2f(x, y)
+        self._size = vec2f(w, h)
         self._stylesheet = DEFAULT_STYLESHEET
-        self.reload_styles()
         self.__renderer = renderer
-        self.__parent = None
         if prefered_size is None:
             prefered_size = self._size
         self.__size_hints = self._compute_size_hints(
@@ -71,8 +67,21 @@ class View:
             max_size,
             min_size,
         )
-        if self.__renderer is not None:
-            self._prepare(self.__renderer)
+        super().__init__(self._id)
+        #self.reload_styles()
+
+    @property
+    def renderer(self):
+        if self.__renderer is None:
+            raise Exception("No renderer given when creating %s" % self)
+        return self.__renderer
+
+    def __del__(self):
+        self._registered_ids.remove(self._id)
+        del self._id
+        del self._tag
+        del self._stylesheet
+        del self.__renderer
 
     def _compute_size_hints(self, preferred, max_, min_):
         assert preferred is not None
@@ -95,38 +104,13 @@ class View:
                 raise Exception("The view id '" + id + "' is already used")
         else:
             id_ = tag + str(cls._view_count[tag])
-        cls._registered_ids.add(id_);
+        assert id_ not in cls._registered_ids
+        cls._registered_ids.add(id_)
         return id_
-
-    def _prepare(self, renderer):
-        """Prepare the view for future rendering, should be overridden."""
-        pass
 
     @property
     def size_hints(self):
         return self.__size_hints
-
-    @property
-    def parent(self):
-        return self.__parent
-
-    @parent.setter
-    def parent(self, parent):
-        if parent is not None:
-            if self.__renderer is None and self.__parent is None:
-                self.__parent = parent # we set it before the _prepare call
-                self._prepare(parent.renderer)
-                return
-        self.__parent = parent
-
-    @property
-    def renderer(self):
-        if self.__renderer is None:
-            if self.__parent is None:
-                raise Exception("Orphan view built without renderer :(")
-            self.__renderer = self.__parent.renderer
-            assert self.__renderer is not None
-        return self.__renderer
 
     @property
     def font(self):
@@ -150,7 +134,8 @@ class View:
         self.__computed_styles = ComputedStyles(self)
 
     def render(self, painter):
-        raise Exception("render method not implemented for this view")
+        #raise Exception("render method not implemented for this view")
+        pass
 
     def on_resize(self, w, h):
         pass
