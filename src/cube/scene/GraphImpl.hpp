@@ -27,6 +27,8 @@ namespace cube { namespace scene {
 		typedef boost::graph_traits<graph_type> graph_traits;
 		typedef graph_traits::vertex_descriptor vertex_descriptor_type;
 		typedef graph_traits::adjacency_iterator adjacency_iterator;
+		typedef graph_traits::out_edge_iterator out_edge_iterator;
+		typedef graph_traits::in_edge_iterator int_edge_iterator;
 
 		static_assert(
 			std::is_same<vertex_descriptor_type, Node::id_type>::value,
