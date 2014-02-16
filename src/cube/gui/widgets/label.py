@@ -9,10 +9,7 @@ class Label(view.View):
         kwargs.setdefault('tag', 'label')
         super(Label, self).__init__(**kwargs)
         self.__str = text
-        self.__text = None
-
-    def _prepare(self, renderer):
-        self.__text = gl.Text(self.font, self.__str);
+        self.__text = gl.Text(self.font, self.__str)
 
     @property
     def text(self):
