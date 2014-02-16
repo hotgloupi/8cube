@@ -3,6 +3,7 @@
 
 #include <cube/exception.hpp>
 
+#include <etc/log.hpp>
 #include <etc/scope_exit.hpp>
 
 #include <wrappers/boost/python.hpp>
@@ -13,6 +14,40 @@ using namespace cube::scene;
 using cube::exception::Exception;
 
 namespace {
+
+	ETC_LOG_COMPONENT("cube.scene.Node");
+
+	struct PythonNode
+		: public Node
+	{
+		PyObject* _self;
+		std::string _class_name;
+
+		py::object instance() const
+		{ return py::object(py::handle<>(py::borrowed(_self))); }
+
+		PythonNode(PyObject* self, std::string name)
+			: Node(std::move(name))
+			, _self{self}
+			, _class_name{}
+		{
+			try {
+				_class_name = py::to_string(
+					this->instance().attr("__class__").attr("__name__")
+				);
+			} catch (...)  { _class_name = etc::exception::string(); }
+			ETC_TRACE.debug(*this, "is held by", *_self);
+		}
+
+		~PythonNode() {
+			ETC_TRACE.debug(*this, "released by", *_self);
+		}
+
+		void print(std::ostream& out) const ETC_NOEXCEPT
+		{
+			out << "<" << _class_name << " " << this->name() << ">";
+		}
+	};
 
 	std::string get_node_name(Node const& n)
 	{ return n.name(); }
@@ -33,9 +68,7 @@ namespace {
 
 		bool visit(Node& n) override
 		{
-			// boost::ref is needed, otherwise boost::python would search for
-			// a converter.
-			_visitor(boost::ref(n));
+			_visitor(n);
 			return true;
 		}
 	};
@@ -89,13 +122,16 @@ namespace {
 		py::object result(py::borrowed(result_ptr));
 
 		// It seems that even with borrowed(), the refcount is incremented
-		Py_DECREF(result_ptr);
+		//Py_INCREF(result_ptr); // XXX
 
 
 		Node& self = py::extract<Node&>(node);
 		auto& n = self.graph().insert(
 			py::extract<Node&>(result),
-			[result_ptr] (Node* n) { if (n->attached()) { Py_DECREF(result_ptr); }}
+			[result_ptr] (Node* n) {
+				ETC_LOG.debug(*n, "Decrement refcount");
+				Py_DECREF(result_ptr);
+			}
 		);
 
 		n.graph().connect(self, n);
@@ -107,11 +143,14 @@ namespace {
 		PyObject* py_child_ptr = py_child.ptr();
 		Node& result = self.graph().insert(
 			py::extract<Node&>(py_child),
-			[=] (Node*) { Py_DECREF(py_child_ptr); }
+			[py_child_ptr] (Node* n) {
+				ETC_LOG.debug(*n, "Decrement refcount");
+				Py_DECREF(py_child_ptr);
+			}
 		);
 
 		// Insertion succeeded, the deleter will be called.
-		Py_INCREF(py_child_ptr);
+		// Py_INCREF(py_child_ptr); // XXX
 
 		// In case of errors, we remove the inserted Node.
 		auto insert_guard =
@@ -123,17 +162,41 @@ namespace {
 		insert_guard.dismiss();
 		return py_child;
 	}
-}
 
+	py::tuple node_children(Node& self)
+	{
+		py::list l;
+		for (auto child: self.graph().children(self))
+			l.append(child);
+		return py::tuple(l); // XXX Find a better way
+	}
+
+	struct node_to_python
+	{
+		static PyObject* convert(Node const& n)
+		{
+			if (auto o = dynamic_cast<PythonNode const*>(&n))
+			{
+				ETC_LOG.debug("Retrieve python object", *o->_self, "of", n);
+				return py::incref(o->_self);
+			}
+			ETC_LOG.debug("Build python instance of", n);
+			return py::incref(py::object(py::ptr(&n)).ptr());
+		}
+	};
+}
 
 
 BOOST_PYTHON_MODULE(Node)
 {
-	py::class_<Node, boost::noncopyable>("Node", py::init<std::string>())
+	py::class_<Node, PythonNode, boost::noncopyable>("Node", py::init<std::string>())
 		.add_property("name", &get_node_name, &set_node_name)
 		.def( "__str__", &py::stringof<Node> )
 		.def("visit", &visit_node)
 		.def("emplace_child", py::raw_function(&node_emplace))
 		.def("insert_child", &node_insert_child)
+		.add_property("children", &node_children)
 	;
+
+	py::to_python_converter<Node, node_to_python>();
 }
