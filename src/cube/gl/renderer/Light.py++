@@ -25,6 +25,9 @@ BOOST_PYTHON_MODULE(Light)
 				, color::Color3f
 			>()
 		)
+		.def_readwrite("direction", &DirectionalLightInfo::direction)
+		.def_readwrite("diffuse", &DirectionalLightInfo::diffuse)
+		.def_readwrite("specular", &DirectionalLightInfo::specular)
 	;
 
 	py::class_<PointLightInfo>(
@@ -35,6 +38,9 @@ BOOST_PYTHON_MODULE(Light)
 				, color::Color3f
 			>()
 		)
+		.def_readwrite("position", &PointLightInfo::position)
+		.def_readwrite("diffuse", &PointLightInfo::diffuse)
+		.def_readwrite("specular", &PointLightInfo::specular)
 	;
 
 	py::class_<SpotLightInfo>(
@@ -48,10 +54,30 @@ BOOST_PYTHON_MODULE(Light)
 				, units::Angle
 			>()
 		)
+		.def_readwrite("position", &SpotLightInfo::position)
+		.def_readwrite("direction", &SpotLightInfo::direction)
+		.def_readwrite("diffuse", &SpotLightInfo::diffuse)
+		.def_readwrite("specular", &SpotLightInfo::specular)
+		.def_readwrite("attenuation", &SpotLightInfo::attenuation)
+		.def_readwrite("cutoff", &SpotLightInfo::cutoff)
 	;
+
+#define ADD_PROPERTY(__name) \
+		add_property( \
+			#__name, \
+			py::make_function( \
+				&Light::__name, \
+				py::return_internal_reference<>() \
+			) \
+		) \
+/**/
 
 	py::class_<Light, py::bases<Bindable>, boost::noncopyable, LightPtr>(
 			"Light", py::no_init
 		)
+		.ADD_PROPERTY(directional)
+		.ADD_PROPERTY(point)
+		.ADD_PROPERTY(spot)
+		.ADD_PROPERTY(custom)
 	;
 }
