@@ -79,12 +79,18 @@ namespace cube { namespace gl { namespace renderer {
 		             component_type const y,
 		             component_type const z) ETC_NOEXCEPT;
 
+		inline State& scale(vector_type const& v) ETC_NOEXCEPT
+		{ this->scale(v.x, v.y, v.z); return *this; }
+
 		/**
 		 * Translate the model matrix.
 		 */
 		State& translate(component_type const x,
 		                 component_type const y,
 		                 component_type const z) ETC_NOEXCEPT;
+
+		inline State& translate(vector_type const& v) ETC_NOEXCEPT
+		{ this->translate(v.x, v.y, v.z); return *this; }
 
 		/**
 		 * Rotate the model matrix.
