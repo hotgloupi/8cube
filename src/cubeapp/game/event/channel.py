@@ -5,7 +5,7 @@ import uuid
 class Channel:
     """Represent a channel of communication between components.
     """
-    def __init__(self, name = None):
+    def __init__(self, name = None, **kw):
         if name is None:
             name = uuid.uuid1().hex
         elif isinstance(name, Channel):
@@ -13,6 +13,8 @@ class Channel:
         assert isinstance(name, str)
         assert(len(name))
         self.__name = name.lower()
+        for k, v in kw.items():
+            setattr(self, k, v)
 
     @property
     def name(self): return self.__name
