@@ -5,8 +5,9 @@
 #include <etc/to_string.hpp>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/thread/tss.hpp>
 
 #include <cassert>
 #include <thread>
@@ -28,8 +29,7 @@ namespace etc { namespace log {
 		template<typename... Args>
 		void logger_log(Args&&... args)
 		{
-			static bool debug_logger =
-				sys::environ::get("ETC_DEBUG_LOGGER", "").size() > 0;
+			static bool debug_logger = sys::environ::as<bool>("ETC_DEBUG_LOGGER");
 			if (debug_logger)
 				etc::sprint(std::cerr, "[LOGGER]", std::forward<Args>(args)...);
 		}
@@ -187,7 +187,7 @@ namespace etc { namespace log {
 						{ etc::print("log error: ", err.what()); }
 					}
 				}}
-				, async{!etc::sys::environ::contains("ETC_LOG_SYNC")}
+				, async{!etc::sys::environ::as<bool>("ETC_LOG_SYNC")}
 			{}
 
 			void post(std::function<void()> fn)
@@ -216,19 +216,20 @@ namespace etc { namespace log {
 			return runner;
 		}
 
+		ETC_NOINLINE
 		static void send_line(std::ostream* out,
 		                      Flag flags,
 		                      Line line,
 		                      std::string message)
 		{
-			static std::string level_strings[] = {
+			static char const* level_strings[] = {
 				"DEBUG",
 				"INFO",
 				"WARN",
 				"ERROR",
 				"FATAL",
 			};
-			std::string const& level_string = level_strings[(size_t)line.level];
+			char const* level_string = level_strings[(size_t)line.level];
 			std::string line_string{std::to_string(line.line)};
 
 			struct Size {
@@ -242,7 +243,7 @@ namespace etc { namespace log {
 			static Size max_size{8, 0, 4, 0, 50};
 
 			Size size{
-				level_string.size(),
+				strlen(level_string),
 				strlen(line.file),
 				line_string.size(),
 				strlen(line.function),
@@ -261,8 +262,16 @@ namespace etc { namespace log {
 			_UPDATE_SIZE(component);
 #undef _UPDATE_SIZE
 
-			static std::string res;
+#if 0 // doesn't work: exit handlers erase the string while somebody logs at exit
+			static boost::thread_specific_ptr<std::string> result_storage;
+			if (result_storage.get() == nullptr)
+				result_storage.reset(new std::string{});
+			std::string& res = *result_storage;
 			res.clear();
+#else
+			// XXX some kind of optimisation needed ?
+			std::string res;
+#endif
 
 #ifdef _WIN32
 			static HANDLE console_handle = ::GetStdHandle(STD_OUTPUT_HANDLE);
@@ -465,16 +474,9 @@ namespace etc { namespace log {
 			unsigned int idx = meta::enum_<Level>::indexof(line.level);
 			std::ostream* out = _streams[idx].out;
 			assert(out != nullptr);
-
-			runner().post(
-				std::bind(
-					&send_line,
-					out,
-					_flags,
-					line,
-					std::move(message)
-				)
-			);
+			runner().post([=] () {
+				send_line(out, _flags, line, message);
+			});
 		}
 		catch (std::exception const& err)
 		{
