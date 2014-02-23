@@ -16,17 +16,34 @@ class Manager:
         assert event.channel != self.__tick
         self.__queue.append(event)
 
-    def register(self, channel, controller):
+    def emplace(self, controller_class, *args, **kw):
+        """Construct and add a controller the given class."""
+        return self.add(controller_class(*args, **kw))
+
+    def add(self, controller):
+        """register controller to each channels in controller.channels.
+        """
+        for ch in controller.channels:
+            self.register(controller, ch)
+        return controller
+
+    def register(self, controller, channel):
         assert isinstance(channel, Channel)
         list = self.__controllers.setdefault(channel.name, [])
         assert controller not in list
         list.append(controller)
 
-    def unregister(self, channel, controller):
-        assert isinstance(channel, Channel)
-        list =  self.__controllers[channel.name]
-        assert controller in list
-        list.remove(controller)
+    def unregister(self, controller, channel = None):
+        if channel is not None:
+            channels = [channel]
+        else:
+            channels = controller.channels
+        del channel
+        for ch in channels:
+            assert isinstance(ch, Channel)
+            l = self.__controllers[ch.name]
+            assert controller in l
+            l.remove(controller)
 
     def poll(self, time_elapsed):
         queue = self.__queue[:]

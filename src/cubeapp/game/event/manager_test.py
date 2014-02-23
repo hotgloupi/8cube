@@ -10,7 +10,7 @@ class _(Case):
 
     def setUp(self):
         self.manager = Manager()
-        self.manager.register(Channel("test"), self.__save_event)
+        self.manager.register(self.__save_event, Channel("test"))
         self.evt = None
         self.elapsed_time = None
 
@@ -20,7 +20,7 @@ class _(Case):
 
     def test_register(self):
         self.manager.poll(0)
-        self.manager.unregister(Channel("test"), self.__save_event)
+        self.manager.unregister(self.__save_event, Channel("test"))
         self.assertIsNone(self.evt)
         self.assertIsNone(self.elapsed_time)
 
@@ -39,7 +39,7 @@ class _(Case):
     def test_unregister(self):
         self.assertIsNone(self.evt)
         self.manager.push(Event("test"))
-        self.manager.unregister(Channel("test"), self.__save_event)
+        self.manager.unregister(self.__save_event, Channel("test"))
         self.assertIsNone(self.evt)
         self.manager.poll(0)
         self.assertIsNone(self.evt)
