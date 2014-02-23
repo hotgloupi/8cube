@@ -85,7 +85,13 @@ def import_tests(root_dir, lib):
                 path = os.path.join(rootpath, f)
                 import_test_file(root_dir, path[:-3])
 
+import gc
 def main(args):
+    gc.disable()
+    _main(args)
+    gc.collect()
+
+def _main(args):
     sys.argv = ['cubeapp.main'] + args
     try:
         import cube
