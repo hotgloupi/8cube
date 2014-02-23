@@ -29,19 +29,19 @@ namespace cube { namespace gl { namespace material {
 		struct Bindable
 			: public renderer::Bindable
 		{
-			Material& _material;
+			MaterialPtr _material;
 			renderer::ShaderProgramPtr _shader_program;
 			std::vector<Guard> _guards;
 
 			Bindable(Material& material,
 			         renderer::Renderer& renderer,
 			         renderer::ShaderProgramPtr shader_program)
-				: _material(material)
+				: _material(material.ptr())
 				, _shader_program{std::move(shader_program)}
 				, _guards{}
 			{
-				_guards.reserve(1 + _material.textures().size());
-				for (Material::TextureChannel& ch: _material.textures())
+				_guards.reserve(1 + _material->textures().size());
+				for (Material::TextureChannel& ch: _material->textures())
 				{
 					if (ch.texture == nullptr)
 					{
@@ -59,13 +59,13 @@ namespace cube { namespace gl { namespace material {
 				auto& shader = *_shader_program;
 				_guards.emplace_back(shader, this->shared_state());
 				shader["cube_MVP"] = this->bound_state().mvp();
-				shader["cube_Ambient"] = _material.ambient();
+				shader["cube_Ambient"] = _material->ambient();
 
-				if (_material.shading_model() != ShadingModel::none)
+				if (_material->shading_model() != ShadingModel::none)
 				{
-					shader["cube_Diffuse"] = _material.diffuse();
-					shader["cube_Specular"] = _material.specular();
-					shader["cube_Shininess"] = _material.shininess();
+					shader["cube_Diffuse"] = _material->diffuse();
+					shader["cube_Specular"] = _material->specular();
+					shader["cube_Shininess"] = _material->shininess();
 					int32_t point_light_idx = 0,
 							spot_light_idx = 0,
 							dir_light_idx = 0;
@@ -89,7 +89,7 @@ namespace cube { namespace gl { namespace material {
 				}
 
 				int32_t idx = 0;
-				for (auto& ch: _material.textures())
+				for (auto& ch: _material->textures())
 				{
 					_guards.emplace_back(*ch.texture, this->shared_state());
 					shader["cube_Texture" + std::to_string(idx)] = *ch.texture;

@@ -5,6 +5,7 @@
 # include "color.hpp"
 
 # include <cube/gl/renderer/fwd.hpp>
+# include <cube/resource/Resource.hpp>
 
 # include <etc/compiler.hpp>
 
@@ -68,6 +69,7 @@ namespace cube { namespace gl { namespace material {
 	};
 
 	class Material
+		: public resource::Resource
 	{
 	public:
 		typedef color::Color3f color_type;
