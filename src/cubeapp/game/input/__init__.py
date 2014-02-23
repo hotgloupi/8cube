@@ -17,6 +17,31 @@ class Translator:
         ...     'keyboard': {...},
         ...     'joystick': {...},
         ... }
+
+    # Keyboard bindings:
+        The dictionary describing keyboard bindings contains key of type string
+        that will refer to a channel (like `translator.keyboard.move_forward`).
+        The values are of the form:
+            * A string of length 1 (like 'c').
+            * An integer or a cube.system.inputs.KeySym.`sym`.
+            * A tuple (sym, mod) where sym is a KeySym and mod a KeyMod.
+        For example:
+            >>> bindings = {
+            ...     'keyboard': {
+            ...         'move_forward': KeySym.up,
+            ...         'sprint_forward': (KeySym.up, KeyMod.lshift),
+            ...     }
+            ... }
+
+        The channels created allow user to be notified of keyboard events
+        through their method `connect`:
+            >>> translator.keyboard.move_forward.connect(
+            ...     lambda input: print("got keyboard event", input.name)
+            ... )
+
+        See `cubeapp.game.input.KeyboardInput` class for more information on
+        the callback parameter.
+
     """
 
     def __init__(self, window, bindings):
