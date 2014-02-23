@@ -8,8 +8,10 @@ class Event:
     subscriber of that channel.
     @note Event names (or channels) are lower cased
     """
-    def __init__(self, name):
-        self.__channel = Channel(name)
+    def __init__(self, channel):
+        if not isinstance(channel, Channel):
+            channel = Channel(channel)
+        self.__channel = channel
 
     @property
     def channel(self):
