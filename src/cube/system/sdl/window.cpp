@@ -507,6 +507,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		if (surface == nullptr)
 			throw SDLException{"CreateRGBSurfaceFrom"};
 		ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
+
 		if (SDL_SaveBMP(surface, file.c_str()) != 0)
 			throw SDLException("SDL_SaveBMP");
 	}
