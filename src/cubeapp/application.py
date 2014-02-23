@@ -6,7 +6,6 @@ import time
 import cube
 
 from . import game
-from .client import Client
 
 class Application(cube.gui.Application):
 
@@ -20,13 +19,11 @@ class Application(cube.gui.Application):
         if game_dir is None:
             raise Exception("Couldn't find a game named '%s'" % str(game))
 
-        super().__init__(name = "cubeapp - %s" % game_name)
-        self._client = Client()
+        super().__init__(name = "cube.io/%s" % game_name)
         self._game = game.load(
             game_dir,
             game_name,
             self.window,
-            self._client
         )
         #self.window.confine_mouse(True)
 
@@ -46,25 +43,21 @@ class Application(cube.gui.Application):
         fps_target = 60
         frame_time_target = 1.0 / fps_target
         last_update = time.time()
+        frame_time = frame_time_target
         while self._running is True:
             start = time.time()
+            self._update(start - last_update, frame_time)
+            last_update = start
             self._window.poll()
-            self._window.renderer.flush()
-            self._update(time.time() - last_update)
-            last_update = time.time()
-            frame_time = time.time() - start
-            #if frame_time < frame_time_target:
             self.render()
+            self._window.renderer.flush()
             frame_time = time.time() - start
-            if frame_time < frame_time_target:
+            if frame_time < frame_time_target - 0.001:
                 time.sleep(frame_time_target - frame_time)
-            self.__fps_label.text = "Frame time: %6.2f ms (targetting %6.2f ms)" % (
-                frame_time * 1000,
-                frame_time_target * 1000,
-            )
 
-    def _update(self, delta):
+    def _update(self, delta, frame_time):
         self._game.update(delta)
+        self.__fps_label.text = "F: %6.2f ms" % (frame_time * 1000)
 
     def _on_quit(self):
         self.stop()
