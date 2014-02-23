@@ -256,10 +256,11 @@ namespace cube { namespace scene {
 		Graph        graph;
 
 		Impl()
-		{}
+		{ ETC_TRACE_CTOR(); }
 
 		Impl(aiScene const* assimp_scene)
 		{
+			ETC_TRACE_CTOR(assimp_scene);
 			ETC_ASSERT(assimp_scene != nullptr);
 
 			for (unsigned int i = 0; i < assimp_scene->mNumMaterials; ++i)
@@ -295,6 +296,8 @@ namespace cube { namespace scene {
 
 			_load_node(assimp_scene->mRootNode, &this->graph.root());
 		}
+
+		~Impl() { ETC_TRACE_DTOR(); }
 
 		void _load_node(aiNode* assimp_node, Node* node)
 		{
@@ -345,6 +348,7 @@ namespace cube { namespace scene {
 
 	ScenePtr Scene::from_file(std::string const& path)
 	{
+		ETC_LOG.debug("Creating scene from file:", path);
 		aiScene const* assimp_scene = assimp_importer().ReadFile(
 			path.c_str(),
 			aiProcess_CalcTangentSpace       |
@@ -366,6 +370,7 @@ namespace cube { namespace scene {
 	ScenePtr
 	Scene::from_string(std::string const& str, std::string const& ext)
 	{
+		ETC_LOG.debug("Creating scene from string (of type", ext, "):\n", str);
 		aiScene const* assimp_scene = assimp_importer().ReadFileFromMemory(
 			str.c_str(),
 			str.size(),
