@@ -4,7 +4,7 @@ import time
 import cube
 
 class Application(cube.Application):
-    def __init__(self, name="Cube app", width=640, height=480):
+    def __init__(self, name="Cube app", width=800, height=480):
         events = [
             'idle', 'quit',
         ]
