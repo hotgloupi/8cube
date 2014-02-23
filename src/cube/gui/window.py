@@ -83,6 +83,20 @@ class Window:
         )
         self.__window.swap_buffers()
 
+    @property
+    def size(self):
+        if self._new_viewport_size is not None:
+            return self._new_viewport_size
+        return (self.renderer.viewport.w, self.renderer.viewport.h)
+
+    @property
+    def width(self):
+        return self.size[0]
+
+    @property
+    def height(self):
+        return self.size[1]
+
     def swap_buffers(self):
         self.__window.swap_buffers()
 
