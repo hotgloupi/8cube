@@ -9,6 +9,48 @@
 # include "to_string.hpp"
 # include "compiler.hpp"
 
+/**
+ * @brief logging facilities.
+ *
+ * # `ETC_LOG` and `ETC_TRACE`
+ *
+ * Exposes "objects" `ETC_LOG` and `ETC_TRACE` that have the following methods:
+ *    - debug(...)
+ *    - info(...)
+ *    - warn(...)
+ *    - error(...)
+ *    - fatal(...)
+ *
+ * The `ETC_TRACE` object indents following logs enclosed in the scope using it.
+ *
+ * # `ETC_TRACE_CTOR` and `ETC_TRACE_DTOR`
+ *
+ * These macros provide an unified way to log construction and destruction of
+ * objects.
+ *
+ * # Environment variables
+ *
+ * Some environment variables influence the way the loggers behave.
+ *
+ * ## `ETC_LOG_LEVEL` (defaults to "INFO")
+ * Defines the global level upon which message are logged.
+ *
+ * ## `ETC_LOG`
+ *
+ *  alpha = ['a' .. 'z']
+ *  part := ['*'? alpha+ '*'?]
+ *  pattern :=  part ['.' part]*
+ *  level := "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL"
+ *  log_pattern := ["+" | "-"]? pattern [ ":" level ]?
+ *  log_lang := log_pattern ["," log_pattern]*
+ *
+ * ## `ETC_LOG_SYNC`
+ * Force synchoneous logging.
+ *
+ * ## `ETC_DEBUG_LOGGER`
+ * Allows logger debug.
+ */
+
 # define ETC_LOG                                                              \
 	::etc::log::Log(                                                          \
 		::etc::log::Level::info,                                              \
