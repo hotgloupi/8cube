@@ -29,7 +29,7 @@ namespace etc { namespace log {
 		template<typename... Args>
 		void logger_log(Args&&... args)
 		{
-			static bool debug_logger = sys::environ::as<bool>("ETC_DEBUG_LOGGER");
+			static bool debug_logger = sys::environ::as<bool>("ETC_LOG_DEBUG");
 			if (debug_logger)
 				etc::sprint(std::cerr, "[LOGGER]", std::forward<Args>(args)...);
 		}
@@ -440,10 +440,37 @@ namespace etc { namespace log {
 			stream = OutStream(&std::cerr, false);
 	}
 
+	template<typename Config>
+	struct ComponentConfigMap
+	{
+		std::unordered_map<std::string, Config> _components;
+
+		ComponentConfigMap() : _components{}
+		{ logger_log("Creating ComponentConfigMap"); }
+		~ComponentConfigMap()
+		{ logger_log("Destroying ComponentConfigMap"); }
+
+#define FORWARD_METHOD(__method) \
+		template<typename... Args> \
+		auto __method(Args&&... args) const \
+			-> decltype(_components.__method(std::forward<Args>(args)...)) \
+		{ return _components.__method(std::forward<Args>(args)...); } \
+		template<typename... Args> \
+		auto __method(Args&&... args) \
+			-> decltype(_components.__method(std::forward<Args>(args)...)) \
+		{ return _components.__method(std::forward<Args>(args)...); } \
+/**/
+
+		FORWARD_METHOD(find);
+		FORWARD_METHOD(begin);
+		FORWARD_METHOD(end);
+		FORWARD_METHOD(operator []);
+	};
+
 	Logger::ComponentConfig&
 	Logger::_component_config(std::string const& name)
 	{
-		static std::unordered_map<std::string, ComponentConfig> components;
+		static ComponentConfigMap<ComponentConfig> components;
 		auto it = components.find(name);
 		if (it != components.end())
 			return it->second;
