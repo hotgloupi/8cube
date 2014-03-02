@@ -137,7 +137,10 @@ for d in os.listdir(BUILD_RELEASE_DIR):
 
 ###############################################################################
 # Find python home and copy it in the release
+# XXX Find a better way
 for PYTHON_HOME in [
+    join(BUILD_DIR, 'dependencies/Python33/gcc/release/no-pymalloc/install/lib/python3.3'),
+    join(BUILD_DIR, 'dependencies/Python33/clang/release/no-pymalloc/install/lib/python3.3'),
     join(BUILD_DIR, 'dependencies/Python33/gcc/release/install/lib/python3.3'),
     join(BUILD_DIR, 'dependencies/Python33/clang/release/install/lib/python3.3'),
     "c:/Python33",
@@ -176,6 +179,22 @@ else:
         p = join(DEST_PYTHON_HOME, p)
         log(" - Removing package", p)
         shutil.rmtree(p, ignore_errors = True)
+
+with open(join(PYTHON_HOME, '_sysconfigdata.py'), 'r') as f:
+    src = f.read()
+
+OLD_PREFIX = abspath(join(PYTHON_HOME, '../../..'))
+NEW_PREFIX = abspath(join(DEST_PYTHON_HOME, '../../..'))
+
+log('Fix', join(DEST_PYTHON_HOME, '_sysconfigdata.py'), '(%s -> %s)' % (OLD_PREFIX, NEW_PREFIX))
+while OLD_PREFIX in src:
+    src = src.replace(OLD_PREFIX, NEW_PREFIX)
+    debug("Replace", OLD_PREFIX, NEW_PREFIX)
+dst = src
+
+with open(join(DEST_PYTHON_HOME, '_sysconfigdata.py'), 'w') as f:
+    f.write(dst)
+
 PYTHON_HOME = DEST_PYTHON_HOME
 del DEST_PYTHON_HOME
 
@@ -329,13 +348,22 @@ if not IS_WINDOWS:
                 except:
                     log("Couldn't add rpath", reldir, "to", dep)
     else:
-        for dep in DEPENDENCIES:
+        for dep, subdeps in DEPENDENCIES.items():
+            debug("Working on", dep)
             if dep in SHIPPED_DEPENDENCIES:
+                print(dep, SHIPPED_DEPENDENCIES[dep])
                 dep = SHIPPED_DEPENDENCIES[dep]
+            subdeps = set(SHIPPED_DEPENDENCIES[s] for s in subdeps)
+            dep_dir = os.path.dirname(dep)
+            reldirs = set(map(
+                lambda lib: os.path.relpath(os.path.dirname(lib), start = dep_dir),
+                subdeps
+            ))
+            log(' - Set rpath', ' '.join(reldirs), 'to', dep)
             cmd(
                 'patchelf',
                 #'--debug',
-                '--set-rpath', os.path.join('$' + 'ORIGIN', reldir),
+                '--set-rpath', ':'.join(os.path.join('$' + 'ORIGIN', d) for d in reldirs),
                 dep
             )
 
@@ -359,3 +387,4 @@ for bin in TO_STRIP:
         log("Couldn't strip", bin)
 
 log("Ending release at", datetime.utcnow().ctime())
+log("Total size", cmd_output('du', '-hs', DEST_DIR))
