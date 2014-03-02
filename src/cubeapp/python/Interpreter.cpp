@@ -8,6 +8,7 @@
 #endif
 #include <etc/log.hpp>
 #include <etc/platform.hpp>
+#include <etc/scope_exit.hpp>
 #include <etc/sys/environ.hpp>
 
 #include <cassert>
@@ -90,14 +91,19 @@ namespace cubeapp { namespace python {
 	}
 
 
+
 	///////////////////////////////////////////////////////////////////////////
 	// Initialization section
 
+	static std::unique_ptr<Interpreter>& interpreter_ptr()
+	{
+		static std::unique_ptr<Interpreter> ptr;
+		return ptr;
+	}
+
 	Interpreter& Interpreter::instance(boost::filesystem::path lib_dir)
 	{
-		static std::unique_ptr<Interpreter> _interpreter = nullptr;
-
-		if (_interpreter == nullptr)
+		if (interpreter_ptr() == nullptr)
 		{
 			// If python has been relocated, we want to use the new PYTHONHOME.
 			std::string python_dir =
@@ -107,8 +113,8 @@ namespace cubeapp { namespace python {
 			{
 				etc::sys::environ::set("PYTHONPATH", "");
 				etc::sys::environ::set("PYTHONHOME", "");
-#ifdef ETC_PLATFORM_WINDOWS
 				auto python_path = (lib_dir / python_dir).string();
+#ifdef ETC_PLATFORM_WINDOWS
 				etc::sys::environ::set(
 					"PYTHONPATH",
 					python_path +
@@ -118,25 +124,33 @@ namespace cubeapp { namespace python {
 #else
 				auto prefix = lib_dir.parent_path().string();
 				etc::sys::environ::set("PYTHONHOME", prefix + ":" + prefix);
+				etc::sys::environ::set("PYTHONPATH", python_path);
 #endif
-				ETC_LOG("PYTHONPATH =", etc::sys::environ::get("PYTHONPATH", ""));
-				ETC_LOG("PYTHONHOME =", etc::sys::environ::get("PYTHONHOME", ""));
 			}
 
 			// If this variable is present, python might use the wrong
 			// PYTHONHOME value.
 			std::string old_path = etc::sys::environ::set("PATH", "");
+			ETC_SCOPE_EXIT{
+				etc::sys::environ::set("PATH", old_path);
+			};
 
 			ETC_LOG("Compiled with python", PY_VERSION);
+			ETC_LOG("PYTHONPATH =", etc::sys::environ::get("PYTHONPATH", ""));
+			ETC_LOG("PYTHONHOME =", etc::sys::environ::get("PYTHONHOME", ""));
 			::Py_Initialize();
 			ETC_LOG("Linked with python", ::Py_GetVersion());
-			_interpreter.reset(new Interpreter);
+			//std::wcout << L"Python home:" << std::wstring{Py_GetPythonHome() || L"nil"};
+			//std::wcout << L"Python path:" << std::wstring{Py_GetPath() || L"nil"};
+			interpreter_ptr().reset(new Interpreter);
 
-			etc::sys::environ::set("PATH", old_path);
 		}
-		assert(_interpreter != nullptr);
 
-		return *_interpreter;
+		assert(interpreter_ptr() != nullptr);
+		return *interpreter_ptr();
 	}
+
+	void Interpreter::release()
+	{ interpreter_ptr().reset(); }
 
 }} // !app::python

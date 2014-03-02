@@ -27,6 +27,7 @@ namespace cubeapp { namespace python {
 
 	public:
 		static Interpreter& instance(boost::filesystem::path lib_dir);
+		static void release();
 	};
 
 }} // !app::python
