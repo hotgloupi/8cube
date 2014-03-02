@@ -61,6 +61,7 @@ int main(int argc, char** argv)
 	ETC_LOG("Starting 8cube");
 
 	auto& interpreter = cubeapp::python::Interpreter::instance(lib_dir);
+	ETC_SCOPE_EXIT{ cubeapp::python::Interpreter::release(); };
 
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
