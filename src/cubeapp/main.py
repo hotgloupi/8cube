@@ -27,9 +27,16 @@ def console():
 
 def parse_args(args):
     import argparse
+    import textwrap
+    class ArgFormatter(argparse.HelpFormatter):
+        def _split_lines(self, text, width):
+            return textwrap.dedent(text).split('\n')
+
+
     parser = argparse.ArgumentParser(
         description = "Launch a cube game",
         prog = "8cube",
+        formatter_class = ArgFormatter
     )
     parser.add_argument(
         'game',
@@ -54,14 +61,52 @@ def parse_args(args):
     )
     parser.add_argument(
         '--unittests', '-U',
-        help = "Launch unit tests",
+        help = "Launch all unit tests",
         action = 'store_true'
     )
 
     parser.add_argument(
         '--unittest', '-u',
-        help = 'Launch unit tests that match the argument',
+        help = 'Launch unit tests that match a given pattern',
         action = 'store'
+    )
+
+    profile_stats_columns = (
+        ('cumulative', "cumulative time"),
+        ('file', "file name"),
+        ('ncalls', "call count"),
+        ('pcalls', "primitive call count"),
+        ('line', "line number"),
+        ('name', "function name"),
+        ('nfl', "name/file/line"),
+        ('time', "internal time"),
+        ('tottime', "internal time"),
+    )
+    def csv(arg):
+        fields = arg.split(',')
+        for f in fields:
+            if f not in (k for k, d in profile_stats_columns):
+                import_cube().log.error("'%s' is not a valid stat field" % f)
+                sys.exit(1)
+        return fields
+
+    parser.add_argument(
+        '--profile', '-P',
+        type = csv,
+        help = "Enable Profiling and sort by comma separated list of fields in:\n" \
+        + ''.join(('\t* %s: %s\n' % (n, d)) for n, d in profile_stats_columns),
+        action = "store",
+        const = ('time', 'cumulative', 'ncalls'),
+        metavar = 'time,cumulative,ncalls,...',
+        nargs = '?',
+    )
+
+    parser.add_argument(
+        '--profile-output', '-PO',
+        help = 'Specify the profile output file',
+        nargs = '?',
+        action = 'store',
+        default = '8cube.profile'
     )
     return parser, parser.parse_args(args=args)
 
@@ -85,28 +130,70 @@ def import_tests(root_dir, lib):
                 path = os.path.join(rootpath, f)
                 import_test_file(root_dir, path[:-3])
 
-import gc
-def main(args):
-    gc.disable()
-    _main(args)
-    gc.collect()
-
-def _main(args):
-    sys.argv = ['cubeapp.main'] + args
+def import_cube():
     try:
         import cube
+        return cube
     except Exception:
         import traceback
         traceback.print_exc()
-        return
+        raise
+
+import traceback
+import gc
+
+def main(args):
+    cube = import_cube()
+    sys.argv = ['cubeapp.main'] + args
     cube.info("Launching 8cube with args", args)
     cube.constants.application.name("8cube")
 
+    # XXX remove that
     with cube.trace_info("Initializing the font manager"):
         cube.gui.FontManager.populate()
+
     try:
         parser, args = parse_args(args)
-        if args.unittests or args.unittest:
+        if args.profile:
+            import cProfile, pstats
+            pr = cProfile.Profile()
+            pr.enable()
+            _main(args)
+            pr.disable()
+            stats = pstats.Stats(pr)
+            stats.sort_stats(*tuple(args.profile))
+            stats.print_stats()
+            stats.dump_stats(args.profile_output)
+        else:
+            _main(args)
+    except KeyboardInterrupt:
+        return
+    except cube.Exception as e:
+        bt = e.backtrace[2:]
+        index = -1
+        for i, frame in enumerate(bt):
+            if 'boost::python::detail::caller' in frame or \
+               'boost::python::detail::invoke' in frame:
+                index = i
+                break
+        if index > 0:
+            bt = bt[:index]
+        bt.reverse()
+
+        print("Python traceback: (most recent call last)", file=sys.stderr)
+        traceback.print_tb(e.__traceback__, file=sys.stderr)
+        print("c++ traceback: (most recent call last)", file=sys.stderr)
+        for i, frame in enumerate(bt):
+            print('  %i: %s' % (i + 1, frame), file=sys.stderr)
+        print(e, file=sys.stderr)
+    #_main(args)
+    gc.collect()
+
+def _main(args):
+    import cube
+
+    if args.unittests or args.unittest:
+        def run():
             lib_dir = os.path.abspath(
                 os.path.join(
                     os.path.dirname(__file__),
@@ -123,52 +210,28 @@ def _main(args):
                 pattern = '*'
             if cube.test.registry.run(pattern):
                 cube.info("All tests passed")
-
-            return
-        if args.console:
+    elif args.console:
+        def run():
             cube.log.set_mode(cube.log.Mode.synchroneous)
             console()
-            return
-
-        if args.script:
+    elif args.script:
+        def run():
             if not os.path.exists(args.script):
                 cube.fatal("Cannot find the file '%s'" % args.script)
                 return
             import runpy
             runpy.run_path(args.script, run_name = '__main__')
-            return
+    else:
+        def run():
+            if not args.game:
+                args.game = 'test'
 
-        if not args.game:
-            args.game = 'test'
-            #print("No game specified on the command line", file = sys.stderr)
-            #parser.print_usage()
-            #sys.exit(1)
+            from . import application
+            app = application.Application(
+                game_directories = args.games_dir,
+                game_name = args.game
+            )
+            return app.run()
 
-        from . import application
-        app = application.Application(
-            game_directories = args.games_dir,
-            game_name = args.game
-        )
-        return app.run()
-    except KeyboardInterrupt:
-        return
-    except cube.Exception as e:
-        bt = e.backtrace[2:]
-        index = -1
-        for i, frame in enumerate(bt):
-            if 'boost::python::detail::caller' in frame or \
-               'boost::python::detail::invoke' in frame:
-                index = i
-                break
-        if index > 0:
-            bt = bt[:index]
-        bt.reverse()
-
-        print("Python traceback: (most recent call last)", file=sys.stderr)
-        import traceback
-        traceback.print_tb(e.__traceback__, file=sys.stderr)
-        print("c++ traceback: (most recent call last)", file=sys.stderr)
-        for i, frame in enumerate(bt):
-            print('  %i: %s' % (i + 1, frame), file=sys.stderr)
-        print(e, file=sys.stderr)
+    run()
 
