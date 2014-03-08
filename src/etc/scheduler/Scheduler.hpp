@@ -28,6 +28,10 @@ namespace etc { namespace scheduler {
 		void sleep(int sec);
 
 		Strand strand();
+
+	public:
+		inline Impl& impl() { return *_this; }
+		Context* current();
 	};
 
 
