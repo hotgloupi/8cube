@@ -40,11 +40,10 @@ def parse_args(args):
     )
     parser.add_argument(
         'game',
-        help = "Specify a game's name",
-        nargs = '?',
+        help = "Specify a game's path or name",
     )
     parser.add_argument(
-        '--games-dir', '-G',
+        '--game-directories', '-G',
         action = "append",
         default = [],
         help = "Specify additional search directories for games",
@@ -223,13 +222,22 @@ def _main(args):
             runpy.run_path(args.script, run_name = '__main__')
     else:
         def run():
-            if not args.game:
-                args.game = 'test'
-
+            from os.path import realpath, isdir, exists, join, dirname, basename
+            path = realpath(args.game)
+            if isdir(path) and (
+                exists(join(path, 'game.py')) or
+                exists(join(path, 'game.so')) or
+                exists(join(path, 'game.pyd')) or
+                exists(join(path, 'game', '__init__.py'))
+            ):
+                game_directories = [dirname(path)]
+                game_name = basename(path)
+            else:
+                game_directories, game_name = args.game_directories, args.game
             from . import application
             app = application.Application(
-                game_directories = args.games_dir,
-                game_name = args.game
+                game_directories = game_directories,
+                game_name = game_name
             )
             return app.run()
 
