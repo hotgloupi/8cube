@@ -81,6 +81,68 @@ class Assimp(CMakeDependency):
                 )
             )
 
+class cURL(CMakeDependency):
+
+    def __init__(self,
+                 build,
+                 compiler,
+                 source_directory,
+                 zlib = None,
+                 openssl = None,
+                 with_cookies = True,
+                 with_crypto_auth = True,
+                 with_dict = True,
+                 with_file = True,
+                 with_ftp = True,
+                 with_http = True,
+                 with_ldap = True,
+                 with_ldaps = True,
+                 with_telnet = True,
+                 with_tftp = True,
+                 use_ares = False,
+                 hidden_visibility = True,
+                 shared = True):
+        if not with_ldap or not openssl:
+            with_ldaps = False
+        if not openssl:
+            with_crypto_auth = False
+        configure_variables = [
+            ('CURL_ZLIB', bool(zlib)),
+            ('CMAKE_USE_OPENSSL', bool(openssl)),
+            ('CURL_DISABLE_COOKIES', not with_cookies),
+            ('CURL_DISABLE_CRYPTO_AUTH', not with_crypto_auth),
+            ('CURL_DISABLE_DICT', not with_dict),
+            ('CURL_DISABLE_FILE', not with_file),
+            ('CURL_DISABLE_FTP', not with_ftp),
+            ('CURL_DISABLE_HTTP', not with_http),
+            ('CURL_DISABLE_LDAP', not with_ldap),
+            ('CURL_DISABLE_LDAPS', not with_ldaps),
+            ('CURL_DISABLE_TELNET', not with_telnet),
+            ('CURL_DISABLE_TFTP', not with_tftp),
+            ('CURL_USE_ARES', use_ares),
+            ('HIDDEN_VISIBILITY', hidden_visibility),
+        ]
+        if not shared:
+            configure_variables.append(('CURL_STATICLIB', True))
+        super().__init__(
+            build,
+            "cURL",
+            compiler = compiler,
+            source_directory = source_directory,
+            libraries = [
+                {
+                    #'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'curl',
+                    'shared': shared,
+                }
+            ],
+            configure_variables = configure_variables
+        )
+
+
+
+
+
 class GLM(Dependency):
     def __init__(self, build, compiler, source_directory):
         super().__init__(
@@ -178,6 +240,13 @@ def configure(project, build):
         c_compiler,
         'deps/freetype2'
     )
+
+    curl = build.add_dependency(
+        cURL, c_compiler, "deps/curl-7.35.0",
+        shared = False,
+        with_ldap = False,
+    )
+
     if platform.IS_WINDOWS:
         python = c.libraries.PythonLibrary(c_compiler, shared = True)
     else:
@@ -187,8 +256,8 @@ def configure(project, build):
             'deps/cPython-3.3',
             shared = platform.IS_LINUX,
             version = (3, 3),
-            pymalloc = True,
-            with_valgrind_support = False,
+            pymalloc = False,
+            with_valgrind_support = True,
         )
 
     boost = build.add_dependency(
@@ -241,7 +310,6 @@ def configure(project, build):
     #    components=['image'],
     #    shared=True
     #)
-
 
     opengl = c.libraries.OpenGLLibrary(
         compiler,
@@ -338,6 +406,19 @@ def configure(project, build):
         shared = True,
         precompiled_headers = precompiled_headers,
     )
+    libetc_static = compiler.link_library(
+        'libetc-static',
+        rglob("src/etc/*.cpp"),
+        directory  = 'release/lib',
+        object_directory = 'etc-static',
+        libraries = base_libraries,
+        defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
+        shared = False,
+        position_independent_code = True,
+        static_libstd = True,
+        precompiled_headers = precompiled_headers,
+    )
+
 ################### libcube
     if with_pch:
         precompiled_headers.extend([
@@ -410,12 +491,14 @@ def configure(project, build):
         libetc,
     ] + graphic_libraries + boost.libraries + python.libraries + base_libraries
 
-    infinit_cube = compiler.link_executable(
+    cube_exe = compiler.link_executable(
         "8cube",
         ["src/cubeapp/main.cpp"],
         directory = "release/bin",
         libraries = infinit_cube_libraries,
     )
+
+
 
     if platform.IS_WINDOWS:
         for lib in infinit_cube_libraries + assimp.libraries:
@@ -439,9 +522,24 @@ def configure(project, build):
         for src in rglob("cubeapp/*.%s" % ext, dir = 'src'):
             build.fs.copy(src, 'release/lib/python/' + src[4:])
 
-    for src in rglob("games/*.py", dir = 'share'):
-        build.fs.copy(src, 'release/share/8cube/' + src[6:])
 
+    import os
+    for game in os.listdir('share/games'):
+        game_path = os.path.join('share/games', game)
+        if not os.path.isdir(game_path):
+            continue
+        for src in rglob(path.join(game_path, '*.py')):
+            print(src, src[6:])
+            build.fs.copy(src, src[6:])
+        compiler.link_executable(
+            game,
+            list(rglob("*.cpp", dir = "src/launch")),
+            directory = path.join("games", game),
+            object_directory = path.join("games", game),
+            defines = [('GAME_ID', game)],
+            static_libstd = True,
+            libraries = [libetc_static] + base_libraries + [c.libraries.simple('pthread', compiler, system = True)]
+        )
     tests = [
         'simple_window', 'cube/gl/shader_generator',
     ]
