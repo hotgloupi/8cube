@@ -89,7 +89,7 @@ class ModelView:
 class Pad(ModelView):
     def __init__(self, renderer, pos, name):
         self.name = name
-        self.height = 4
+        self.height = 8
         self.width = 1
         super().__init__(
             NFF_CUBE, renderer,
@@ -113,14 +113,17 @@ class PadController(Controller):
     def __init__(self, pad):
         self.move_up = Channel(pad.name + '_move_up', dir = 1)
         self.move_down = Channel(pad.name + '_move_down', dir = -1)
+        self.stop = Channel(pad.name + '_stop')
         super().__init__(
             target = pad,
-            channels = [self.move_up, self.move_down, ],
+            channels = [self.move_up, self.move_down, self.stop],
         )
 
     def fire(self, ev, delta):
-        print(self.target.name, "got ev", ev.channel.name, delta)
-        self.target.dir.y = ev.channel.dir * 17
+        if ev.channel == self.stop:
+            self.target.dir.y = 0
+        else:
+            self.target.dir.y = ev.channel.dir * 17
 
 class Ball(ModelView):
 
@@ -211,7 +214,7 @@ class Game(cubeapp.game.Game):
                  pads = self.pads,
                  pos = gl.vec3f((random.random() - .5) * 1),
                  dir = gl.vec3f(20, 7, 0) * (random.random()*.5 + .5),
-            ) for _ in range(1)
+            ) for _ in range(10)
         ]
         self.ball = self.balls[0]
         self.walls = [
@@ -251,8 +254,13 @@ class Game(cubeapp.game.Game):
 
         kb = self.input_translator.keyboard
         forwards = [
+            (kb.lpad_up.key_released, lctrl.stop),
+            (kb.lpad_down.key_released, lctrl.stop),
             (kb.lpad_up.key_held, lctrl.move_up),
             (kb.lpad_down.key_held, lctrl.move_down),
+
+            (kb.rpad_up.key_released, rctrl.stop),
+            (kb.rpad_down.key_released, rctrl.stop),
             (kb.rpad_up.key_held, rctrl.move_up),
             (kb.rpad_down.key_held, rctrl.move_down),
         ]
