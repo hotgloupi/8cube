@@ -104,6 +104,7 @@ class Translator:
             self.__held.add(i)
 
     def __on_keyup(self, keymod, keysym, keycode):
+        log.debug("Got keyboard input:", keymod, keysym, keycode)
         i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
             self.__events.append(i.key_released)
