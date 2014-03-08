@@ -386,5 +386,37 @@ for bin in TO_STRIP:
     except:
         log("Couldn't strip", bin)
 
+###############################################################################
+log("Create manifest")
+
+import hashlib
+import json
+
+def hash(p):
+    sha = hashlib.sha256()
+    size = 0
+    with open(p, 'rb') as f:
+        data = f.read(4096)
+        while data:
+            size += len(data)
+            sha.update(data)
+            data = f.read(4096)
+    return (size, sha.hexdigest())
+
+manifest = {'files': {}}
+
+for root, dirs, files in os.walk(DEST_DIR):
+    for f in files:
+        path = join(root, f)
+        manifest['files'][path] = hash(path)
+manifest['size'] = sum(v[0] for v in manifest['files'].values())
+
+with open(join(DEST_DIR, '.manifest'), 'w') as f:
+    json.dump(manifest, f)
+
 log("Ending release at", datetime.utcnow().ctime())
 log("Total size", cmd_output('du', '-hs', DEST_DIR))
+
+from pprint import pprint
+pprint(manifest)
+
