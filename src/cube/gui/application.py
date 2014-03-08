@@ -24,9 +24,6 @@ class Application(cube.Application):
     def window(self):
         return self._window
 
-    def __del__(self):
-        self.shutdown()
-
     def run(self):
         self._running = True
         fps_target = 50
