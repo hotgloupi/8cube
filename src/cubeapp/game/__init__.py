@@ -4,7 +4,7 @@ from . import event
 from . import input
 from .controller import Controller
 
-from cube import gl
+from cube import gl, log
 
 def load(games_path, name, window):
     """Create a Game instance by loading a game called `name` in `games_path`.
@@ -15,6 +15,7 @@ def load(games_path, name, window):
     old_python_path = sys.path
     sys.path = [games_path] + sys.path
     try:
+        log.info("Loading game", name)
         game_module = __import__(name + '.game', fromlist=['game'])
     finally:
         sys.path = old_python_path
