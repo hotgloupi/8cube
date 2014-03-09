@@ -61,6 +61,7 @@
 #include <etc/path.hpp>
 #include <etc/log.hpp>
 #include <etc/scope_exit.hpp>
+#include <etc/init.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -319,7 +320,8 @@ private:
 
 int main(int argc, char const* av[])
 {
-	ETC_SCOPE_EXIT{ etc::log::shutdown(); };
+	etc::Init etc_init_guard;
+
 	PROGRAM_PATH() = av[0];
 	if (!etc::sys::environ::contains("CUBE_LAUNCH_BOUNCER"))
 	{

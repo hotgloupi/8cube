@@ -3,10 +3,11 @@
 
 #include <cube/debug/Performance.hpp>
 
+#include <etc/init.hpp>
 #include <etc/log.hpp>
+#include <etc/scope_exit.hpp>
 #include <etc/sys/environ.hpp>
 #include <etc/test/Registry.hpp>
-#include <etc/scope_exit.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
 
@@ -31,11 +32,11 @@ ETC_LOG_COMPONENT("cubeapp.main");
 
 int main(int argc, char** argv)
 {
+	etc::Init etc_init_guard;
 	ETC_SCOPE_EXIT{
 		cube::debug::Performance::instance().shutdown();
 		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
 			cube::debug::Performance::instance().dump();
-		etc::log::shutdown();
 	};
 
 	for (int i = 1; i < argc; i++)
