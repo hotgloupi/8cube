@@ -138,6 +138,8 @@ class cURL(CMakeDependency):
             ],
             configure_variables = configure_variables
         )
+        if not shared and platform.IS_LINUX:
+            self.libraries.append(c.libraries.simple('idn', compiler, system = True))
 
 
 
@@ -245,6 +247,13 @@ def configure(project, build):
         cURL, c_compiler, "deps/curl-7.35.0",
         shared = False,
         with_ldap = False,
+        with_ldaps = False,
+        with_ftp = False,
+        with_tftp = False,
+        with_telnet = False,
+        with_dict = False,
+        with_file = False,
+        with_cookies = True,
     )
 
     if platform.IS_WINDOWS:
@@ -349,7 +358,7 @@ def configure(project, build):
         #'msvcrt', 'libcmt'
             ]
         )
-    else: #elif platform.IS_MACOSX:
+    else: # OSX and Linux
         base_libraries.extend(
             c.libraries.simple(name, compiler, system = True) for name in ['z', 'bz2',]
         )
@@ -357,16 +366,14 @@ def configure(project, build):
             base_libraries.extend(
                 c.libraries.simple(name, compiler, system = True) for name in ['audio',]
             )
-
-
-    if platform.IS_MACOSX:
-        base_libraries.extend(
-            c.libraries.simple(name, compiler, macosx_framework = True)
-            for name in [
-                'ForceFeedback', 'IOKit', 'Cocoa', 'Carbon', 'AudioUnit', 'CoreAudio',
-                'AudioToolbox',
-            ]
-        )
+        elif platform.IS_MACOSX:
+            base_libraries.extend(
+                c.libraries.simple(name, compiler, macosx_framework = True)
+                for name in [
+                    'ForceFeedback', 'IOKit', 'Cocoa', 'Carbon', 'AudioUnit', 'CoreAudio',
+                    'AudioToolbox',
+                ]
+            )
 
     libglew = compiler.link_static_library(
         'libglew',
@@ -401,7 +408,7 @@ def configure(project, build):
         'libetc',
         rglob("src/etc/*.cpp"),
         directory  = 'release/lib',
-        libraries = base_libraries,
+        libraries = base_libraries + curl.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
         shared = True,
         precompiled_headers = precompiled_headers,
@@ -411,7 +418,7 @@ def configure(project, build):
         rglob("src/etc/*.cpp"),
         directory  = 'release/lib',
         object_directory = 'etc-static',
-        libraries = base_libraries,
+        libraries = base_libraries + curl.libraries,
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
         shared = False,
         position_independent_code = True,
@@ -538,7 +545,11 @@ def configure(project, build):
             object_directory = path.join("games", game),
             defines = [('GAME_ID', game)],
             static_libstd = True,
-            libraries = [libetc_static] + base_libraries + [c.libraries.simple('pthread', compiler, system = True)]
+            libraries =
+                [libetc_static] +
+                base_libraries +
+                [c.libraries.simple('pthread', compiler, system = True)] +
+                curl.libraries
         )
     tests = [
         'simple_window', 'cube/gl/shader_generator',
