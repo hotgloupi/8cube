@@ -31,6 +31,27 @@ usage()
 
 [ -z "`which hg 2> /dev/null`" ] && fatal "Mercurial not installed (hg command not found)"
 [ -z "`which svn 2> /dev/null`" ] && fatal "Subversion not installed (svn command not found)"
+if [ ! -z "`which wget 2> /dev/null`" ]
+then
+	fetch()
+	{
+			debug "wget $1 -> $2"
+		wget "$1" -O "$2"
+	}
+else
+	if [ ! -z "`which curl 2> /dev/null`" ]
+	then
+		fetch()
+		{
+			debug "curl $1 -> $2"
+			curl "$1" -o "$2"
+		}
+	else
+		fatal "Cannot fetch from internet (wget and curl commands not found)"
+	fi
+fi
+
+
 
 #### Boost ---------------------------------------------------------------------
 
@@ -56,7 +77,7 @@ BULLET_TARBALL="${BULLET_NAME}.tgz"
 BULLET_URL="https://bullet.googlecode.com/files/${BULLET_TARBALL}"
 
 [ ! -d  "${BULLET_NAME}" ] && (
-	[ ! -f "${BULLET_TARBALL}" ] && wget "${BULLET_URL}" -O "${BULLET_TARBALL}"
+	[ ! -f "${BULLET_TARBALL}" ] && fetch "${BULLET_URL}" "${BULLET_TARBALL}"
 	tar xf ${BULLET_TARBALL}
 )
 
@@ -68,7 +89,7 @@ CURL_TARBALL="${CURL_NAME}.tar.gz"
 CURL_URL="http://curl.haxx.se/download/${CURL_TARBALL}"
 
 [ ! -d "${CURL_NAME}" ] && (
-	[ ! -f "${CURL_TARBALL}" ] && wget "${CURL_URL}" -O "${CURL_TARBALL}"
+	[ ! -f "${CURL_TARBALL}" ] && fetch "${CURL_URL}" "${CURL_TARBALL}"
 	tar xf "${CURL_TARBALL}"
 )
 
