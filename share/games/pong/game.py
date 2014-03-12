@@ -127,9 +127,10 @@ class PadController(Controller):
 
 class Ball(ModelView):
 
-    def __init__(self, renderer, pads, pos, dir):
+    def __init__(self, renderer, lpad, rpad, pos, dir):
         self.radius = .5
-        self.pads = pads
+        self.lpad = lpad
+        self.rpad = rpad
         super().__init__(
             NFF_SPHERE, renderer,
             ambient = gl.Color3f("#845412"),
@@ -156,23 +157,23 @@ class Ball(ModelView):
                 self.pos.y <= pad.pos.y + pad.height / 2
             )
 
-        rpad = self.pads[0]
-        lpad = self.pads[1]
+        lpad = self.lpad
+        rpad = self.rpad
         if self.pos.x > max_x:
             self.dir.x *= -1
             self.pos.x = max_x
-        elif self.pos.x > max_x - rpad.width:
-            if collide_with(rpad):
-                self.pos.x = max_x - rpad.width
+        elif self.pos.x >= max_x - 2*lpad.width:
+            if collide_with(lpad):
+                self.pos.x = max_x - 2*lpad.width
                 self.dir.x = -1 * self.dir.x  +  random.random() - 0.5
 
         if self.pos.x < min_x:
             self.dir.x *= -1
             self.pos.x = min_x
-        elif self.pos.x < min_x + lpad.width:
-            if collide_with(lpad):
+        elif self.pos.x <= min_x + 2* rpad.width:
+            if collide_with(rpad):
+                self.pos.x = min_x + 2*rpad.width
                 self.dir.x = -1 * self.dir.x  +  random.random() - 0.5
-                self.pos.x = min_x + lpad.width
 
 class GameView(Viewport):
 
@@ -211,7 +212,8 @@ class Game(cubeapp.game.Game):
         self.pads = [self.lpad, self.rpad]
         self.balls = [
             Ball(window.renderer,
-                 pads = self.pads,
+                 lpad = self.lpad,
+                 rpad = self.rpad,
                  pos = gl.vec3f((random.random() - .5) * 1),
                  dir = gl.vec3f(20, 7, 0) * (random.random()*.5 + .5),
             ) for _ in range(10)
