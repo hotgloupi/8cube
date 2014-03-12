@@ -266,7 +266,7 @@ def configure(project, build):
             shared = platform.IS_LINUX,
             version = (3, 3),
             pymalloc = False,
-            with_valgrind_support = True,
+            with_valgrind_support = False,
         )
 
     boost = build.add_dependency(
@@ -307,7 +307,10 @@ def configure(project, build):
     )
 
     sdl = build.add_dependency(
-        c.libraries.SDLDependency, c_compiler, 'deps/SDL', shared = platform.IS_WINDOWS,
+        c.libraries.SDLDependency,
+        c_compiler,
+        'deps/SDL',
+        shared = platform.IS_WINDOWS,
     )
     sdl_image = build.add_dependency(
         c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image',
@@ -422,7 +425,7 @@ def configure(project, build):
         defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
         shared = False,
         position_independent_code = True,
-        static_libstd = True,
+        static_libstd = not platform.IS_MACOSX,
         precompiled_headers = precompiled_headers,
     )
 
@@ -544,7 +547,7 @@ def configure(project, build):
             directory = path.join("games", game),
             object_directory = path.join("games", game),
             defines = [('GAME_ID', game)],
-            static_libstd = True,
+            static_libstd = not platform.IS_MACOSX,
             libraries =
                 [libetc_static] +
                 base_libraries +
