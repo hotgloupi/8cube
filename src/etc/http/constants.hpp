@@ -12,7 +12,7 @@ namespace etc { namespace http {
 
 	enum class ResponseCode
 	{
-
+		ok = 200,
 	};
 
 }}

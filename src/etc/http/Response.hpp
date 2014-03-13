@@ -4,6 +4,7 @@
 # include "fwd.hpp"
 
 # include <memory>
+# include <iosfwd>
 
 namespace etc { namespace http {
 
@@ -11,15 +12,20 @@ namespace etc { namespace http {
 	{
 	public:
 		struct Impl;
-	private:
-		std::unique_ptr<Impl> _this;
-	public:
-		Impl& impl() { return *_this; }
 
 	public:
 		Response(std::unique_ptr<Impl> impl);
 		Response(Response&& other);
 		~Response();
+
+	public:
+		ResponseCode code();
+		std::istream& body();
+
+	private:
+		std::unique_ptr<Impl> _this;
+	public:
+		Impl& impl() { return *_this; }
 	};
 
 }}

@@ -17,6 +17,7 @@ namespace etc { namespace http {
 		Client& client;
 		Request request;
 		CURL* easy_handle;
+		std::unique_ptr<std::istream> body;
 
 		Impl(Client& client, Request request)
 			: client(client)
@@ -26,11 +27,12 @@ namespace etc { namespace http {
 			if (this->easy_handle == nullptr)
 				throw exception::Exception{"Couldn't create an easy_handle"};
 
+			// Prevent a throwing constructor to let the easy handle alive.
 			auto handle_guard = etc::scope_exit(
 				[this] { ::curl_easy_cleanup(this->easy_handle); }
 			);
 
-			// method
+			// Set HTTP method
 			switch (this->request.method())
 			{
 			case Method::head:
@@ -44,8 +46,40 @@ namespace etc { namespace http {
 			}
 
 			// url
-			std::string uri = this->client.server() + this->request.url();
-			_setopt(CURLOPT_URL, uri.c_str());
+
+			// url parameters
+			{
+				std::string uri = this->client.server() + this->request.url();
+
+				bool first = true;
+				for (auto parameter: this->request.parameters())
+				{
+					if (parameter.first.empty())
+						continue;
+					if (first)
+					{
+						first = false;
+						uri.push_back('?');
+					}
+					else
+						uri.push_back('&');
+					char* key = ::curl_easy_escape(this->easy_handle,
+					                               parameter.first.c_str(),
+					                               parameter.first.size());
+					ETC_SCOPE_EXIT{ ::curl_free(key); };
+					uri.append(key);
+
+					if (parameter.second.empty())
+						continue;
+					uri.push_back('=');
+					char* value = ::curl_easy_escape(this->easy_handle,
+					                                 parameter.second.c_str(),
+					                                 parameter.second.size());
+					ETC_SCOPE_EXIT{ ::curl_free(value); };
+					uri.append(value);
+				}
+				_setopt(CURLOPT_URL, uri.c_str());
+			}
 
 			// headers
 			{
@@ -60,14 +94,10 @@ namespace etc { namespace http {
 				_setopt(CURLOPT_HTTPHEADER, headers);
 			}
 
-			// Callback
+			// Callbacks
 			_setopt(CURLOPT_WRITEFUNCTION, &_write_function);
 			_setopt(CURLOPT_WRITEDATA, this);
 
-			// This must be the last thing we do (easy handle is set up).
-			if (::curl_multi_add_handle(client.impl().multi_handle,
-			                            this->easy_handle) != CURLM_OK)
-				throw exception::Exception{"Couldn't register the easy handle"};
 			handle_guard.dismiss();
 		}
 
@@ -88,11 +118,8 @@ namespace etc { namespace http {
 			if (::curl_easy_setopt(this->easy_handle, opt, value) != CURLE_OK)
 				throw exception::Exception{"Couldn't set cURL option"};
 		}
-
 		~Impl()
 		{
-			::curl_multi_remove_handle(this->client.impl().multi_handle,
-			                           this->easy_handle);
 			::curl_easy_cleanup(this->easy_handle);
 		}
 

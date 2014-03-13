@@ -14,8 +14,8 @@ namespace etc { namespace http {
 	{
 	public:
 		Client(std::string server,
-		       uint16_t port,
-		       scheduler::Scheduler* sched = scheduler::current());
+		       uint16_t port = 80,
+		       scheduler::Scheduler* sched = nullptr);
 		~Client();
 
 		std::string const& server() const ETC_NOEXCEPT;

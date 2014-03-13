@@ -10,6 +10,24 @@
 
 namespace etc { namespace http {
 
+	/**
+	 * Named arguments representing a request.
+	 *
+	 * This class is meant for two purposes:
+	 *  - Construct a request when needed.
+	 *  - Store a request template and make a copy when needed.
+	 *
+	 * For example:
+	 * ------------------------------------------------------------------------
+	 * Client c("http://example.com");
+	 * c.fire(
+	 *    Request(Method::post)
+	 *       .url("/login")
+	 *       .header("Content-Type", "application/json")
+	 *       .body("{\"login\": \"test\",\"password\": \"test\"}")
+	 * )
+	 * ------------------------------------------------------------------------
+	 */
 	class Request
 	{
 	public:
@@ -24,17 +42,19 @@ namespace etc { namespace http {
 		std::string    _body;
 
 	public:
-		Request() = default;
-		Request(Request const& other) = default;
-		Request(Request&& other) = default;
-		~Request() {}
+		explicit Request(Method method = Method::get);
+		Request(Request const& other);
+		Request(Request&& other);
+		~Request();
 
 	public:
+		/// URL (Always starts with "/")
 		std::string const& url() const ETC_NOEXCEPT
 		{ return _url; }
 
-		Request& url(std::string value)
-		{ _url = std::move(value); return *this; }
+		/// Set the URL.
+		/// A '/' will always be prepended to the url.
+		Request& url(std::string value);
 
 	public:
 		parameters_map const& parameters() const ETC_NOEXCEPT

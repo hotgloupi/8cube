@@ -8,6 +8,10 @@
 
 # include <curl/curl.h>
 
+# include <boost/asio/ip/tcp.hpp>
+
+# include <map>
+
 namespace etc { namespace http {
 
 	struct Client::Impl
@@ -16,28 +20,37 @@ namespace etc { namespace http {
 
 		std::string const server;
 		uint16_t const port;
-		scheduler::Scheduler* sched;
+		scheduler::Scheduler& sched;
 		CURLM* multi_handle;
+		std::map<CURL*, boost::asio::ip::tcp::socket> easy_handles;
 
 		Impl(std::string server,
 		     uint16_t port,
-		     scheduler::Scheduler* sched)
-			: server{std::move(server)}
-			, port{port}
-			, sched{sched}
-			, multi_handle{::curl_multi_init()}
-		{
-			ETC_TRACE_CTOR();
-			if (this->sched == nullptr)
-				throw exception::Exception{"No scheduler available"};
-			if (this->multi_handle == nullptr)
-				throw exception::Exception{"Couldn't create a multi_handle"};
-		}
+		     scheduler::Scheduler& sched);
 
-		~Impl()
+		void add_handle(CURL* easy_handle);
+
+		void setup_handle(CURL* easy_handle, curl_socket_t fd);
+		void remove_handle(CURL* easy_handle);
+
+		void setup_read_check(CURL* easy_handle);
+
+		static
+		int _socket_function(CURL *easy,      /* easy handle */
+		                     curl_socket_t s, /* socket */
+		                     int action,      /* see values below */
+		                     void *userp,    /* private callback pointer */
+		                     void *socketp);
+
+		~Impl();
+
+		template<typename T>
+		void _setopt(CURLMoption opt, T&& value)
 		{
-			ETC_TRACE_DTOR();
-			::curl_multi_cleanup(this->multi_handle);
+			if (::curl_multi_setopt(this->multi_handle,
+			                        opt,
+			                        value) != CURLM_OK)
+				throw exception::Exception{"Couldn't set cURL option"};
 		}
 	};
 
