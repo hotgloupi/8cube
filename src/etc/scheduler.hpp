@@ -5,7 +5,7 @@
 
 namespace etc { namespace scheduler {
 
-	Scheduler* current();
+	Scheduler& current();
 
 }}
 

@@ -5,6 +5,7 @@
 # include "Scheduler.hpp"
 # include "StrandImpl.hpp"
 
+# include <etc/scheduler.hpp>
 # include <etc/exception.hpp>
 # include <etc/log.hpp>
 # include <etc/scope_exit.hpp>
@@ -32,6 +33,7 @@ namespace etc { namespace scheduler {
 		service_type                 service;
 		strand_type                  coro_strand;
 	private:
+		Scheduler&                   _sched;
 		etc::stack_ptr<work_type>    _work;
 		bool                         _running;
 		std::vector<std::thread>     _threads;
@@ -40,10 +42,17 @@ namespace etc { namespace scheduler {
 		std::unordered_set<Context*> _frozen;
 		std::vector<Context*>        _jobs_stack;
 
+	private:
+		static void current_scheduler(Scheduler* sched);
 	public:
-		Impl(etc::size_type const thread_count = 1)
+		static Scheduler& current_scheduler();
+
+	public:
+		Impl(Scheduler& sched,
+		     etc::size_type const thread_count = 1)
 			: service()
 			, coro_strand(service)
+			, _sched(sched)
 			, _work(etc::stack_ptr_no_init)
 			, _running{false}
 			, _threads{}
@@ -159,7 +168,11 @@ namespace etc { namespace scheduler {
 			try
 			{
 				_jobs_stack.push_back(job);
-				ETC_SCOPE_EXIT{ _jobs_stack.pop_back(); };
+				current_scheduler(&_sched);
+				ETC_SCOPE_EXIT{
+					current_scheduler(nullptr);
+					_jobs_stack.pop_back();
+				};
 				job->coro();
 			}
 			catch (...)
@@ -207,5 +220,6 @@ namespace etc { namespace scheduler {
 	};
 
 }}
+
 
 #endif

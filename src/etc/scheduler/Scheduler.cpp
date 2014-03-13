@@ -10,7 +10,7 @@ namespace etc { namespace scheduler {
 	ETC_LOG_COMPONENT("etc.scheduler.Scheduler");
 
 	Scheduler::Scheduler()
-		: _this{new Impl()}
+		: _this{new Impl(*this)}
 	{}
 
 	Scheduler::~Scheduler()

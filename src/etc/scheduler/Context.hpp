@@ -38,8 +38,8 @@ namespace etc { namespace scheduler {
 					ca();
 					ETC_LOG.debug("Awaken context", this->name);
 					_yield = &ca;
+					ETC_SCOPE_EXIT{ _yield = nullptr; };
 					hdlr(*this);
-					_yield = nullptr;
 				}
 			)
 		{ ETC_TRACE_CTOR(this->name); }

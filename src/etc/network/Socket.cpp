@@ -69,7 +69,7 @@ namespace etc { namespace network {
 	} // !anonymous
 
 	Socket::Socket(scheduler::Scheduler* sched)
-		: _this{new TCPSocket{sched == nullptr ? *scheduler::current() : *sched}}
+		: _this{new TCPSocket{sched == nullptr ? scheduler::current() : *sched}}
 	{ ETC_TRACE_CTOR(); }
 
 	Socket::~Socket()
