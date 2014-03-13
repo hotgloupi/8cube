@@ -2,6 +2,7 @@
 
 #include "backtrace.hpp"
 
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
 #include <etc/sys/environ.hpp>
 
@@ -19,6 +20,8 @@ namespace etc { namespace exception {
 	{
 		try { std::rethrow_exception(e); }
 		catch (std::exception const& err)
+		{ return err.what(); }
+		catch (etc::AssertError const& err)
 		{ return err.what(); }
 		catch (...)
 		{ return "Unknown error type"; }
