@@ -19,7 +19,15 @@ namespace etc { namespace test {
 	public:
 		CaseSetupBase();
 		virtual ~CaseSetupBase();
+
+		/// Associated test case is ran through this function.
+		/// Defaults to calling operator() of the test case.
+		virtual void run_case();
+
+		/// Initialize the test case setup.
 		virtual void setUp();
+
+		/// Cleanup the setup.
 		virtual void tearDown();
 	};
 
@@ -38,14 +46,11 @@ namespace etc { namespace test {
 		     CaseSetupBase* setup);
 		virtual ~Case();
 
-		inline
-		void setUp()  { _setup->setUp(); }
+		inline CaseSetupBase& setup() { return *_setup; }
+		inline void setUp()  { _setup->setUp(); }
+		inline void tearDown() { _setup->tearDown(); }
 
-		inline
-		void tearDown() { _setup->tearDown(); }
-
-		virtual
-		void operator ()() = 0;
+		virtual void operator ()() = 0;
 	};
 
 	class ETC_API CaseSetup

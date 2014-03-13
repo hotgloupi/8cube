@@ -54,7 +54,7 @@ namespace etc { namespace test {
 					throw;
 				}
 				ETC_SCOPE_EXIT{ ptr->tearDown(); };
-				(*ptr)();
+				ptr->setup().run_case();
 				success = true;
 			} catch (std::exception const& e) {
 				error = std::string("Exception: ") + e.what();

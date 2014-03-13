@@ -20,6 +20,11 @@ namespace etc { namespace test {
 	CaseSetupBase::~CaseSetupBase()
 	{}
 
+	void CaseSetupBase::run_case()
+	{
+		(*_case)();
+	}
+
 	void CaseSetupBase::setUp()
 	{}
 
