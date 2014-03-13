@@ -41,6 +41,7 @@ def parse_args(args):
     parser.add_argument(
         'game',
         help = "Specify a game's path or name",
+        nargs = '?',
     )
     parser.add_argument(
         '--game-directories', '-G',
@@ -157,14 +158,14 @@ def main(args):
             import cProfile, pstats
             pr = cProfile.Profile()
             pr.enable()
-            _main(args)
+            _main(parser, args)
             pr.disable()
             stats = pstats.Stats(pr)
             stats.sort_stats(*tuple(args.profile))
             stats.print_stats()
             stats.dump_stats(args.profile_output)
         else:
-            _main(args)
+            _main(parser, args)
     except KeyboardInterrupt:
         return
     except cube.Exception as e:
@@ -188,7 +189,7 @@ def main(args):
     #_main(args)
     gc.collect()
 
-def _main(args):
+def _main(parser, args):
     import cube
 
     if args.unittests or args.unittest:
@@ -220,7 +221,7 @@ def _main(args):
                 return
             import runpy
             runpy.run_path(args.script, run_name = '__main__')
-    else:
+    elif args.game is not None:
         def run():
             from os.path import realpath, isdir, exists, join, dirname, basename
             path = realpath(args.game)
@@ -240,6 +241,8 @@ def _main(args):
                 game_name = game_name
             )
             return app.run()
+    else:
+        parser.print_usage()
 
     run()
 
