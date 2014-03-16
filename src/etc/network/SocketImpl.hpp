@@ -11,6 +11,7 @@ namespace etc { namespace network {
 	{
 		virtual Socket::buffer_type read(etc::size_type s) = 0;
 		virtual size_t write(Socket::buffer_type const& data) = 0;
+		virtual void bind(std::string address, uint16_t const port) = 0;
 		virtual ~Impl();
 	};
 

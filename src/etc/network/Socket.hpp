@@ -20,6 +20,7 @@ namespace etc { namespace network {
 		buffer_type read(int size = 0);
 		size_t write(buffer_type const& data);
 
+		void bind(std::string address, uint16_t const port);
 	public:
 		struct Impl;
 	private:
