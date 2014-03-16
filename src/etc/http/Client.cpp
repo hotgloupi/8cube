@@ -29,9 +29,9 @@ namespace etc { namespace http {
 
 	Response Client::fire(Request req)
 	{
-		auto res = etc::make_unique<Response::Impl>(*this, std::move(req));
-		_this->add_handle(res->easy_handle);
-		return Response{std::move(res)};
+		auto res = std::make_shared<Response::Impl>(*this, std::move(req));
+		_this->add_handle(res);
+		return Response{res};
 	}
 
 	std::string const& Client::server() const ETC_NOEXCEPT
