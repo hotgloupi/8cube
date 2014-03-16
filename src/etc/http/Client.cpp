@@ -2,8 +2,9 @@
 #include "ResponseImpl.hpp"
 #include "Request.hpp"
 
-#include <etc/scheduler/Scheduler.hpp>
 #include <etc/exception.hpp>
+#include <etc/scheduler/Scheduler.hpp>
+#include <etc/sys/environ.hpp>
 #include <etc/test.hpp>
 
 namespace etc { namespace http {
@@ -76,10 +77,20 @@ namespace etc { namespace http {
 
 #define ETC_HTTP_TEST_CASE(name) ETC_TEST_CASE_WITH(name, HttpServer)
 
+		std::string test_url()
+		{
+			return sys::environ::get("ETC_HTTP_TEST_URL",
+			                         "http://localhost:12345");
+		}
+
 		ETC_HTTP_TEST_CASE(get)
 		{
-			Client c("http://hotgloupi.fr");
-			auto r = c.fire(Request());
+			Client c(test_url());
+
+			//etc::print(c.fire(Request()).read());
+			//etc::print(c.fire(Request()).read());
+			//etc::print(c.fire(Request()).read());
+			//etc::print("CODE:", c.fire(Request()).code());
 		}
 
 	}
