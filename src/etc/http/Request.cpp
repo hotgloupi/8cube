@@ -18,6 +18,7 @@ namespace etc { namespace http {
 	Request::Request(Request const& other)
 		: _url{other._url}
 		, _parameters{other._parameters}
+		, _method{other._method}
 		, _headers{other._headers}
 		, _body{other._body}
 	{ ETC_TRACE_CTOR("by copying", other); }
@@ -25,6 +26,7 @@ namespace etc { namespace http {
 	Request::Request(Request&& other)
 		: _url{std::move(other._url)}
 		, _parameters{std::move(other._parameters)}
+		, _method{other._method}
 		, _headers{std::move(other._headers)}
 		, _body{std::move(other._body)}
 	{ ETC_TRACE_CTOR("by stealing", other); }
@@ -53,6 +55,32 @@ namespace etc { namespace http {
 			{ ETC_ENFORCE_EQ(Request().url("/pif").url(), "/pif"); }
 			{ Request r = Request().url("/pif"); ETC_ENFORCE_EQ(r.url(), "/pif");}
 			{ Request r;  r.url("/pif"); ETC_ENFORCE_EQ(r.url(), "/pif");}
+		}
+
+		ETC_TEST_CASE(cpy)
+		{
+			Request r(Method::post);
+			ETC_TEST_EQ(r.method(), Method::post);
+			r.url("/TEST");
+			ETC_TEST_EQ(r.url(), "/TEST");
+
+			Request cpy(r);
+			ETC_TEST_EQ(r.method(), Method::post);
+			ETC_TEST_EQ(cpy.method(), Method::post);
+			ETC_TEST_EQ(r.url(), "/TEST");
+			ETC_TEST_EQ(cpy.url(), "/TEST");
+		}
+
+		ETC_TEST_CASE(move)
+		{
+			Request r(Method::post);
+			ETC_TEST_EQ(r.method(), Method::post);
+			r.url("/TEST");
+			ETC_TEST_EQ(r.url(), "/TEST");
+
+			Request cpy(std::move(r));
+			ETC_TEST_EQ(cpy.method(), Method::post);
+			ETC_TEST_EQ(cpy.url(), "/TEST");
 		}
 
 	} // !anonymous

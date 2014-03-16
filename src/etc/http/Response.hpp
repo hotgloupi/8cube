@@ -14,16 +14,17 @@ namespace etc { namespace http {
 		struct Impl;
 
 	public:
-		Response(std::unique_ptr<Impl> impl);
+		Response(std::shared_ptr<Impl> impl);
 		Response(Response&& other);
 		~Response();
 
 	public:
 		ResponseCode code();
-		std::istream& body();
+		std::string read(size_t size = 0);
+		//std::istream& body();
 
 	private:
-		std::unique_ptr<Impl> _this;
+		std::shared_ptr<Impl> _this;
 	public:
 		Impl& impl() { return *_this; }
 	};
