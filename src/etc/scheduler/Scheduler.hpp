@@ -32,6 +32,7 @@ namespace etc { namespace scheduler {
 	public:
 		inline Impl& impl() { return *_this; }
 		Context* current();
+		Context& context();
 	};
 
 

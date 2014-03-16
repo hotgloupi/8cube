@@ -20,6 +20,14 @@ namespace etc { namespace scheduler {
 	void Scheduler::stop() { _this->stop(); }
 	Context* Scheduler::current() { return _this->current(); }
 
+	Context& Scheduler::context()
+	{
+		Context* ctx = _this->current();
+		if (ctx == nullptr)
+			throw exception::Exception{"No context available"};
+		return *ctx;
+	}
+
 	void Scheduler::sleep(int sec)
 	{
 		if (_this->current() == nullptr)
