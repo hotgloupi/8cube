@@ -21,7 +21,7 @@ namespace etc { namespace network {
 	namespace {
 
 		template<typename AsioSocket>
-		struct SocketImpl
+		struct BasicSocketImpl
 			: public Socket::Impl
 		{
 			typedef typename AsioSocket::endpoint_type endpoint_type;
@@ -31,41 +31,10 @@ namespace etc { namespace network {
 			AsioSocket asio_socket;
 
 
-			SocketImpl(scheduler::Scheduler& sched)
+			BasicSocketImpl(scheduler::Scheduler& sched)
 				: sched(sched)
 				, asio_socket{sched.impl().service}
 			{}
-
-			Socket::buffer_type read(etc::size_type size) override
-			{
-				Socket::buffer_type res;
-				auto ctx = this->sched.current();
-				if (ctx != nullptr)
-				{
-					boost::asio::async_read(
-						this->asio_socket,
-						boost::asio::buffer(res),
-						boost::asio::transfer_exactly(size),
-						[&] (boost::system::error_code const& ec,
-						     std::size_t bytes_transferred)
-						{
-							if (ec)
-								ctx->exception = std::make_exception_ptr(
-									Exception{"Read error:"}
-								);
-							this->sched.impl().wakeup(*ctx);
-						}
-					);
-					this->sched.impl().freeze(*ctx);
-					ctx->yield();
-				}
-				return res;
-			}
-
-			size_t write(Socket::buffer_type const& data) override
-			{
-				return 0;
-			}
 
 			void bind(std::string address, uint16_t const port) override
 			{
@@ -88,17 +57,98 @@ namespace etc { namespace network {
 			}
 		};
 
-		typedef SocketImpl<boost::asio::ip::tcp::socket> TCPSocket;
-		typedef SocketImpl<boost::asio::ip::udp::socket> UDPSocket;
+		template<typename AsioSocket>
+		struct ClientSocketImpl
+			: public BasicSocketImpl<AsioSocket>
+		{
+			typedef BasicSocketImpl<AsioSocket> Super;
+			ClientSocketImpl(scheduler::Scheduler& sched)
+				: Super{sched}
+			{}
+
+			Socket::buffer_type read(etc::size_type size) override
+			{
+				Socket::buffer_type res;
+				auto ctx = this->sched.current();
+				if (ctx != nullptr)
+				{
+					this->asio_socket.async_receive(
+						boost::asio::buffer(res),
+						0,
+						//boost::asio::transfer_exactly(size),
+						[&] (boost::system::error_code const& ec,
+						     std::size_t bytes_transferred)
+						{
+							if (ec)
+								ctx->exception = std::make_exception_ptr(
+									Exception{"Read error:"}
+								);
+							this->sched.impl().wakeup(*ctx);
+						}
+					);
+					this->sched.impl().freeze(*ctx);
+					ctx->yield();
+				}
+				return res;
+			}
+
+			size_t write(Socket::buffer_type const& data) override
+			{
+				return 0;
+			}
+		};
+
+		template<typename AsioSocket>
+		struct AcceptSocketImpl
+			: public BasicSocketImpl<AsioSocket>
+		{
+			typedef BasicSocketImpl<AsioSocket> Super;
+			AcceptSocketImpl(scheduler::Scheduler& sched)
+				: Super{sched}
+			{}
+
+			void listen() override
+			{}
+
+			Socket accept() override
+			{ throw false; }
+		};
+
+		typedef ClientSocketImpl<boost::asio::ip::tcp::socket> ClientTCPSocket;
+		typedef ClientSocketImpl<boost::asio::ip::udp::socket> ClientUDPSocket;
+		typedef AcceptSocketImpl<boost::asio::ip::tcp::acceptor> AcceptTCPSocket;
 
 	} // !anonymous
 
-	Socket::Socket(scheduler::Scheduler* sched)
-		: _this{new TCPSocket{sched == nullptr ? scheduler::current() : *sched}}
-	{ ETC_TRACE_CTOR(); }
+	Socket::Socket(int config,
+	               scheduler::Scheduler* sched)
+		: config{config}
+	{
+		ETC_TRACE_CTOR("with config", config);
+		auto& s = sched == nullptr ? scheduler::current() : *sched;
+		if (config & client_mode)
+		{
+			if (config & tcp_protocol)
+				_this.reset(new ClientTCPSocket{s});
+			else if (config & udp_protocol)
+				_this.reset(new ClientUDPSocket{s});
+		}
+		else if (config & accept_mode)
+		{
+			if (config & tcp_protocol)
+				_this.reset(new AcceptTCPSocket{s});
+		}
+		if (_this == nullptr)
+			throw exception::Exception{"No implem found for this config"};
+	}
+
+	Socket::Socket(Socket&& other)
+		: config{other.config}
+		, _this{std::move(other._this)}
+	{ ETC_TRACE_CTOR("by stealing", other); }
 
 	Socket::~Socket()
-	{ ETC_TRACE_CTOR(); }
+	{ ETC_TRACE_DTOR(); }
 
 	auto Socket::read(int size) -> buffer_type
 	{ return _this->read(size > 0 ? size : 0); }
@@ -156,8 +206,9 @@ namespace etc { namespace network {
 			for (auto const& addr: addresses)
 				for (auto port: ports)
 				{
-					Socket s;
-					s.bind(addr, port);
+					{ Socket s(tcp_client); s.bind(addr, port); }
+					{ Socket s(tcp_accept); s.bind(addr, port); }
+					{ Socket s(udp_client); s.bind(addr, port); }
 				}
 		}
 
