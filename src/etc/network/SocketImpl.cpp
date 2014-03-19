@@ -1,6 +1,8 @@
 #include "SocketImpl.hpp"
 #include "Exception.hpp"
 
+#include <etc/str.hpp>
+
 namespace etc { namespace network {
 
 	Socket::Impl::~Impl()
@@ -23,5 +25,25 @@ namespace etc { namespace network {
 
 	void Socket::Impl::connect(std::string const& address, uint16_t port)
 	{ throw InvalidOperation{}; }
+
+	void Socket::Impl::print(std::ostream& out) const ETC_NOEXCEPT
+	{
+		out << '<'
+			<< str(ETC_TYPE_STRING(*this))
+			.replace("Impl", "")
+			.replace("etc::network::", "")
+			.replace("(anonymous namespace)::", "")
+			.replace("boost::asio::", "")
+			.replace("basic_", "")
+			.replace("socket_", "")
+			.replace(", acceptor_service<ip::tcp> ", "")
+			.replace(", stream_service<ip::tcp> ", "")
+			.replace("> >", ">>")
+			.replace("<", "(")
+			.replace(">", ")")
+			<< " at " << this << '>';
+		;
+
+	}
 
 }}
