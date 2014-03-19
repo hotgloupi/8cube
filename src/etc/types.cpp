@@ -1,6 +1,7 @@
 #include "types.hpp"
 
-#include "to_string.hpp"
+#include <etc/to_string.hpp>
+#include <etc/test.hpp>
 
 #include <boost/config.hpp>
 
@@ -85,5 +86,11 @@ namespace etc {
 	ETC_API
 	std::string demangle<no_throw_policy>(std::string const& sym)
 		ETC_NOEXCEPT_IF(true);
+
+	namespace {
+
+		// XXX tests
+
+	}
 
 }
