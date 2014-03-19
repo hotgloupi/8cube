@@ -3,7 +3,9 @@
 
 # include "api.hpp"
 # include "fwd.hpp"
+# include "compiler.hpp"
 
+# include <memory>
 # include <string>
 # include <stdexcept>
 
@@ -16,17 +18,21 @@ namespace etc { namespace exception {
 		: public std::runtime_error
 	{
 	private:
-		backtrace::Backtrace*   _backtrace;
-		std::string             _msg;
+		typedef std::unique_ptr<backtrace::Backtrace> BacktracePtr;
+	private:
+		BacktracePtr _backtrace;
+		std::string  _msg;
 
 	public:
 		Exception(std::string const& message);
+		Exception(Exception&& other);
+		Exception(Exception const& other);
 
 		virtual
-		~Exception() throw ();
+		~Exception() ETC_NOEXCEPT;
 
 		backtrace::Backtrace const*
-		backtrace() const { return _backtrace; }
+		backtrace() const { return _backtrace.get(); }
 
 		friend ETC_API std::ostream& operator<<(std::ostream& out,
 		                                        Exception const& e);
