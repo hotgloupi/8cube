@@ -1,6 +1,3 @@
-[submodule ".config/tupcfg"]
-	path = .config/tupcfg
-	url = git@github.com:hotgloupi/tupcfg.git
 [submodule "deps/assimp"]
 	path = deps/assimp
 	url = https://github.com/assimp/assimp.git
