@@ -12,3 +12,5 @@ deps/SDL_image
 .DS_Store
 deps/curl*
 deps/bullet*
+deps/Boost_1_55_0/
+deps/Python-v3.4.0/
