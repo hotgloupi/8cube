@@ -51,16 +51,25 @@ else
 	fi
 fi
 
-
-
-#### Boost ---------------------------------------------------------------------
-
-debug "Updating boost"
-if [ ! -d boost ]
+################################ Python #######################################
+PYTHON_VERSION=v3.4.0
+PYTHON_DIR=Python-${PYTHON_VERSION}
+debug "Updating ${PYTHON_DIR}"
+if [ ! -d ${PYTHON_DIR} ]
 then
-	svn co http://svn.boost.org/svn/boost/tags/release/Boost_1_55_0 boost
+	hg clone http://hg.python.org/cpython ${PYTHON_DIR}
+fi
+( cd ${PYTHON_DIR} && hg pull && hg checkout ${PYTHON_VERSION})
+
+################################ Boost ########################################
+BOOST_VERSION=1_55_0
+BOOST_DIR=Boost_${BOOST_VERSION}
+debug "Updating ${BOOST_DIR}"
+if [ ! -d ${BOOST_DIR} ]
+then
+	svn co http://svn.boost.org/svn/boost/tags/release/${BOOST_DIR} ${BOOST_DIR}
 else
-	( cd boost && svn update )
+	( cd ${BOOST_DIR} && svn update )
 fi
 
 ### SDL -----------------------------------------------------------------------
