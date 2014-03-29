@@ -72,13 +72,14 @@ else
 	( cd ${BOOST_DIR} && svn update )
 fi
 
-### SDL -----------------------------------------------------------------------
+################################ SDL ##########################################
 debug "Updating SDL"
 [ ! -d SDL ] && hg clone http://hg.libsdl.org/SDL
+( cd SDL && hg pull )
 [ ! -d SDL_image ] && hg clone http://hg.libsdl.org/SDL_image
+( cd SDL_image && hg pull )
 
-
-### Bullet physics ------------------------------------------------------------
+############################ Bullet physics ###################################
 debug "Update BulletPhysics"
 BULLET_VERSION="2.82-r2704"
 BULLET_NAME="bullet-${BULLET_VERSION}"
@@ -90,7 +91,7 @@ BULLET_URL="https://bullet.googlecode.com/files/${BULLET_TARBALL}"
 	tar xf ${BULLET_TARBALL}
 )
 
-### CURL
+################################ CURL #########################################
 debug "Update curl"
 CURL_VERSION=7.35.0
 CURL_NAME="curl-${CURL_VERSION}"
@@ -102,3 +103,4 @@ CURL_URL="http://curl.haxx.se/download/${CURL_TARBALL}"
 	tar xf "${CURL_TARBALL}"
 )
 
+###############################################################################
