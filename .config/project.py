@@ -262,9 +262,9 @@ def configure(project, build):
         python = build.add_dependency(
             c.libraries.PythonDependency,
             c_compiler,
-            'deps/cPython-3.3',
+            'deps/Python-v3.4.0',
             shared = platform.IS_LINUX,
-            version = (3, 3),
+            version = (3, 4),
             pymalloc = False,
             with_valgrind_support = False,
         )
@@ -272,7 +272,7 @@ def configure(project, build):
     boost = build.add_dependency(
         cxx.libraries.BoostDependency,
         compiler,
-        'deps/boost',
+        'deps/Boost_1_55_0',
         version = (1, 55),
         python = python,
         components = [
