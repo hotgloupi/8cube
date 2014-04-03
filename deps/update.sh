@@ -59,7 +59,7 @@ if [ ! -d ${PYTHON_DIR} ]
 then
 	hg clone http://hg.python.org/cpython ${PYTHON_DIR}
 fi
-( cd ${PYTHON_DIR} && hg pull && hg checkout ${PYTHON_VERSION})
+( cd ${PYTHON_DIR} && hg pull && hg update && hg checkout ${PYTHON_VERSION})
 
 ################################ Boost ########################################
 BOOST_VERSION=1_55_0
@@ -75,9 +75,9 @@ fi
 ################################ SDL ##########################################
 debug "Updating SDL"
 [ ! -d SDL ] && hg clone http://hg.libsdl.org/SDL
-( cd SDL && hg pull )
+( cd SDL && hg pull && hg update )
 [ ! -d SDL_image ] && hg clone http://hg.libsdl.org/SDL_image
-( cd SDL_image && hg pull )
+( cd SDL_image && hg pull && hg update )
 
 ############################ Bullet physics ###################################
 debug "Update BulletPhysics"
