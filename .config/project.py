@@ -131,7 +131,7 @@ class cURL(CMakeDependency):
             source_directory = source_directory,
             libraries = [
                 {
-                    #'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'prefix': 'lib',
                     'name': 'curl',
                     'shared': shared,
                 }
@@ -195,6 +195,7 @@ def configure(project, build):
 
     if platform.IS_WINDOWS:
         defines.extend([
+            'NOMINMAX'
         #    ('_WIN32_WINNT', '0x0600'),
         #    ('WINVER', '0x0600'),
         ])
@@ -245,7 +246,7 @@ def configure(project, build):
 
     curl = build.add_dependency(
         cURL, c_compiler, "deps/curl-7.35.0",
-        shared = False,
+        shared = False, #platform.IS_WINDOWS,
         with_ldap = False,
         with_ldaps = False,
         with_ftp = False,
@@ -541,6 +542,10 @@ def configure(project, build):
         for src in rglob(path.join(game_path, '*.py')):
             print(src, src[6:])
             build.fs.copy(src, src[6:])
+        if not platform.IS_WINDOWS:
+            libs = [c.libraries.simple('pthread', compiler, system = True)]
+        else:
+            libs = []
         compiler.link_executable(
             game,
             list(rglob("*.cpp", dir = "src/launch")),
@@ -551,7 +556,7 @@ def configure(project, build):
             libraries =
                 [libetc_static] +
                 base_libraries +
-                [c.libraries.simple('pthread', compiler, system = True)] +
+                libs +
                 curl.libraries
         )
     tests = [
