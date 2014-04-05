@@ -6,7 +6,6 @@ release
 build
 .config/.project_vars
 .config/tup/
-deps/boost
 deps/SDL
 deps/SDL_image
 .DS_Store
@@ -14,3 +13,11 @@ deps/curl*
 deps/bullet*
 deps/Boost_1_55_0/
 deps/Python-v3.4.0/
+deps/bzip2-1.0.6.tar.gz
+deps/bzip2-1.0.6/
+deps/libidn-1.9.tar.gz
+deps/libidn-1.9/
+deps/openssl-1.0.1f.tar.gz
+deps/openssl-1.0.1f/
+deps/zlib-1.2.8.tar.gz
+deps/zlib-1.2.8/

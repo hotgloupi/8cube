@@ -103,4 +103,49 @@ CURL_URL="http://curl.haxx.se/download/${CURL_TARBALL}"
 	tar xf "${CURL_TARBALL}"
 )
 
-###############################################################################
+############################### LIBIDN ########################################
+debug "Update libidn"
+LIBIDN_VERSION=1.9
+LIBIDN_NAME=libidn-${LIBIDN_VERSION}
+LIBIDN_TARBALL=${LIBIDN_NAME}.tar.gz
+LIBIDN_URL=ftp://alpha.gnu.org/pub/gnu/libidn/${LIBIDN_TARBALL}
+
+[ ! -d "${LIBIDN_NAME}" ] && (
+	[ ! -f "${LIBIDN_TARBALL}" ] && fetch "${LIBIDN_URL}" "${LIBIDN_TARBALL}"
+	tar xf "${LIBIDN_TARBALL}"
+)
+
+############################## OpenSSL ########################################
+debug "Update OpenSSL"
+OPENSSL_VERSION=1.0.1f
+OPENSSL_NAME=openssl-${OPENSSL_VERSION}
+OPENSSL_TARBALL=${OPENSSL_NAME}.tar.gz
+OPENSSL_URL=https://www.openssl.org/source/${OPENSSL_TARBALL}
+
+[ ! -d "${OPENSSL_NAME}" ] && (
+	[ ! -f "${OPENSSL_TARBALL}" ] && fetch "${OPENSSL_URL}" "${OPENSSL_TARBALL}"
+	tar xf "${OPENSSL_TARBALL}"
+)
+
+################################ ZLIB #########################################
+debug "Update zlib"
+ZLIB_VERSION=1.2.8
+ZLIB_NAME=zlib-${ZLIB_VERSION}
+ZLIB_TARBALL=${ZLIB_NAME}.tar.gz
+ZLIB_URL=http://zlib.net/${ZLIB_TARBALL}
+
+[ ! -d "${ZLIB_NAME}" ] && (
+	[ ! -f "${ZLIB_TARBALL}" ] && fetch "${ZLIB_URL}" "${ZLIB_TARBALL}"
+	tar xf "${ZLIB_TARBALL}"
+)
+
+################################ BZIP2 ########################################
+BZIP2_VERSION=1.0.6
+BZIP2_NAME=bzip2-${BZIP2_VERSION}
+BZIP2_TARBALL=${BZIP2_NAME}.tar.gz
+BZIP2_URL=http://www.bzip.org/${BZIP2_VERSION}/${BZIP2_TARBALL}
+
+[ ! -d "${BZIP2_NAME}" ] && (
+	[ ! -f "${BZIP2_TARBALL}" ] && fetch "${BZIP2_URL}" "${BZIP2_TARBALL}"
+	tar xf "${BZIP2_TARBALL}"
+)
