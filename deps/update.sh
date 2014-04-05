@@ -140,6 +140,7 @@ ZLIB_URL=http://zlib.net/${ZLIB_TARBALL}
 )
 
 ################################ BZIP2 ########################################
+debug "Update bzip2"
 BZIP2_VERSION=1.0.6
 BZIP2_NAME=bzip2-${BZIP2_VERSION}
 BZIP2_TARBALL=${BZIP2_NAME}.tar.gz
