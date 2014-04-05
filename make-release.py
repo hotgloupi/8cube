@@ -139,11 +139,11 @@ for d in os.listdir(BUILD_RELEASE_DIR):
 # Find python home and copy it in the release
 # XXX Find a better way
 for PYTHON_HOME in [
-    join(BUILD_DIR, 'dependencies/Python33/gcc/release/no-pymalloc/install/lib/python3.3'),
-    join(BUILD_DIR, 'dependencies/Python33/clang/release/no-pymalloc/install/lib/python3.3'),
-    join(BUILD_DIR, 'dependencies/Python33/gcc/release/install/lib/python3.3'),
-    join(BUILD_DIR, 'dependencies/Python33/clang/release/install/lib/python3.3'),
-    "c:/Python33",
+    join(BUILD_DIR, 'dependencies/Python34/gcc/release/no-pymalloc/install/lib/python3.4'),
+    join(BUILD_DIR, 'dependencies/Python34/clang/release/no-pymalloc/install/lib/python3.4'),
+    join(BUILD_DIR, 'dependencies/Python34/gcc/release/install/lib/python3.4'),
+    join(BUILD_DIR, 'dependencies/Python34/clang/release/install/lib/python3.4'),
+    "c:/Python34",
     None
 ]:
     if exists(PYTHON_HOME):
@@ -152,7 +152,7 @@ for PYTHON_HOME in [
 assert PYTHON_HOME is not None
 
 
-DEST_PYTHON_HOME = join(DEST_DIR, "lib/python3.3")
+DEST_PYTHON_HOME = join(DEST_DIR, "lib/python3.4")
 remove_packages = [
     'distutils',
     'test',
@@ -180,20 +180,22 @@ else:
         log(" - Removing package", p)
         shutil.rmtree(p, ignore_errors = True)
 
-with open(join(PYTHON_HOME, '_sysconfigdata.py'), 'r') as f:
-    src = f.read()
+if not IS_WINDOWS:
+    # XXX Fix sysconfig on windows too ?
+    with open(join(PYTHON_HOME, '_sysconfigdata.py'), 'r') as f:
+        src = f.read()
 
-OLD_PREFIX = abspath(join(PYTHON_HOME, '../../..'))
-NEW_PREFIX = abspath(join(DEST_PYTHON_HOME, '../../..'))
+    OLD_PREFIX = abspath(join(PYTHON_HOME, '../../..'))
+    NEW_PREFIX = abspath(join(DEST_PYTHON_HOME, '../../..'))
 
-log('Fix', join(DEST_PYTHON_HOME, '_sysconfigdata.py'), '(%s -> %s)' % (OLD_PREFIX, NEW_PREFIX))
-while OLD_PREFIX in src:
-    src = src.replace(OLD_PREFIX, NEW_PREFIX)
-    debug("Replace", OLD_PREFIX, NEW_PREFIX)
-dst = src
+    log('Fix', join(DEST_PYTHON_HOME, '_sysconfigdata.py'), '(%s -> %s)' % (OLD_PREFIX, NEW_PREFIX))
+    while OLD_PREFIX in src:
+        src = src.replace(OLD_PREFIX, NEW_PREFIX)
+        debug("Replace", OLD_PREFIX, NEW_PREFIX)
+    dst = src
 
-with open(join(DEST_PYTHON_HOME, '_sysconfigdata.py'), 'w') as f:
-    f.write(dst)
+    with open(join(DEST_PYTHON_HOME, '_sysconfigdata.py'), 'w') as f:
+        f.write(dst)
 
 PYTHON_HOME = DEST_PYTHON_HOME
 del DEST_PYTHON_HOME
@@ -202,7 +204,8 @@ del DEST_PYTHON_HOME
 ###############################################################################
 log('Cleaning up the release dir')
 to_remove_ext = [
-    '.o', '.a', '.pyc', '.lib', '~', '.depend.mk', '.command'
+    '.o', '.a', '.pyc', '.lib', '~', '.depend.mk', '.command',
+    '.ilk', '.pdb', '.exp',
 ]
 
 to_remove_inf = [
