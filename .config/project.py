@@ -249,7 +249,7 @@ def main(project, build):
         c.libraries.SDLDependency,
         c_compiler,
         'deps/SDL',
-        shared = platform.IS_WINDOWS,
+        shared = True, #platform.IS_WINDOWS,
         audio = False,
     )
     sdl_image = build.add_dependency(
