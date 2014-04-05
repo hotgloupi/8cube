@@ -5,21 +5,21 @@ NAME = "8cube"
 # The version name (could be "alpha" for example)
 VERSION_NAME = "prototype"
 
-from tupcfg import Command
-from tupcfg.command import Command
-from tupcfg import Dependency
-from tupcfg import Source
-from tupcfg import Target
-from tupcfg import generators
-from tupcfg import tools, path, platform
+from configure import Command
+from configure.command import Command
+from configure import Dependency
+from configure import Source
+from configure import Target
+from configure import generators
+from configure import tools, path, platform
 
-from tupcfg.lang import cxx
-from tupcfg.lang import c
+from configure.lang import cxx
+from configure.lang import c
 
-from tupcfg.tools import glob, rglob, status
-from tupcfg import path
+from configure.tools import glob, rglob, status
+from configure import path
 
-from tupcfg.dependency.cmake import CMakeDependency
+from configure.dependency.cmake import CMakeDependency
 
 class Assimp(CMakeDependency):
     def __init__(self,
@@ -170,13 +170,13 @@ class GLM(Dependency):
             )
         ]
 
-def configure(project, build):
+def main(project, build):
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
     status("Configuring project", project.env.NAME, '(%s)' % project.env.VERSION_NAME,
            'in', build.directory, '(%s)' % build_type)
 
-    from tupcfg.lang import cxx
+    from configure.lang import cxx
 
     if project.env.BUILD_TYPE == 'DEBUG':
         defines = [
@@ -540,7 +540,6 @@ def configure(project, build):
         if not os.path.isdir(game_path):
             continue
         for src in rglob(path.join(game_path, '*.py')):
-            print(src, src[6:])
             build.fs.copy(src, src[6:])
         if not platform.IS_WINDOWS:
             libs = [c.libraries.simple('pthread', compiler, system = True)]
