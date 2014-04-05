@@ -12,8 +12,8 @@ SCRIPT = abspath(__file__)
 SCRIPT_DIR = dirname(SCRIPT)
 SCRIPT_CMD = sys.argv[0]
 
-sys.path.append(join(SCRIPT_DIR, '.config', 'tupcfg', 'src'))
-from tupcfg.tools import which
+sys.path.append(join(SCRIPT_DIR, '.config', 'configure.py', 'src'))
+from configure.tools import which
 
 IS_WINDOWS = "win32" in sys.platform.lower()
 IS_OSX = "darwin" in sys.platform.lower()
