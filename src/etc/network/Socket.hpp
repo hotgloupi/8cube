@@ -50,7 +50,7 @@ namespace etc { namespace network {
 		       scheduler::Scheduler* sched = nullptr);
 		Socket(Socket&& other);
 		~Socket();
-		Socket(std::unique_ptr<Impl> impl);
+		explicit Socket(std::unique_ptr<Impl> impl);
 
 	public:
 		/**

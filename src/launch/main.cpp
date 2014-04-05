@@ -63,6 +63,7 @@
 #include <etc/scope_exit.hpp>
 #include <etc/init.hpp>
 
+#include <wrappers/windows.hpp>
 #include <wrappers/boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -100,6 +101,7 @@ namespace {
 	ETC_LOG_COMPONENT("launch." GAME_ID_STRING);
 
 /**
+ * State class.
  *  Variables that influences the launcher
  *   - CUBE_ROOT: The root directory of cube frameworks (different versions).
  *   - CUBE_VERSION: Use a specific version.
@@ -108,29 +110,41 @@ namespace {
  *
  *   See below for their default value.
  */
-#define DEFINE_VAR(name, default_value) \
-std::string const& name() \
-{ \
-	static std::string var = [] () -> std::string { \
-		if (env::contains(#name)) \
-			ETC_LOG.debug("Env var '" #name "' set: '" \
-		         , env::get(#name) , "'"); \
-		return env::get(#name, default_value); \
-	}(); \
-	return var; \
-} \
-/**/
+struct cube_config
+{
+	std::string _program_path;
+	std::string _cube_root;
+	std::string _cube_version;
+	std::string _cube_games_root;
+	std::string _cube_release_server;
 
-DEFINE_VAR(CUBE_ROOT            , "~/.cube");
-DEFINE_VAR(CUBE_VERSION         , "");
-DEFINE_VAR(CUBE_GAMES_ROOT      , etc::path::absolute(CUBE_ROOT(), CUBE_VERSION(), "games"));
-DEFINE_VAR(CUBE_RELEASE_SERVER  , "release.cube.io");
-#undef DEFINE_VAR
+	cube_config(std::string program_path)
+		: _program_path(std::move(program_path))
+		, _cube_root(env::get("CUBE_ROOT", "~/.cube"))
+		, _cube_version(env::get("CUBE_VERSION", ""))
+		, _cube_games_root{
+			env::get(
+				"CUBE_GAMES_ROOT",
+				"LOL"// etc::path::absolute(cube_root, "opif", "games")
+			)
+		}
+		, _cube_release_server(env::get("CUBE_RELEASE_SERVER", "release.8cube.io"))
+	{
+		ETC_LOG.debug(*this, "CUBE_ROOT =", _cube_root);
+		ETC_LOG.debug(*this, "CUBE_VERSION =", _cube_version);
+		ETC_LOG.debug(*this, "CUBE_GAMES_ROOT =", _cube_games_root);
+		ETC_LOG.debug(*this, "CUBE_RELEASE_SERVER =", _cube_release_server);
+	}
 
-// Set at startup
-std::string& PROGRAM_PATH() { static std::string s; return s; }
+	std::string const& program_path() const { return _program_path; }
+	std::string const& cube_root() const { return _cube_root; }
+	std::string const& cube_version() const { return _cube_version; }
+	std::string const& cube_games_root() const { return _cube_games_root; }
+	std::string const& cube_release_server() const { return _cube_release_server; }
+};
 
-bool has_internet()
+
+bool has_internet(cube_config const&)
 {
     return false;
 }
@@ -142,34 +156,36 @@ bool has_internet()
 #endif
 #define CUBE_BINARY etc::path::join("bin", CUBE_BINARY_NAME)
 
+void inspect_dir(std::vector<cube_framework>& res, std::string const& directory) {
+	boost::system::error_code ec;
+	fs::directory_iterator it(directory, ec), end;
+	if (ec)
+	{
+		ETC_TRACE.debug("Invalid cube root directory '", directory, "': "
+		         ,  ec.message(), " (", ec, ")");
+	}
+	for (; it != end; ++it)
+	{
+		ETC_TRACE.debug("Checking: ", it->path());
+		auto bin = it->path() / CUBE_BINARY;
+		if (fs::exists(bin))
+		{
+			ETC_TRACE.debug("Found cube framework ", bin);
+			res.emplace_back(bin.string());
+		}
+	}
+}
+
 // Return sorted available cube installations (most up-to-date firsts).
-std::vector<cube_framework> find_cube_frameworks()
+std::vector<cube_framework> find_cube_frameworks(cube_config const& cfg)
 {
-	std::vector<cube_framework> res{};
-	auto inspect_dir = [&] (std::string const& directory) {
-		boost::system::error_code ec;
-		fs::directory_iterator it(directory, ec), end;
-		if (ec)
-		{
-			ETC_TRACE.debug("Invalid cube root directory '", directory, "': "
-			         ,  ec.message(), " (", ec, ")");
-		}
-		for (; it != end; ++it)
-		{
-			ETC_TRACE.debug("Checking: ", it->path());
-			auto bin = it->path() / CUBE_BINARY;
-			if (fs::exists(bin))
-			{
-				ETC_TRACE.debug("Found cube framework ", bin);
-				res.emplace_back(bin.string());
-			}
-		}
-	};
-	if (!CUBE_VERSION().empty())
+	std::vector<cube_framework> res;
+
+	if (!cfg.cube_version().empty())
 	{
 		std::string path = etc::path::absolute(
-			CUBE_ROOT(),
-			CUBE_VERSION(),
+			cfg.cube_root(),
+			cfg.cube_version(),
 			CUBE_BINARY
 		);
 		ETC_TRACE.debug("Using cube framework '", path, "'");
@@ -177,16 +193,17 @@ std::vector<cube_framework> find_cube_frameworks()
 	}
 	else
 	{
-		ETC_TRACE.debug("First inspect cube root default: '", CUBE_ROOT()
+		ETC_TRACE.debug("First inspect cube root default: '", cfg.cube_root()
 		         , "'");
-		inspect_dir(CUBE_ROOT());
+		inspect_dir(res, cfg.cube_root());
 	}
 
 	if (res.empty())
 	{
-		fs::path path = etc::path::absolute(etc::path::directory_name(PROGRAM_PATH()), "..", "..");
+		fs::path path = etc::path::absolute(
+			etc::path::directory_name(cfg.program_path()), "..", "..");
 		ETC_TRACE.debug("Trying cube root at ", path);
-		inspect_dir(path.string());
+		inspect_dir(res, path.string());
 	}
 
 	std::sort(
@@ -197,7 +214,8 @@ std::vector<cube_framework> find_cube_frameworks()
 	return res;
 }
 
-cube_game find_game()
+
+cube_game find_game(cube_config const& cfg)
 {
 	auto inspect_game_dir = [&] (fs::path const& dir) -> std::string {
 		boost::system::error_code ec;
@@ -212,10 +230,10 @@ cube_game find_game()
 	};
 	std::string path;
 	path = inspect_game_dir(
-		etc::path::join(etc::path::directory_name(PROGRAM_PATH()), "..")
+		etc::path::join(etc::path::directory_name(cfg.program_path()), "..")
 	);
 	if (path.empty())
-		path = inspect_game_dir(CUBE_GAMES_ROOT());
+		path = inspect_game_dir(cfg.cube_games_root());
 
 	ETC_TRACE.debug("Return game at '", path, "'");
 	return cube_game(path, GAME_ID_STRING);
@@ -232,17 +250,17 @@ void launch_game(std::vector<cube_framework> const& frameworks, cube_game const&
 	::system(cmd.c_str());
 }
 
-void with_internet()
+void with_internet(cube_config const&)
 {
 }
 
-void without_internet()
+void without_internet(cube_config const& cfg)
 {
-    auto cube_frameworks = find_cube_frameworks();
+    auto cube_frameworks = find_cube_frameworks(cfg);
     if (cube_frameworks.empty())
         throw std::runtime_error{"Cube framework not found"};
 
-    auto game = find_game();
+    auto game = find_game(cfg);
 
     launch_game(cube_frameworks, game);
 }
@@ -253,12 +271,12 @@ boost::filesystem::path default_temp_dir()
 	TCHAR buf [MAX_PATH];
 
 	if (GetTempPath (MAX_PATH, buf) != 0)
-		// XXX DO something useful
+		return "C:/";
+	return boost::filesystem::path(buf);
 #else
 	return etc::sys::environ::get("TMPDIR", "/tmp");
 #endif
 }
-
 template<typename Stream>
 struct temporary_file
 {
@@ -315,21 +333,22 @@ private:
 	}
 };
 
-} // ! anonymous
 
+} // ! anonymous
 
 int main(int argc, char const* av[])
 {
 	etc::Init etc_init_guard;
 
-	PROGRAM_PATH() = av[0];
+
 	if (!etc::sys::environ::contains("CUBE_LAUNCH_BOUNCER"))
 	{
+		cube_config cfg(av[0]);
 		ETC_TRACE.debug("Creating temporary launcher");
-		etc::sys::environ::set("CUBE_LAUNCH_BOUNCER", PROGRAM_PATH());
-		std::ifstream src{PROGRAM_PATH()};
+		etc::sys::environ::set("CUBE_LAUNCH_BOUNCER", cfg.program_path());
+		std::ifstream src{cfg.program_path()};
 		temporary_file<std::ofstream> out{"8cube-" GAME_ID_STRING "-%%%%.exe"};
-		ETC_TRACE.debug(PROGRAM_PATH() , "->>",  out.path());
+		ETC_TRACE.debug(cfg.program_path() , "->>",  out.path());
 		char buf[4096];
 		while (!src.eof())
 		{
@@ -348,14 +367,14 @@ int main(int argc, char const* av[])
 
 		return 0;
 	}
-	PROGRAM_PATH() = etc::sys::environ::get("CUBE_LAUNCH_BOUNCER");
+	cube_config cfg(etc::sys::environ::get("CUBE_LAUNCH_BOUNCER"));
 	try
 	{
-		if (has_internet())
+		if (has_internet(cfg))
 		{
 			try
 			{
-				with_internet();
+				with_internet(cfg);
 				return 0;
 			}
 			catch (std::exception const& err)
@@ -365,7 +384,7 @@ int main(int argc, char const* av[])
 				);
 			}
 		}
-		without_internet();
+		without_internet(cfg);
 	}
 	catch (std::exception const& err)
 	{

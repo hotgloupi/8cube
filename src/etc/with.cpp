@@ -45,7 +45,7 @@ namespace etc {
 			{
 				auto defer = with([] { return 42; });
 				for (int i = 0; i < 100; ++i)
-					defer.success([] (int i) { return i + 1; });
+					defer.success([] (int j) { return j + 1; });
 				ETC_ENFORCE_EQ(defer(), 142);
 			}
 		}

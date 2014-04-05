@@ -13,9 +13,9 @@ namespace etc { namespace path {
 # define ETC_PATH_CALL(__ret, __name)                                         \
 	ETC_API __ret __name(std::string const& path);                            \
 	                                                                          \
-	template<typename T1, typename T2, typename... Args>                      \
+	template<typename... Args>                                                \
 	inline                                                                    \
-	__ret __name(T1&& arg1, T2&& arg2, Args&&... args);                       \
+	__ret __name(std::string arg1, std::string arg2, Args&&... args);         \
 /**/
 
 	/**
@@ -43,9 +43,9 @@ namespace etc { namespace path {
 	 */
 	ETC_API std::string join(std::vector<std::string> const& parts);
 
-	template<typename T1, typename T2, typename... Args>
+	template<typename... Args>
 	inline
-	std::string join(T1&& arg1, T2&& arg2, Args&&... args);
+	std::string join(std::string arg1, std::string arg2, Args&&... args);
 
 	/**
 	 * @brief Split a path into one or more parts.

@@ -6,13 +6,13 @@
 namespace etc { namespace path {
 
 # define ETC_PATH_JOINED(__ret, __name)                                       \
-	template<typename T1, typename T2, typename... Args>                      \
+	template<typename... Args>                                                \
 	inline                                                                    \
-	__ret __name(T1&& arg1, T2&& arg2, Args&&... args)                        \
+	__ret __name(std::string arg1, std::string arg2, Args&&... args)          \
 	{                                                                         \
 		return __name(join(                                                   \
-			std::forward<T1>(arg1),                                           \
-			std::forward<T2>(arg2),                                           \
+			std::move(arg1),                                  \
+			std::move(arg2),                                  \
 			std::forward<Args>(args)...                                       \
 		));                                                                   \
 	}                                                                         \
@@ -25,15 +25,24 @@ namespace etc { namespace path {
 
 # undef ETC_PATH_JOINED
 
-	template<typename T1, typename T2, typename... Args>
+	inline std::string join(std::string s) { return std::move(s); }
+
+	template<typename... Args>
 	inline
-	std::string join(T1&& arg1, T2&& arg2, Args&&... args)
+	std::string join(std::string arg1, std::string arg2, Args&&... args)
 	{
-		return join({
-			std::forward<T1>(arg1),
-			std::forward<T2>(arg2),
+# ifdef BOOST_MSVC // Internal compiler error
+		std::vector<std::string> to_join;
+		to_join.emplace_back(std::move(arg1));
+		to_join.emplace_back(std::move(arg2));
+		return join(join(to_join), std::forward<Args>(args)...);
+# else
+		return join(std::vector<std::string>{
+			std::move(arg1),
+			std::move(arg2),
 			std::forward<Args>(args)...
 		});
+# endif
 	}
 
 }}

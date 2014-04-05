@@ -19,7 +19,7 @@ namespace etc { namespace exception {
 
 	std::string string(std::exception_ptr e)
 	{
-		try { std::rethrow_exception(e); }
+		try { std::rethrow_exception(e); return "No exception thrown !"; }
 		catch (std::exception const& err)
 		{ return err.what(); }
 		catch (etc::AssertError const& err)

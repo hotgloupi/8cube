@@ -46,7 +46,7 @@ namespace etc { namespace network {
 /**/
 
 		// Exports typedefs and self() in the Operation class.
-#define PATCH_OPERATION(__class) \
+#define PATCH_OPERATION() \
 			Self& self() { return static_cast<Self&>(*this); } \
 			typedef typename AsioSocket::protocol_type protocol_type; \
 			typedef typename AsioSocket::endpoint_type endpoint_type; \
@@ -221,7 +221,7 @@ namespace etc { namespace network {
 				);
 				self().sched.impl().freeze(ctx);
 				ctx.yield();
-				return Socket{std::move(impl)};
+				return Socket(std::unique_ptr<Socket::Impl>(impl.release()));
 			}
 		};
 

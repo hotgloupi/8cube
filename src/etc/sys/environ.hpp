@@ -31,7 +31,7 @@ namespace etc { namespace sys { namespace environ {
 	ETC_API T as(std::string const& key);
 
 	template<typename T>
-	ETC_API T try_as(std::string const& key)
+	T try_as(std::string const& key)
 	{
 		try { return as<T>(key); }
 		catch (exception::ValueError const&) { return T{}; }

@@ -9,9 +9,10 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/tss.hpp>
 
+#include <atomic>
 #include <cassert>
-#include <thread>
 #include <mutex>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 

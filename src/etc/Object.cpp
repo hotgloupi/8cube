@@ -20,12 +20,14 @@ namespace etc {
 				detail::access_object::type_id(other)
 			);
 
+			static const int int_type = (int)detail::builtin::int_type;
+			static const int float_type = (int)detail::builtin::float_type;
+			static const int string_type = (int)detail::builtin::string_type;
 			switch (detail::access_object::type_id(self))
 			{
 			case (int) detail::builtin::null_type:
 				break;
 #define BUILTIN_INIT(__type_id) \
-				static const int __type_id = (int)detail::builtin::__type_id; \
 			case __type_id: \
 				detail::storage<__type_id>::init_storage( \
 					self, \
