@@ -203,7 +203,7 @@ namespace etc { namespace log {
 						this->dropped++;
 				});
 #else
-				this->service.post(std::forward<Fn>(fn));
+				this->service.post(std::move(fn));
 #endif
 				}
 				else
