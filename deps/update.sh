@@ -150,3 +150,5 @@ BZIP2_URL=http://www.bzip.org/${BZIP2_VERSION}/${BZIP2_TARBALL}
 	[ ! -f "${BZIP2_TARBALL}" ] && fetch "${BZIP2_URL}" "${BZIP2_TARBALL}"
 	tar xf "${BZIP2_TARBALL}"
 )
+
+exit 0
