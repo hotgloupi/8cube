@@ -2,6 +2,11 @@
 # Python file written with a shell helper (mainly for windows).
 __SHELL_PROTECT=""" "
 SCRIPT="$0"
+
+[ -f "C:/Python34/python.exe" ] && PYTHON="C:/Python34/python.exe" || \
+[ -f "C:/Python33/python.exe" ] && PYTHON="C:/Python33/python.exe" || \
+[ -f "C:/Python32/python.exe" ] && PYTHON="C:/Python32/python.exe" || \
+[ -f "C:/Python31/python.exe" ] && PYTHON="C:/Python31/python.exe" || \
 PYTHON=`which python3`
 
 if [ -z "$PYTHON" ]
