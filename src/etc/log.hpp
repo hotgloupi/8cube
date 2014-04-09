@@ -117,9 +117,6 @@ namespace etc { namespace log {
 		Log&& send(T&&... strs) ETC_NOEXCEPT
 		{
 			try {
-# ifdef NDEBUG // No debug level if NDEBUG is specified.
-				if (_line.level > Level::debug)
-#endif
 				if (_should_log)
 				{
 					if (_message.size() > 0)
@@ -151,7 +148,7 @@ namespace etc { namespace log {
 		template<typename... T>
 		inline
 		Log&& debug(T const&...) ETC_NOEXCEPT
-		{ return std::move(*this); }
+		{ _should_log = false; return std::move(*this); }
 # else
 		_ETC_LOG_LEVEL_PRINTER(debug)
 # endif

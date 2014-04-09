@@ -224,11 +224,11 @@ namespace etc { namespace backtrace {
 		return out;
 	}
 
-	namespace {
+	namespace backtrace_tests {
 
 		extern "C" {
 
-			ETC_NOINLINE
+			ETC_API ETC_NOINLINE
 			Backtrace* func()
 			{
 				Backtrace* inner = new Backtrace;
@@ -245,6 +245,6 @@ namespace etc { namespace backtrace {
 			delete b;
 		}
 
-	} // !anonymous
+	} // !backtrace_tests
 
 }} // !etc::backtrace

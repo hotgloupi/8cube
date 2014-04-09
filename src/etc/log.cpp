@@ -63,7 +63,7 @@ namespace etc { namespace log {
 		, _message{std::move(other._message)}
 	{
 		other._logger = nullptr;
-		if (_should_log)
+		if (_should_log && !_message.empty())
 		{
 			_should_log = false;
 			_logger->message(std::move(_line), std::move(_message));
