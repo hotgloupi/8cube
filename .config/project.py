@@ -354,7 +354,7 @@ def main(project, build):
         rglob("src/etc/*.cpp"),
         directory  = 'release/lib',
         libraries = base_libraries + curl.libraries,
-        defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
+        defines = ['ETC_BUILD_DYNAMIC_LIBRARY', ('CURL_STATICLIB', 1)],
         shared = True,
         precompiled_headers = precompiled_headers,
     )
