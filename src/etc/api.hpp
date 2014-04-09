@@ -31,6 +31,8 @@
 
 # ifdef ETC_BUILD_DYNAMIC_LIBRARY
 #  define ETC_API             ETC_API_EXPORT
+# elif defined(ETC_BUILD_STATIC_LIBRARY) || defined(ETC_STATIC_LIBRARY)
+#  define ETC_API             /* nothing */
 # else
 #  define ETC_API             ETC_API_IMPORT
 # endif
