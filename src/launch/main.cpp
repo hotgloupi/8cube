@@ -270,8 +270,8 @@ boost::filesystem::path default_temp_dir()
 #ifdef _WIN32
 	TCHAR buf [MAX_PATH];
 
-	if (GetTempPath (MAX_PATH, buf) != 0)
-		return "C:/";
+	if (GetTempPath (MAX_PATH, buf) == 0)
+		return "C:\\";
 	return boost::filesystem::path(buf);
 #else
 	return etc::sys::environ::get("TMPDIR", "/tmp");
@@ -291,15 +291,18 @@ private:
 
 
 public:
-	temporary_file(path_t const& dir, std::string const& pattern)
+	temporary_file(path_t const& dir,
+	               std::string const& pattern,
+	               std::ios_base::openmode openmode)
 		: _dir{dir}
 		, _pattern{pattern}
 		, _path(_gen_unique_path())
-		, _stream{_path.string()}
+		, _stream{_path.string(), openmode}
 	{}
 
-	temporary_file(std::string const& pattern)
-		: temporary_file{default_temp_dir(), pattern}
+	temporary_file(std::string const& pattern,
+	               std::ios_base::openmode openmode)
+		: temporary_file{default_temp_dir(), pattern, openmode}
 	{}
 
 	temporary_file()
@@ -346,26 +349,47 @@ int main(int argc, char const* av[])
 		cube_config cfg(av[0]);
 		ETC_TRACE.debug("Creating temporary launcher");
 		etc::sys::environ::set("CUBE_LAUNCH_BOUNCER", cfg.program_path());
-		std::ifstream src{cfg.program_path()};
-		temporary_file<std::ofstream> out{"8cube-" GAME_ID_STRING "-%%%%.exe"};
-		ETC_TRACE.debug(cfg.program_path() , "->>",  out.path());
+		std::ifstream src{cfg.program_path(), std::ios_base::binary};
+		temporary_file<std::ofstream> out{
+			default_temp_dir(),
+			"8cube-" GAME_ID_STRING "-%%%%.temp",
+			std::ios_base::trunc | std::ios_base::out | std::ios_base::binary
+		};
+		if (!out.stream().good())
+		{
+			ETC_LOG.error("Couldn't open temporary file", out.path());
+			return 1;
+		}
+		ETC_LOG.debug(cfg.program_path() , "->>",  out.path());
 		char buf[4096];
-		while (!src.eof())
+		size_t written = 0;
+		while (!src.eof() && out.stream().good())
 		{
 			src.read(buf, sizeof(buf));
 			std::streamsize read_bytes = src.gcount();
 			if (read_bytes > 0)
+			{
 				out.stream().write(buf, read_bytes);
+				written += read_bytes;
+			}
 		}
 		src.close();
 		out.stream().close();
+		ETC_LOG.debug(out.path(), "of", written, "bytes created");
 
+		std::string bin = out.path().string();
 #ifndef _WIN32
-		chmod(out.path().string().c_str(), S_IRUSR | S_IXUSR);
+		chmod(bin.c_str(), S_IRUSR | S_IXUSR);
+#else
+		bin += ".exe";
+		boost::system::error_code ec;
+		boost::filesystem::rename(out.path(), bin, ec);
+		if (ec)
+			ETC_LOG.error("Couldn't create the executable", bin, ":", ec, ec.message());
 #endif
-		system(out.path().string().c_str());
+		system(bin.c_str());
 
-		return 0;
+		return 1;
 	}
 	cube_config cfg(etc::sys::environ::get("CUBE_LAUNCH_BOUNCER"));
 	try
