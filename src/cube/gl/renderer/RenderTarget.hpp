@@ -3,11 +3,12 @@
 
 # include "Bindable.hpp"
 
+# include <cube/api.hpp>
 # include <cube/resource/Resource.hpp>
 
 namespace cube { namespace gl { namespace renderer {
 
-	class RenderTarget
+	class CUBE_API RenderTarget
 		: public Bindable
 		, public resource::Resource
 	{
