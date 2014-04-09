@@ -3,6 +3,8 @@
 
 # include "fwd.hpp"
 
+# include <cube/api.hpp>
+
 # include <etc/log.hpp>
 
 namespace cube { namespace scene {
@@ -75,7 +77,7 @@ namespace cube { namespace scene {
 	struct VisitableNode<Node>
 	{
 		ETC_LOG_COMPONENT("cube.scene.VisitableNode<Node>");
-		void visit(NodeVisitor<Node>& visitor);
+		CUBE_API void visit(NodeVisitor<Node>& visitor);
 	};
 
 	template<typename NodeType>
