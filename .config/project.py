@@ -364,7 +364,7 @@ def main(project, build):
         directory  = 'release/lib',
         object_directory = 'etc-static',
         libraries = base_libraries + curl.libraries,
-        defines = ['ETC_BUILD_DYNAMIC_LIBRARY'],
+        defines = ['ETC_BUILD_STATIC_LIBRARY', ('CURL_STATICLIB', 1)],
         shared = False,
         position_independent_code = True,
         static_libstd = not platform.IS_MACOSX,
@@ -491,8 +491,8 @@ def main(project, build):
             list(rglob("*.cpp", dir = "src/launch")),
             directory = path.join("games", game),
             object_directory = path.join("games", game),
-            defines = [('GAME_ID', game)],
-            static_libstd = not platform.IS_MACOSX,
+            defines = [('GAME_ID', game), 'ETC_STATIC_LIBRARY'],
+            static_libstd = not platform.IS_MACOSX and not platform.IS_WINDOWS,
             libraries =
                 [libetc_static] +
                 base_libraries +
