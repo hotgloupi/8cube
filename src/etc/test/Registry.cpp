@@ -46,7 +46,7 @@ namespace etc { namespace test {
 			bool success = false;
 			std::string error;
 			try {
-				ETC_TRACE.debug("Running test", ptr->name, "at", ptr->file, ptr->line);
+				ETC_TRACE.info("Running test", ptr->name, "at", ptr->file, ptr->line);
 				try { ptr->setUp(); }
 				catch (...) {
 					ETC_TRACE.warn("Setup of", ptr->name, "at", ptr->file,
