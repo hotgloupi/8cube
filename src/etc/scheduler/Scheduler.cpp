@@ -119,8 +119,8 @@ namespace etc { namespace scheduler {
 			{
 				Scheduler r;
 				int i = 0;
-				r.spawn("incr", [&](Context& ctx) { for (int j = 0; j < 100; j++) { i++; ctx.yield(); } });
-				r.spawn("decr", [&](Context& ctx) { for (int j = 0; j < 100; j++) { i--; ctx.yield(); } });
+				r.spawn("incr", [&](Context& ctx) { for (int j = 0; j < 10; j++) { i++; ctx.yield(); } });
+				r.spawn("decr", [&](Context& ctx) { for (int j = 0; j < 10; j++) { i--; ctx.yield(); } });
 				r.run();
 				ETC_ENFORCE_EQ(i, 0);
 			}
