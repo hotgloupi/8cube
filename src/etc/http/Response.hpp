@@ -8,7 +8,7 @@
 
 namespace etc { namespace http {
 
-	class Response
+	class ETC_API Response
 	{
 	public:
 		struct Impl;

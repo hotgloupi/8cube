@@ -62,16 +62,20 @@ namespace etc { namespace http {
 
 		ETC_TEST_CASE_SETUP(HttpServer)
 		{
-			scheduler::Scheduler _sched;
-			void setUp() {}
-			void tearDown() {}
+			// XXX
+			// If the attribute _sched is not a pointer, the library etc cannot
+			// be loaded on windows !!!!
+			// It took me 3 fucking days to locate the problem, so be aware !
+			std::unique_ptr<scheduler::Scheduler> _sched;
+			void setUp() { _sched.reset(new scheduler::Scheduler()); }
+			void tearDown() {_sched.reset();}
 			void run_case()
 			{
-				_sched.spawn(
+				_sched->spawn(
 					"run test case " + _case->name,
 					[=] (scheduler::Context&) { CaseSetupBase::run_case();}
 				);
-				_sched.run();
+				_sched->run();
 			}
 		};
 

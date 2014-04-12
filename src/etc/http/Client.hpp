@@ -3,6 +3,7 @@
 
 # include "fwd.hpp"
 
+# include <etc/api.hpp>
 # include <etc/types.hpp>
 # include <etc/scheduler.hpp>
 
@@ -10,7 +11,7 @@
 
 namespace etc { namespace http {
 
-	class Client
+	class ETC_API Client
 	{
 	public:
 		Client(std::string server,

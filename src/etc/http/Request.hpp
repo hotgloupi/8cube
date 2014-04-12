@@ -28,7 +28,7 @@ namespace etc { namespace http {
 	 * )
 	 * ------------------------------------------------------------------------
 	 */
-	class Request
+	class ETC_API Request
 	{
 	public:
 		typedef std::map<std::string, std::string> parameters_map;

@@ -1,6 +1,8 @@
 #ifndef ETC_HTTP_CONSTANTS_HPP
 # define ETC_HTTP_CONSTANTS_HPP
 
+# include <etc/api.hpp>
+
 # include <iosfwd>
 
 namespace etc { namespace http {
@@ -12,6 +14,7 @@ namespace etc { namespace http {
 		_max_value
 	};
 
+	ETC_API
 	std::ostream& operator <<(std::ostream& out, Method const method);
 
 	enum class ResponseCode
@@ -22,6 +25,7 @@ namespace etc { namespace http {
 		_max_value
 	};
 
+	ETC_API
 	std::ostream& operator <<(std::ostream& out, ResponseCode const code);
 }}
 

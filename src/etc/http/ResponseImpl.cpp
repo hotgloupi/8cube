@@ -54,7 +54,7 @@ namespace etc { namespace http {
 		{
 			std::string uri;
 			{
-				std::string srv = this->client.server();
+				std::string srv = "LOL";//this->client.server();
 				std::string url = this->request.url();
 				if (url == "/") // Ignore empty urls
 					uri = srv;

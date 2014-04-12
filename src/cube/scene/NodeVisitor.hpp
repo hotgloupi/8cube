@@ -74,10 +74,10 @@ namespace cube { namespace scene {
 	struct VisitableNode;
 
 	template<>
-	struct VisitableNode<Node>
+	struct CUBE_API VisitableNode<Node>
 	{
 		ETC_LOG_COMPONENT("cube.scene.VisitableNode<Node>");
-		CUBE_API void visit(NodeVisitor<Node>& visitor);
+		void visit(NodeVisitor<Node>& visitor);
 	};
 
 	template<typename NodeType>

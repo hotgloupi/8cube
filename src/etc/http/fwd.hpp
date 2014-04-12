@@ -3,13 +3,15 @@
 
 # include "constants.hpp"
 
+# include <etc/api.hpp>
+
 # include <string>
 
 namespace etc { namespace http {
 
-	class Client;
-	class Request;
-	class Response;
+	class ETC_API Client;
+	class ETC_API Request;
+	class ETC_API Response;
 
 }}
 
