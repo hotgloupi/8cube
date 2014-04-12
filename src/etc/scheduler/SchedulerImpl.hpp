@@ -137,7 +137,12 @@ namespace etc { namespace scheduler {
 
 			ETC_SCOPE_EXIT{
 				if (!_jobs.empty())
-					this->coro_strand.post([&] { _poll(); });
+				{
+					ETC_LOG.debug("Poll ended, rescheduling itself with", _jobs.size(), "jobs left");
+					this->coro_strand.post([this] { _poll(); });
+				}
+				else
+					ETC_LOG.debug("Poll ended without rescheduling");
 			};
 
 			if (_frozen.find(job) != _frozen.end())
