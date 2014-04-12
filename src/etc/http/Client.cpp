@@ -84,17 +84,15 @@ namespace etc { namespace http {
 		std::string test_url()
 		{
 			return sys::environ::get("ETC_HTTP_TEST_URL",
-			                         "http://localhost:12345");
+			                         "http://test.8cube.io");
 		}
 
 		ETC_HTTP_TEST_CASE(get)
 		{
 			Client c(test_url());
 
-			//etc::print(c.fire(Request()).read());
-			//etc::print(c.fire(Request()).read());
-			//etc::print(c.fire(Request()).read());
-			//etc::print("CODE:", c.fire(Request()).code());
+			ETC_ENFORCE_GT(c.fire(Request()).read().size(), 0u);
+			ETC_ENFORCE_EQ(c.fire(Request()).code(), etc::http::ResponseCode::ok);
 		}
 
 	}
