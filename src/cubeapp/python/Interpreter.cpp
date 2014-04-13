@@ -53,33 +53,18 @@ namespace cubeapp { namespace python {
 	bool Interpreter::exec(std::string const& script)
 	{
 		try {
-			py::exec(script.c_str(),
-			         _impl->main_namespace,
-			         _impl->main_namespace);
+			boost::python::propagate_exception([&] {
+				py::exec(script.c_str(),
+						_impl->main_namespace,
+						_impl->main_namespace);
+			});
 			return true;
-		} catch (boost::python::error_already_set const&) {
-			PyObject* type;
-			PyObject* value;
-			PyObject* traceback;
-			PyErr_Fetch(&type, &value, &traceback);
-			if (type == nullptr)
-			{
-				ETC_LOG.fatal("Internal boost python error");
-			}
-			else if (PyErr_GivenExceptionMatches(type, PyExc_SystemExit))
-			{
-				ETC_LOG.error("Exited early (return value is 1)");
-			}
-			else
-			{
-				ETC_LOG.fatal("Python main exited with errors");
-				PyErr_Display(type, value, traceback);
-				PyErr_Restore(type, value, traceback);
-			}
 		} catch (...) {
-			std::cerr << "This is fucking unbelievable\n";
+			ETC_LOG.fatal(
+				"Python main exited with errors:",
+				etc::exception::string()
+			);
 		}
-
 		return false;
 	}
 

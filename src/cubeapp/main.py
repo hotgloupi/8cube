@@ -168,25 +168,31 @@ def main(args):
             _main(parser, args)
     except KeyboardInterrupt:
         return
-    except cube.Exception as e:
-        bt = e.backtrace[2:]
-        index = -1
-        for i, frame in enumerate(bt):
-            if 'boost::python::detail::caller' in frame or \
-               'boost::python::detail::invoke' in frame:
-                index = i
-                break
-        if index > 0:
-            bt = bt[:index]
-        bt.reverse()
+    except Exception as e:
+        if isinstance(e, cube.Exception):
+            bt = e.backtrace[2:]
+            index = -1
+            for i, frame in enumerate(bt):
+                if 'boost::python::detail::caller' in frame or \
+                   'boost::python::detail::invoke' in frame:
+                    index = i
+                    break
+            if index > 0:
+                bt = bt[:index]
+            bt.reverse()
+        else:
+            bt = None
 
-        print("Python traceback: (most recent call last)", file=sys.stderr)
-        traceback.print_tb(e.__traceback__, file=sys.stderr)
-        print("c++ traceback: (most recent call last)", file=sys.stderr)
-        for i, frame in enumerate(bt):
-            print('  %i: %s' % (i + 1, frame), file=sys.stderr)
-        print(e, file=sys.stderr)
-    #_main(args)
+        cube.log.error("Python traceback: (most recent call last)")
+        cube.log.error('\n'.join(traceback.format_tb(e.__traceback__)))
+        if bt is not None:
+            cube.log.error("c++ traceback: (most recent call last)")
+            s = ''
+            for i, frame in enumerate(bt):
+                s += '  %i: %s' % (i + 1, frame)
+            cube.log.error(s)
+        cube.log.fatal(str(e))
+        sys.exit(1)
     gc.collect()
 
 def _main(parser, args):
