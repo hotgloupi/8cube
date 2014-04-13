@@ -249,6 +249,8 @@ def _main(parser, args):
             return app.run()
     else:
         parser.print_usage()
+        sys.exit(1)
+        return
 
     run()
 
