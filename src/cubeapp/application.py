@@ -17,7 +17,7 @@ class Application(cube.gui.Application):
                 game_dir = dir_
                 break
         if game_dir is None:
-            raise Exception("Couldn't find a game named '%s'" % str(game))
+            raise Exception("Couldn't find a game named '%s'" % str(game_name))
 
         super().__init__(name = "cube.io/%s" % game_name)
         self._game = game.load(
