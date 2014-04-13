@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	}
 
 	fs::path exec_dir = fs::canonical(argv[0]).parent_path();
-	fs::path games_dir = exec_dir.parent_path() / "share" / "8cube" / "games";
+	fs::path games_dir = exec_dir.parent_path().parent_path() / "games";
 	fs::path lib_dir = exec_dir.parent_path() / "lib";
 
 	ETC_LOG("Starting 8cube");
