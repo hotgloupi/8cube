@@ -303,6 +303,9 @@ namespace etc { namespace log {
 			case Level::error:
 				color = DARK_RED;
 				break;
+			case Level::fatal:
+				color = DARK_PINK;
+				break;
 			default:
 				break;
 			}
