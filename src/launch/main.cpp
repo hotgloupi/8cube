@@ -67,8 +67,10 @@
 
 #include <wrappers/windows.hpp>
 #include <wrappers/boost/filesystem.hpp>
-namespace fs = boost::filesystem;
+#include <boost/algorithm/string.hpp>
 
+namespace fs = boost::filesystem;
+namespace algo = boost::algorithm;
 
 #include <algorithm>
 #include <string>
@@ -276,6 +278,9 @@ int main(int argc, char const* av[])
 		if (ec)
 			ETC_LOG.error("Couldn't create the executable", bin, ":", ec, ec.message());
 #endif
+		algo::replace_all(bin, "\"", "\\\"");
+		bin = "\"" + bin + "\"";
+		ETC_LOG.debug("Launching command:", bin);
 		system(bin.c_str());
 
 		return 1;
