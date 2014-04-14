@@ -279,7 +279,9 @@ int main(int argc, char const* av[])
 			ETC_LOG.error("Couldn't create the executable", bin, ":", ec, ec.message());
 #endif
 		algo::replace_all(bin, "\"", "\\\"");
-		bin = "\"" + bin + "\"";
+		std::stringstream ss;
+		ss << boost::filesystem::path(bin);
+		bin = ss.str();
 		ETC_LOG.debug("Launching command:", bin);
 		system(bin.c_str());
 
