@@ -173,19 +173,24 @@ std::vector<cube_framework> find_cube_frameworks(config const& cfg)
 cube_game find_game(config const& cfg)
 {
 	auto inspect_game_dir = [&] (fs::path const& dir) -> std::string {
+		ETC_TRACE.debug("Inspect game directory", dir);
 		boost::system::error_code ec;
 		fs::directory_iterator it(dir, ec), end;
 		if (!ec)
 			for (; it != end; ++it)
 			{
 				if (it->path().filename() == cfg.game_id())
+				{
+					ETC_LOG.debug("Found", it->path());
 					return it->path().string();
+				}
+				ETC_LOG.debug("Ignore path", it->path());
 			}
 		return std::string{};
 	};
 	std::string path;
 	path = inspect_game_dir(
-		etc::path::join(etc::path::directory_name(cfg.program_path()), "..")
+		etc::path::join(etc::path::directory_name(cfg.program_path()), "..", "..", "games")
 	);
 	if (path.empty())
 		path = inspect_game_dir(cfg.cube_games_root());
