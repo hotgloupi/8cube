@@ -475,13 +475,9 @@ def main(project, build):
             build.fs.copy(src, 'release/lib/python/' + src[4:])
 
 
-    #import os
-    #for game in os.listdir('share/games'):
-    #    game_path = os.path.join('share/games', game)
-    #    if not os.path.isdir(game_path):
-    #        continue
-    #    for src in rglob(path.join(game_path, '*.py')):
-    #        build.fs.copy(src, src[6:])
+    import os
+    for src in rglob(path.join('share/games/default', '*.py')):
+        build.fs.copy(src, src[6:])
 
 
     # Default game launcher
