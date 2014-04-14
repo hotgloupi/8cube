@@ -190,7 +190,7 @@ cube_game find_game(config const& cfg)
 	};
 	std::string path;
 	path = inspect_game_dir(
-		etc::path::join(etc::path::directory_name(cfg.program_path()), "..", "..", "games")
+		etc::path::join(etc::path::directory_name(cfg.program_path()), "..", "games")
 	);
 	if (path.empty())
 		path = inspect_game_dir(cfg.cube_games_root());
