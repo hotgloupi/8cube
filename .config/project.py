@@ -475,30 +475,38 @@ def main(project, build):
             build.fs.copy(src, 'release/lib/python/' + src[4:])
 
 
-    import os
-    for game in os.listdir('share/games'):
-        game_path = os.path.join('share/games', game)
-        if not os.path.isdir(game_path):
-            continue
-        for src in rglob(path.join(game_path, '*.py')):
-            build.fs.copy(src, src[6:])
-        if not platform.IS_WINDOWS:
-            libs = [c.libraries.simple('pthread', compiler, system = True)]
-        else:
-            libs = []
-        compiler.link_executable(
-            game,
-            list(rglob("*.cpp", dir = "src/launch")),
-            directory = path.join("games", game),
-            object_directory = path.join("games", game),
-            defines = [('GAME_ID', game), 'ETC_STATIC_LIBRARY'],
-            static_libstd = not platform.IS_MACOSX and not platform.IS_WINDOWS,
-            libraries =
-                [libetc_static] +
-                base_libraries +
-                libs +
-                curl.libraries
-        )
+    #import os
+    #for game in os.listdir('share/games'):
+    #    game_path = os.path.join('share/games', game)
+    #    if not os.path.isdir(game_path):
+    #        continue
+    #    for src in rglob(path.join(game_path, '*.py')):
+    #        build.fs.copy(src, src[6:])
+
+
+    # Default game launcher
+    #
+    # By default, it will launch the default game (named "default"). The
+    # environment variable "GAME_ID" is used takes precedence over the default
+    # game
+    #
+    compiler.link_executable(
+        "launch",
+        list(rglob("*.cpp", dir = "src/launch")),
+        directory = 'release/bin',
+        defines = [('GAME_ID', "default"), 'ETC_STATIC_LIBRARY'],
+        static_libstd = not platform.IS_MACOSX and not platform.IS_WINDOWS,
+        libraries =
+            [libetc_static] +
+            base_libraries +
+            (
+                not platform.IS_WINDOWS and
+                [c.libraries.simple('pthread', compiler, system = True)] or
+                []
+            ) +
+            curl.libraries
+    )
+
     tests = [
         'simple_window', 'cube/gl/shader_generator',
     ]
