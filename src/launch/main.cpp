@@ -108,6 +108,47 @@ bool has_internet(config const&)
     return false;
 }
 
+
+void spawn_process(std::string const& exe)
+{
+	ETC_LOG.debug("Launching command:", exe);
+#ifdef _WIN32
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	// Start the child process.
+	if (!CreateProcess(
+		exe.c_str(),    // No module name (use command line)
+		NULL,           // Command line
+		NULL,           // Process handle not inheritable
+		NULL,           // Thread handle not inheritable
+		FALSE,          // Set handle inheritance to FALSE
+		0,              // No creation flags
+		NULL,           // Use parent's environment block
+		NULL,           // Use parent's starting directory
+		&si,            // Pointer to STARTUPINFO structure
+		&pi)           // Pointer to PROCESS_INFORMATION structure
+	   )
+	{
+		std::string err = std::to_string(GetLastError());
+		throw std::runtime_error("CreateProcess failed: " + err);
+	}
+
+	// Wait until child process exits.
+	WaitForSingleObject( pi.hProcess, INFINITE );
+
+	// Close process and thread handles.
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+#else
+	system(exe.c_str());
+#endif
+}
+
 #ifdef _WIN32
 # define CUBE_BINARY_NAME "8cube.exe"
 #else
@@ -211,12 +252,7 @@ void launch_game(std::vector<cube_framework> const& frameworks, cube_game const&
 	// TODO version match
 	auto const& framework = frameworks[0];
 	auto cmd = framework.path + " " + g.path;
-#ifdef _WIN32
-	if (_execve(cmd.c_str(), nullptr) != 0)
-		throw std::runtime_error{"Cannot launch the game"};
-#else
-	::system(cmd.c_str());
-#endif
+	spawn_process(cmd);
 }
 
 void with_internet(config const&)
@@ -285,14 +321,8 @@ int main(int argc, char const* av[])
 		if (ec)
 			ETC_LOG.error("Couldn't create the executable", bin, ":", ec, ec.message());
 #endif
-		algo::replace_all(bin, "\"", "\\\"");
-		std::stringstream ss;
-		ss << boost::filesystem::path(bin);
-		bin = ss.str();
-		ETC_LOG.debug("Launching command:", bin);
-		system(bin.c_str());
-
-		return 1;
+		spawn_process(bin)
+		return 0;
 	}
 	config cfg(etc::sys::environ::get("CUBE_LAUNCH_BOUNCER"));
 	try
