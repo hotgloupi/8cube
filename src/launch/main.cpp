@@ -130,7 +130,7 @@ void spawn_process(std::string exe, std::vector<std::string> args = {})
 	// Start the child process.
 	if (!CreateProcess(
 		NULL,           // No module name (use command line)
-		exe.c_str(),    // Command line
+		(LPSTR)exe.c_str(),    // Command line
 		NULL,           // Process handle not inheritable
 		NULL,           // Thread handle not inheritable
 		FALSE,          // Set handle inheritance to FALSE
