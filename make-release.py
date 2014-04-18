@@ -134,6 +134,10 @@ for d in os.listdir(BUILD_RELEASE_DIR):
     log(" - Copying", join(BUILD_RELEASE_DIR, d), "in", DEST_DIR)
     shutil.copytree(join(BUILD_RELEASE_DIR, d), join(DEST_DIR, d))
 
+if IS_WINDOWS:
+    log(" - Copying redistributables")
+    shutil.copy(which('msvcr120.dll'), join(DEST_DIR, 'bin'))
+    shutil.copy(which('msvcp120.dll'), join(DEST_DIR, 'bin'))
 
 ###############################################################################
 # Find python home and copy it in the release
