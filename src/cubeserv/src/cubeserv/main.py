@@ -24,11 +24,13 @@ def parse_args(args):
     )
     return parser, parser.parse_args(args[1:])
 
-if __name__ == '__main__':
-    parser, args = parse_args(sys.argv)
+def main(argv):
+    parser, args = parse_args(argv)
     app = Application(args.directory, args.address)
     try:
         app.run()
     except KeyboardInterrupt:
         pass
 
+if __name__ == '__main__':
+    main(sys.argv)
