@@ -209,7 +209,12 @@ void launch_game(std::vector<cube_framework> const& frameworks, cube_game const&
 	// TODO version match
 	auto const& framework = frameworks[0];
 	auto cmd = framework.path + " " + g.path;
+#ifdef _WIN32
+	if (_execve(cmd.c_str(), nullptr) != 0)
+		throw std::runtime_error{"Cannot launch the game"};
+#else
 	::system(cmd.c_str());
+#endif
 }
 
 void with_internet(config const&)
