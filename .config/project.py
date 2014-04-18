@@ -114,16 +114,19 @@ def main(project, build):
 
     from configure.lang import cxx
 
+
     if project.env.BUILD_TYPE == 'DEBUG':
         defines = [
             'ETC_DEBUG',
             'CUBE_DEBUG',
             'CUBEAPP_DEBUG',
         ]
+        optimization = cxx.compiler.Compiler.dont_optimize
     elif project.env.BUILD_TYPE == 'RELEASE':
         defines = ['NDEBUG']
         if platform.IS_WINDOWS:
             defines.append(('_SCL_SECURE', '0'))
+        optimization = cxx.compiler.Compiler.optimize_fastest
     else:
         raise Exception("Unknown build type '%s'" % build_type)
 
@@ -159,8 +162,8 @@ def main(project, build):
         library_directories = library_directories,
         include_directories = include_directories,
         static_libstd = False,
-        use_build_type_flags = True,
         hidden_visibility = (build_type != 'DEBUG'),
+        optimization = optimization,
         #force_architecture = True,
         #target_architecture = '32bit',
         forbidden_warnings = ['return-type',]
@@ -169,7 +172,12 @@ def main(project, build):
 #        }
     )
 
-    c_compiler = c.find_compiler(project, build, force_architecture = False)
+    c_compiler = c.find_compiler(
+        project,
+        build,
+        force_architecture = False,
+        optimization = optimization
+    )
 
     status("Using %s as C++ compiler" % compiler)
     status("Using %s as C compiler" % c_compiler)
