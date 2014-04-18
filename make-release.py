@@ -138,6 +138,7 @@ if IS_WINDOWS:
     log(" - Copying redistributables")
     shutil.copy(which('msvcr120.dll'), join(DEST_DIR, 'bin'))
     shutil.copy(which('msvcp120.dll'), join(DEST_DIR, 'bin'))
+    shutil.copy(which('python34.dll'), join(DEST_DIR, 'bin'))
 
 ###############################################################################
 # Find python home and copy it in the release
