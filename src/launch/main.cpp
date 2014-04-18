@@ -82,6 +82,8 @@ namespace algo = boost::algorithm;
 
 #ifndef _WIN32
 # include <sys/stat.h> // chmod
+#else
+# include <process.h> // execve
 #endif
 
 #ifndef GAME_ID
