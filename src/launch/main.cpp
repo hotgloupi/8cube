@@ -82,6 +82,7 @@ namespace algo = boost::algorithm;
 
 #ifndef _WIN32
 # include <sys/stat.h> // chmod
+# include <sys/wait.h> // waitpid
 #else
 # include <process.h> // execve
 #endif
@@ -109,7 +110,7 @@ bool has_internet(config const&)
 }
 
 
-void spawn_process(std::string const& exe)
+void spawn_process(std::string exe, std::vector<std::string> args = {})
 {
 	ETC_LOG.debug("Launching command:", exe);
 #ifdef _WIN32
@@ -120,10 +121,16 @@ void spawn_process(std::string const& exe)
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
+	// XXX windows sucks, so do this quoting pass (which is incorrect if some
+	// path contains a quote).
+	exe = "\"" + exe + "\"";
+	for (auto arg: args)
+		exe += " \"" + arg + "\"";
+
 	// Start the child process.
 	if (!CreateProcess(
-		exe.c_str(),    // No module name (use command line)
-		NULL,           // Command line
+		NULL,           // No module name (use command line)
+		exe.c_str(),    // Command line
 		NULL,           // Process handle not inheritable
 		NULL,           // Thread handle not inheritable
 		FALSE,          // Set handle inheritance to FALSE
@@ -145,7 +152,23 @@ void spawn_process(std::string const& exe)
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 #else
-	system(exe.c_str());
+	pid_t pid = fork();
+	if (pid < 0)
+		throw std::runtime_error("Couldn't fork");
+	if (pid == 0)
+	{
+		char const** argv = (char const**)calloc(sizeof(char*), args.size() + 2);
+		argv[0] = exe.c_str();
+		for (size_t i = 0; i < args.size(); i++)
+			argv[i + 1] = args[i].c_str();
+		argv[args.size() + 1] = nullptr;
+		execv(exe.c_str(), (char**)argv);
+	}
+	else
+	{
+		int status;
+		waitpid(pid, &status, 0);
+	}
 #endif
 }
 
@@ -251,8 +274,8 @@ void launch_game(std::vector<cube_framework> const& frameworks, cube_game const&
 
 	// TODO version match
 	auto const& framework = frameworks[0];
-	auto cmd = framework.path + " " + g.path;
-	spawn_process(cmd);
+	auto cmd = framework.path;
+	spawn_process(cmd, {g.path});
 }
 
 void with_internet(config const&)
@@ -321,7 +344,7 @@ int main(int argc, char const* av[])
 		if (ec)
 			ETC_LOG.error("Couldn't create the executable", bin, ":", ec, ec.message());
 #endif
-		spawn_process(bin)
+		spawn_process(bin);
 		return 0;
 	}
 	config cfg(etc::sys::environ::get("CUBE_LAUNCH_BOUNCER"));
