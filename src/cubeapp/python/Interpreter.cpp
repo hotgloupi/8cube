@@ -6,12 +6,12 @@
 #ifdef environ
 # undef environ
 #endif
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
 #include <etc/platform.hpp>
 #include <etc/scope_exit.hpp>
 #include <etc/sys/environ.hpp>
 
-#include <cassert>
 #include <iostream>
 #include <stdexcept>
 
@@ -52,6 +52,7 @@ namespace cubeapp { namespace python {
 
 	bool Interpreter::exec(std::string const& script)
 	{
+		ETC_LOG.debug("Execute:\n", script);
 		try {
 			boost::python::propagate_exception([&] {
 				py::exec(script.c_str(),
@@ -71,10 +72,19 @@ namespace cubeapp { namespace python {
 	void Interpreter::setglobal(std::string const& key,
 	                            std::string const& value)
 	{
+		ETC_LOG.debug("Set global string", key, "=", value);
+		py::dict d = py::extract<py::dict>(_impl->main_namespace);
+		d[key] = value;
+		ETC_LOG.debug("DONE");
+	}
+
+	void Interpreter::setglobal(std::string const& key,
+	                            boost::python::object const& value)
+	{
+		ETC_LOG.debug("Set global", key, "=", value);
 		py::dict d = py::extract<py::dict>(_impl->main_namespace);
 		d[key] = value;
 	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -123,15 +133,17 @@ namespace cubeapp { namespace python {
 			ETC_LOG("Compiled with python", PY_VERSION);
 			ETC_LOG("PYTHONPATH =", etc::sys::environ::get("PYTHONPATH", ""));
 			ETC_LOG("PYTHONHOME =", etc::sys::environ::get("PYTHONHOME", ""));
-			::Py_Initialize();
+			::Py_InitializeEx(0 /* No signal handlers */);
 			ETC_LOG("Linked with python", ::Py_GetVersion());
-			//std::wcout << L"Python home:" << std::wstring{Py_GetPythonHome() || L"nil"};
-			//std::wcout << L"Python path:" << std::wstring{Py_GetPath() || L"nil"};
+			//wchar_t const* home = Py_GetPythonHome();
+			//wchar_t const* path = Py_GetPath();
+			//std::wcout << L"Python home:" << std::wstring{home ? home : L"nil"} << std::endl;
+			//std::wcout << L"Python path:" << std::wstring{path ? path : L"nil"} << std::endl;
 			interpreter_ptr().reset(new Interpreter);
-
+			ETC_LOG.debug("Interpreter created successfuly");
 		}
 
-		assert(interpreter_ptr() != nullptr);
+		ETC_ASSERT(interpreter_ptr() != nullptr);
 		return *interpreter_ptr();
 	}
 

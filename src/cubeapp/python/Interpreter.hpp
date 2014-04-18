@@ -4,6 +4,7 @@
 # include <cubeapp/api.hpp>
 
 # include <wrappers/boost/filesystem.hpp>
+# include <wrappers/boost/python.hpp>
 
 # include <string>
 
@@ -19,6 +20,7 @@ namespace cubeapp { namespace python {
 	public:
 		bool exec(std::string const& script);
 		void setglobal(std::string const& key, std::string const& value);
+		void setglobal(std::string const& key, boost::python::object const& value);
 
 	private:
 		Interpreter();

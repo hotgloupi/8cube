@@ -10,6 +10,7 @@
 #include <etc/test/Registry.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
+#include <wrappers/boost/python.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -30,9 +31,21 @@ static std::string safe_path(std::string const& path)
 
 ETC_LOG_COMPONENT("cubeapp.main");
 
-int main(int argc, char** argv)
+int _main(int argc, char** argv)
 {
 	etc::Init etc_init_guard;
+
+	{
+		std::string args = "{";
+		for (int i = 0; i < argc; ++i)
+		{
+			if (i > 0)
+				args += ", ";
+			args += argv[i] != nullptr ? argv[i] : "(nil)";
+		}
+		args += "}";
+		ETC_LOG.info("Starting 8cube:", args);
+	}
 	ETC_SCOPE_EXIT{
 		cube::debug::Performance::instance().shutdown();
 		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
@@ -67,33 +80,36 @@ int main(int argc, char** argv)
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
 
-	// XXX This, is ugly and not safe.
-	std::string pyargs = "[\n";
+	int j = 0;
+	boost::python::list pyargs;
 	for (int i = 1; i < argc; ++i)
 	{
-		std::string arg = argv[i];
-		algo::replace_all(arg, "'''", "\\'\\'\\'");
-
-		pyargs += "\t'''" + arg + "''',\n";
+		boost::python::str s{std::string(argv[i])};
+		pyargs.append(s);
 	}
-	pyargs += "\t'-G',\n";
-	pyargs += "\t'''" + safe_path(games_dir.string()) + "''',\n";
-	pyargs += "]";
+
+	pyargs.append("-G");
+	pyargs.append(games_dir.string());
+	interpreter.setglobal("ARGV", pyargs);
 
 	std::string init_script =
 		"import sys\n"
 		"sys.path.insert(0, lib_dir)\n"
 		"from cubeapp.main import main\n"
-		"main(" + pyargs + ")\n"
+		"main(ARGV)\n"
 	;
+	bool success = interpreter.exec(init_script);
+	return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+}
+
+int main(int ac, char** av)
+{
 	try {
-		bool success = interpreter.exec(init_script);
-		return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+		boost::python::propagate_exception([&] { _main(ac, av); });
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
 	} catch (...) {
 		std::cerr << "Fatal error: exiting badly...\n";
 	}
-	std::cerr << "The 'impossible' happened, you should report this to contact@8cube.io\n";
 	return EXIT_FAILURE;
 }
