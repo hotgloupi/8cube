@@ -68,7 +68,7 @@ def debug(*args):
 def cmd_output(*args, **kwargs):
     debug('[COMMAND]', *args)
     with open(RELEASE_LOG, "a") as f:
-        return subprocess.check_output(list(args), **kwargs).decode('utf8')
+        return subprocess.check_output(list(args), **kwargs).decode('utf8').strip()
 
 def cmd(*args, **kwargs):
     debug('[COMMAND]', *args)
@@ -418,6 +418,7 @@ for root, dirs, files in os.walk(DEST_DIR):
         path = join(root, f)
         manifest['files'][path] = hash(path)
 manifest['size'] = sum(v[0] for v in manifest['files'].values())
+manifest['revision'] = cmd_output('git', 'rev-parse', 'HEAD')
 
 with open(join(DEST_DIR, '.manifest'), 'w') as f:
     json.dump(manifest, f)
@@ -425,6 +426,18 @@ with open(join(DEST_DIR, '.manifest'), 'w') as f:
 log("Ending release at", datetime.utcnow().ctime())
 log("Total size", cmd_output('du', '-hs', DEST_DIR))
 
-from pprint import pprint
-pprint(manifest)
+log("Packaged files:")
+for f, h in manifest['files'].items():
+    log("\t%s: %s" % (f, h[0]))
+log("Revision", manifest['revision'])
+log('Total size', manifest['size'])
 
+###############################################################################
+log("Zipping the release")
+
+import zipfile
+
+with zipfile.ZipFile(DEST_DIR + ".zip", mode = 'w', compression = zipfile.ZIP_DEFLATED) as zip:
+    zip.write(join(DEST_DIR, '.manifest'))
+    for f in manifest['files'].keys():
+        zip.write(f)
