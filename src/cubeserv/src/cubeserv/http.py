@@ -1,9 +1,54 @@
+import json
+import threading
+import urllib
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import threading
 
 class RequestHandler(BaseHTTPRequestHandler):
-    pass
+
+    def __manifest(self, os,
+                   os_version = 'last',
+                   version = 'last',
+                   arch = '32bit',
+                   type = 'release'):
+        all = (
+            f for f in self.server.frameworks
+            if f['arch'] == arch and f['type'] == type and f['os'] == os
+        )
+
+        return sorted(
+            all,
+            key = lambda f: (f['version'], f['build'])
+        )[-1]
+
+    def __status(self, **kw):
+        return {
+            'status': 'ok',
+        }
+
+    mapping = {
+        '/manifest': __manifest,
+        '/': __status,
+    }
+
+    def do_GET(self):
+        if '?' in self.path:
+            path, kw = self.path.split('?')
+            kw = dict(urllib.parse.parse_qsl(kw))
+        else:
+            path, kw = self.path, {}
+
+        code = 200
+        try:
+            res = json.dumps(self.mapping[path](self, **kw))
+        except Exception as e:
+            self.log_error(str(e))
+            print("LOL", e)
+            code = 500
+            res = json.dumps(str(e))
+        self.send_response(code)
+        self.end_headers()
+        self.wfile.write(res.encode('utf-8'))
 
 class Locked:
 
