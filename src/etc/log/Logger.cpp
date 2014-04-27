@@ -322,7 +322,10 @@ namespace etc { namespace log {
 				color = "[33;01;33m";
 				break;
 			case Level::error:
-				color = "[33;03;31m";
+				color = "[33;01;91m";
+				break;
+			case Level::fatal:
+				color = "[33;01;95m";
 				break;
 			default:
 				color.clear();
