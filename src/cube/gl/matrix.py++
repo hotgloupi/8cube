@@ -48,15 +48,26 @@ BOOST_PYTHON_MODULE(matrix)
 	py::def(
 		"translate",
 		static_cast<
-			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, vector::Vector3<float> const&)
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&,
+			                           vector::Vector3<float> const&)
 		>(&matrix::translate<float>)
 	);
 
 	py::def(
 		"scale",
 		static_cast<
-			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&, vector::Vector3<float> const&)
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&,
+			                           vector::Vector3<float> const&)
 		>(&matrix::scale)
+	);
+
+	py::def(
+		"rotate",
+		static_cast<
+			matrix::Matrix44<float>(*)(matrix::Matrix44<float> const&,
+			                           cube::units::Angle const,
+			                           vector::Vector3<float> const&)
+		>(&matrix::rotate)
 	);
 
 }
