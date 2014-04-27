@@ -5,6 +5,14 @@ from cube.units import angle
 from cube.test import Case
 from cube.gl.renderer.Painter_test import PainterSetup, painter_test
 
+class Base(Case):
+
+    def test_graph(self):
+        s = scene.Scene()
+        self.assertIsNotNone(s.graph)
+        self.assertIsNotNone(s.graph.root)
+        self.assertEqual(s.graph.root.name, 'root')
+
 class _(PainterSetup, Case):
 
     @painter_test(gl.mode_2d)
