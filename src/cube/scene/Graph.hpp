@@ -94,8 +94,7 @@ namespace cube { namespace scene {
 		void traverse(NodeVisitor<Node>& visitor);
 
 	public:
-		template<typename Visitor>
-		void breadth_first_search(Visitor&& v);
+		void breadth_first_search(NodeVisitor<Node>& visitor);
 
 	private:
 		Node& _insert(std::unique_ptr<Node> node);

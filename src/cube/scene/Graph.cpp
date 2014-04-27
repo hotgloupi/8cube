@@ -2,6 +2,8 @@
 #include "GraphImpl.hpp"
 #include "Node.hpp"
 #include "NodeVisitor.hpp"
+#include "visit/breadth_first_search.hpp"
+#include "visit/depth_first_search.hpp"
 
 #include <cube/exception.hpp>
 
@@ -141,6 +143,25 @@ namespace cube { namespace scene {
 		auto end = boost::vertices(_this->graph).second;
 		for (; it != end; ++it)
 			visitor.visit(*_this->graph[*it]);
+	}
+
+	namespace {
+		struct SimpleBFSVisitor
+			: public visit::DefaultBreadthFirstVisitor
+		{
+			NodeVisitor<Node>& _wrapped;
+			SimpleBFSVisitor(NodeVisitor<Node>& wrapped)
+				: _wrapped(wrapped)
+			{}
+
+			void examine_vertex(Node& n) { _wrapped.visit(n); }
+		};
+	} // !anonymous
+
+	void Graph::breadth_first_search(NodeVisitor<Node>& visitor)
+	{
+		SimpleBFSVisitor wrapper(visitor);
+		visit::breadth_first_search(*this, wrapper);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
