@@ -33,7 +33,7 @@ namespace cube { namespace scene { namespace visit {
 /**/
 			_CUBE_SCENE_VISIT_DFS_FORWARD(discover);
 			_CUBE_SCENE_VISIT_DFS_FORWARD(initialize);
-			_CUBE_SCENE_VISIT_DFS_FORWARD(examine);
+			//_CUBE_SCENE_VISIT_DFS_FORWARD(examine);
 			_CUBE_SCENE_VISIT_DFS_FORWARD(finish);
 # undef _CUBE_SCENE_VISIT_DFS_FORWARD
 		};
@@ -43,7 +43,7 @@ namespace cube { namespace scene { namespace visit {
 	{
 		void initialize_vertex(Node&) {}
 		void discover_vertex(Node&) {}
-		void examine_vertex(Node&) {}
+		//void examine_vertex(Node&) {}
 		void finish_vertex(Node&) {}
 	};
 
