@@ -33,6 +33,8 @@ find_src()
 		"${ROOT_DIR}"/src/cube      \
 		"${ROOT_DIR}"/src/cubeapp   \
 		"${ROOT_DIR}"/src/wrappers  \
+		"${ROOT_DIR}"/src/cubeserv  \
+		"${ROOT_DIR}"/src/launch    \
 		"$@"
 }
 
