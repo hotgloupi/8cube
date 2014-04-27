@@ -89,6 +89,9 @@ vec4u = Vector4u
 vec4il = Vector4il
 vec4ul = Vector4ul
 
+col3f = Color3f
+col4f = Color4f
+
 from .viewport import Viewport
 
 from .renderer import *
