@@ -2,6 +2,8 @@
 
 #include <cube/gl/mesh.hpp>
 #include <cube/gl/material.hpp>
+#include <cube/gl/renderer/Bindable.hpp>
+#include <cube/gl/renderer/Drawable.hpp>
 
 #include <wrappers/boost/python.hpp>
 
@@ -9,6 +11,8 @@ namespace py = boost::python;
 using namespace cube::scene;
 using cube::gl::mesh::MeshPtr;
 using cube::gl::material::MaterialPtr;
+using cube::gl::renderer::BindablePtr;
+using cube::gl::renderer::DrawablePtr;
 
 BOOST_PYTHON_MODULE(ContentNode)
 {
@@ -21,4 +25,6 @@ BOOST_PYTHON_MODULE(ContentNode)
 /**/
 	CONTENT_NODE(Mesh);
 	CONTENT_NODE(Material);
+	CONTENT_NODE(Bindable);
+	CONTENT_NODE(Drawable)
 }
