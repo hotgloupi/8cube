@@ -1,0 +1,15 @@
+#include "Transform.hpp"
+
+#include <wrappers/boost/python.hpp>
+
+namespace py = boost::python;
+using namespace cube::scene;
+
+BOOST_PYTHON_MODULE(Transform)
+{
+	py::class_<Transform, py::bases<Node>, boost::noncopyable>(
+			"Transform",
+			py::init<std::string, Transform::matrix_type>()
+		)
+	;
+}

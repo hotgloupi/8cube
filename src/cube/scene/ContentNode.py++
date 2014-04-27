@@ -1,0 +1,24 @@
+#include "ContentNode.hpp"
+
+#include <cube/gl/mesh.hpp>
+#include <cube/gl/material.hpp>
+
+#include <wrappers/boost/python.hpp>
+
+namespace py = boost::python;
+using namespace cube::scene;
+using cube::gl::mesh::MeshPtr;
+using cube::gl::material::MaterialPtr;
+
+BOOST_PYTHON_MODULE(ContentNode)
+{
+#define CONTENT_NODE(__name) \
+	py::class_<ContentNode<__name ## Ptr>, py::bases<Node>, boost::noncopyable>( \
+			"ContentNode" #__name, \
+			py::init<std::string, __name ## Ptr>() \
+		) \
+	; \
+/**/
+	CONTENT_NODE(Mesh);
+	CONTENT_NODE(Material);
+}
