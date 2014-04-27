@@ -62,6 +62,7 @@ namespace cube { namespace scene {
 		std::string res = ETC_TYPE_STRING(*node);
 		res = res.substr(res.find_last_of(":") + 1, std::string::npos);
 		res = res.substr(0, res.find_first_of(" *"));
+		res = res.substr(0, res.find_last_of(">"));
 		return res;
 	}
 
