@@ -25,6 +25,12 @@ namespace cube { namespace scene {
 		{}
 
 	public:
+		inline
+		matrix_type& value() { return _transformation; }
+
+		inline
+		matrix_type const& value() const { return _transformation; }
+	public:
 		using VisitableNode<Transform>::visit;
 	};
 

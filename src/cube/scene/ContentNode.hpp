@@ -22,6 +22,10 @@ namespace cube { namespace scene {
 		{}
 
 	public:
+		T& value() { return _content; }
+		T const& value() const { return _content; }
+
+	public:
 		using VisitableNode<ContentNode<T>>::visit;
 	};
 
