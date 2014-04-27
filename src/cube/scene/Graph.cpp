@@ -164,6 +164,25 @@ namespace cube { namespace scene {
 		visit::breadth_first_search(*this, wrapper);
 	}
 
+	namespace {
+		struct SimpleDFSVisitor
+			: public visit::DefaultDepthFirstVisitor
+		{
+			NodeVisitor<Node>& _wrapped;
+			SimpleDFSVisitor(NodeVisitor<Node>& wrapped)
+				: _wrapped(wrapped)
+			{}
+
+			void discover_vertex(Node& n) { _wrapped.visit(n); }
+		};
+	} // !anonymous
+
+	void Graph::depth_first_search(NodeVisitor<Node>& visitor)
+	{
+		SimpleDFSVisitor wrapper(visitor);
+		visit::depth_first_search(*this, wrapper);
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	// unit tests
 

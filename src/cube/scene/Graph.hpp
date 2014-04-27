@@ -95,6 +95,7 @@ namespace cube { namespace scene {
 
 	public:
 		void breadth_first_search(NodeVisitor<Node>& visitor);
+		void depth_first_search(NodeVisitor<Node>& visitor);
 
 	private:
 		Node& _insert(std::unique_ptr<Node> node);
