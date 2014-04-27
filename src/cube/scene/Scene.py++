@@ -1,4 +1,5 @@
 #include "Scene.hpp"
+#include "Graph.hpp"
 
 #include <cube/gl/mesh.hpp>
 
@@ -32,7 +33,12 @@ BOOST_PYTHON_MODULE(Scene)
 	using namespace cube::scene;
 	namespace py = boost::python;
 
-	py::class_<Scene, std::shared_ptr<Scene>, boost::noncopyable>(
+	py::class_<
+		Scene,
+		std::shared_ptr<Scene>,
+		py::bases<cube::gl::renderer::Drawable>,
+		boost::noncopyable
+	>(
 		"Scene",
 		py::init<>()
 	)
@@ -43,6 +49,13 @@ BOOST_PYTHON_MODULE(Scene)
 		.add_property(
 			"materials",
 			&materials
+		)
+		.add_property(
+			"graph",
+			py::make_function(
+				&Scene::graph,
+				py::return_internal_reference<>()
+			)
 		)
 	;
 
