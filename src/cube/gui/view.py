@@ -77,11 +77,15 @@ class View(Node):
         return self.__renderer
 
     def __del__(self):
-        self._registered_ids.remove(self._id)
-        del self._id
-        del self._tag
-        del self._stylesheet
-        del self.__renderer
+        if hasattr(self, '_id'):
+            self._registered_ids.remove(self._id)
+            del self._id
+        try:
+            del self._tag
+            del self._stylesheet
+            del self.__renderer
+        except:
+            pass
 
     def _compute_size_hints(self, preferred, max_, min_):
         assert preferred is not None
