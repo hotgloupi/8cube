@@ -173,18 +173,21 @@ namespace cube { namespace gl { namespace renderer {
 	State& State::model(matrix_type const& other) ETC_NOEXCEPT
 	{
 		ETC_CONTRACT_CLASS_INVARIANT();
+		ETC_TRACE.debug(*this, "Set model", other);
 		_this->model = other; _this->clear(); return *this;
 	}
 
 	State& State::view(matrix_type const& other) ETC_NOEXCEPT
 	{
 		ETC_CONTRACT_CLASS_INVARIANT();
+		ETC_TRACE.debug(*this, "Set view", other);
 		_this->view = other; _this->clear(); return *this;
 	}
 
 	State& State::projection(matrix_type const& other) ETC_NOEXCEPT
 	{
 		ETC_CONTRACT_CLASS_INVARIANT();
+		ETC_TRACE.debug(*this, "Set projection", other);
 		_this->projection = other; _this->mvp.clear(); return *this;
 	}
 
@@ -218,6 +221,7 @@ namespace cube { namespace gl { namespace renderer {
 	                      vector_type const& up) ETC_NOEXCEPT
 	{
 		ETC_CONTRACT_CLASS_INVARIANT();
+		ETC_ASSERT_NEQ(eye, center);
 		return this->view(matrix::look_at(eye, center, up));
 	}
 
