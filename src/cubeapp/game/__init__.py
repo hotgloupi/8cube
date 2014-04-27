@@ -70,15 +70,6 @@ class Game():
         )
         self.window.inputs.on_quit.connect(self._on_quit)
 
-    @property
-    def player(self):
-        raise Exception("Not implemented")
-
-    def on_resize(self, w, h):
-        self.projection_matrix = gl.matrix.perspective(
-            self.player.fov, w / h, 0.005, 300.0
-        )
-
     def update(self, delta):
         """
         @brief Update the game state according to the delta (in seconds).
