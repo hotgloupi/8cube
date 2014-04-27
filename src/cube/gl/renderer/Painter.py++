@@ -127,7 +127,9 @@ namespace {
 					py::extract<renderer::Drawable*> extractor{drawables[i]};
 					if (!extractor.check())
 						throw renderer::Exception{
-							"Cannot convert argument to Drawable instance"
+							"Cannot convert argument '" +
+							boost::python::to_string(drawables[i]) +
+							"' to Drawable instance"
 						};
 					extracted.push_back(extractor());
 				}
