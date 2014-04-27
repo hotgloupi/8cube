@@ -7,6 +7,7 @@
 #include <cube/gl/color.hpp>
 
 #include <etc/assert.hpp>
+#include <etc/printable.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -139,6 +140,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	template<typename BindGuard>
 	class ShaderProgramParameter
 		: public renderer::ShaderProgramParameter
+		, public etc::Printable
 	{
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.ShaderProgramParameter");
 	private:
@@ -236,6 +238,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			ETC_TRACE.debug(*this, "Set shader parameter", _name, "to", value, value.colors[0], value.colors[1], value.colors[2]);
 			BindGuard guard(_program);
 			gl::Uniform3fv(_location, 1, &value.colors[0]);
+		}
+
+		void print(std::ostream& out) const ETC_NOEXCEPT
+		{
+			out << "<OpenGLShaderProgramParameter '" << _name << "'>";
 		}
 	};
 
