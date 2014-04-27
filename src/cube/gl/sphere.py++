@@ -1,5 +1,7 @@
 #include <wrappers/boost/python.hpp>
 
+#include "renderer/Renderer.hpp"
+
 #include "sphere.hpp"
 
 BOOST_PYTHON_MODULE(sphere)
@@ -13,6 +15,7 @@ BOOST_PYTHON_MODULE(sphere)
 		.def_readonly("center", &Sphere<__type>::center)                      \
 		.def_readonly("radius", &Sphere<__type>::radius)                      \
 		.def("__str__", &py::stringof<Sphere<__type>>)                        \
+		.def("drawable", &Sphere<__type>::drawable)                           \
 	/**/
 
 	EXPORT_SPHERE(float, f);

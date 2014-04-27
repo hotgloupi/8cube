@@ -1,8 +1,25 @@
 #include "sphere.hpp"
+#include "mesh.hpp"
+
+#include <cube/scene/Scene.hpp>
+
+#include <etc/to_string.hpp>
+#include <etc/log.hpp>
 
 #include <iostream>
 
 namespace cube { namespace gl { namespace sphere {
+
+	ETC_LOG_COMPONENT("cube.gl.sphere.Sphere");
+
+	template<typename T>
+	renderer::DrawablePtr Sphere<T>::drawable(renderer::Renderer& r) const
+	{
+		ETC_TRACE.debug(*this, "Creating drawable");
+		auto nff = etc::to_string("tess 2\ns 0 0 0", this->radius, "\n");
+		auto scene = scene::Scene::from_string(nff, "nff");
+		return scene->meshes()[0]->drawable(r);
+	}
 
 	template<typename T>
 	std::ostream& operator <<(std::ostream& out, Sphere<T> const& sphere)

@@ -2,6 +2,7 @@
 # define CUBE_GL_SPHERE_HPP
 
 # include "vector.hpp"
+# include "renderer/fwd.hpp"
 
 # include <cube/api.hpp>
 
@@ -22,6 +23,8 @@ namespace cube { namespace gl { namespace sphere {
 			: center(center)
 			, radius{radius}
 		{}
+
+		renderer::DrawablePtr drawable(renderer::Renderer& r) const;
 	};
 
 	typedef Sphere<float>    Spheref;
