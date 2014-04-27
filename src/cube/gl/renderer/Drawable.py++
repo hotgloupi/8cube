@@ -10,7 +10,7 @@ BOOST_PYTHON_MODULE(Drawable)
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
-	py::class_<Drawable, boost::noncopyable, std::auto_ptr<Drawable>>(
+	py::class_<Drawable, boost::noncopyable, DrawablePtr>(
 			"Drawable", py::no_init
 		)
 	;

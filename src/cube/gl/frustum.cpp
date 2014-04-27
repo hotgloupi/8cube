@@ -130,7 +130,7 @@ namespace cube { namespace gl { namespace frustum {
 	}
 
 	template<typename T>
-	std::unique_ptr<renderer::Drawable>
+	renderer::DrawablePtr
 	Frustum<T>::view(renderer::Renderer& renderer) const
 	{
 		return this->mesh().view(renderer);

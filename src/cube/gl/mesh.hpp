@@ -138,7 +138,7 @@ namespace cube { namespace gl { namespace mesh {
 		/**
 		 * @brief Drawable of the mesh.
 		 */
-		std::unique_ptr<renderer::Drawable>
+		renderer::DrawablePtr
 		view(renderer::Renderer& renderer) const;
 
 	protected:

@@ -7,12 +7,12 @@ BOOST_PYTHON_MODULE(Bindable)
 	namespace py = boost::python;
 	using namespace ::cube::gl::renderer;
 
-	py::class_<Bindable, boost::noncopyable, std::auto_ptr<Bindable>>(
+	py::class_<Bindable, boost::noncopyable, BindablePtr>(
 			"Bindable",
 			py::no_init
 		)
 		.add_property("bound", &Bindable::bound)
 	;
-	py::register_unique_ptr_converter<Bindable>();
+	//py::register_unique_ptr_converter<Bindable>();
 }
 

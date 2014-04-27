@@ -73,7 +73,7 @@ namespace cube { namespace gl { namespace frustum {
 		/**
 		 * @brief Drawable of the frustum.
 		 */
-		std::unique_ptr<renderer::Drawable>
+		renderer::DrawablePtr
 		view(renderer::Renderer& renderer) const;
 
 		/**

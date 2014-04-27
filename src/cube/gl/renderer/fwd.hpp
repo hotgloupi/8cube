@@ -42,8 +42,8 @@ namespace cube { namespace gl { namespace renderer {
 	typedef std::shared_ptr<Texture>                TexturePtr;
 	typedef std::shared_ptr<VertexBuffer>           VertexBufferPtr;
 	typedef std::shared_ptr<VertexBufferAttribute>  VertexBufferAttributePtr;
-	typedef std::unique_ptr<Bindable>               BindablePtr;
-	typedef std::unique_ptr<Drawable>               DrawablePtr;
+	typedef std::shared_ptr<Bindable>               BindablePtr;
+	typedef std::shared_ptr<Drawable>               DrawablePtr;
 	typedef std::unique_ptr<Renderer>               RendererPtr;
 	typedef std::unique_ptr<ShaderGeneratorProxy>   ShaderGeneratorProxyPtr;
 	typedef std::unique_ptr<ShaderGenerator>        ShaderGeneratorPtr;

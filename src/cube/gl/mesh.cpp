@@ -187,7 +187,7 @@ namespace cube { namespace gl { namespace mesh {
 
 	} // !anonymous
 
-	std::unique_ptr<renderer::Drawable>
+	renderer::DrawablePtr
 	Mesh::view(renderer::Renderer& renderer) const
 	{
 		ETC_TRACE.debug("Prepare mesh view of", *this);
@@ -254,7 +254,7 @@ namespace cube { namespace gl { namespace mesh {
 			);
 		}
 
-		return std::unique_ptr<renderer::Drawable>{
+		return renderer::DrawablePtr{
 			new View{std::move(vb), std::move(ibs)}
 		};
 	}
