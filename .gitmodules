@@ -13,3 +13,6 @@
 [submodule "deps/cldoc"]
 	path = deps/cldoc
 	url = https://github.com/jessevdk/cldoc.git
+[submodule "share/games/darkling"]
+	path = share/games/darkling
+	url = git@github.com:hotgloupi/darkling
