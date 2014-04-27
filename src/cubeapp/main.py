@@ -168,7 +168,7 @@ def main(args):
             _main(parser, args)
     except KeyboardInterrupt:
         return
-    except Exception as e:
+    except BaseException as e:
         if isinstance(e, cube.Exception):
             bt = e.backtrace[2:]
             index = -1
@@ -184,14 +184,14 @@ def main(args):
             bt = None
 
         cube.log.error("Python traceback: (most recent call last)")
-        cube.log.error('\n'.join(traceback.format_tb(e.__traceback__)))
+        cube.log.error('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
         if bt is not None:
             cube.log.error("c++ traceback: (most recent call last)")
             s = ''
             for i, frame in enumerate(bt):
                 s += '  %i: %s' % (i + 1, frame)
             cube.log.error(s)
-        cube.log.fatal(str(e))
+        cube.log.fatal('\n'.join(traceback.format_exception_only(type(e), e)))
         sys.exit(1)
     gc.collect()
 
