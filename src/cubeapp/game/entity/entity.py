@@ -12,8 +12,14 @@ class Entity:
 
     components = []
 
+    # Set when added to a manager
+    manager = None
+
     def __init__(self, *components, name = None):
         if name is None:
             name = self.__class__.__name__.lower()
         self.name = name
         self.components = list(self.components) + list(components)
+
+    def component(self, name):
+        return self.manager.entity_component(self, name)

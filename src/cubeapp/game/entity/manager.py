@@ -30,10 +30,16 @@ class Manager:
     def add(self, entity_or_cls, *additional_components, **components_args):
         """Add an entity.
         """
-        if issubclass(entity_or_cls, Entity):
-            entity = entity_or_cls()
-        elif isinstance(entity_or_cls, Entity):
+        if isinstance(entity_or_cls, Entity):
             entity = entity_or_cls
+        elif isinstance(entity_or_cls, str):
+            entity = type(entity_or_cls.capitalize(), (Entity,), {})()
+        elif isinstance(entity_or_cls, type) and issubclass(entity_or_cls, Entity):
+            entity = entity_or_cls()
+        else:
+            raise Exception("entity must be a string, a subclass or an instance"
+                            " of Entity, got '%s'" % entity_or_cls)
+        entity.manager = self
         entity.components = list(entity.components) + list(additional_components)
         self.__add_instance(entity, components_args)
         return entity
