@@ -56,26 +56,26 @@ class View(Component):
 
     __slots__ = ('parent_node', 'nodes')
 
-    __content_node_types = {
-        cube.gl.Material: cube.scene.ContentNodeMaterial,
-        cube.gl.Mesh: cube.scene.ContentNodeMesh,
-    }
-
     def init(self, contents = []):
         if self.nodes is not None:
             raise Exception("Node reuse not supported yet")
-        self.nodes = []
+        self.nodes = {}
         if self.parent_node is None:
             self.parent_node = self.manager.scene.graph.root
         prev_node = self.parent_node
         for content in contents:
-            node_type = self.__content_node_types[type(content)]
+            if isinstance(content, cube.gl.Material):
+                node_type = cube.scene.ContentNodeBindable
+                node_value = content.bindable(self.manager.renderer)
+            elif isinstance(content, cube.gl.Mesh):
+                node_type = cube.scene.ContentNodeDrawable
+                node_value = content.view(self.manager.renderer)
             prev_node = prev_node.emplace_child(
                 node_type,
                 self.entity.name + '-' + node_type.__name__.lower(),
-                content,
+                node_value,
             )
-            self.nodes.append(prev_node)
+            self.nodes[prev_node] = content
 
 class Transform(Component):
     name = 'transform'
