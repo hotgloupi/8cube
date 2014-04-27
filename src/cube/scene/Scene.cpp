@@ -5,6 +5,7 @@
 #include "Node.hpp"
 #include "Transform.hpp"
 #include "detail/assimp.hpp"
+#include "visit/depth_first_search.hpp"
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
@@ -405,13 +406,14 @@ namespace cube { namespace scene {
 
 	namespace {
 
-		struct DirectDrawVisitor
+		struct DirectDraw
 			: public MultipleNodeVisitor<
 			    Transform
 			  , ContentNode<gl::renderer::BindablePtr>
 			  , ContentNode<gl::renderer::DrawablePtr>
 			>
 		{
+			ETC_LOG_COMPONENT("cube.scene.Scene");
 			typedef MultipleNodeVisitor<
 			    Transform
 			  , ContentNode<gl::renderer::BindablePtr>
@@ -420,42 +422,78 @@ namespace cube { namespace scene {
 
 			gl::renderer::Painter& _painter;
 			std::shared_ptr<gl::renderer::State> _state;
-			etc::stack_ptr<gl::renderer::Painter::Proxy<1>> _proxy;
+			std::vector<gl::renderer::Painter::Proxy<1>> _proxies;
+			bool enter;
 
-			DirectDrawVisitor(gl::renderer::Painter& painter)
+			DirectDraw(gl::renderer::Painter& painter)
 				: _painter(painter)
 				, _state{}
-				, _proxy(etc::stack_ptr_no_init)
+				, _proxies{}
+				, enter{true}
 			{}
 
 			bool visit(Transform& node) override
 			{
-				_state = _painter.state().lock();
-				_state->model(node.value());
+				if (this->enter)
+				{
+					ETC_TRACE.debug("Push transform node", node);
+					_painter.push_state().lock()->model(node.value());
+				}
+				else
+				{
+					ETC_TRACE.debug("Pop transform node", node);
+					_painter.pop_state();
+				}
 				return true;
 			}
 
 			bool visit(ContentNode<gl::renderer::DrawablePtr>& node) override
 			{
-				_painter.draw(node.value());
+				if (this->enter)
+				{
+					ETC_TRACE.debug("Draw node", node);
+					_painter.draw(node.value());
+				}
 				return true;
 			}
 
 			bool visit(ContentNode<gl::renderer::BindablePtr>& node) override
 			{
-				_proxy.reset(_painter.with(*node.value()));
+				if (this->enter)
+				{
+					ETC_TRACE.debug("Bind node", node);
+					_proxies.emplace_back(_painter.with(*node.value()));
+				}
+				else
+				{
+					ETC_TRACE.debug("Unbind node", node);
+					_proxies.pop_back();
+				}
 				return true;
 			}
 
 			using super_type::visit;
 		};
 
+		struct DFSVisitor
+			: public visit::DefaultDepthFirstVisitor
+		{
+			DirectDraw draw;
+			DFSVisitor(gl::renderer::Painter& painter)
+				: draw{painter}
+			{}
+
+			void discover_vertex(Node& n)
+			{ draw.enter = true; draw.visit(n); }
+			void finish_vertex(Node& n)
+			{ draw.enter = false; draw.visit(n); }
+		};
 	} // !anonymous
 
 	void Scene::_draw(gl::renderer::Painter& painter)
 	{
-		DirectDrawVisitor v(painter);
-		this->graph().breadth_first_search(v);
+		DFSVisitor v{painter};
+		visit::depth_first_search(this->graph(), v);
 	}
 
 }}
