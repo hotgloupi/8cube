@@ -188,7 +188,7 @@ namespace cube { namespace gl { namespace mesh {
 	} // !anonymous
 
 	renderer::DrawablePtr
-	Mesh::view(renderer::Renderer& renderer) const
+	Mesh::drawable(renderer::Renderer& renderer) const
 	{
 		ETC_TRACE.debug("Prepare mesh view of", *this);
 		if (_this->vertice.data.empty())

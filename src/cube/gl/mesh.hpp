@@ -139,7 +139,7 @@ namespace cube { namespace gl { namespace mesh {
 		 * @brief Drawable of the mesh.
 		 */
 		renderer::DrawablePtr
-		view(renderer::Renderer& renderer) const;
+		drawable(renderer::Renderer& renderer) const;
 
 	protected:
 		template<typename T>

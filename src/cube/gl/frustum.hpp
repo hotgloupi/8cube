@@ -74,7 +74,7 @@ namespace cube { namespace gl { namespace frustum {
 		 * @brief Drawable of the frustum.
 		 */
 		renderer::DrawablePtr
-		view(renderer::Renderer& renderer) const;
+		drawable(renderer::Renderer& renderer) const;
 
 		/**
 		 * @brief Check whether or not a point is in the frustum.

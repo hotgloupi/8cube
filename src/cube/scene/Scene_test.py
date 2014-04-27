@@ -34,7 +34,7 @@ class _(PainterSetup, Case):
             45, 200 / 200, 0.005, 30.0
         )
         with painter.bind([mat.bindable(self.renderer)]):
-            painter.draw([mesh.view(self.renderer)])
+            painter.draw([mesh.drawable(self.renderer)])
 
     @painter_test(gl.mode_3d)
     def test_sphere_light(self, painter):
@@ -66,4 +66,4 @@ class _(PainterSetup, Case):
             )
         )
         with painter.bind([light, mat.bindable(self.renderer)]):
-            painter.draw([mesh.view(self.renderer)])
+            painter.draw([mesh.drawable(self.renderer)])

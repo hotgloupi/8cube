@@ -131,9 +131,9 @@ namespace cube { namespace gl { namespace frustum {
 
 	template<typename T>
 	renderer::DrawablePtr
-	Frustum<T>::view(renderer::Renderer& renderer) const
+	Frustum<T>::drawable(renderer::Renderer& renderer) const
 	{
-		return this->mesh().view(renderer);
+		return this->mesh().drawable(renderer);
 	}
 
 	template struct Frustum<float>;

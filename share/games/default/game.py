@@ -52,7 +52,7 @@ class ModelView:
         mat.diffuse = diffuse
         mat.specular = specular
         mat.shininess = shininess
-        self.mesh_view = mesh.view(renderer)
+        self.mesh_view = mesh.drawable(renderer)
         self.mat_view = mat.bindable(renderer)
         self.pos = gl.vec3f(pos)
         self.dir = gl.vec3f(dir)

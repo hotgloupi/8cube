@@ -47,7 +47,7 @@ class _(PainterSetup, Case):
         m.append(gl.Color3f("green"))
         m.append(gl.Color3f("gray"))
 
-        view = m.view(self.renderer)
+        view = m.drawable(self.renderer)
 
         with painter.bind([self.shader]):
             self.shader['cube_MVP'] = painter.state.mvp

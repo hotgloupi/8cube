@@ -102,7 +102,7 @@ class _(PainterSetup, Case):
         painter.state.translate(100, 100, 0)
         painter.state.scale(100, 100, 0)
         painter.state.rotate(angle.deg(20), gl.vec3f(1, 1, 0))
-        cube_view = self.cube.view(self.renderer)
+        cube_view = self.cube.drawable(self.renderer)
         with painter.bind([material.bindable(self.renderer)]):
             painter.draw([cube_view])
 
@@ -113,7 +113,7 @@ class _(PainterSetup, Case):
             gl.ShaderParameterType.vec3,
             StackOperation.add
         )
-        cube_view = self.cube.view(self.renderer)
+        cube_view = self.cube.drawable(self.renderer)
         painter.state.look_at(
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )

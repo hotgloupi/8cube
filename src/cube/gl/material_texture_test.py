@@ -90,7 +90,7 @@ class _(PainterSetup, Case):
             gl.TextureMapMode.wrap,
             gl.BlendMode.basic
         )
-        cube_view = self.cube.view(self.renderer)
+        cube_view = self.cube.drawable(self.renderer)
         painter.state.look_at(
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
@@ -123,7 +123,7 @@ class _(PainterSetup, Case):
             gl.TextureMapMode.wrap,
             gl.BlendMode.basic
         )
-        cube_view = self.cube.view(self.renderer)
+        cube_view = self.cube.drawable(self.renderer)
         painter.state.look_at(
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
