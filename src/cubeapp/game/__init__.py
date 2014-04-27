@@ -2,9 +2,10 @@
 
 from . import event
 from . import input
+from . import entity
 from .controller import Controller
 
-from cube import gl, log
+from cube import gl, log, gui, scene
 
 def load(games_path, name, window):
     """Create a Game instance by loading a game called `name` in `games_path`.
@@ -33,7 +34,12 @@ class Game():
         * input_translator: Exposes bindings as event channels.
     """
 
-    def __init__(self, window, bindings = {}, world = None, view = None):
+    def __init__(self,
+                 window,
+                 bindings = {},
+                 scene = scene.Scene(),
+                 view = gui.widgets.Viewport(),
+                 event_manager = event.Manager()):
         """Construct a game instance.
 
         # Positional parameters
@@ -41,7 +47,7 @@ class Game():
 
         # Optional parameters
             * bindings: Bindings map (see cubeapp.game.input.Translator).
-            * world: An instance of cubeapp.world.World.
+            * scene: An instance of cube.scene.Scene.
             * view: An instance of cube.gui.View.
 
         # Bindings description
@@ -50,9 +56,14 @@ class Game():
         """
         self.window = window
         self.renderer = window.renderer
-        self.world = world
+        self.scene = scene
         self.view = view
-        self.event_manager = event.Manager()
+        self.event_manager = event_manager
+        self.entity_manager = entity.Manager(
+            renderer = self.renderer,
+            event_manager = self.event_manager,
+            scene = self.scene,
+        )
         self.input_translator = input.Translator(window, bindings)
         self.projection_matrix = gl.matrix.perspective(
             45, 1, 0.005, 300.0
@@ -76,9 +87,6 @@ class Game():
         """
         self.input_translator.poll()
         self.event_manager.poll(delta)
-        if self.world is not None:
-            self.world.update(delta, self.player, self.projection_matrix)
 
     def _on_quit(self):
-        if self.world is not None:
-            self.world.stop()
+        pass
