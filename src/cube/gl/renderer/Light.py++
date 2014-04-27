@@ -80,4 +80,5 @@ BOOST_PYTHON_MODULE(Light)
 		.ADD_PROPERTY(spot)
 		.ADD_PROPERTY(custom)
 	;
+	py::implicitly_convertible<LightPtr, BindablePtr>();
 }
