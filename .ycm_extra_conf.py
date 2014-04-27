@@ -16,7 +16,8 @@ include_dirs = [
     'src',
     'src/glew',
     'deps/SDL/include',
-    'deps/boost',
+    'deps/Boost_1_55_0',
+    'build/dependencies/Python34/gcc/release/no-pymalloc/install/include/python3.4',
     'deps/freetype2/include',
     'build/dependencies/SDL/install/include/SDL2',
     'build/dependencies/SDL_image/install/include/SDL2',
@@ -26,7 +27,7 @@ include_dirs = [
 
 if sys.platform.startswith('win32'):
     include_dirs.extend([
-        'c:/Python33/Include',
+        'c:/Python34/Include',
         "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\lib\\gcc\\i686-w64-mingw32\\4.8.1\\include\\c++\\i686-w64-mingw32",
         "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\lib\\gcc\\i686-w64-mingw32\\4.8.1\\include\\c++",
         "c:\\mingw\\x32-4.8.1-posix-dwarf-rev5\\mingw32\\lib\\gcc\\i686-w64-mingw32\\4.8.1\\include",
