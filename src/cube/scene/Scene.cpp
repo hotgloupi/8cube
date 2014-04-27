@@ -10,10 +10,13 @@
 #include <etc/log.hpp>
 #include <etc/memory.hpp>
 #include <etc/scope_exit.hpp>
+#include <etc/stack_ptr.hpp>
 
 #include <cube/exception.hpp>
 #include <cube/gl/mesh.hpp>
 #include <cube/gl/material.hpp>
+#include <cube/gl/renderer/Painter.hpp>
+#include <cube/gl/renderer/State.hpp>
 
 #include <boost/thread/tss.hpp>
 
@@ -399,6 +402,61 @@ namespace cube { namespace scene {
 
 	Scene::MaterialList const& Scene::materials() const ETC_NOEXCEPT
 	{ return _this->materials; }
+
+	namespace {
+
+		struct DirectDrawVisitor
+			: public MultipleNodeVisitor<
+			    Transform
+			  , ContentNode<gl::renderer::BindablePtr>
+			  , ContentNode<gl::renderer::DrawablePtr>
+			>
+		{
+			typedef MultipleNodeVisitor<
+			    Transform
+			  , ContentNode<gl::renderer::BindablePtr>
+			  , ContentNode<gl::renderer::DrawablePtr>
+			> super_type;
+
+			gl::renderer::Painter& _painter;
+			std::shared_ptr<gl::renderer::State> _state;
+			etc::stack_ptr<gl::renderer::Painter::Proxy<1>> _proxy;
+
+			DirectDrawVisitor(gl::renderer::Painter& painter)
+				: _painter(painter)
+				, _state{}
+				, _proxy(etc::stack_ptr_no_init)
+			{}
+
+			bool visit(Transform& node) override
+			{
+				_state = _painter.state().lock();
+				_state->model(node.value());
+				return true;
+			}
+
+			bool visit(ContentNode<gl::renderer::DrawablePtr>& node) override
+			{
+				_painter.draw(node.value());
+				return true;
+			}
+
+			bool visit(ContentNode<gl::renderer::BindablePtr>& node) override
+			{
+				_proxy.reset(_painter.with(*node.value()));
+				return true;
+			}
+
+			using super_type::visit;
+		};
+
+	} // !anonymous
+
+	void Scene::_draw(gl::renderer::Painter& painter)
+	{
+		DirectDrawVisitor v(painter);
+		this->graph().breadth_first_search(v);
+	}
 
 }}
 

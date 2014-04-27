@@ -5,6 +5,7 @@
 
 # include <cube/api.hpp>
 # include <cube/gl/fwd.hpp>
+# include <cube/gl/renderer/Drawable.hpp>
 
 # include <vector>
 # include <string>
@@ -15,6 +16,7 @@ namespace cube { namespace scene {
 	 * Stores meshes and materials relative to a scene.
 	 */
 	class CUBE_API Scene
+		: public gl::renderer::Drawable
 	{
 	private:
 		struct Impl;
@@ -55,6 +57,9 @@ namespace cube { namespace scene {
 	public:
 		typedef std::vector<gl::material::MaterialPtr> MaterialList;
 		MaterialList const& materials() const ETC_NOEXCEPT;
+
+	public:
+		void _draw(gl::renderer::Painter& painter) override;
 	};
 
 }}
