@@ -34,19 +34,6 @@ cube               // Name of the object.
 """
 NFF_SPHERE = "tess 2\ns 0 0 0 1\n"
 
-class Entity:
-    def __init__(self, *components):
-        self.components = list(components)
-
-
-
-
-class Ball(Entity):
-    def __init__(self, scheduler, renderer):
-        super().__init__(
-        )
-
-
 class ModelView:
     def __init__(self, nff_source, renderer,
                  ambient = gl.Color3f("pink"),
