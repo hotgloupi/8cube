@@ -92,7 +92,7 @@ class Pad(ModelView):
         if self.pos.y < min_y:
             self.pos.y = min_y
 
-from cubeapp.game import Controller
+from cubeapp.game.entity import Controller
 from cubeapp.game.event import Channel, Event
 
 class PadController(Controller):
@@ -102,15 +102,15 @@ class PadController(Controller):
         self.move_down = Channel(pad.name + '_move_down', dir = -1)
         self.stop = Channel(pad.name + '_stop')
         super().__init__(
-            target = pad,
-            channels = [self.move_up, self.move_down, self.stop],
+            pad,
+            self.move_up, self.move_down, self.stop,
         )
 
     def fire(self, ev, delta):
         if ev.channel == self.stop:
-            self.target.dir.y = 0
+            self.entity.dir.y = 0
         else:
-            self.target.dir.y = ev.channel.dir * 17
+            self.entity.dir.y = ev.channel.dir * 17
 
 class Ball(ModelView):
 
