@@ -4,6 +4,8 @@
 # include "fwd.hpp"
 # include "renderer/constants.hpp"
 
+# include <cube/resource/Resource.hpp>
+
 # include <etc/types.hpp>
 
 # include <memory>
@@ -15,6 +17,7 @@ namespace cube { namespace gl { namespace surface {
 	using renderer::ContentPacking;
 
 	class CUBE_API Surface
+		: public resource::Resource
 	{
 	private:
 		struct Impl;
