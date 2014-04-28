@@ -4,13 +4,14 @@ from .component import Component
 
 class Manager:
 
-    def __init__(self, scene = None, renderer = None, event_manager = None):
+    def __init__(self, scene = None, renderer = None, event_manager = None, inputs = None):
         self.__entities = {}
         self.__components = {}
         self.__scene = scene
         self.__event_manager = event_manager
         self.__registered_component_types = {}
         self.__renderer = renderer
+        self.__inputs = inputs
 
     @property
     def scene(self): return self.__scene
@@ -20,6 +21,9 @@ class Manager:
 
     @property
     def renderer(self): return self.__renderer
+
+    @property
+    def inputs(self): return self.__inputs
 
     def entity_components(self, entity):
         return self.__entities[entity]

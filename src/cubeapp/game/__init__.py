@@ -69,12 +69,13 @@ class Game():
         self.scene = scene
         self.view = view
         self.event_manager = event_manager
+        self.input_translator = input.Translator(window, bindings)
         self.entity_manager = entity.Manager(
             renderer = self.renderer,
             event_manager = self.event_manager,
             scene = self.scene,
+            inputs = self.input_translator,
         )
-        self.input_translator = input.Translator(window, bindings)
         self.projection_matrix = gl.matrix.perspective(
             45, 1, 0.005, 300.0
         )
