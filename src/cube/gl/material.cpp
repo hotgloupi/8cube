@@ -53,9 +53,8 @@ namespace cube { namespace gl { namespace material {
 					{
 						if (ch.path.empty())
 							throw Exception{"Empty texture path"};
-						ch.texture = renderer.new_texture(
-						    surface::Surface(ch.path)
-						);
+						auto s = renderer.resource_manager().load<surface::Surface>(ch.path);
+						ch.texture = renderer.new_texture(*s);
 					}
 				}
 			}
