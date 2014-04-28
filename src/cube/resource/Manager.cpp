@@ -4,6 +4,9 @@
 
 #include <etc/log.hpp>
 #include <etc/path.hpp>
+#include <etc/assert.hpp>
+
+#include <boost/bimap.hpp>
 
 #include <atomic>
 #include <algorithm>
@@ -16,6 +19,7 @@ namespace cube { namespace resource {
 	ETC_LOG_COMPONENT("cube.resource.Manager");
 
 	using cube::exception::Exception;
+	namespace fs = boost::filesystem;
 
 	namespace {
 
@@ -36,7 +40,8 @@ namespace cube { namespace resource {
 			std::map<id_type, std::shared_ptr<Resource>>
 			ResourceMap;
 
-		std::vector<std::string> paths;
+		boost::bimap<boost::filesystem::path, id_type> by_path;
+		std::vector<boost::filesystem::path> paths;
 		ResourceMap resources;
 
 		Impl()
@@ -59,15 +64,77 @@ namespace cube { namespace resource {
 	}
 
 	Manager&
-	Manager::add_path(std::string const& path)
+	Manager::add_path(path_type path)
 	{
-		std::string abs =  etc::path::absolute(path);
-		if (!etc::path::exists(abs))
-			throw Exception{"The path '" + path + "' does not exists"};
-		if (!etc::path::is_directory(abs))
-			throw Exception{"The path '" + path + "' does not refer to a valid directory"};
-		_this->paths.push_back(abs);
+		ETC_TRACE.debug(*this, "Add directory", path);
+		if (!path.is_absolute())
+		{
+			path = fs::absolute(std::move(path));
+			ETC_LOG.debug(*this, "Use absolute version", path);
+		}
+		if (!fs::exists(path))
+			throw Exception{"The path '" + path.string() + "' does not exists"};
+		if (!fs::is_directory(path))
+			throw Exception{"The path '" + path.string() + "' does not refer to a valid directory"};
+		_this->paths.emplace_back(std::move(path));
 		return *this;
+	}
+
+	Manager::path_type Manager::find(path_type path)
+	{
+		ETC_TRACE.debug("Searching for resource file at", path);
+		if (!path.is_absolute())
+		{
+			for (auto& dir: _this->paths)
+			{
+				ETC_LOG.debug("Trying resources directory", dir);
+				auto p = dir / path;
+				if (fs::is_regular_file(p))
+				{
+					ETC_LOG.debug("Found resource at", p);
+					return p;
+				}
+			}
+			throw Exception{
+				"Couldn't find any file at '" + path.string() + "'"
+			};
+		}
+		if (fs::is_regular_file(path))
+		{
+			ETC_LOG.debug("Return absolute path", path);
+			return path;
+		}
+		throw Exception{"The path '" + path.string() + "' does not refer to a resource file"};
+	}
+
+	bool Manager::loaded(path_type const& path)
+	{
+		return _this->by_path.left.find(this->find(path)) != _this->by_path.left.end();
+	}
+
+	Resource* Manager::_loaded_resource(path_type const& path)
+	{
+		auto p = this->find(path);
+		auto it = _this->by_path.left.find(p);
+		if (it == _this->by_path.left.end())
+			return nullptr;
+		return _this->resources[it->second].get();
+	}
+
+	void Manager::set_loaded(Resource& resource, path_type path)
+	{
+		if (resource._manager != this)
+			throw Exception{"This resource is already managed by another manager"};
+		if (!resource.managed())
+			throw Exception{"The resource is not managed"};
+		_this->by_path.insert({std::move(path), resource.id()});
+	}
+
+	void Manager::_set_loaded(id_type id, path_type p)
+	{
+		ETC_ASSERT_NEQ(_this->resources.find(id), _this->resources.end());
+		ETC_ASSERT(p.is_absolute());
+		_this->by_path.insert({std::move(p), id});
 	}
 
 	ResourcePtr
@@ -98,6 +165,7 @@ namespace cube { namespace resource {
 		if (it == _this->resources.end())
 			throw Exception{"The resource is not managed by this manager"};
 		_this->resources.erase(it);
+		_this->by_path.right.erase(resource.id());
 		resource.manage();
 	}
 
@@ -110,7 +178,10 @@ namespace cube { namespace resource {
 		ETC_LOG.debug("Flushing resources (remove",
 		              to_remove.size(), "/", _this->resources.size(), ")");
 		for (id_type id: to_remove)
+		{
+			_this->by_path.right.erase(id);
 			_this->resources.erase(id);
+		}
 	}
 
 }}

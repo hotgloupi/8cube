@@ -6,12 +6,16 @@
 
 # include <cube/api.hpp>
 
+# include <wrappers/boost/filesystem.hpp>
+
 # include <string>
 
 namespace cube { namespace resource {
 
 	class CUBE_API Manager
 	{
+	public:
+		typedef boost::filesystem::path path_type;
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> _this;
@@ -20,7 +24,7 @@ namespace cube { namespace resource {
 		Manager();
 		~Manager();
 
-		Manager& add_path(std::string const& path);
+		Manager& add_path(path_type path);
 
 	public:
 		template<typename Kind, typename... Args>
@@ -31,6 +35,27 @@ namespace cube { namespace resource {
 			this->manage(*ptr);
 			return std::move(ptr);
 		}
+
+		template<typename Kind>
+		std::shared_ptr<Kind>
+		load(path_type const& path)
+		{
+			auto p = this->find(path);
+			if (Resource* ptr = _loaded_resource(path))
+				return ptr->ptr();
+			std::shared_ptr<Kind> ptr = this->create<Kind>(p);
+			_set_loaded(ptr->id(), p);
+			return ptr;
+		}
+
+		bool loaded(path_type const& path);
+
+		path_type find(path_type path);
+
+		void set_loaded(Resource& resource, path_type path);
+	private:
+		Resource* _loaded_resource(path_type const& p);
+		void _set_loaded(id_type id, path_type p);
 
 	public:
 		/**
