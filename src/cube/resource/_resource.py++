@@ -64,11 +64,7 @@ namespace {
 			Py_DECREF(result_ptr);
 
 			try
-			{
-				self.manage(
-					static_cast<Resource&>(py::extract<Resource&>(result))
-				);
-			}
+			{ self.manage(py::extract<Resource&>(result)()); }
 			catch (py::error_already_set const&)
 			{
 				PyErr_SetString(
@@ -80,12 +76,22 @@ namespace {
 			}
 			return result;
 		}
+		static
+		py::object load(Manager& self, py::object cls, std::string path)
+		{
+			auto obj =  create(self, cls, py::make_tuple(path), py::dict());
+			self.set_loaded(py::extract<Resource&>(obj)(), path);
+			return obj;
+		}
 
 		static
 		std::shared_ptr<Resource> manage(Manager& self, Resource& r)
 		{
 			return self.manage(r);
 		}
+
+		static void add_path(Manager& self, std::string const& p)
+		{ self.add_path(p); }
 	};
 
 }
@@ -116,6 +122,8 @@ BOOST_PYTHON_MODULE(_resource)
 	)
 		.def("manage", &WrapManager::manage, py::with_custodian_and_ward<2, 1>())
 		.def("forget", &Manager::forget)
+		.def("add_path", &WrapManager::add_path)
+		.def("load", &WrapManager::load)
 		.def(
 			"create",
 			&WrapManager::create,
