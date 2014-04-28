@@ -293,6 +293,9 @@ namespace cube { namespace gl { namespace material {
 		};
 	}
 
+	void Material::print(std::ostream& out) const ETC_NOEXCEPT
+	{ out << "<Material " << this->_name << ">"; }
+
 	namespace {
 
 		ETC_TEST_CASE(material_default_values)

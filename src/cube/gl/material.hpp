@@ -8,6 +8,7 @@
 # include <cube/resource/Resource.hpp>
 
 # include <etc/compiler.hpp>
+# include <etc/printable.hpp>
 
 # include <string>
 # include <vector>
@@ -70,6 +71,7 @@ namespace cube { namespace gl { namespace material {
 
 	class Material
 		: public resource::Resource
+		, public etc::Printable
 	{
 	public:
 		typedef color::Color3f color_type;
@@ -241,6 +243,9 @@ namespace cube { namespace gl { namespace material {
 	public:
 		renderer::BindablePtr
 		bindable(renderer::Renderer& renderer);
+
+	public:
+		void print(std::ostream& out) const ETC_NOEXCEPT;
 	};
 
 }}}
