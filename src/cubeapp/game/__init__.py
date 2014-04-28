@@ -1,11 +1,12 @@
 # -*- encoding: utf-8 -*-
 
+import os
+
+from cube import gl, log, gui, scene
+
 from . import event
 from . import input
 from . import entity
-from .controller import Controller
-
-from cube import gl, log, gui, scene
 
 def load(games_path, name, window):
     """Create a Game instance by loading a game called `name` in `games_path`.
@@ -20,7 +21,11 @@ def load(games_path, name, window):
         game_module = __import__(name + '.game', fromlist=['game'])
     finally:
         sys.path = old_python_path
-    return game_module.Game(window)
+
+    return game_module.Game(
+        window,
+        directory = os.path.join(games_path, name)
+    )
 
 class Game():
     """Base class for every games.
@@ -36,6 +41,7 @@ class Game():
 
     def __init__(self,
                  window,
+                 directory,
                  bindings = {},
                  scene = scene.Scene(),
                  view = gui.widgets.Viewport(),
@@ -56,6 +62,10 @@ class Game():
         """
         self.window = window
         self.renderer = window.renderer
+        self.resource_manager = self.renderer.resource_manager
+        resources_dir = os.path.join(directory, 'resources')
+        if os.path.isdir(resources_dir):
+            self.resource_manager.add_path(resources_dir)
         self.scene = scene
         self.view = view
         self.event_manager = event_manager
