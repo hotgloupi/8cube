@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 
-from .event import Event
+from cubeapp.game.event import Event
 from .controller import Controller, ChannelError
 
 from cube.test import Case
@@ -11,7 +11,7 @@ class _(Case):
         class Target: pass
         target = Target()
         c = Controller(target)
-        self.assertIs(c.target, target)
+        self.assertIs(c.entity, target)
 
     def test_operator_call(self):
         class ControllerTest(Controller):
