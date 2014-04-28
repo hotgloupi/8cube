@@ -8,6 +8,8 @@
 
 # include <etc/types.hpp>
 
+# include <wrappers/boost/filesystem.hpp>
+
 # include <memory>
 # include <string>
 
@@ -27,7 +29,7 @@ namespace cube { namespace gl { namespace surface {
 		/**
 		 * @brief   Create a surface from a file.
 		 */
-		Surface(std::string const& path);
+		Surface(boost::filesystem::path const& path);
 
 		/**
 		 * @brief   Create a surface from raw data.

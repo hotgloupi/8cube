@@ -26,13 +26,20 @@ namespace cube { namespace gl { namespace surface {
 		}
 	};
 
-	Surface::Surface(std::string const& path)
+	Surface::Surface(boost::filesystem::path const& path)
 		: _this{new Impl}
 	{
 		ETC_TRACE_CTOR("from", path);
-		_this->surface = ::IMG_Load(path.c_str());
+		_this->surface = ::IMG_Load(path.string().c_str());
+
 		if (_this->surface == nullptr)
-			throw Exception{"Couldn't load image '" + path + "'"};
+		{
+			char const* err = IMG_GetError();
+			throw Exception{
+				"Couldn't load image '" + path.string() + "': " +
+				(err != nullptr ? err : "Unknown reason")
+			};
+		}
 	}
 	Surface::Surface(PixelFormat const format,
 	                 unsigned int width,
