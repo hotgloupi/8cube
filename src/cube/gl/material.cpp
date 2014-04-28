@@ -8,12 +8,15 @@
 #include <cube/gl/renderer/Light.hpp>
 #include <cube/gl/renderer.hpp>
 #include <cube/gl/surface.hpp>
+#include <cube/resource/Manager.hpp>
 #include <cube/system/window.hpp>
 
-#include <etc/stack_ptr.hpp>
 #include <etc/test.hpp>
+#include <etc/log.hpp>
 
 namespace cube { namespace gl { namespace material {
+
+	ETC_LOG_COMPONENT("cube.gl.material.Material");
 
 	using cube::gl::exception::Exception;
 
@@ -22,13 +25,15 @@ namespace cube { namespace gl { namespace material {
 		, _shininess{0.0f}
 		, _opacity{1.0f}
 		, _shading_model{ShadingModel::none}
-	{}
+	{ ETC_TRACE_CTOR(name); }
 
 	namespace {
 
 		struct Bindable
 			: public renderer::Bindable
 		{
+			ETC_LOG_COMPONENT("cube.gl.material.Bindable");
+
 			MaterialPtr _material;
 			renderer::ShaderProgramPtr _shader_program;
 			std::vector<Guard> _guards;
@@ -40,6 +45,7 @@ namespace cube { namespace gl { namespace material {
 				, _shader_program{std::move(shader_program)}
 				, _guards{}
 			{
+				ETC_TRACE_CTOR();
 				_guards.reserve(1 + _material->textures().size());
 				for (Material::TextureChannel& ch: _material->textures())
 				{
@@ -53,9 +59,12 @@ namespace cube { namespace gl { namespace material {
 					}
 				}
 			}
+			~Bindable()
+			{ ETC_TRACE_DTOR(); }
 
 			void _bind() override
 			{
+				ETC_TRACE.debug("Binding", *_material);
 				auto& shader = *_shader_program;
 				_guards.emplace_back(shader, this->shared_state());
 				shader["cube_MVP"] = this->bound_state().mvp();
@@ -77,6 +86,10 @@ namespace cube { namespace gl { namespace material {
 						if (light.kind == renderer::LightKind::point)
 						{
 							auto const& info = light.point();
+							ETC_TRACE.debug("Update point light", point_light_idx, "with",
+							                "position =", info.position,
+							                "diffuse = ", info.diffuse,
+							                "specular = ", info.specular);
 							shader["cube_PointLightPosition"][point_light_idx] = info.position;
 							shader["cube_PointLightDiffuse"][point_light_idx] =
 								info.diffuse;
@@ -84,6 +97,8 @@ namespace cube { namespace gl { namespace material {
 								info.specular;
 							point_light_idx += 1;
 						}
+						else
+							throw Exception{"Light kind '" + etc::to_string(light.kind) + "' not implemented"};
 					}
 					shader["cube_PointLightCount"] = point_light_idx;
 				}
