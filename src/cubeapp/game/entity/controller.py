@@ -1,5 +1,5 @@
 # -*- encoding: utf8 -*-
-from .event import Channel
+from cubeapp.game.event import Channel
 
 class ChannelError(Exception):
     def __init__(self, channel):
@@ -9,16 +9,34 @@ class ChannelError(Exception):
 
 class Controller:
 
-    def __init__(self, target, channels = None):
-        assert target is not None
-        self.__target = target
-        if channels is None:
-            channels = tuple()
+    def __init__(self, entity, *channels):
+        assert entity is not None
+        self.__entity = entity
         self.__channels = tuple(Channel(c) for c in channels)
 
     @property
-    def target(self):
-        return self.__target
+    def entity(self):
+        return self.__entity
+
+    @property
+    def entity_manager(self):
+        return self.__entity.manager
+
+    @property
+    def event_manager(self):
+        return self.__entity.manager.event_manager
+
+    @property
+    def inputs(self):
+        return self.__entity.manager.inputs
+
+    @property
+    def scene(self):
+        return self.__entity.manager.scene
+
+    @property
+    def renderer(self):
+        return self.__entity.manager.renderer
 
     @property
     def channels(self):
