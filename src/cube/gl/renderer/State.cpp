@@ -252,6 +252,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void State::enable(Light const& light)
 	{
+		ETC_TRACE.debug(*this, "Enable", light);
 		ETC_CONTRACT_CLASS_INVARIANT();
 		if (!light.bound())
 			throw Exception{"Cannot enable an unbound light"};
@@ -264,6 +265,7 @@ namespace cube { namespace gl { namespace renderer {
 
 	void State::disable(Light const& light)
 	{
+		ETC_TRACE.debug(*this, "Disable", light);
 		ETC_CONTRACT_CLASS_INVARIANT();
 		auto it = _this->lights.begin(), end = _this->lights.end();
 		for (; it != end; ++it)
