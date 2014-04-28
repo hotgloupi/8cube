@@ -4,6 +4,7 @@
 # include "Node.hpp"
 
 # include <cube/gl/matrix.hpp>
+# include <cube/gl/vector.hpp>
 
 namespace cube { namespace scene {
 
@@ -13,6 +14,7 @@ namespace cube { namespace scene {
 	{
 	public:
 		typedef gl::matrix::mat4f matrix_type;
+		typedef gl::vector::vec3f vector_type;
 
 	private:
 		matrix_type _transformation;
@@ -26,10 +28,11 @@ namespace cube { namespace scene {
 
 	public:
 		inline
-		matrix_type& value() { return _transformation; }
-
-		inline
 		matrix_type const& value() const { return _transformation; }
+
+		void translate(vector_type const& v)
+		{ _transformation = gl::matrix::translate(_transformation, v); }
+
 	public:
 		using VisitableNode<Transform>::visit;
 	};
