@@ -16,3 +16,6 @@ class Event:
     @property
     def channel(self):
         return self.__channel
+
+    def __str__(self):
+        return '<Event of %s>' % self.__channel.name
