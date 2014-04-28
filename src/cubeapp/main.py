@@ -108,6 +108,12 @@ def parse_args(args):
         action = 'store',
         default = '8cube.profile'
     )
+
+    parser.add_argument(
+        '--debug', '-d',
+        help = 'Enable debugging session',
+        action = 'store_true',
+    )
     return parser, parser.parse_args(args=args)
 
 
@@ -189,8 +195,11 @@ def main(args):
             cube.log.error("c++ traceback: (most recent call last)")
             s = ''
             for i, frame in enumerate(bt):
-                s += '  %i: %s' % (i + 1, frame)
+                s += '  %i: %s\n' % (i + 1, frame)
             cube.log.error(s)
+        if args.debug:
+            import pdb
+            pdb.post_mortem(e.__traceback__)
         cube.log.fatal('\n'.join(traceback.format_exception_only(type(e), e)))
         sys.exit(1)
     gc.collect()
@@ -253,4 +262,3 @@ def _main(parser, args):
         return
 
     run()
-
