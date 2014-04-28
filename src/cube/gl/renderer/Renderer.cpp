@@ -134,6 +134,9 @@ namespace cube { namespace gl { namespace renderer {
 		return std::weak_ptr<State>{_this->states.back()};
 	}
 
+	resource::Manager& Renderer::resource_manager() ETC_NOEXCEPT
+	{ return _this->resource_manager; }
+
 	void Renderer::flush()
 	{ _this->resource_manager.flush(); }
 

@@ -9,6 +9,7 @@
 # include <cube/gl/fwd.hpp>
 # include <cube/gl/viewport.hpp>
 # include <cube/system/fwd.hpp>
+# include <cube/resource/fwd.hpp>
 
 # include <etc/compiler.hpp>
 # include <etc/types.hpp>
@@ -48,7 +49,22 @@ namespace cube { namespace gl { namespace renderer {
 		virtual ~Renderer();
 
 
+		/**
+		 * RendererContext used to create this renderer.
+		 */
 		system::window::RendererContext& context() const ETC_NOEXCEPT;
+
+
+		/**
+		 * Embedded resource manager/
+		 */
+		resource::Manager& resource_manager() ETC_NOEXCEPT;
+
+		/**
+		 * Cleanup unused resources.
+		 */
+		void flush();
+
 	/*************************************************************************
 	 * All renderers act as a state machine. States are pushed with the      *
 	 * Renderer::begin(State) method by implementations classes.             *
@@ -58,11 +74,6 @@ namespace cube { namespace gl { namespace renderer {
 		 * Retreive the current_state.
 		 */
 		std::weak_ptr<State> current_state();
-
-		/**
-		 * Cleanup unused resources.
-		 */
-		void flush();
 
 		/**
 		 *

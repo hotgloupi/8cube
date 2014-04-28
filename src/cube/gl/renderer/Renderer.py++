@@ -7,9 +7,10 @@
 #include "VertexBufferAttribute.hpp"
 #include "VertexBuffer.hpp"
 
-#include <cube/system/window.hpp>
 #include <cube/gl/exception.hpp>
 #include <cube/gl/surface.hpp>
+#include <cube/resource/Manager.hpp>
+#include <cube/system/window.hpp>
 
 #include <wrappers/boost/python.hpp>
 
@@ -300,6 +301,10 @@ BOOST_PYTHON_MODULE(Renderer)
 		.add_property(
 			"context",
 			py::make_function(&Renderer::context, py::return_internal_reference<>())
+		)
+		.add_property(
+			"resource_manager",
+			py::make_function(&Renderer::resource_manager, py::return_internal_reference<>())
 		)
 		.def(
 			"begin",
