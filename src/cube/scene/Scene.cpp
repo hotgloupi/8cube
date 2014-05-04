@@ -2,10 +2,13 @@
 
 #include "ContentNode.hpp"
 #include "Graph.hpp"
-#include "Node.hpp"
+#include "SceneView.hpp"
 #include "Transform.hpp"
 #include "detail/assimp.hpp"
-#include "visit/depth_first_search.hpp"
+#include "detail/assimp_importer.hpp"
+#include "detail/assimp_mesh.hpp"
+#include "detail/assimp_material.hpp"
+#include "detail/AssimpException.hpp"
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
@@ -14,12 +17,7 @@
 #include <etc/stack_ptr.hpp>
 
 #include <cube/exception.hpp>
-#include <cube/gl/mesh.hpp>
 #include <cube/gl/material.hpp>
-#include <cube/gl/renderer/Painter.hpp>
-#include <cube/gl/renderer/State.hpp>
-
-#include <boost/thread/tss.hpp>
 
 #include <vector>
 #include <string>
@@ -31,225 +29,10 @@ using cube::gl::mesh::Mesh;
 using cube::gl::mesh::MeshPtr;
 using cube::gl::material::Material;
 using cube::gl::material::MaterialPtr;
+using cube::gl::renderer::Light;
+using cube::gl::renderer::LightPtr;
 using cube::gl::renderer::DrawMode;
 using cube::gl::renderer::ContentKind;
-
-namespace {
-
-
-	Assimp::Importer& assimp_importer()
-	{
-		static boost::thread_specific_ptr<Assimp::Importer> ptr;
-		if (ptr.get() == nullptr)
-			ptr.reset(new Assimp::Importer);
-		return *ptr;
-	}
-
-	class AssimpException
-		: public Exception
-	{
-	public:
-		AssimpException(std::string const& e)
-			: Exception{
-				e + ": " + std::string{assimp_importer().GetErrorString()}
-			}
-		{}
-	};
-
-	MeshPtr
-	assimp_mesh(aiMesh const* mesh)
-	{
-		using cube::scene::detail::assimp_cast;
-		auto res = std::make_shared<Mesh>();
-		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
-		{
-			ETC_TRACE.debug("Loading face", i);
-			auto& face = mesh->mFaces[i];
-
-			switch (face.mNumIndices)
-			{
-			case 3:
-				res->mode(cube::gl::renderer::DrawMode::triangles);
-				break;
-			default:
-				throw cube::exception::Exception{
-					"Cannot handle a face with " + std::to_string(face.mNumIndices) + " vertices"
-				};
-			}
-
-			if (mesh->HasPositions())
-			{
-				ETC_TRACE.debug("Append position");
-				res->kind(ContentKind::vertex);
-				for (unsigned int k = 0; k < face.mNumIndices; ++k)
-				{
-					auto index = face.mIndices[k];
-					res->append(
-						assimp_cast<ContentKind::vertex>(mesh->mVertices[index])
-					);
-				}
-			}
-
-			for (unsigned int tex_coord_idx = 0;
-			     tex_coord_idx < 8;
-			     tex_coord_idx++)
-			{
-				if (mesh->HasTextureCoords(tex_coord_idx))
-				{
-					ETC_TRACE.debug("Append tex coord", tex_coord_idx);
-					ContentKind kind = ContentKind::tex_coord0 + tex_coord_idx;
-					res->kind(kind);
-					for (unsigned int k = 0; k < face.mNumIndices; ++k)
-					{
-						auto index = face.mIndices[k];
-						res->append(
-							assimp_cast<ContentKind::tex_coord0>(
-								mesh->mTextureCoords[0][index]
-							)
-						);
-					}
-				}
-				else
-					break;
-			}
-
-			if (mesh->HasNormals())
-			{
-				ETC_TRACE.debug("Append normals");
-				res->kind(ContentKind::normal);
-				for (unsigned int k = 0; k < face.mNumIndices; ++k)
-				{
-					auto index = face.mIndices[k];
-					res->append(
-						assimp_cast<ContentKind::normal>(mesh->mNormals[index])
-					);
-				}
-			}
-
-			if (mesh->HasVertexColors(0))
-			{
-				ETC_TRACE.debug("Append colors");
-				res->kind(ContentKind::color);
-				for (unsigned int k = 0; k < face.mNumIndices; ++k)
-				{
-					auto index = face.mIndices[k];
-					res->append(
-						assimp_cast<ContentKind::color>(mesh->mColors[0][index])
-					);
-				}
-			}
-		}
-		return res;
-	}
-
-	MaterialPtr assimp_material(aiMaterial* material)
-	{
-		using cube::scene::detail::assimp_cast;
-		typedef Material::color_type color_type;
-		MaterialPtr res;
-
-		{
-			aiString name;
-			if (material->Get(AI_MATKEY_NAME, name) != AI_SUCCESS)
-				throw Exception{"Couldn't retreive the material name"};
-			if (name.length > 0)
-				res = std::make_shared<Material>(name.C_Str());
-			else
-				res = std::make_shared<Material>();
-		}
-		assert(res != nullptr);
-
-		{
-			aiColor3D color;
-			if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
-				res->ambient(color_type{color.r, color.g, color.b});
-		}
-
-		{
-			aiColor3D color;
-			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
-				res->diffuse(color_type{color.r, color.g, color.b});
-		}
-
-		{
-			aiColor3D color;
-			if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
-				res->specular(color_type{color.r, color.g, color.b});
-		}
-
-		{
-			float value;
-			if (material->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS)
-				res->shininess(value);
-		}
-
-		{
-			float value;
-			if (material->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS)
-				res->opacity(value);
-		}
-
-		static aiTextureType const texture_types[] = {
-			aiTextureType_DIFFUSE,
-			aiTextureType_SPECULAR,
-			aiTextureType_AMBIENT,
-			aiTextureType_EMISSIVE,
-			aiTextureType_HEIGHT,
-			aiTextureType_NORMALS,
-			aiTextureType_SHININESS,
-			aiTextureType_OPACITY,
-			aiTextureType_DISPLACEMENT,
-			aiTextureType_LIGHTMAP,
-			aiTextureType_REFLECTION,
-			aiTextureType_UNKNOWN,
-		};
-
-		for (auto type: texture_types)
-		{
-			unsigned int texture_count = material->GetTextureCount(type);
-			for (unsigned int i = 0; i < texture_count; ++i)
-			{
-				aiString path;
-				aiTextureMapping mapping;
-				unsigned int uvindex;
-				float blend;
-				aiTextureOp op;
-				aiTextureMapMode map_mode;
-
-				auto ret = material->GetTexture(
-					type,
-					i,
-					&path,
-					&mapping,
-					&uvindex,
-					&blend,
-					&op,
-					&map_mode
-				);
-				if (ret != AI_SUCCESS)
-					throw Exception{"Couldn't retreive texture"};
-
-				if (mapping == aiTextureMapping_UV)
-				{
-					// uv coordinates are stored in the mesh that use this
-					// material...
-					throw Exception{"Unhandled mapping format"};
-				}
-
-				res->add_texture(
-					path.C_Str(),
-					assimp_cast(type),
-					assimp_cast(mapping),
-					assimp_cast(op),
-					assimp_cast(map_mode),
-					blend
-				);
-			}
-		}
-		return res;
-	}
-
-} // !anonymous
 
 namespace cube { namespace scene {
 
@@ -257,6 +40,7 @@ namespace cube { namespace scene {
 	{
 		MeshList     meshes;
 		MaterialList materials;
+		LightList    lights;
 		Graph        graph;
 
 		Impl()
@@ -271,7 +55,7 @@ namespace cube { namespace scene {
 			{
 				ETC_LOG.debug("Loading material", i);
 				this->materials.emplace_back(
-					assimp_material(assimp_scene->mMaterials[i])
+					detail::assimp_material(assimp_scene->mMaterials[i])
 				);
 			}
 
@@ -279,7 +63,7 @@ namespace cube { namespace scene {
 			{
 				ETC_LOG.debug("Loading mesh", i);
 				auto mesh = assimp_scene->mMeshes[i];
-				this->meshes.emplace_back(assimp_mesh(mesh));
+				this->meshes.emplace_back(detail::assimp_mesh(mesh));
 				ETC_ASSERT(mesh->mMaterialIndex < this->materials.size());
 				auto& mat = *this->materials[mesh->mMaterialIndex];
 
@@ -338,9 +122,57 @@ namespace cube { namespace scene {
 		}
 	};
 
+	template<Graph::Event ev>
+	struct NodeObserver
+		: public MultipleNodeVisitor<
+			  ContentNode<MeshPtr>
+			, ContentNode<MaterialPtr>
+			, ContentNode<LightPtr>
+		>
+	{
+		typedef MultipleNodeVisitor<
+			  ContentNode<MeshPtr>
+			, ContentNode<MaterialPtr>
+			, ContentNode<LightPtr>
+		> super_type;
+		Scene::Impl& _impl;
+
+		NodeObserver(Scene::Impl& impl)
+			: _impl(impl)
+		{}
+
+#define OBSERVER_VISIT_METHOD(__value_type, __container_name) \
+		bool visit(ContentNode<__value_type>& node) override \
+		{ \
+			if (ev == Graph::Event::insert) \
+				_impl.__container_name.push_back(node.value()); \
+			else if (ev == Graph::Event::remove) \
+				std::remove_if( \
+					_impl.__container_name.begin(), \
+					_impl.__container_name.end(), \
+					[&] (__value_type const& lhs) \
+					{ return lhs.get() == node.value().get(); } \
+				); \
+			return true; \
+		} \
+/**/
+		OBSERVER_VISIT_METHOD(LightPtr, lights);
+		OBSERVER_VISIT_METHOD(MaterialPtr, materials);
+		OBSERVER_VISIT_METHOD(MeshPtr, meshes);
+
+#undef OBSERVER_VISIT_METHOD
+		using super_type::visit;
+	};
+
 	Scene::Scene()
 		: _this{new Impl}
-	{ ETC_TRACE_CTOR("empty"); }
+	{
+		_this->graph.add_hook(
+			Graph::Event::insert,
+			etc::make_unique<NodeObserver<Graph::Event::insert>>(*_this)
+		);
+		ETC_TRACE_CTOR("empty");
+	}
 
 	Scene::Scene(Scene&& other) ETC_NOEXCEPT
 		: _this{std::move(other._this)}
@@ -353,7 +185,7 @@ namespace cube { namespace scene {
 	ScenePtr Scene::from_file(std::string const& path)
 	{
 		ETC_LOG.debug("Creating scene from file:", path);
-		aiScene const* assimp_scene = assimp_importer().ReadFile(
+		aiScene const* assimp_scene = detail::assimp_importer().ReadFile(
 			path.c_str(),
 			aiProcess_CalcTangentSpace       |
 			aiProcess_Triangulate            |
@@ -361,12 +193,11 @@ namespace cube { namespace scene {
 			aiProcess_SortByPType
 		);
 		if (assimp_scene == nullptr)
-			throw AssimpException{
-				"Couldn't load scene at '" + path + "': "
-				+ assimp_importer().GetErrorString()
+			throw detail::AssimpException{
+				"Couldn't load scene at '" + path + "'"
 			};
 
-		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
+		ETC_SCOPE_EXIT{ detail::assimp_importer().FreeScene(); };
 
 		return ScenePtr{new Scene{etc::make_unique<Impl>(assimp_scene)}};
 	}
@@ -375,7 +206,7 @@ namespace cube { namespace scene {
 	Scene::from_string(std::string const& str, std::string const& ext)
 	{
 		ETC_LOG.debug("Creating scene from string (of type", ext, "):\n", str);
-		aiScene const* assimp_scene = assimp_importer().ReadFileFromMemory(
+		aiScene const* assimp_scene = detail::assimp_importer().ReadFileFromMemory(
 			str.c_str(),
 			str.size(),
 			aiProcessPreset_TargetRealtime_Fast,
@@ -384,10 +215,10 @@ namespace cube { namespace scene {
 		if (assimp_scene == nullptr)
 			throw Exception{
 				"Couldn't load scene from string '" + str + "': "
-				+ assimp_importer().GetErrorString()
+				+ detail::assimp_importer().GetErrorString()
 			};
 
-		ETC_SCOPE_EXIT{ assimp_importer().FreeScene(); };
+		ETC_SCOPE_EXIT{ detail::assimp_importer().FreeScene(); };
 
 		return ScenePtr{new Scene{etc::make_unique<Impl>(assimp_scene)}};
 	}
@@ -404,97 +235,19 @@ namespace cube { namespace scene {
 	Scene::MaterialList const& Scene::materials() const ETC_NOEXCEPT
 	{ return _this->materials; }
 
-	namespace {
+	Scene::LightList const& Scene::lights() const ETC_NOEXCEPT
+	{ return _this->lights; }
 
-		struct DirectDraw
-			: public MultipleNodeVisitor<
-			    Transform
-			  , ContentNode<gl::renderer::BindablePtr>
-			  , ContentNode<gl::renderer::DrawablePtr>
-			>
-		{
-			ETC_LOG_COMPONENT("cube.scene.Scene");
-			typedef MultipleNodeVisitor<
-			    Transform
-			  , ContentNode<gl::renderer::BindablePtr>
-			  , ContentNode<gl::renderer::DrawablePtr>
-			> super_type;
-
-			gl::renderer::Painter& _painter;
-			std::shared_ptr<gl::renderer::State> _state;
-			std::vector<gl::renderer::Painter::Proxy<1>> _proxies;
-			bool enter;
-
-			DirectDraw(gl::renderer::Painter& painter)
-				: _painter(painter)
-				, _state{}
-				, _proxies{}
-				, enter{true}
-			{}
-
-			bool visit(Transform& node) override
-			{
-				if (this->enter)
-				{
-					ETC_TRACE.debug("Push transform node", node);
-					_painter.push_state().lock()->model(node.value());
-				}
-				else
-				{
-					ETC_TRACE.debug("Pop transform node", node);
-					_painter.pop_state();
-				}
-				return true;
-			}
-
-			bool visit(ContentNode<gl::renderer::DrawablePtr>& node) override
-			{
-				if (this->enter)
-				{
-					ETC_TRACE.debug("Draw node", node);
-					_painter.draw(node.value());
-				}
-				return true;
-			}
-
-			bool visit(ContentNode<gl::renderer::BindablePtr>& node) override
-			{
-				if (this->enter)
-				{
-					ETC_TRACE.debug("Bind node", node);
-					_proxies.emplace_back(_painter.with(*node.value()));
-				}
-				else
-				{
-					ETC_TRACE.debug("Unbind node", node);
-					_proxies.pop_back();
-				}
-				return true;
-			}
-
-			using super_type::visit;
-		};
-
-		struct DFSVisitor
-			: public visit::DefaultDepthFirstVisitor
-		{
-			DirectDraw draw;
-			DFSVisitor(gl::renderer::Painter& painter)
-				: draw{painter}
-			{}
-
-			void discover_vertex(Node& n)
-			{ draw.enter = true; draw.visit(n); }
-			void finish_vertex(Node& n)
-			{ draw.enter = false; draw.visit(n); }
-		};
-	} // !anonymous
-
-	void Scene::_draw(gl::renderer::Painter& painter)
+	SceneViewPtr Scene::view(gl::renderer::Renderer& renderer)
 	{
-		DFSVisitor v{painter};
-		visit::depth_first_search(this->graph(), v);
+		return std::make_shared<SceneView>(
+			std::dynamic_pointer_cast<Scene>(this->shared_from_this())
+		);
 	}
+
+	gl::renderer::DrawablePtr Scene::drawable(gl::renderer::Renderer& renderer)
+	{ return std::dynamic_pointer_cast<gl::renderer::Drawable>(this->view(renderer)); }
+
 
 }}
 
