@@ -5,6 +5,14 @@
 
 # include <string>
 
+# define ETC_LOG_SCOPE_COMPONENT(__name)                                      \
+	struct BOOST_PP_CAT(log, __LINE__) {                                      \
+		inline                                                                \
+		std::string const& operator ()() const ETC_NOEXCEPT                   \
+		{ static std::string n{__name}; return n; }                           \
+	} const etc_log_component;                                                \
+/**/
+
 # define ETC_LOG_COMPONENT(__name)                                            \
 	static inline                                                             \
 	std::string const& etc_log_component() ETC_NOEXCEPT                       \
