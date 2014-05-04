@@ -80,17 +80,19 @@ int _main(int argc, char** argv)
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
 
-	int j = 0;
-	boost::python::list pyargs;
-	for (int i = 1; i < argc; ++i)
 	{
-		boost::python::str s{std::string(argv[i])};
-		pyargs.append(s);
-	}
+		int j = 0;
+		boost::python::list pyargs;
+		for (int i = 1; i < argc; ++i)
+		{
+			boost::python::str s{std::string(argv[i])};
+			pyargs.append(s);
+		}
 
-	pyargs.append("-G");
-	pyargs.append(games_dir.string());
-	interpreter.setglobal("ARGV", pyargs);
+		pyargs.append("-G");
+		pyargs.append(games_dir.string());
+		interpreter.setglobal("ARGV", pyargs);
+	}
 
 	std::string init_script =
 		"import sys\n"
