@@ -16,7 +16,7 @@ namespace cube { namespace gl { namespace sphere {
 	renderer::DrawablePtr Sphere<T>::drawable(renderer::Renderer& r) const
 	{
 		ETC_TRACE.debug(*this, "Creating drawable");
-		auto nff = etc::to_string("tess 2\ns 0 0 0", this->radius, "\n");
+		auto nff = etc::to_string("tess 4\ns 0 0 0", this->radius, "\n");
 		auto scene = scene::Scene::from_string(nff, "nff");
 		return scene->meshes()[0]->drawable(r);
 	}
