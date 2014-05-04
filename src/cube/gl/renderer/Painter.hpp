@@ -157,7 +157,16 @@ namespace cube { namespace gl { namespace renderer {
 			: _self(self)
 			, _state(_self.state().lock())
 		{
+			_check_missing_definition(std::forward<Args>(bindables)...);
 			_init<0>(std::forward<Args>(bindables)...);
+		}
+
+		void _check_missing_definition() {} // Terminal case
+		template<typename T, typename... Args>
+		void _check_missing_definition(T&&, Args&&... tail)
+		{
+			static_assert(sizeof(T) > 0, "Missing definition of T");
+			_check_missing_definition(std::forward<Args>(tail)...);
 		}
 
 		template<int i>
