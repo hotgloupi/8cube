@@ -16,24 +16,10 @@ class View(Component):
             self.parent_node = self.manager.scene.graph.root
         prev_node = self.parent_node
         for content in contents:
-            if isinstance(content, cube.gl.Bindable):
-                node_type = cube.scene.ContentNodeBindable
-                node_value = content
-            elif isinstance(content, cube.gl.Drawable):
-                node_type = cube.scene.ContentNodeDrawable
-                node_value = content
-            elif hasattr(content, 'drawable'):
-                node_type = cube.scene.ContentNodeDrawable
-                node_value = content.drawable(self.manager.renderer)
-            elif hasattr(content, 'bindable'):
-                node_type = cube.scene.ContentNodeBindable
-                node_value = content.bindable(self.manager.renderer)
-            else:
-                raise Exception("Unknown content type")
             prev_node = prev_node.emplace_child(
-                node_type,
+                cube.scene.content_node_type(content),
                 self.entity.name + '-' + content.__class__.__name__.lower(),
-                node_value,
+                content,
             )
             self.nodes.append((prev_node, content))
 
