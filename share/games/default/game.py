@@ -192,7 +192,7 @@ class GameView(Viewport):
 
 class Game(cubeapp.game.Game):
 
-    def __init__(self, window):
+    def __init__(self, window, directory):
         self.scene = scene.Scene()
         self.lpad = Pad(window.renderer, gl.vec3f(MAX_X - 1, 0, 0), "left")
         self.rpad = Pad(window.renderer, gl.vec3f(MIN_X + 1, 0, 0), "right")
@@ -222,6 +222,7 @@ class Game(cubeapp.game.Game):
         self.objects = self.pads + self.balls + self.walls
         super().__init__(
             window,
+            directory,
             view = GameView(
                 game = self,
                 objects = self.objects,
