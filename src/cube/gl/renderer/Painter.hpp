@@ -40,6 +40,10 @@ namespace cube { namespace gl { namespace renderer {
 		friend class Renderer;
 
 	public:
+		Renderer& renderer() ETC_NOEXCEPT
+		{ return _renderer; }
+
+	public:
 		std::weak_ptr<State> state();
 
 		/**
