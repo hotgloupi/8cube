@@ -8,6 +8,9 @@ namespace cube { namespace scene {
 	class Scene;
 	typedef std::shared_ptr<Scene> ScenePtr;
 
+	class SceneView;
+	typedef std::shared_ptr<SceneView> SceneViewPtr;
+
 	class Graph;
 
 	class Node;
