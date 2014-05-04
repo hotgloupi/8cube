@@ -125,6 +125,34 @@ namespace cube { namespace gl { namespace renderer {
 		return *boost::get<custom_ptr_type>(_this->light);
 	}
 
+	Light::directional_type& Light::directional()
+	{
+		if (this->kind != LightKind::directional)
+			throw Exception{"This is not a directional light"};
+		return boost::get<directional_type>(_this->light);
+	}
+
+	Light::point_type& Light::point()
+	{
+		if (this->kind != LightKind::point)
+			throw Exception{"This is not a point light"};
+		return boost::get<point_type>(_this->light);
+	}
+
+	Light::spot_type& Light::spot()
+	{
+		if (this->kind != LightKind::spot)
+			throw Exception{"This is not a spot light"};
+		return boost::get<spot_type>(_this->light);
+	}
+
+	Light::custom_type& Light::custom()
+	{
+		if (this->kind != LightKind::custom)
+			throw Exception{"This is not a custom light"};
+		return *boost::get<custom_ptr_type>(_this->light);
+	}
+
 	void Light::_bind()
 	{
 		ETC_LOG.debug("Binding", *this);

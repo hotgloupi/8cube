@@ -66,7 +66,7 @@ BOOST_PYTHON_MODULE(Light)
 		add_property( \
 			#__name, \
 			py::make_function( \
-				&Light::__name, \
+				static_cast<Light::__name ## _type& (Light::*)()>(&Light::__name), \
 				py::return_internal_reference<>() \
 			) \
 		) \

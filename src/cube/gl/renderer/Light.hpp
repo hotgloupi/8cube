@@ -100,6 +100,10 @@ namespace cube { namespace gl { namespace renderer {
 		spot_type const& spot() const;
 		custom_type const& custom() const;
 
+		directional_type& directional();
+		point_type& point();
+		spot_type& spot();
+		custom_type& custom();
 	protected:
 		/**
 		 * Bindable interface
