@@ -78,6 +78,8 @@ namespace cube { namespace scene {
 
 		// Every thing went well, release the guard.
 		remove_vertex.dismiss();
+
+		_this->call_hooks(Event::insert, node_ref);
 		return node_ref;
 	}
 
@@ -98,6 +100,8 @@ namespace cube { namespace scene {
 
 		// Every thing went well, release the guard.
 		remove_vertex.dismiss();
+
+		_this->call_hooks(Event::insert, node);
 		return node;
 	}
 
@@ -115,6 +119,7 @@ namespace cube { namespace scene {
 		ETC_ASSERT_EQ(ptr.unique(), true);
 
 		ptr->detach(*this);
+		_this->call_hooks(Event::remove, node);
 		return ptr;
 	}
 
@@ -181,6 +186,18 @@ namespace cube { namespace scene {
 	{
 		SimpleDFSVisitor wrapper(visitor);
 		visit::depth_first_search(*this, wrapper);
+	}
+
+	Graph::hook_guard Graph::_add_hook(Event const ev, visitor_ptr_type visitor)
+	{
+		visitor_type* ptr = visitor.get();
+		_this->hook_map[ev].emplace_back(std::move(visitor));
+		return hook_guard{*this, *ptr, ev};
+	}
+
+	void Graph::_remove_hook(Event const ev, visitor_type& visitor)
+	{
+
 	}
 
 	///////////////////////////////////////////////////////////////////////////

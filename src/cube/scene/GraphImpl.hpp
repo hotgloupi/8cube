@@ -4,6 +4,11 @@
 # include "Graph.hpp"
 # include "Node.hpp"
 
+# include <etc/enum.hpp>
+# include <etc/log.hpp>
+
+# include <cube/exception.hpp>
+
 # include <boost/graph/adjacency_list.hpp>
 # include <boost/graph/graph_traits.hpp>
 
@@ -14,6 +19,8 @@ namespace cube { namespace scene {
 
 	struct Graph::Impl
 	{
+		ETC_LOG_COMPONENT("cube.scene.GraphImpl");
+
 		typedef
 			boost::adjacency_list<
 				  boost::vecS
@@ -35,8 +42,21 @@ namespace cube { namespace scene {
 			"Adapt Node::id_type to match vertex descriptor type"
 		);
 
+		typedef etc::enum_map<Graph::Event, std::vector<Graph::visitor_ptr_type>> hook_map_type;
+
 		graph_type graph;
 		Node* root;
+		hook_map_type hook_map;
+
+		void call_hooks(Graph::Event const ev, Node& n) ETC_NOEXCEPT
+		{
+			try {
+				for (auto& hook: this->hook_map[ev])
+					hook->visit(n);
+			} catch (...) {
+				ETC_LOG.error("An", ev, "hook got an error:", etc::exception::string());
+			}
+		}
 	};
 
 }}

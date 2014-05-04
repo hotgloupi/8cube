@@ -23,6 +23,9 @@ namespace cube { namespace scene {
 	{
 	public:
 		typedef std::function<void(Node*)> node_deleter_type;
+		typedef NodeVisitor<Node> visitor_type;
+		typedef std::unique_ptr<visitor_type> visitor_ptr_type;
+		enum class Event { insert, update, remove, _max_value };
 
 	private:
 		// Pimpl.
@@ -91,11 +94,46 @@ namespace cube { namespace scene {
 		std::vector<Node*> children(Node& node);
 
 	public:
-		void traverse(NodeVisitor<Node>& visitor);
+		void traverse(visitor_type& visitor);
 
 	public:
-		void breadth_first_search(NodeVisitor<Node>& visitor);
-		void depth_first_search(NodeVisitor<Node>& visitor);
+		void breadth_first_search(visitor_type& visitor);
+		void depth_first_search(visitor_type& visitor);
+
+		struct hook_guard
+		{
+		private:
+			Graph& _graph;
+			visitor_type* _visitor;
+			Event const _event;
+
+		public:
+			hook_guard(Graph& graph, visitor_type& visitor, Event const event)
+				: _graph(graph)
+				, _visitor{&visitor}
+				, _event{event}
+			{}
+
+			hook_guard(hook_guard&& other)
+				: _graph(other._graph)
+				, _visitor{std::move(other._visitor)}
+				, _event{other._event}
+			{ other._visitor = nullptr; }
+
+			~hook_guard()
+			{ if (_visitor != nullptr) _graph._remove_hook(_event, *_visitor); }
+		};
+		template<typename T>
+		hook_guard add_hook(Event const ev, std::unique_ptr<T> visitor)
+		{
+			return _add_hook(
+				ev,
+				etc::cast<visitor_type>(std::move(visitor))
+			);
+		}
+		hook_guard _add_hook(Event const ev, visitor_ptr_type visitor);
+		void _remove_hook(Event const ev, visitor_type& visitor);
+
 
 	private:
 		Node& _insert(std::unique_ptr<Node> node);
