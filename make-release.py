@@ -265,7 +265,7 @@ if not IS_WINDOWS:
             dep.startswith('/lib') or
             dep.startswith('/System') or
             dep.startswith(DEST_DIR)
-        )
+        ) or 'libstdc++' in dep or 'libgcc' in dep
 
     def get_binary_rpaths(binary_path):
         lines = (l.strip() for l in cmd_output('otool', '-l', binary_path).split('\n'))
