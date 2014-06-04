@@ -1,10 +1,11 @@
-#ifndef  CUBE_SCENE_NODE_HPP
-# define CUBE_SCENE_NODE_HPP
+#ifndef  CUBE_SCENE_NODE_NODE_HPP
+# define CUBE_SCENE_NODE_NODE_HPP
 
 # include "fwd.hpp"
-# include "NodeVisitor.hpp"
+# include "Visitable.hpp"
 
 # include <cube/api.hpp>
+# include <cube/scene/fwd.hpp>
 
 # include <etc/cast.hpp>
 # include <etc/memory.hpp>
@@ -17,10 +18,10 @@
 # include <string>
 # include <map>
 
-namespace cube { namespace scene {
+namespace cube { namespace scene { namespace node {
 
 	class CUBE_API Node
-		: public VisitableNode<Node>
+		: public Visitable<Node>
 		, public etc::Printable
 		, private boost::noncopyable
 	{
@@ -80,13 +81,13 @@ namespace cube { namespace scene {
 		Node& _insert_child(std::unique_ptr<Node> node);
 
 	public:
-		using VisitableNode<Node>::visit;
+		using Visitable<Node>::visit;
 
 	public:
 		// Implement printable interface.
 		void print(std::ostream& out) const ETC_NOEXCEPT override;
 	};
 
-}}
+}}}
 
 #endif

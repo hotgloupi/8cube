@@ -2,7 +2,7 @@
 # define CUBE_SCENE_GRAPHIMPL_HPP
 
 # include "Graph.hpp"
-# include "Node.hpp"
+# include "node/Node.hpp"
 
 # include <etc/enum.hpp>
 # include <etc/log.hpp>

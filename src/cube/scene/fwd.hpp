@@ -1,6 +1,8 @@
 #ifndef CUBE_SCENE_FWD_HPP
 # define CUBE_SCENE_FWD_HPP
 
+# include "node/fwd.hpp"
+
 # include <memory>
 
 namespace cube { namespace scene {
@@ -12,11 +14,6 @@ namespace cube { namespace scene {
 	typedef std::shared_ptr<SceneView> SceneViewPtr;
 
 	class Graph;
-
-	class Node;
-
-	template <typename NodeType>
-	class NodeVisitor;
 
 }}
 

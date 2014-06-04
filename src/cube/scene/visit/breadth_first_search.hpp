@@ -15,7 +15,7 @@ namespace cube { namespace scene { namespace visit {
 		{
 			void constraints()
 			{
-				Node* node;
+				node::Node* node;
 				_visitor.initialize_vertex(*node);
 				_visitor.discover_vertex(*node);
 				_visitor.examine_vertex(*node);
@@ -56,10 +56,10 @@ namespace cube { namespace scene { namespace visit {
 
 	struct DefaultBreadthFirstVisitor
 	{
-		void initialize_vertex(Node&) {}
-		void discover_vertex(Node&) {}
-		void examine_vertex(Node&) {}
-		void finish_vertex(Node&) {}
+		void initialize_vertex(node::Node&) {}
+		void discover_vertex(node::Node&) {}
+		void examine_vertex(node::Node&) {}
+		void finish_vertex(node::Node&) {}
 	};
 
 	template<typename Visitor>

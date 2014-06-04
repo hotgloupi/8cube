@@ -1,16 +1,16 @@
-#ifndef CUBE_SCENE_TRANSFORM_HPP
-# define CUBE_SCENE_TRANSFORM_HPP
+#ifndef  CUBE_SCENE_NODE_TRANSFORM_HPP
+# define CUBE_SCENE_NODE_TRANSFORM_HPP
 
 # include "Node.hpp"
 
 # include <cube/gl/matrix.hpp>
 # include <cube/gl/vector.hpp>
 
-namespace cube { namespace scene {
+namespace cube { namespace scene { namespace node {
 
 	class Transform
 		: public Node
-		, public VisitableNode<Transform>
+		, public Visitable<Transform>
 	{
 	public:
 		typedef gl::matrix::mat4f matrix_type;
@@ -34,9 +34,9 @@ namespace cube { namespace scene {
 		{ _transformation = gl::matrix::translate(_transformation, v); }
 
 	public:
-		using VisitableNode<Transform>::visit;
+		using Visitable<Transform>::visit;
 	};
 
-}}
+}}}
 
 #endif

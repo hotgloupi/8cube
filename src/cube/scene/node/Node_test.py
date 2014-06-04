@@ -1,6 +1,5 @@
 from cube.test import Case
-from . import Graph, Node
-from . import visit
+from cube.scene import Graph, Node, visit
 
 class _(Case):
 

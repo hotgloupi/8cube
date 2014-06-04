@@ -5,6 +5,7 @@
 namespace {
 
 	using namespace cube::scene;
+	using cube::scene::node::Node;
 
 	struct DFSVisitor
 		: public visit::DefaultDepthFirstVisitor

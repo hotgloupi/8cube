@@ -10,6 +10,7 @@
 
 namespace py = boost::python;
 using namespace cube::scene;
+using namespace cube::scene::node;
 
 using cube::gl::material::MaterialPtr;
 using cube::gl::mesh::MeshPtr;

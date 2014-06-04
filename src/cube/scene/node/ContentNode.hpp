@@ -3,12 +3,12 @@
 
 # include "Node.hpp"
 
-namespace cube { namespace scene {
+namespace cube { namespace scene { namespace node {
 
 	template<typename T>
 	class ContentNode
 		: public Node
-		, public VisitableNode<ContentNode<T>>
+		, public Visitable<ContentNode<T>>
 	{
 	private:
 		T _content;
@@ -26,9 +26,9 @@ namespace cube { namespace scene {
 		T const& value() const { return _content; }
 
 	public:
-		using VisitableNode<ContentNode<T>>::visit;
+		using Visitable<ContentNode<T>>::visit;
 	};
 
-}}
+}}}
 
 #endif

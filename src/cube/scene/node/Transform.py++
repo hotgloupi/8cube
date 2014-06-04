@@ -3,7 +3,7 @@
 #include <wrappers/boost/python.hpp>
 
 namespace py = boost::python;
-using namespace cube::scene;
+using namespace cube::scene::node;
 
 BOOST_PYTHON_MODULE(Transform)
 {

@@ -1,7 +1,7 @@
 #include "Graph.hpp"
 #include "GraphImpl.hpp"
-#include "Node.hpp"
-#include "NodeVisitor.hpp"
+#include "node/Node.hpp"
+#include "node/Visitor.hpp"
 #include "visit/breadth_first_search.hpp"
 #include "visit/depth_first_search.hpp"
 
@@ -17,6 +17,8 @@
 namespace cube { namespace scene {
 
 	using cube::exception::Exception;
+	using node::Node;
+	using node::Visitor;
 
 	ETC_LOG_COMPONENT("cube.scene.Graph");
 
@@ -142,7 +144,7 @@ namespace cube { namespace scene {
 		return res;
 	}
 
-	void Graph::traverse(NodeVisitor<Node>& visitor)
+	void Graph::traverse(Visitor<Node>& visitor)
 	{
 		auto it = boost::vertices(_this->graph).first;
 		auto end = boost::vertices(_this->graph).second;
@@ -154,8 +156,8 @@ namespace cube { namespace scene {
 		struct SimpleBFSVisitor
 			: public visit::DefaultBreadthFirstVisitor
 		{
-			NodeVisitor<Node>& _wrapped;
-			SimpleBFSVisitor(NodeVisitor<Node>& wrapped)
+			Visitor<Node>& _wrapped;
+			SimpleBFSVisitor(Visitor<Node>& wrapped)
 				: _wrapped(wrapped)
 			{}
 
@@ -163,7 +165,7 @@ namespace cube { namespace scene {
 		};
 	} // !anonymous
 
-	void Graph::breadth_first_search(NodeVisitor<Node>& visitor)
+	void Graph::breadth_first_search(Visitor<Node>& visitor)
 	{
 		SimpleBFSVisitor wrapper(visitor);
 		visit::breadth_first_search(*this, wrapper);
@@ -173,8 +175,8 @@ namespace cube { namespace scene {
 		struct SimpleDFSVisitor
 			: public visit::DefaultDepthFirstVisitor
 		{
-			NodeVisitor<Node>& _wrapped;
-			SimpleDFSVisitor(NodeVisitor<Node>& wrapped)
+			Visitor<Node>& _wrapped;
+			SimpleDFSVisitor(Visitor<Node>& wrapped)
 				: _wrapped(wrapped)
 			{}
 
@@ -182,7 +184,7 @@ namespace cube { namespace scene {
 		};
 	} // !anonymous
 
-	void Graph::depth_first_search(NodeVisitor<Node>& visitor)
+	void Graph::depth_first_search(Visitor<Node>& visitor)
 	{
 		SimpleDFSVisitor wrapper(visitor);
 		visit::depth_first_search(*this, wrapper);

@@ -5,6 +5,7 @@
 namespace {
 
 	using namespace cube::scene;
+	using node::Node;
 
 	struct BFSVisitor
 		: public visit::DefaultBreadthFirstVisitor

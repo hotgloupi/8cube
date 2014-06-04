@@ -1,6 +1,8 @@
 #include "Node.hpp"
+#include "Visitor.hpp"
+#include "MultipleVisitor.hpp"
 
-#include "Graph.hpp"
+#include <cube/scene/Graph.hpp>
 
 #include <cube/exception.hpp>
 
@@ -10,7 +12,7 @@
 
 #include <iostream>
 
-namespace cube { namespace scene {
+namespace cube { namespace scene { namespace node {
 
 	using exception::Exception;
 
@@ -86,7 +88,7 @@ namespace cube { namespace scene {
 		ETC_TEST_CASE(concrete_visitor)
 		{
 			Graph g;
-			struct Visitor : NodeVisitor<Node>
+			struct Visitor : node::Visitor<Node>
 			{
 				int& _visited;
 				Visitor(int& visited) : _visited(visited) {}
@@ -113,7 +115,7 @@ namespace cube { namespace scene {
 		ETC_TEST_CASE(base_visitor)
 		{
 			Graph g;
-			struct Visitor : NodeVisitor<Node>
+			struct Visitor : node::Visitor<Node>
 			{
 				int& _visited;
 				Visitor(int& visited) : _visited(visited) {}
@@ -139,15 +141,15 @@ namespace cube { namespace scene {
 
 		struct Specialized
 			: public Node
-			, public VisitableNode<Specialized>
+			, public Visitable<Specialized>
 		{
 			Specialized()
 				: Node{"specialized"}
 			{}
-			using VisitableNode<Specialized>::visit;
+			using Visitable<Specialized>::visit;
 		};
 
-		struct Visitor : NodeVisitor<Specialized>
+		struct Visitor : node::Visitor<Specialized>
 		{
 			int& _visited;
 			Visitor(int& visited) : _visited(visited) {}
@@ -176,28 +178,28 @@ namespace cube { namespace scene {
 
 		struct Specialized1
 			: public Node
-			, public VisitableNode<Specialized1>
+			, public Visitable<Specialized1>
 		{
 			Specialized1()
 				: Node{"specialized1"}
 			{}
-			using VisitableNode<Specialized1>::visit;
+			using Visitable<Specialized1>::visit;
 		};
 		struct Specialized2
 			: public Node
-			, public VisitableNode<Specialized2>
+			, public Visitable<Specialized2>
 		{
 			Specialized2()
 				: Node{"specialized2"}
 			{}
-			using VisitableNode<Specialized2>::visit;
+			using Visitable<Specialized2>::visit;
 		};
 		struct SpecializedVisitor
-			: MultipleNodeVisitor<Specialized1, Specialized2>
+			: MultipleVisitor<Specialized1, Specialized2>
 		{
 			int s1, s2;
 			SpecializedVisitor() : s1{0}, s2{0} {}
-			using MultipleNodeVisitor<Specialized1, Specialized2>::visit;
+			using MultipleVisitor<Specialized1, Specialized2>::visit;
 			bool visit(Specialized1&) override
 			{ return ++s1; }
 			bool visit(Specialized2&) override
@@ -221,4 +223,4 @@ namespace cube { namespace scene {
 
 	} //!anonymous
 
-}}
+}}}

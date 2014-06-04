@@ -41,10 +41,10 @@ namespace cube { namespace scene { namespace visit {
 
 	struct DefaultDepthFirstVisitor
 	{
-		void initialize_vertex(Node&) {}
-		void discover_vertex(Node&) {}
+		void initialize_vertex(node::Node&) {}
+		void discover_vertex(node::Node&) {}
 		//void examine_vertex(Node&) {}
-		void finish_vertex(Node&) {}
+		void finish_vertex(node::Node&) {}
 	};
 
 	template<typename Visitor>

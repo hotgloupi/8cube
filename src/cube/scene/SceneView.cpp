@@ -1,10 +1,10 @@
 #include "SceneView.hpp"
 
-#include "ContentNode.hpp"
+#include "node/ContentNode.hpp"
 #include "Graph.hpp"
-#include "Node.hpp"
 #include "Scene.hpp"
-#include "Transform.hpp"
+#include "node/Transform.hpp"
+#include "node/MultipleVisitor.hpp"
 #include "visit/depth_first_search.hpp"
 
 #include <cube/gl/renderer/Light.hpp>
@@ -28,12 +28,12 @@ namespace cube { namespace scene {
 	struct SceneView::Impl
 	{
 		ScenePtr scene;
-		std::map<Node*, BindablePtr> bindables;
-		std::map<Node*, DrawablePtr> drawables;
+		std::map<node::Node*, BindablePtr> bindables;
+		std::map<node::Node*, DrawablePtr> drawables;
 	};
 
 	SceneView::SceneView(ScenePtr scene)
-		: _this{new Impl{scene, {}}}
+		: _this{new Impl{scene, {}, {}}}
 	{ ETC_TRACE_CTOR(); }
 
 	SceneView::~SceneView()
@@ -41,8 +41,13 @@ namespace cube { namespace scene {
 
 	namespace {
 
+		using node::MultipleVisitor;
+		using node::Transform;
+		using node::ContentNode;
+		using node::Node;
+
 		struct DirectDraw
-			: public MultipleNodeVisitor<
+			: public MultipleVisitor<
 			    Transform
 			  , ContentNode<BindablePtr>
 			  , ContentNode<DrawablePtr>
@@ -52,7 +57,7 @@ namespace cube { namespace scene {
 			>
 		{
 			ETC_LOG_COMPONENT("cube.scene.SceneView");
-			typedef MultipleNodeVisitor<
+			typedef MultipleVisitor<
 			    Transform
 			  , ContentNode<BindablePtr>
 			  , ContentNode<DrawablePtr>

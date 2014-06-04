@@ -1,5 +1,5 @@
 
-from .Node import Node
+from .node import Node
 from .Graph import Graph
 from .visit import *
 

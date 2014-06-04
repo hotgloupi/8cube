@@ -1,14 +1,15 @@
 #include "Scene.hpp"
 
-#include "ContentNode.hpp"
 #include "Graph.hpp"
 #include "SceneView.hpp"
-#include "Transform.hpp"
 #include "detail/assimp.hpp"
 #include "detail/assimp_importer.hpp"
 #include "detail/assimp_mesh.hpp"
 #include "detail/assimp_material.hpp"
 #include "detail/AssimpException.hpp"
+#include "node/Transform.hpp"
+#include "node/ContentNode.hpp"
+#include "node/MultipleVisitor.hpp"
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
@@ -35,6 +36,11 @@ using cube::gl::renderer::DrawMode;
 using cube::gl::renderer::ContentKind;
 
 namespace cube { namespace scene {
+
+	using node::Node;
+	using node::MultipleVisitor;
+	using node::Visitor;
+	using node::ContentNode;
 
 	struct Scene::Impl
 	{
@@ -87,7 +93,7 @@ namespace cube { namespace scene {
 
 		~Impl() { ETC_TRACE_DTOR(); }
 
-		void _load_node(aiNode* assimp_node, Node* node)
+		void _load_node(aiNode* assimp_node, node::Node* node)
 		{
 			if (assimp_node == nullptr)
 				return;
@@ -99,7 +105,7 @@ namespace cube { namespace scene {
 			);
 			if (!assimp_node->mTransformation.IsIdentity())
 			{
-				node = &this->graph.emplace_child<Transform>(
+				node = &this->graph.emplace_child<node::Transform>(
 					*node,
 					name + "-transformation",
 					detail::assimp_cast(assimp_node->mTransformation)
@@ -107,7 +113,7 @@ namespace cube { namespace scene {
 			}
 			for (unsigned int i = 0; i < assimp_node->mNumMeshes; ++i)
 			{
-				this->graph.emplace_child<ContentNode<MeshPtr>>(
+				this->graph.emplace_child<node::ContentNode<MeshPtr>>(
 					*node,
 					name + "-mesh" + std::to_string(i),
 					MeshPtr{this->meshes[i]}
@@ -124,13 +130,13 @@ namespace cube { namespace scene {
 
 	template<Graph::Event ev>
 	struct NodeObserver
-		: public MultipleNodeVisitor<
+		: public MultipleVisitor<
 			  ContentNode<MeshPtr>
 			, ContentNode<MaterialPtr>
 			, ContentNode<LightPtr>
 		>
 	{
-		typedef MultipleNodeVisitor<
+		typedef MultipleVisitor<
 			  ContentNode<MeshPtr>
 			, ContentNode<MaterialPtr>
 			, ContentNode<LightPtr>
@@ -238,7 +244,7 @@ namespace cube { namespace scene {
 	Scene::LightList const& Scene::lights() const ETC_NOEXCEPT
 	{ return _this->lights; }
 
-	SceneViewPtr Scene::view(gl::renderer::Renderer& renderer)
+	SceneViewPtr Scene::view(gl::renderer::Renderer&)
 	{
 		return std::make_shared<SceneView>(
 			std::dynamic_pointer_cast<Scene>(this->shared_from_this())

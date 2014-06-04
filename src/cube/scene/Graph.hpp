@@ -22,8 +22,9 @@ namespace cube { namespace scene {
 	class CUBE_API Graph
 	{
 	public:
+		typedef node::Node Node;
 		typedef std::function<void(Node*)> node_deleter_type;
-		typedef NodeVisitor<Node> visitor_type;
+		typedef node::Visitor<Node> visitor_type;
 		typedef std::unique_ptr<visitor_type> visitor_ptr_type;
 		enum class Event { insert, update, remove, _max_value };
 

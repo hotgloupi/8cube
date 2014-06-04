@@ -1,5 +1,5 @@
 #include "Graph.hpp"
-#include "Node.hpp"
+#include "node/Node.hpp"
 
 #include <etc/log.hpp>
 
@@ -17,8 +17,8 @@ namespace {
 	{
 		PyObject* ptr = py::incref(o.ptr());
 		return new Graph{
-			py::extract<Node&>(o)(),
-			[ptr] (Node* n) {
+			py::extract<node::Node&>(o)(),
+			[ptr] (node::Node* n) {
 				ETC_LOG.debug(
 					"Decrement python instance",
 					*ptr,
