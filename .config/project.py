@@ -110,6 +110,21 @@ class BulletPhysics(CMakeDependency):
                     'shared': shared,
                 },
             ],
+            configure_variables = [
+                ('BUILD_CPU_DEMOS', False),
+                ('BUILD_DEMOS', False),
+                ('BUILD_EXTRAS', False),
+                ('BUILD_MULTITHREADING', True),
+                ('BUILD_UNIT_TESTS', False),
+                ('USE_GLUT', False),
+                ('USE_DX11', False),
+                ('USE_GRAPHICAL_BENCHMARK', False),
+                ('USE_MSVC_RUNTIME_LIBRARY_DLL', True),
+                ('BUILD_NVIDIA_OPENCL_DEMOS', False),
+                ('BUILD_INTEL_OPENCL_DEMOS', False),
+                ('BUILD_MINICL_OPENCL_DEMOS', False),
+                ('BUILD_AMD_OPENCL_DEMOS', False),
+            ],
         )
 
 class GLM(Dependency):
