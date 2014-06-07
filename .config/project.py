@@ -81,6 +81,37 @@ class Assimp(CMakeDependency):
                 )
             )
 
+class BulletPhysics(CMakeDependency):
+    def __init__(self, build, compiler, source_directory, shared = False):
+        super().__init__(
+            build,
+            "BulletPhysics",
+            compiler = compiler,
+            source_directory = source_directory,
+            libraries = [
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'BulletDynamics',
+                    'shared': shared,
+                },
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'BulletCollision',
+                    'shared': shared,
+                },
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'BulletSoftBody',
+                    'shared': shared,
+                },
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'LinearMath',
+                    'shared': shared,
+                },
+            ],
+        )
+
 class GLM(Dependency):
     def __init__(self, build, compiler, source_directory):
         super().__init__(
@@ -203,6 +234,12 @@ def main(project, build):
         with_cookies = True,
     )
 
+    bullet_physics = build.add_dependency(
+        BulletPhysics,
+        compiler,
+        "deps/bullet-2.82-r2704",
+    )
+
     if platform.IS_WINDOWS:
         python = c.libraries.PythonLibrary(c_compiler, shared = True)
     else:
@@ -283,7 +320,8 @@ def main(project, build):
         opengl.libraries +
         #assimp.libraries +
         freetype2.libraries +
-        glm.libraries
+        glm.libraries +
+        bullet_physics.libraries
     )
     #if not platform.IS_WINDOWS:
     #    list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
