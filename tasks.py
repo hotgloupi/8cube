@@ -445,6 +445,7 @@ def make_tarball(ctx, dir, output_file):
                 zip.write(relpath(f, start = root_dir))
         finally:
             os.chdir(old)
+    ctx.log("Created tarball", output_file, 'of', ctx.cmd_output('du', '-hs', output_file))
 
 def make_release(build_dir, output_file):
     if not isdir(build_dir):
