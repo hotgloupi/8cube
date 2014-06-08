@@ -45,7 +45,6 @@ class Context(tempfile.TemporaryDirectory):
 
     def __exit__(self, *args):
         self.log_file.flush()
-        self.log_file.close()
         os.close(self.log_file.fileno())
         tries = 0
         while True:
