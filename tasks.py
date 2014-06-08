@@ -4,7 +4,6 @@ from __future__ import print_function
 
 import datetime as dt
 import hashlib
-import invoke
 import json
 import os
 import shutil
@@ -30,31 +29,48 @@ def fatal(*args, **kw):
     print(*args, **kw)
     sys.exit(1)
 
+class Context(tempfile.TemporaryDirectory):
+    def __init__(self, dirname):
+        super().__init__()
+        self.dirname = dirname
 
+    def __enter__(self):
+        self.work_dir = super().__enter__()
+        self.dest_dir = join(self.work_dir, self.dirname)
+        os.makedirs(self.dest_dir)
+        self.log_file = open(join(self.dest_dir, ".release.log"), 'a')
+        release_date_file = join(self.dest_dir, '.release')
+        with open(release_date_file, 'w') as f:
+            print(dt.datetime.utcnow().ctime(), file = f)
+        return self
 
-def setup_context(ctx, release_log):
-    def log(*args, **kw):
+    def __exit__(self, *args):
+        self.log_file.close()
+        super().__exit__(*args)
+
+    def log(self, *args, **kw):
         silent = kw.pop('silent', False)
         if not silent:
             print(*args)
-        with open(release_log, "a") as f:
-            print("->", *args, file = f)
-    def debug(*args):
-        log(*args, silent = True)
-    def cmd_output(*args, **kwargs):
-        ctx.debug('[COMMAND]', *args)
-        with open(release_log, "a") as f:
-            return subprocess.check_output(list(args), **kwargs).decode('utf8').strip()
-    def cmd(*args, **kwargs):
-        ctx.debug('[COMMAND]', *args)
-        with open(release_log, "a") as f:
-            return subprocess.check_call(
-                list(args),
-                stdout = f,
-                stderr = subprocess.STDOUT,
-                **kwargs
-            )
-    def is_binary(path):
+        print("->", *args, file = self.log_file)
+
+    def debug(self, *args):
+        self.log(*args, silent = True)
+
+    def cmd_output(self, *args, **kwargs):
+        self.debug('[COMMAND]', *args)
+        return subprocess.check_output(list(args), **kwargs).decode('utf8').strip()
+
+    def cmd(self, *args, **kwargs):
+        self.debug('[COMMAND]', *args)
+        return subprocess.check_call(
+            list(args),
+            stdout = self.log_file,
+            stderr = subprocess.STDOUT,
+            **kwargs
+        )
+
+    def is_binary(self, path):
         if IS_WINDOWS and any(path.lower().endswith(ext) for ext in ['.exe', '.dll', '.pyd']):
             return True
         if path.endswith('.py') or path.endswith('.sh') or path.endswith('.bat'):
@@ -67,14 +83,14 @@ def setup_context(ctx, release_log):
         return True
 
     if which("otool"):
-        def get_binary_dependencies(arg):
-            deps = ctx.cmd_output('otool', '-L', arg).split('\n')[2:]
+        def get_binary_dependencies(self, arg):
+            deps = self.cmd_output('otool', '-L', arg).split('\n')[2:]
             for path in (dep.strip().split(" ")[0] for dep in deps):
                 if path: yield path
 
     elif which("ldd"):
-        def get_binary_dependencies(arg):
-            deps = ctx.cmd_output('ldd', arg)
+        def get_binary_dependencies(self, arg):
+            deps = self.cmd_output('ldd', arg)
             deps = deps.split('\n')
             if not deps:
                 return
@@ -87,29 +103,15 @@ def setup_context(ctx, release_log):
         raise Exception("otool or ldd needed")
 
     if IS_OSX:
-        def strip(bin):
-            ctx.cmd('strip', '-S', '-x', bin)
+        def strip(self, bin):
+            self.cmd('strip', '-S', '-x', bin)
     elif IS_WINDOWS:
-        def strip(bin):
-            ctx.cmd('strip', '-s', bin)
+        def strip(self, bin):
+            self.cmd('strip', '-s', bin)
     else:
-        def strip(bin):
-            ctx.cmd('chmod', 'u+w', bin)
-            ctx.cmd('strip', '-s', bin)
-    ctx.get_binary_dependencies = get_binary_dependencies
-    ctx.strip = strip
-    ctx.log = log
-    ctx.debug = debug
-    ctx.cmd = cmd
-    ctx.cmd_output = cmd_output
-    ctx.is_binary = is_binary
-
-def prepare_release_dir(ctx, dest_dir):
-    ctx.release_date_file = join(dest_dir, '.release')
-    with open(ctx.release_date_file, 'w') as f:
-        print(dt.datetime.utcnow().ctime(), file = f)
-    release_log = join(dest_dir, ".release.log")
-    setup_context(ctx, release_log)
+        def strip(self, bin):
+            self.cmd('chmod', 'u+w', bin)
+            self.cmd('strip', '-s', bin)
 
 
 def copy_release_files(ctx, build_dir, dest_dir):
@@ -428,20 +430,20 @@ def make_tarball(ctx, dir, output_file):
         for f in manifest['files'].keys():
             zip.write(relpath(f, start = root_dir))
 
-@invoke.ctask
-def make_release(ctx, build_dir, output_file):
+def make_release(build_dir, output_file):
     if not isdir(build_dir):
         fatal("Error: ", build_dir, ": not a directory")
-    with tempfile.TemporaryDirectory() as temp_dir:
-        dest_dir = join(temp_dir, output_file.split('.')[0])
-        os.makedirs(dest_dir)
-        prepare_release_dir(ctx, dest_dir)
-        ctx.log("Starting release of ", build_dir, "in", dest_dir, 'at', dt.datetime.utcnow().ctime())
-        copy_release_files(ctx, build_dir, dest_dir)
-        python_home = copy_python_files(ctx, locate_python_home(ctx, build_dir), dest_dir)
-        clean_release(ctx, dest_dir)
-        fix_libraries(ctx, dest_dir)
-        strip_binaries(ctx, dest_dir, python_home)
-        manifest = create_manifest(ctx, dest_dir)
-        make_tarball(ctx, dest_dir, output_file)
+    with Context(output_file.split('.')[0]) as ctx:
+        ctx.log("Starting release of ", build_dir, "in", ctx.dest_dir, 'at', dt.datetime.utcnow().ctime())
+        copy_release_files(ctx, build_dir, ctx.dest_dir)
+        python_home = copy_python_files(ctx, locate_python_home(ctx, build_dir), ctx.dest_dir)
+        clean_release(ctx, ctx.dest_dir)
+        fix_libraries(ctx, ctx.dest_dir)
+        strip_binaries(ctx, ctx.dest_dir, python_home)
+        manifest = create_manifest(ctx, ctx.dest_dir)
+        make_tarball(ctx, ctx.dest_dir, output_file)
+    return 0
 
+
+if __name__ == '__main__':
+    sys.exit(make_release(sys.argv[1], sys.argv[2]))
