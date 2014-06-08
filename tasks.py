@@ -44,12 +44,19 @@ class Context(tempfile.TemporaryDirectory):
         return self
 
     def __exit__(self, *args):
-        try:
-            self.log_file.flush()
-            os.close(self.log_file.fileno())
-            self.log_file.close()
-        finally:
-            super().__exit__(*args)
+        self.log_file.flush()
+        self.log_file.close()
+        os.close(self.log_file.fileno())
+        tries = 0
+        while True:
+            try:
+                return super().__exit__(*args)
+            except PermissionError:
+                tries += 1
+                if tries == 10:
+                    raise
+                time.sleep(.1)
+
 
     def log(self, *args, **kw):
         silent = kw.pop('silent', False)
