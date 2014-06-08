@@ -437,10 +437,14 @@ def make_tarball(ctx, dir, output_file):
         manifest = json.load(f)
     root_dir = join(dir, '..')
     with zipfile.ZipFile(output_file, mode = 'w', compression = zipfile.ZIP_DEFLATED) as zip:
+        old = os.getcwd()
         os.chdir(root_dir)
-        zip.write(relpath(join(dir, '.manifest'), start = root_dir))
-        for f in manifest['files'].keys():
-            zip.write(relpath(f, start = root_dir))
+        try:
+            zip.write(relpath(join(dir, '.manifest'), start = root_dir))
+            for f in manifest['files'].keys():
+                zip.write(relpath(f, start = root_dir))
+        finally:
+            os.chdir(old)
 
 def make_release(build_dir, output_file):
     if not isdir(build_dir):
