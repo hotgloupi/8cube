@@ -51,7 +51,8 @@ class Context(tempfile.TemporaryDirectory):
         while True:
             try:
                 return super().__exit__(*args)
-            except PermissionError:
+            except BaseException as e:
+                print("Got exception:", e)
                 tries += 1
                 if tries == 10:
                     raise
