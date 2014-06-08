@@ -353,9 +353,9 @@ def fix_unix_libraries(ctx, dest_dir):
 
 def fix_windows_libraries(ctx, dest_dir):
     ctx.log(" - Copying redistributables")
-    shutil.copy(ctx.which('msvcr120.dll'), join(dest_dir, 'bin'))
-    shutil.copy(ctx.which('msvcp120.dll'), join(dest_dir, 'bin'))
-    shutil.copy(ctx.which('python34.dll'), join(dest_dir, 'bin'))
+    shutil.copy(which('msvcr120.dll'), join(dest_dir, 'bin'))
+    shutil.copy(which('msvcp120.dll'), join(dest_dir, 'bin'))
+    shutil.copy(which('python34.dll'), join(dest_dir, 'bin'))
 
 def fix_libraries(ctx, dest_dir):
     if IS_WINDOWS:
