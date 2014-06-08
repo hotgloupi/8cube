@@ -45,10 +45,8 @@ class Context(tempfile.TemporaryDirectory):
 
     def __exit__(self, *args):
         self.log_file.flush()
+        os.close(self.log_file.fileno)
         self.log_file.close()
-        self.log_file = None
-        import gc
-        gc.collect()
         super().__exit__(*args)
 
     def log(self, *args, **kw):
