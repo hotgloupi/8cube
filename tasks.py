@@ -191,8 +191,7 @@ def copy_python_files(ctx, python_home, dest_dir):
         dst = src
         with open(join(dest_python_home, '_sysconfigdata.py'), 'w') as f:
             f.write(dst)
-        for k, v in dst.items():
-            ctx.log("SYSCONFIG:",k, '=', v)
+        ctx.log("SYSCONFIG:", dst)
     return dest_python_home
 
 
