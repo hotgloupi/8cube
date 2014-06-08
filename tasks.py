@@ -39,13 +39,16 @@ class Context(tempfile.TemporaryDirectory):
         self.dest_dir = join(self.work_dir, self.dirname)
         os.makedirs(self.dest_dir)
         self.log_file = open(join(self.dest_dir, ".release.log"), 'a')
-        release_date_file = join(self.dest_dir, '.release')
-        with open(release_date_file, 'w') as f:
+        with open(join(self.dest_dir, '.release'), 'w') as f:
             print(dt.datetime.utcnow().ctime(), file = f)
         return self
 
     def __exit__(self, *args):
+        self.log_file.flush()
         self.log_file.close()
+        self.log_file = None
+        import gc
+        gc.collect()
         super().__exit__(*args)
 
     def log(self, *args, **kw):
@@ -180,7 +183,8 @@ def copy_python_files(ctx, python_home, dest_dir):
         dst = src
         with open(join(dest_python_home, '_sysconfigdata.py'), 'w') as f:
             f.write(dst)
-            print(dst)
+        for k, v in dst.items():
+            ctx.log("SYSCONFIG:",k, '=', v)
     return dest_python_home
 
 
