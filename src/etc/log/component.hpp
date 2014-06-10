@@ -7,6 +7,7 @@
 
 # define ETC_LOG_SCOPE_COMPONENT(__name)                                      \
 	struct BOOST_PP_CAT(log, __LINE__) {                                      \
+		BOOST_PP_CAT(log, __LINE__)() {}                                      \
 		inline                                                                \
 		std::string const& operator ()() const ETC_NOEXCEPT                   \
 		{ static std::string n{__name}; return n; }                           \

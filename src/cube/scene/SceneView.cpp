@@ -30,10 +30,14 @@ namespace cube { namespace scene {
 		ScenePtr scene;
 		std::map<node::Node*, BindablePtr> bindables;
 		std::map<node::Node*, DrawablePtr> drawables;
+
+		Impl(ScenePtr scene)
+			: scene{std::move(scene)}
+		{}
 	};
 
 	SceneView::SceneView(ScenePtr scene)
-		: _this{new Impl{scene, {}, {}}}
+		: _this{new Impl{std::move(scene)}}
 	{ ETC_TRACE_CTOR(); }
 
 	SceneView::~SceneView()
