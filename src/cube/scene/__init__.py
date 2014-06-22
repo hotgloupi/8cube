@@ -8,7 +8,7 @@ from cube import gl
 
 def content_node_type(value):
     node_type = {
-        gl.Light: ContentNodeLight,
+        gl.Light: Light,
         gl.Material: ContentNodeMaterial,
         gl.Mesh: ContentNodeMesh,
     }.get(type(value))
