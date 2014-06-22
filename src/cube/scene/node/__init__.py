@@ -4,4 +4,4 @@ from .ContentNode import ContentNodeBindable
 from .ContentNode import ContentNodeDrawable
 from .ContentNode import ContentNodeMaterial
 from .ContentNode import ContentNodeMesh
-from .ContentNode import ContentNodeLight
+from .Light import Light

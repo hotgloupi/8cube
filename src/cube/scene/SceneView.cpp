@@ -5,6 +5,7 @@
 #include "Scene.hpp"
 #include "node/Transform.hpp"
 #include "node/MultipleVisitor.hpp"
+#include "node/Light.hpp"
 #include "visit/depth_first_search.hpp"
 
 #include <cube/gl/renderer/Light.hpp>
@@ -49,6 +50,7 @@ namespace cube { namespace scene {
 		using node::Transform;
 		using node::ContentNode;
 		using node::Node;
+		using node::Light;
 
 		struct DirectDraw
 			: public MultipleVisitor<
@@ -57,7 +59,7 @@ namespace cube { namespace scene {
 			  , ContentNode<DrawablePtr>
 			  , ContentNode<MaterialPtr>
 			  , ContentNode<MeshPtr>
-			  , ContentNode<LightPtr>
+			  , Light
 			>
 		{
 			ETC_LOG_COMPONENT("cube.scene.SceneView");
@@ -67,7 +69,7 @@ namespace cube { namespace scene {
 			  , ContentNode<DrawablePtr>
 			  , ContentNode<MaterialPtr>
 			  , ContentNode<MeshPtr>
-			  , ContentNode<LightPtr>
+			  , Light
 			> super_type;
 
 			SceneView::Impl& _impl;
@@ -123,13 +125,13 @@ namespace cube { namespace scene {
 				return true;
 			}
 
-			bool visit(ContentNode<LightPtr>& node)
+			bool visit(Light& node)
 			{
 				gl::vector::vec3f pos(
 					  _painter.state().lock()->model_view()
 					* gl::vector::vec4f(0, 0, 0, 1)
 				);
-				node.value()->point().position = pos;
+				node.value().point().position = pos;
 				ETC_LOG.debug("Set", node, "pos to", pos);
 				return true;
 			}

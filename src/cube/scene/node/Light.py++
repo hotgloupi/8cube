@@ -1,0 +1,17 @@
+#include "Light.hpp"
+
+#include <cube/gl/renderer/Light.hpp>
+
+#include <wrappers/boost/python.hpp>
+
+namespace py = boost::python;
+using namespace cube::scene;
+using namespace cube::scene::node;
+
+
+BOOST_PYTHON_MODULE(Light)
+{
+	py::class_<Light, py::bases<Node>, boost::noncopyable>(
+		"Light", py::init<std::string, Light::light_ptr_type>()
+	);
+}

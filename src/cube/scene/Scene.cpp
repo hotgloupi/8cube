@@ -10,6 +10,7 @@
 #include "node/Transform.hpp"
 #include "node/ContentNode.hpp"
 #include "node/MultipleVisitor.hpp"
+#include "node/Light.hpp"
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
@@ -30,8 +31,6 @@ using cube::gl::mesh::Mesh;
 using cube::gl::mesh::MeshPtr;
 using cube::gl::material::Material;
 using cube::gl::material::MaterialPtr;
-using cube::gl::renderer::Light;
-using cube::gl::renderer::LightPtr;
 using cube::gl::renderer::DrawMode;
 using cube::gl::renderer::ContentKind;
 
@@ -41,6 +40,7 @@ namespace cube { namespace scene {
 	using node::MultipleVisitor;
 	using node::Visitor;
 	using node::ContentNode;
+	using node::Light;
 
 	struct Scene::Impl
 	{
@@ -133,13 +133,14 @@ namespace cube { namespace scene {
 		: public MultipleVisitor<
 			  ContentNode<MeshPtr>
 			, ContentNode<MaterialPtr>
-			, ContentNode<LightPtr>
+			, Light
 		>
 	{
+		ETC_LOG_COMPONENT("cube.scene." + etc::to_string(ev) + "Observer");
 		typedef MultipleVisitor<
 			  ContentNode<MeshPtr>
 			, ContentNode<MaterialPtr>
-			, ContentNode<LightPtr>
+			, Light
 		> super_type;
 		Scene::Impl& _impl;
 
@@ -162,11 +163,29 @@ namespace cube { namespace scene {
 			return true; \
 		} \
 /**/
-		OBSERVER_VISIT_METHOD(LightPtr, lights);
 		OBSERVER_VISIT_METHOD(MaterialPtr, materials);
 		OBSERVER_VISIT_METHOD(MeshPtr, meshes);
 
 #undef OBSERVER_VISIT_METHOD
+
+#define OBSERVER_VISIT_METHOD(__type, __container_name) \
+		bool visit(__type& node) override \
+		{ \
+			ETC_TRACE.debug("Got", ev, "for", node); \
+			if (ev == Graph::Event::insert) \
+				_impl.__container_name.push_back(node.ptr()); \
+			else if (ev == Graph::Event::remove) \
+				std::remove_if( \
+					_impl.__container_name.begin(), \
+					_impl.__container_name.end(), \
+					[&] (__type::value_type const& lhs) \
+					{ return lhs.get() == node.ptr().get(); } \
+				); \
+			return true; \
+		} \
+/**/
+		OBSERVER_VISIT_METHOD(Light, lights);
+
 		using super_type::visit;
 	};
 
