@@ -8,6 +8,9 @@ namespace etc { namespace network {
 	Socket::Impl::~Impl()
 	{}
 
+	int Socket::Impl::configuration() const
+	{ throw InvalidOperation{}; }
+
 	Socket::buffer_type Socket::Impl::read(etc::size_type s)
 	{ throw InvalidOperation{}; }
 
