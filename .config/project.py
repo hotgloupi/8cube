@@ -219,6 +219,41 @@ class BZ2Dependency(Dependency):
             )
         ]
 
+
+class IDNDependency(AutotoolsDependency):
+
+    def __init__(self,
+                 build,
+                 compiler,
+                 source_directory,
+                 shared = False):
+        configure_args = [
+            '--enable-fast-install',
+        ]
+        if shared:
+            configure_args.extend([
+                '--enable-shared',
+                '--disable-static'
+            ])
+        else:
+            configure_args.extend([
+                '--disable-shared',
+                '--enable-static'
+            ])
+        super().__init__(
+            build,
+            'idn',
+            source_directory,
+            compiler,
+            libraries = [
+                {
+                    'name': 'idn',
+                    'shared': False,
+                }
+            ],
+            configure_arguments = configure_args,
+        )
+
 def main(project, build):
     build_type = project.env.get('BUILD_TYPE', 'DEBUG')
     project.env.build_set('BUILD_TYPE', build_type)
@@ -313,6 +348,12 @@ def main(project, build):
         'deps/bzip2-1.0.6',
     )
 
+    idn = build.add_dependency(
+        IDNDependency,
+        c_compiler,
+        'deps/libidn-1.9',
+    )
+
     curl = build.add_dependency(
         c.libraries.CURLDependency,
         c_compiler,
@@ -326,6 +367,7 @@ def main(project, build):
         with_dict = False,
         with_file = False,
         with_cookies = True,
+        idn = idn,
     )
 
     bullet_physics = build.add_dependency(
