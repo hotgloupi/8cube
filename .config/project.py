@@ -19,7 +19,7 @@ from configure.lang import c
 from configure.tools import glob, rglob, status
 from configure import path
 
-from configure.dependency.cmake import CMakeDependency
+from configure.dependency import CMakeDependency, AutotoolsDependency, Dependency
 
 class Assimp(CMakeDependency):
     def __init__(self,
@@ -137,19 +137,84 @@ class GLM(Dependency):
             source_directory = source_directory
         )
         self.compiler = compiler
-
-    @property
-    def targets(self):
-        return []
-
-    @property
-    def libraries(self):
-        return [
+        self.libraries = [
             cxx.Library(
                 'GLM',
                 self.compiler,
                 search_binary_files = False,
                 include_directories = [self.absolute_source_path()],
+                save_env_vars = False,
+            )
+        ]
+
+    @property
+    def targets(self):
+        return []
+
+
+class ZLibDependency(CMakeDependency):
+
+    def __init__(self, build, c_compiler, source_directory, shared = False):
+        super().__init__(
+            build,
+            "zlib",
+            source_directory = source_directory,
+            compiler = c_compiler,
+            libraries = [
+                {
+                    'name': 'z',
+                    'shared': shared,
+                }
+            ]
+        )
+        if c_compiler.lang != 'c':
+            raise Exception("Invalid compiler, please provide a C compiler")
+        self.compiler = c_compiler
+
+class BZ2Dependency(Dependency):
+    def __init__(self,
+                 build,
+                 compiler,
+                 source_directory,
+                 shared = False):
+        super().__init__(build, 'bz2', source_directory, compiler = compiler)
+        sources = [
+            self.absolute_source_path(s) for s in [
+                'blocksort.c',
+                'huffman.c',
+                'crctable.c',
+                'randtable.c',
+                'compress.c',
+                'decompress.c',
+                'bzlib.c',
+            ]
+        ]
+        defines = [
+            ('_FILE_OFFSET_BITS', 64),
+        ]
+        include_directories = [self.absolute_source_path()]
+        lib = compiler.link_library(
+            self.name,
+            sources = sources,
+            directory = self.build_path('install/lib'),
+            include_directories = include_directories,
+            shared = shared,
+            build = build,
+            position_independent_code = True,
+            defines = defines,
+            libraries = [],
+        )
+        self.targets = [lib]
+        from configure.lang.c.library import Library
+        self.libraries = [
+            Library(
+                self.name,
+                self.compiler,
+                shared = shared,
+                search_binary_files = False,
+                include_directories = include_directories,
+                directories = [lib.dirname],
+                files = [lib.path],
                 save_env_vars = False,
             )
         ]
@@ -234,6 +299,18 @@ def main(project, build):
         c.libraries.FreetypeDependency,
         c_compiler,
         'deps/freetype2'
+    )
+
+    zlib = build.add_dependency(
+        ZLibDependency,
+        c_compiler,
+        'deps/zlib-1.2.8'
+    )
+
+    bz2 = build.add_dependency(
+        BZ2Dependency,
+        c_compiler,
+        'deps/bzip2-1.0.6',
     )
 
     curl = build.add_dependency(
@@ -343,7 +420,7 @@ def main(project, build):
     #if not platform.IS_WINDOWS:
     #    list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
 
-    base_libraries = []
+    base_libraries = zlib.libraries + bz2.libraries
     if platform.IS_WINDOWS:
         base_libraries.extend(
             c.libraries.simple(name, compiler, system = True) for name in [
@@ -365,9 +442,9 @@ def main(project, build):
             ]
         )
     else: # OSX and Linux
-        base_libraries.extend(
-            c.libraries.simple(name, compiler, system = True) for name in ['z', 'bz2',]
-        )
+        #base_libraries.extend(
+        #    c.libraries.simple(name, compiler, system = True) for name in ['z', 'bz2',]
+        #)
         if platform.IS_LINUX:
             pass
             # SDL audio disabled
