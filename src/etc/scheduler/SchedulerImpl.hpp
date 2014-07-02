@@ -79,17 +79,19 @@ namespace etc { namespace scheduler {
 
 			// Service runner stores exceptions (and stop the scheduler).
 			auto runner = [&](etc::size_type const thread_index) {
-				try { this->service.run(); }
-				catch (...) {
-					ETC_LOG.error("Thread",
-					              thread_index,
-					              "exited with error:",
-					              exception::string());
-					thread_errors[thread_index] = std::current_exception();
-					ETC_LOG.debug("Stopping scheduler");
-					this->stop();
+				{ // this block prevents parsing errors in gcc47
+					try { this->service.run(); }
+					catch (...) {
+						ETC_LOG.error("Thread",
+									  thread_index,
+									  "exited with error:",
+									  exception::string());
+						thread_errors[thread_index] = std::current_exception();
+						ETC_LOG.debug("Stopping scheduler");
+						this->stop();
+					}
+					ETC_LOG.debug("Thread", thread_index, "exited gracefully");
 				}
-				ETC_LOG.debug("Thread", thread_index, "exited gracefully");
 			};
 
 			// Poll coroutines.
