@@ -93,14 +93,14 @@ namespace etc { namespace http {
 		if (this->sockets.find(easy_handle) == this->sockets.end())
 		{
 			ETC_TRACE.debug(*this, "Setup easy handle", easy_handle, "with fd", fd);
-			this->sockets.emplace(
+			this->sockets.insert(std::make_pair(
 				easy_handle,
 				boost::asio::ip::tcp::socket(
 					this->sched.impl().service,
 					boost::asio::ip::tcp::v4(),
 					fd
 				)
-			);
+			));
 			ETC_ASSERT_EQ(this->sockets.at(easy_handle).native_handle(), fd);
 		}
 	}
