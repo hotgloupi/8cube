@@ -76,7 +76,7 @@ namespace cube { namespace resource {
 			throw Exception{"The path '" + path.string() + "' does not exists"};
 		if (!fs::is_directory(path))
 			throw Exception{"The path '" + path.string() + "' does not refer to a valid directory"};
-		_this->paths.emplace_back(std::move(path));
+		_this->paths.push_back(std::move(path));
 		return *this;
 	}
 
@@ -150,7 +150,9 @@ namespace cube { namespace resource {
 	Manager::_manage(ResourcePtr resource_ptr)
 	{
 		auto id = resource_ptr->manage(*this, next_id());
-		auto const& it = _this->resources.emplace(id, std::move(resource_ptr));
+		auto const& it = _this->resources.insert(
+			std::make_pair(id, std::move(resource_ptr))
+		);
 		if (it.second == false)
 			throw Exception{"Couldn't store the resource"};
 		return it.first->second;
