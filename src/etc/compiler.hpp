@@ -11,7 +11,12 @@
 # endif
 
 # define ETC_NOEXCEPT BOOST_NOEXCEPT_OR_NOTHROW
-# define ETC_NOEXCEPT_IF(...) BOOST_NOEXCEPT_IF((__VA_ARGS__))
+# if (defined(__GNUC__) && __GNUC__ == 4 &&  __GNUC_MINOR__ <= 7 && __GNUC_PATCHLEVEL__ <= 3)
+   // Prevent some internal compiler errors in gcc < 4.7.2
+#  define ETC_NOEXCEPT_IF(...)
+# else
+#  define ETC_NOEXCEPT_IF(...) BOOST_NOEXCEPT_IF((__VA_ARGS__))
+# endif
 # define ETC_CONSTEXPR BOOST_CONSTEXPR
 
 # ifndef BOOST_PP_VARIADICS
