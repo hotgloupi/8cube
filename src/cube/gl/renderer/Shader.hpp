@@ -36,7 +36,11 @@ namespace cube { namespace gl { namespace renderer {
 		       Parameters inputs,
 		       Parameters outputs,
 		       Parameters parameters)
+#if (defined(__GNUC__) && __GNUC__ == 4 &&  __GNUC_MINOR__ < 8)
+			; // not gcc < 4.8 (internal compiler error)
+#else
 			ETC_NOEXCEPT_IF(std::is_nothrow_move_constructible<Parameters>());
+#endif
 
 		virtual
 		~Shader();
