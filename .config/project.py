@@ -348,11 +348,14 @@ def main(project, build):
         'deps/bzip2-1.0.6',
     )
 
-    idn = build.add_dependency(
-        IDNDependency,
-        c_compiler,
-        'deps/libidn-1.9',
-    )
+    if not platform.IS_WINDOWS:
+        idn = build.add_dependency(
+            IDNDependency,
+            c_compiler,
+            'deps/libidn-1.9',
+        )
+    else:
+        idn = None
 
     curl = build.add_dependency(
         c.libraries.CURLDependency,
