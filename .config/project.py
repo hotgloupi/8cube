@@ -278,7 +278,7 @@ def main(project, build):
     else:
         raise Exception("Unknown build type '%s'" % build_type)
 
-    defines += ['BOOST_ALL_NO_LIB']
+    defines += ['BOOST_ALL_NO_LIB', 'GLEW_NO_GLU']
 
     if platform.IS_WINDOWS:
         defines.extend([
