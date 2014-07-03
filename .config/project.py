@@ -155,6 +155,13 @@ class GLM(Dependency):
 class ZLibDependency(CMakeDependency):
 
     def __init__(self, build, c_compiler, source_directory, shared = False):
+        if platform.IS_WINDOWS:
+            if shared:
+                libname = 'zlib'
+            else:
+                libname = 'zlibstatic'
+        else:
+            libname = 'z'
         super().__init__(
             build,
             "zlib",
@@ -162,7 +169,7 @@ class ZLibDependency(CMakeDependency):
             compiler = c_compiler,
             libraries = [
                 {
-                    'name': 'z',
+                    'name': libname,
                     'shared': shared,
                 }
             ]
