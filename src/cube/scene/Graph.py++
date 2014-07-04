@@ -18,7 +18,7 @@ namespace {
 		PyObject* ptr = py::incref(o.ptr());
 		return new Graph{
 			py::extract<node::Node&>(o)(),
-			[ptr] (node::Node* n) {
+			[=] (node::Node* n) {
 				ETC_LOG.debug(
 					"Decrement python instance",
 					*ptr,
