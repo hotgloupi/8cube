@@ -93,6 +93,7 @@ class BulletPhysics(CMakeDependency):
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'BulletDynamics',
                     'shared': shared,
+                    'include_directories': ['install/include/bullet'],
                 },
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
