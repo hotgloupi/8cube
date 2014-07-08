@@ -23,6 +23,7 @@ include_dirs = [
     'build/dependencies/SDL_image/install/include/SDL2',
     'deps/assimp/include',
     'deps/glm',
+    'build/dependencies/BulletPhysics/install/include/bullet',
 ]
 
 if sys.platform.startswith('win32'):
