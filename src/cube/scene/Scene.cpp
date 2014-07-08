@@ -11,6 +11,7 @@
 #include "node/ContentNode.hpp"
 #include "node/MultipleVisitor.hpp"
 #include "node/Light.hpp"
+#include "physics/Engine.hpp"
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
@@ -48,6 +49,7 @@ namespace cube { namespace scene {
 		MaterialList materials;
 		LightList    lights;
 		Graph        graph;
+		physics::Engine physics_engine;
 
 		Impl()
 		{ ETC_TRACE_CTOR(); }
@@ -253,6 +255,10 @@ namespace cube { namespace scene {
 
 	Graph& Scene::graph() ETC_NOEXCEPT
 	{ return _this->graph; }
+
+
+	physics::Engine& Scene::physics_engine() ETC_NOEXCEPT
+	{ return _this->physics_engine; }
 
 	Scene::MeshList const& Scene::meshes() const ETC_NOEXCEPT
 	{ return _this->meshes; }

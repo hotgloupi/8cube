@@ -53,6 +53,9 @@ namespace cube { namespace scene {
 		Graph& graph() ETC_NOEXCEPT;
 
 	public:
+		physics::Engine& physics_engine() ETC_NOEXCEPT;
+
+	public:
 		typedef std::vector<gl::mesh::MeshPtr> MeshList;
 		MeshList const& meshes() const ETC_NOEXCEPT;
 

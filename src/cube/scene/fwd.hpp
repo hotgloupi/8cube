@@ -2,6 +2,7 @@
 # define CUBE_SCENE_FWD_HPP
 
 # include "node/fwd.hpp"
+# include "physics/fwd.hpp"
 
 # include <memory>
 
