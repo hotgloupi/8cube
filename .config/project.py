@@ -262,23 +262,23 @@ class IDNDependency(AutotoolsDependency):
             configure_arguments = configure_args,
         )
 
-def main(project, build):
-    build_type = project.env.get('BUILD_TYPE', 'DEBUG')
-    project.env.build_set('BUILD_TYPE', build_type)
-    status("Configuring project", project.env.NAME, '(%s)' % project.env.VERSION_NAME,
+def main(build):
+    build_type = build.project.env.get('BUILD_TYPE', 'DEBUG')
+    build.env.BUILD_TYPE = build_type
+    status("Configuring project", build.env.NAME, '(%s)' % build.env.VERSION_NAME,
            'in', build.directory, '(%s)' % build_type)
 
     from configure.lang import cxx
 
 
-    if project.env.BUILD_TYPE == 'DEBUG':
+    if build.env.BUILD_TYPE == 'DEBUG':
         defines = [
             'ETC_DEBUG',
             'CUBE_DEBUG',
             'CUBEAPP_DEBUG',
         ]
         optimization = cxx.compiler.Compiler.dont_optimize
-    elif project.env.BUILD_TYPE == 'RELEASE':
+    elif build.env.BUILD_TYPE == 'RELEASE':
         defines = ['NDEBUG']
         if platform.IS_WINDOWS:
             defines.append(('_SCL_SECURE', '0'))
@@ -307,11 +307,11 @@ def main(project, build):
         path.join(build.directory, 'src'),
 #        '/home/hotgloupi/sandbox/raspberry/root/usr/include',
 #        '/home/hotgloupi/sandbox/raspberry/root/usr/include/arm-linux-gnueabihf',
-        path.absolute(project.root_dir, 'src'),
-        path.absolute(project.root_dir, 'src/glew'),
+        path.absolute(build.project.directory, 'src'),
+        path.absolute(build.project.directory, 'src/glew'),
     ]
     compiler = cxx.find_compiler(
-        project, build,
+        build,
         position_independent_code = True,
         standard = 'c++11',
         defines = defines,
@@ -329,7 +329,6 @@ def main(project, build):
     )
 
     c_compiler = c.find_compiler(
-        project,
         build,
         force_architecture = False,
         optimization = optimization
