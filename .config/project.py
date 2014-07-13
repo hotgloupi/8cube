@@ -494,11 +494,10 @@ def main(build):
             ]
         )
     else: # OSX and Linux
-        base_libraries.extend(
-            c.libraries.simple(name, compiler, system = True) for name in ['rt',]
-        )
         if platform.IS_LINUX:
-            pass
+            base_libraries.extend(
+                c.libraries.simple(name, compiler, system = True) for name in ['rt',]
+            )
             # SDL audio disabled
             #base_libraries.extend(
             #    c.libraries.simple(name, compiler, system = True) for name in ['audio',]
