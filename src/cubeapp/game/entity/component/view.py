@@ -1,12 +1,11 @@
 
-import cube
-
 from .component import Component
+from ..system import Renderer
+import cube
 
 class View(Component):
     name = 'view'
-
-    __slots__ = ('parent_node', 'nodes')
+    systems = [Renderer]
 
     def init(self, contents = []):
         if self.nodes is not None:

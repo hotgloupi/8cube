@@ -28,6 +28,8 @@ class Manager:
         return controller
 
     def register(self, controller, channel):
+        if isinstance(channel, str):
+            channel = Channel(channel)
         assert isinstance(channel, Channel)
         list = self.__controllers.setdefault(channel.name, [])
         assert controller not in list

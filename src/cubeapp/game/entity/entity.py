@@ -1,25 +1,54 @@
 
+from .component import Component
+
 class Entity:
-    """Root class for an entity.
-
-    This class acts as a simple container of its components.
-    You can set class level components  by inheriting an entity or set them
-    at instance level.
-
-    If an entity has both class level and instance level components, they will
-    be added.
+    """An entity is a simple container of components.
     """
-
-    components = []
-
-    # Set when added to a manager
+    # Set when the entity is created
     manager = None
 
-    def __init__(self, *components, name = None):
+    def __init__(self, name = None):
         if name is None:
-            name = self.__class__.__name__.lower()
-        self.name = name
-        self.components = list(self.components) + list(components)
+            name = self.__class__.__name__
+        self.name = name.lower()
+
+    def add_component(self, component, **kw):
+        """Add a component to an entity.
+
+        Keyword arguments are made of keys that must be names of existing
+        systems, and values must be dictionaries, that are forwarded to the
+        init method of systems that handles the specified component.
+        """
+        assert isinstance(component, Component)
+        assert self.manager is not None, "Entity not registered"
+        return self.manager._Manager__register_component(self, component, **kw)
+
+    @property
+    def components(self):
+        return self.manager.components(self)
 
     def component(self, name):
-        return self.manager.entity_component(self, name)
+        res = []
+        for c in self.components:
+            if c.name == name:
+                res.append(c)
+        if not res:
+            raise Exception("No component '%s' found in %s" % (name, self))
+        if len(res) > 1:
+            raise Exception("More than one component '%s' found in %s" % (name, self))
+        return res[0]
+
+from cube.test import Case
+
+class _(Case):
+
+    def test_init(self):
+        e = Entity()
+        self.assertEqual(e.name, 'entity')
+        e = Entity(name = "Test")
+        self.assertEqual(e.name, "test")
+
+        class LOLEntity(Entity):
+            pass
+        self.assertEqual(LOLEntity().name, "lolentity")
+

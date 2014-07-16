@@ -2,20 +2,10 @@
 import cube
 
 from .component import Component
+from ..system import Scene
 
 class Transform(Component):
-    name = 'transform'
-    __slots__ = ('parent_node', 'node')
-    def init(self, transformation = cube.gl.mat4f()):
-        if self.node is None:
-            if self.parent_node is None:
-                self.parent_node = self.manager.scene.graph.root
-            self.node = self.parent_node.emplace_child(
-                cube.scene.Transform,
-                self.entity.name,
-                transformation
-            )
-        else:
-            raise Exception("Node reuse not supported yet")
-
-
+    systems = [Scene]
+    def __init__(self, matrix = cube.gl.mat4f(), name = None):
+        super().__init__(name)
+        self.matrix = matrix
