@@ -104,6 +104,7 @@ BOOST_PYTHON_MODULE(material)
 /**/
 		ADD_PROPERTY(name)
 		ADD_PROPERTY(ambient)
+		ADD_PROPERTY(ambiant)
 		ADD_PROPERTY(diffuse)
 		ADD_PROPERTY(specular)
 		ADD_PROPERTY(shininess)

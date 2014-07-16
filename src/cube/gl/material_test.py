@@ -23,8 +23,10 @@ class _(PainterSetup, Case):
         pink = gl.Color3f("pink")
 
         self.assertEqual(m.ambient, black)
+        self.assertEqual(m.ambiant, black)
         m.ambient = pink
         self.assertEqual(m.ambient, pink)
+        self.assertEqual(m.ambiant, pink)
 
         self.assertEqual(m.specular, black)
         m.specular = pink
@@ -123,3 +125,26 @@ class _(PainterSetup, Case):
         painter.state.rotate(angle.deg(32), gl.vec3f(0, 1, 0))
         with painter.bind([material.bindable(self.renderer)]):
             painter.draw([cube_view])
+
+    @painter_test(gl.mode_3d)
+    def test_update_ambiant(self, painter):
+        material = Material()
+        material.ambiant = gl.col3f(1,0,0)
+        mesh = gl.Spheref(gl.vec3f(0), 1).drawable(self.renderer)
+        painter.state.look_at(
+            gl.vec3f(0, .8, 10), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
+        )
+        painter.state.perspective(
+            35, 200 / 200, 0.005, 30.0
+        )
+        bindable = material.bindable(self.renderer)
+        s = painter.push_state()
+        s.translate(1, 0, 0)
+        with painter.bind([bindable]):
+            painter.draw([mesh])
+        painter.pop_state()
+        s = painter.push_state()
+        s.translate(-1, 0, 0)
+        material.ambiant = gl.col3f(0, 1, 1)
+        with painter.bind([bindable]):
+            painter.draw([mesh])

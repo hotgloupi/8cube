@@ -152,9 +152,12 @@ namespace cube { namespace gl { namespace material {
 
 		/// Ambient color.
 		inline color_type const& ambient() const ETC_NOEXCEPT { return _ambient; }
+		inline color_type const& ambiant() const ETC_NOEXCEPT { return _ambient; }
 
 		/// Set ambient color.
 		inline void ambient(color_type color) ETC_NOEXCEPT
+		{ _ambient = std::move(color); }
+		inline void ambiant(color_type color) ETC_NOEXCEPT
 		{ _ambient = std::move(color); }
 
 		/// Diffuse color.
