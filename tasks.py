@@ -455,7 +455,8 @@ def make_release(build_dir, output_file):
         python_home = copy_python_files(ctx, locate_python_home(ctx, build_dir), ctx.dest_dir)
         clean_release(ctx, ctx.dest_dir)
         fix_libraries(ctx, ctx.dest_dir)
-        strip_binaries(ctx, ctx.dest_dir, python_home)
+        if debug not in build_dir:
+            strip_binaries(ctx, ctx.dest_dir, python_home)
         manifest = create_manifest(ctx, ctx.dest_dir)
         make_tarball(ctx, ctx.dest_dir, output_file)
     return 0
