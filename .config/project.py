@@ -263,7 +263,7 @@ class IDNDependency(AutotoolsDependency):
         )
 
 def main(build):
-    build_type = build.project.env.get('BUILD_TYPE', 'DEBUG')
+    build_type = build.env.get('BUILD_TYPE', 'DEBUG')
     build.env.BUILD_TYPE = build_type
     status("Configuring project", build.env.NAME, '(%s)' % build.env.VERSION_NAME,
            'in', build.directory, '(%s)' % build_type)
