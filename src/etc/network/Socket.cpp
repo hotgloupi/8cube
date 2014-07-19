@@ -46,16 +46,18 @@ namespace etc { namespace network {
 /**/
 
 		// Exports typedefs and self() in the Operation class.
-#define PATCH_OPERATION() \
+#define PATCH_OPERATION(__class) \
 			Self& self() { return static_cast<Self&>(*this); } \
 			typedef typename AsioSocket::protocol_type protocol_type; \
 			typedef typename AsioSocket::endpoint_type endpoint_type; \
 			typedef AsioSocket asio_socket_type; \
+			__class() { ETC_TRACE_CTOR(); } \
+			~__class() { ETC_TRACE_DTOR(); } \
 /**/
 
 		DEF_OPERATION(Bind)
 		{
-			PATCH_OPERATION();
+			PATCH_OPERATION(Bind);
 
 			void bind(std::string const& address, uint16_t const port) override
 			{
@@ -71,7 +73,7 @@ namespace etc { namespace network {
 
 		DEF_OPERATION(Connect)
 		{
-			PATCH_OPERATION();
+			PATCH_OPERATION(Connect);
 
 			void connect(std::string const& address, uint16_t port) override
 			{
@@ -96,7 +98,7 @@ namespace etc { namespace network {
 
 		DEF_OPERATION(ReadWrite)
 		{
-			PATCH_OPERATION();
+			PATCH_OPERATION(ReadWrite);
 
 			Socket::buffer_type read(etc::size_type size) override
 			{
@@ -184,7 +186,7 @@ namespace etc { namespace network {
 
 		DEF_OPERATION(Listen)
 		{
-			PATCH_OPERATION();
+			PATCH_OPERATION(Listen);
 
 			void listen() override
 			{
@@ -198,7 +200,7 @@ namespace etc { namespace network {
 
 		DEF_OPERATION(Accept)
 		{
-			PATCH_OPERATION();
+			PATCH_OPERATION(Accept);
 			typedef typename client_socket<asio_socket_type>::type client_socket_type;
 
 			Socket accept() override
@@ -250,7 +252,8 @@ namespace etc { namespace network {
 				, config{config}
 				, sched(sched)
 				, asio_socket{sched.impl().service}
-			{}
+			{ ETC_TRACE_CTOR(config); }
+			~SocketImpl() { ETC_TRACE_DTOR(); }
 
 			int configuration() const override
 			{ return this->config; }
