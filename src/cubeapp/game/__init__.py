@@ -76,9 +76,6 @@ class Game():
             scene = self.scene,
             inputs = self.input_translator,
         )
-        self.projection_matrix = gl.matrix.perspective(
-            45, 1, 0.005, 300.0
-        )
         self.window.inputs.on_quit.connect(self._on_quit)
 
     def update(self, delta):
