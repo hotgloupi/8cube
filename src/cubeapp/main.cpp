@@ -80,36 +80,32 @@ int _main(int argc, char** argv)
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
 
+	boost::python::list pyargs;
+	for (int i = 1; i < argc; ++i)
 	{
-		int j = 0;
-		boost::python::list pyargs;
-		for (int i = 1; i < argc; ++i)
-		{
-			boost::python::str s{std::string(argv[i])};
-			pyargs.append(s);
-		}
-
-		pyargs.append("-G");
-		pyargs.append(games_dir.string());
-		interpreter.setglobal("ARGV", pyargs);
+		boost::python::str s{std::string(argv[i])};
+		pyargs.append(s);
 	}
+	pyargs.append("-G");
+	pyargs.append(games_dir.string());
 
 	std::string init_script =
 		"import sys\n"
 		"sys.path.insert(0, lib_dir)\n"
 		"from cubeapp.main import main\n"
-		"main(ARGV)\n"
 	;
-	bool success = interpreter.exec(init_script);
-	return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+	interpreter.exec(init_script);
+	int ret;
+	boost::python::propagate_exception([&] {
+		ret = boost::python::extract<int>(interpreter.globals()["main"](pyargs));
+	});
+	return ret;
 }
 
 int main(int ac, char** av)
 {
 	try {
-		int ret;
-		boost::python::propagate_exception([&] { ret = _main(ac, av); });
-		return ret;
+		return _main(ac, av);
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
 	} catch (...) {

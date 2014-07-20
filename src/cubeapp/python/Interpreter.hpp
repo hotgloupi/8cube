@@ -18,9 +18,10 @@ namespace cubeapp { namespace python {
 		Impl* _impl;
 
 	public:
-		bool exec(std::string const& script);
+		void exec(std::string const& script);
 		void setglobal(std::string const& key, std::string const& value);
 		void setglobal(std::string const& key, boost::python::object const& value);
+		boost::python::dict& globals();
 
 	private:
 		Interpreter();

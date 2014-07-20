@@ -24,15 +24,15 @@ namespace cubeapp { namespace python {
 
 	struct Interpreter::Impl
 	{
-		py::object main_module;
-		py::object main_namespace;
+		py::object main;
+		py::dict globals;
 
 		Impl()
-			: main_module{}
-			, main_namespace{}
+			: main{}
+			, globals{}
 		{
-			this->main_module = boost::python::import("__main__");
-			this->main_namespace = main_module.attr("__dict__");
+			this->main = boost::python::import("__main__");
+			this->globals = py::extract<py::dict>(this->main.attr("__dict__"));
 		}
 	};
 
@@ -50,40 +50,32 @@ namespace cubeapp { namespace python {
 			Py_Finalize();
 	}
 
-	bool Interpreter::exec(std::string const& script)
+	boost::python::dict& Interpreter::globals()
+	{ return _impl->globals; }
+
+	void Interpreter::exec(std::string const& script)
 	{
-		ETC_LOG.debug("Execute:\n", script);
-		try {
-			boost::python::propagate_exception([&] {
-				py::exec(script.c_str(),
-						_impl->main_namespace,
-						_impl->main_namespace);
-			});
-			return true;
-		} catch (...) {
-			ETC_LOG.fatal(
-				"Python main exited with errors:",
-				etc::exception::string()
-			);
-		}
-		return false;
+		ETC_TRACE.debug("Execute:\n", script);
+		py::object res;
+		py::propagate_exception([&] {
+			res = py::exec(script.c_str(),
+			               _impl->globals,
+			               _impl->globals);
+		});
 	}
 
 	void Interpreter::setglobal(std::string const& key,
 	                            std::string const& value)
 	{
 		ETC_LOG.debug("Set global string", key, "=", value);
-		py::dict d = py::extract<py::dict>(_impl->main_namespace);
-		d[key] = value;
-		ETC_LOG.debug("DONE");
+		_impl->globals[key] = value;
 	}
 
 	void Interpreter::setglobal(std::string const& key,
 	                            boost::python::object const& value)
 	{
 		ETC_LOG.debug("Set global", key, "=", value);
-		py::dict d = py::extract<py::dict>(_impl->main_namespace);
-		d[key] = value;
+		_impl->globals[key] = value;
 	}
 
 

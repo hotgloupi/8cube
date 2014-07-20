@@ -148,10 +148,10 @@ def import_cube():
 import traceback
 import gc
 
-def main(args):
+def main(argv):
     cube = import_cube()
-    sys.argv = ['cubeapp.main'] + args
-    cube.info("Launching 8cube with args", args)
+    sys.argv = ['cubeapp.main'] + argv
+    cube.info("Launching 8cube with args", argv)
     cube.constants.application.name("8cube")
 
     # XXX remove that
@@ -159,21 +159,25 @@ def main(args):
         cube.gui.FontManager.populate()
 
     try:
-        parser, args = parse_args(args)
+        parser, args = parse_args(argv)
+    except SystemExit as e:
+        return e.code
+    try:
         if args.profile:
             import cProfile, pstats
             pr = cProfile.Profile()
             pr.enable()
-            _main(parser, args)
+            ret = _main(parser, args)
             pr.disable()
             stats = pstats.Stats(pr)
             stats.sort_stats(*tuple(args.profile))
             stats.print_stats()
             stats.dump_stats(args.profile_output)
         else:
-            _main(parser, args)
+            ret = _main(parser, args)
+        return ret
     except KeyboardInterrupt:
-        return
+        return 1
     except BaseException as e:
         if isinstance(e, cube.Exception):
             bt = e.backtrace[2:]
@@ -201,8 +205,7 @@ def main(args):
             import pdb
             pdb.post_mortem(e.__traceback__)
         cube.log.fatal('\n'.join(traceback.format_exception_only(type(e), e)))
-        sys.exit(1)
-    gc.collect()
+        return 1
 
 def _main(parser, args):
     import cube
@@ -225,6 +228,9 @@ def _main(parser, args):
                 pattern = '*'
             if cube.test.registry.run(pattern):
                 cube.info("All tests passed")
+                return 0
+            else:
+                return 1
     elif args.console:
         def run():
             cube.log.set_mode(cube.log.Mode.synchroneous)
@@ -233,9 +239,9 @@ def _main(parser, args):
         def run():
             if not os.path.exists(args.script):
                 cube.fatal("Cannot find the file '%s'" % args.script)
-                return
+                return 1
             import runpy
-            runpy.run_path(args.script, run_name = '__main__')
+            return runpy.run_path(args.script, run_name = '__main__')
     elif args.game is not None:
         def run():
             from os.path import realpath, isdir, exists, join, dirname, basename
@@ -258,7 +264,6 @@ def _main(parser, args):
             return app.run()
     else:
         parser.print_usage()
-        sys.exit(1)
-        return
+        return 1
 
-    run()
+    return run() or 0
