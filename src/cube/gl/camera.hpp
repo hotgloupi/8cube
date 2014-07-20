@@ -31,6 +31,10 @@ namespace cube { namespace gl { namespace camera {
 		{ return _position; }
 
 		inline
+		void position(vec3 const& position) ETC_NOEXCEPT
+		{ _position = position; }
+
+		inline
 		vec3 const& front() const ETC_NOEXCEPT
 		{ return _front; }
 
