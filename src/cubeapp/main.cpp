@@ -107,8 +107,9 @@ int _main(int argc, char** argv)
 int main(int ac, char** av)
 {
 	try {
-		boost::python::propagate_exception([&] { _main(ac, av); });
-		return EXIT_SUCCESS;
+		int ret;
+		boost::python::propagate_exception([&] { ret = _main(ac, av); });
+		return ret;
 	} catch (std::exception const& err) {
 		std::cerr << "Fatal error:" << err.what() << std::endl;
 	} catch (...) {
