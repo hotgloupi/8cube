@@ -133,6 +133,20 @@ namespace boost { namespace python {
 		}
 	}
 
+
+	template<typename C, typename Ret>
+	inline
+	object make_getter(Ret (C::*value)() const)
+	{ return make_function(value, return_internal_reference<>()); }
+
+	template<
+		  typename Ret
+		, typename C
+		, typename Arg
+	>
+	inline
+	object make_setter(Ret (C::*value)(Arg const&))
+	{ return make_function(value, return_internal_reference<>()); }
 }}
 
 #define BOOST_PYTHON_DOCSTRING_OPTIONS()                                      \
