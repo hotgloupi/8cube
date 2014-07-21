@@ -159,4 +159,17 @@ BZIP2_URL=http://www.bzip.org/${BZIP2_VERSION}/${BZIP2_TARBALL}
 	try tar xf "${BZIP2_TARBALL}"
 )
 
+############################## libRocket ######################################
+debug "Update libRocket"
+
+LIBROCKET_URL="https://github.com/libRocket/libRocket.git"
+LIBROCKET_NAME="libRocket"
+LIBROCKET_VERSION=master
+
+[ ! -d "${LIBROCKET_NAME}" ] && (
+	try git clone "${LIBROCKET_URL}" $LIBROCKET_NAME
+)
+( try cd "$LIBROCKET_NAME" && git pull origin $LIBROCKET_VERSION )
+
+
 exit 0
