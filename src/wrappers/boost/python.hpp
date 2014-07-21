@@ -36,6 +36,7 @@
 
 
 # include <memory>
+# include <boost/shared_ptr.hpp>
 
 namespace boost { namespace python {
 
@@ -44,7 +45,11 @@ namespace boost { namespace python {
 	{ return ptr.lock().get(); };
 
 	template<class T>
-	T* get_pointer(std::shared_ptr<T> const& ptr)
+	typename std::enable_if<
+		  !std::is_same<boost::shared_ptr<T>, std::shared_ptr<T>>::value
+		, T*
+	>::type
+	get_pointer(std::shared_ptr<T> const& ptr)
 	{ return ptr.get(); };
 
 }}
