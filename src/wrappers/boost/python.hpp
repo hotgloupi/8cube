@@ -44,14 +44,6 @@ namespace boost { namespace python {
 	T* get_pointer(std::weak_ptr<T> const& ptr)
 	{ return ptr.lock().get(); };
 
-	template<class T>
-	typename std::enable_if<
-		  !std::is_same<boost::shared_ptr<T>, std::shared_ptr<T>>::value
-		, T*
-	>::type
-	get_pointer(std::shared_ptr<T> const& ptr)
-	{ return ptr.get(); };
-
 }}
 
 # include <boost/python.hpp>
