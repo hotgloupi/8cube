@@ -21,7 +21,13 @@ namespace cube { namespace gl { namespace camera {
 
 	public:
 		Camera();
+		Camera(Camera const& other);
+		Camera(Camera&& other);
 		~Camera();
+
+		units::Angle pitch() const ETC_NOEXCEPT;
+		units::Angle yaw() const ETC_NOEXCEPT;
+		units::Angle roll() const ETC_NOEXCEPT;
 
 		vec3 const& position() const ETC_NOEXCEPT;
 		Camera& position(vec3 const& position) ETC_NOEXCEPT;
@@ -30,6 +36,12 @@ namespace cube { namespace gl { namespace camera {
 		vec3 up() const ETC_NOEXCEPT;
 		vec3 right() const ETC_NOEXCEPT;
 		Camera& move(vec3 const& v) ETC_NOEXCEPT;
+
+		Camera& rotate(units::Angle const& angle, vec3 const& axis) ETC_NOEXCEPT;
+
+		Camera& rotate_x(units::Angle const& angle) ETC_NOEXCEPT;
+		Camera& rotate_y(units::Angle const& angle) ETC_NOEXCEPT;
+		Camera& rotate_z(units::Angle const& angle) ETC_NOEXCEPT;
 	};
 
 }}}
