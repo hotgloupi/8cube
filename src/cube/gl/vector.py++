@@ -2,6 +2,7 @@
 
 #include "vector.hpp"
 using namespace ::cube::gl::vector;
+using ::cube::units::Angle;
 
 namespace {
 
@@ -147,25 +148,25 @@ BOOST_PYTHON_MODULE(vector)
 	);                                                                        \
 	py::def(                                                                  \
 		"rotate_x",                                                           \
-		static_cast<__type(*)(__type const&, __value_type)>(                  \
+		static_cast<__type(*)(__type const&, Angle const&)>(                  \
 			&rotate_x<__value_type>                                           \
 		)                                                                     \
 	);                                                                        \
 	py::def(                                                                  \
 		"rotate_y",                                                           \
-		static_cast<__type(*)(__type const&, __value_type)>(                  \
+		static_cast<__type(*)(__type const&, Angle const&)>(                  \
 			&rotate_y<__value_type>                                           \
 		)                                                                     \
 	);                                                                        \
 	py::def(                                                                  \
 		"rotate_z",                                                           \
-		static_cast<__type(*)(__type const&, __value_type)>(                  \
+		static_cast<__type(*)(__type const&, Angle const&)>(                  \
 			&rotate_z<__value_type>                                           \
 		)                                                                     \
 	);                                                                        \
 	py::def(                                                                  \
 		"rotate",                                                             \
-		static_cast<__type(*)(__type const&, __value_type, __type const&)>(   \
+		static_cast<__type(*)(__type const&, Angle const&, __type const&)>(   \
 			&rotate<__value_type>                                             \
 		)                                                                     \
 	);                                                                        \

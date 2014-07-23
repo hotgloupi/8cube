@@ -11,7 +11,7 @@
 # include <etc/types.hpp>
 
 # include <glm/glm.hpp>
-# include <glm/core/type_mat4x4.hpp>
+# include <glm/mat4x4.hpp>
 # include <glm/gtc/matrix_transform.hpp>
 # include <glm/gtx/transform.hpp>
 
@@ -38,7 +38,7 @@ namespace cube { namespace gl { namespace matrix {
 	Matrix44<T> rotate(Matrix44<T> const& mat,
 	                   units::Angle const angle,
 	                   vector::Vector3<T> const& axis) ETC_NOEXCEPT
-	{ return ::glm::rotate(mat, units::deg_value(angle), axis); }
+	{ return ::glm::rotate(mat, units::rad_value(angle), axis); }
 
 }}}
 

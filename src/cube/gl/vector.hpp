@@ -5,14 +5,16 @@
 # include "content_traits.hpp"
 
 # include <cube/api.hpp>
+# include <cube/units/angle.hpp>
 
 # include <glm/glm.hpp>
-# include <glm/core/func_geometric.hpp>
-# include <glm/core/type_vec2.hpp>
-# include <glm/core/type_vec3.hpp>
-# include <glm/core/type_vec4.hpp>
+# include <glm/geometric.hpp>
+# include <glm/vec2.hpp>
+# include <glm/vec3.hpp>
+# include <glm/vec4.hpp>
 # include <glm/gtx/rotate_vector.hpp>
 //# include <glm/gtx/transform.hpp>
+
 
 # include <iosfwd>
 
@@ -20,32 +22,32 @@ namespace cube { namespace gl { namespace vector {
 
 	template<typename T>
 	inline
-	Vector3<T> rotate_x(Vector3<T> const& v, T const angle)
+	Vector3<T> rotate_x(Vector3<T> const& v, units::Angle const& angle)
 	{
-		return glm::rotateX(v, angle);
+		return glm::rotateX(v, units::rad_value<T>(angle));
 	}
 
 	template<typename T>
 	inline
-	Vector3<T> rotate_y(Vector3<T> const& v, T const angle)
+	Vector3<T> rotate_y(Vector3<T> const& v, units::Angle const& angle)
 	{
-		return glm::rotateY(v, angle);
+		return glm::rotateY(v, units::rad_value<T>(angle));
 	}
 
 	template<typename T>
 	inline
-	Vector3<T> rotate_z(Vector3<T> const& v, T const angle)
+	Vector3<T> rotate_z(Vector3<T> const& v, units::Angle const& angle)
 	{
-		return glm::rotateZ(v, angle);
+		return glm::rotateZ(v, units::rad_value<T>(angle));
 	}
 
 	template<typename T>
 	inline
 	Vector3<T> rotate(Vector3<T> const& v,
-	                  T const angle,
+	                  units::Angle const& angle,
 	                  Vector3<T> const& normal)
 	{
-		return glm::rotate(v, angle, normal);
+		return glm::rotate(v, units::rad_value<T>(angle), normal);
 	}
 
 	using glm::cross;
