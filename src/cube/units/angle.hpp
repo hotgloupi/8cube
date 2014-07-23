@@ -10,71 +10,28 @@ namespace cube { namespace units {
 
 	namespace bu = boost::units;
 
-	typedef float angle_internal_type;
+	typedef bu::quantity<bu::si::plane_angle, float> Angle;
 
-# define _CUBE_UNITS_MAKE_QUANTITY(__name, __base_unit, __storage)            \
-	struct __name                                                             \
-		: bu::quantity<__base_unit, __storage>                                \
-	{                                                                         \
-		template<typename... Args>                                            \
-		__name(Args&&... args)                                                \
-			: bu::quantity<__base_unit, __storage>(                           \
-				std::forward<Args>(args)...                                   \
-			)                                                                 \
-		{}                                                                    \
-	}                                                                         \
-/**/
+	BOOST_UNITS_STATIC_CONSTANT(radian_unit, bu::si::plane_angle);
+	typedef Angle Radian;
 
-	_CUBE_UNITS_MAKE_QUANTITY(Angle, bu::si::plane_angle, angle_internal_type);
+	BOOST_UNITS_STATIC_CONSTANT(degree_unit, bu::degree::plane_angle);
+	typedef bu::quantity<bu::degree::plane_angle, float> Degree;
 
-	BOOST_UNITS_STATIC_CONSTANT(radian, bu::si::plane_angle);
-	_CUBE_UNITS_MAKE_QUANTITY(Radian, bu::si::plane_angle, angle_internal_type);
+	inline Angle rad(float value)
+	{ return Angle(value * radian_unit); }
 
-	BOOST_UNITS_STATIC_CONSTANT(degree, bu::degree::plane_angle);
+	template<typename T = float>
+	inline T rad_value(Angle a)
+	{ return static_cast<T>(Radian(a).value()); }
 
-	_CUBE_UNITS_MAKE_QUANTITY(Degree, bu::degree::plane_angle, angle_internal_type);
+	inline Angle deg(float value)
+	{ return Angle(value * degree_unit); }
 
-	namespace details {
-
-		template<typename T>
-		struct suffix_operator_param_type;
-
-		template<>
-		struct suffix_operator_param_type<double>
-		{ typedef long double type; };
-
-		template<>
-		struct suffix_operator_param_type<float>
-		{ typedef long double type; };
-
-	} // !details
+	template<typename T = float>
+	inline T deg_value(Angle a)
+	{ return static_cast<T>(Degree(a).value()); }
 
 }} // !cube::units
-
-# define _CUBE_UNITS_ANGLE_CONVERTERS(__ret_type,                             \
-                                      __func_name,                            \
-                                      __from_type,                            \
-                                      __unit,                                 \
-                                      __to_type)                              \
-namespace cube { namespace units {                                            \
-	inline                                                                    \
-	__ret_type __func_name(__from_type value)                                 \
-	{ return __ret_type(value * __unit); }                                    \
-	template<typename T>                                                      \
-	inline                                                                    \
-	__from_type __func_name ## _value(T value)                                \
-	{ return static_cast<__to_type>(value).value(); }                         \
-}}                                                                            \
-/**/
-
-// Angle rad(double)
-// double rad_value(T)
-_CUBE_UNITS_ANGLE_CONVERTERS(Angle, rad, float, radian, Radian);
-
-// Angle deg(double)
-// double deg_value(T)
-_CUBE_UNITS_ANGLE_CONVERTERS(Angle, deg, float, degree, Degree);
-
-# undef _CUBE_UNITS_ANGLE_CONVERTERS
 
 #endif

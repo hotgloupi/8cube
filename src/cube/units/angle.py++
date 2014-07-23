@@ -11,9 +11,9 @@ BOOST_PYTHON_MODULE(angle)
 	;
 
 	py::def("rad", &rad);
-	py::def("rad_value", &rad_value<Angle>);
+	py::def("rad_value", &rad_value<float>);
 
 	py::def("deg", &deg);
-	py::def("deg_value", &deg_value<Angle>);
+	py::def("deg_value", &deg_value<float>);
 
 }
