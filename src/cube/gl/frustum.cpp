@@ -5,7 +5,7 @@
 
 #include <etc/print.hpp>
 
-#include <glm/core/func_trigonometric.hpp>
+//#include <glm/core/func_trigonometric.hpp>
 
 namespace cube { namespace gl { namespace frustum {
 
