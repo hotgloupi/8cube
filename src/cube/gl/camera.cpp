@@ -135,8 +135,8 @@ namespace cube { namespace gl { namespace camera {
 		{
 			Camera c;
 			c.rotate_y(units::deg(-90));
-			ETC_TEST_EQ(c.front(), -CAMERA_RIGHT);
-			ETC_TEST_EQ(c.right(), CAMERA_FRONT);
+			ETC_TEST_LT(std::fabs(glm::length(c.front() - -CAMERA_RIGHT)), 1e-6);
+			ETC_TEST_LT(std::fabs(glm::length(c.right() - CAMERA_FRONT)), 1e-6);
 		}
 
 	}
