@@ -26,7 +26,7 @@ namespace {
 		return mat[row];
 	}
 
-	matrix::mat4f perspective(float a, float b, float c, float d)
+	matrix::mat4f perspective(cube::units::Angle a, float b, float c, float d)
 	{ return matrix::perspective(a, b, c, d); }
 
 }

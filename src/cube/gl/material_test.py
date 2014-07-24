@@ -120,7 +120,7 @@ class _(PainterSetup, Case):
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
         painter.state.perspective(
-            35, 200 / 200, 0.005, 30.0
+            angle.deg(35), 200 / 200, 0.005, 30.0
         )
         painter.state.rotate(angle.deg(32), gl.vec3f(0, 1, 0))
         with painter.bind([material.bindable(self.renderer)]):
@@ -135,7 +135,7 @@ class _(PainterSetup, Case):
             gl.vec3f(0, .8, 10), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
         painter.state.perspective(
-            35, 200 / 200, 0.005, 30.0
+            angle.deg(35), 200 / 200, 0.005, 30.0
         )
         bindable = material.bindable(self.renderer)
         s = painter.push_state()

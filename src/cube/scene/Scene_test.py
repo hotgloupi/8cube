@@ -31,7 +31,7 @@ class _(PainterSetup, Case):
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
         painter.state.perspective(
-            45, 200 / 200, 0.005, 30.0
+            angle.deg(45), 200 / 200, 0.005, 30.0
         )
         with painter.bind([mat.bindable(self.renderer)]):
             painter.draw([mesh.drawable(self.renderer)])
@@ -56,7 +56,7 @@ class _(PainterSetup, Case):
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
         painter.state.perspective(
-            45, 200 / 200, 0.005, 30.0
+            angle.deg(45), 200 / 200, 0.005, 30.0
         )
         light = self.renderer.new_light(
             gl.PointLightInfo(

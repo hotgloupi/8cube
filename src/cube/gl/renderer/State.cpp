@@ -225,7 +225,7 @@ namespace cube { namespace gl { namespace renderer {
 		return this->view(matrix::look_at(eye, center, up));
 	}
 
-	State& State::perspective(component_type const fov,
+	State& State::perspective(units::Angle const fov,
 	                          component_type const aspect,
 	                          component_type const near,
 	                          component_type const far) ETC_NOEXCEPT

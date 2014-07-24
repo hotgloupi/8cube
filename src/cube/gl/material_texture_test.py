@@ -95,7 +95,7 @@ class _(PainterSetup, Case):
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
         painter.state.perspective(
-            35, 200 / 200, 0.005, 30.0
+            angle.deg(35), 200 / 200, 0.005, 30.0
         )
         painter.state.rotate(angle.deg(42), gl.vec3f(1, 1, 0))
         self.deg += 1
@@ -128,7 +128,7 @@ class _(PainterSetup, Case):
             gl.vec3f(0, .8, -3), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
         )
         painter.state.perspective(
-            35, 200 / 200, 0.005, 30.0
+            angle.deg(35), 200 / 200, 0.005, 30.0
         )
         painter.state.rotate(angle.deg(42), gl.vec3f(1, 1, 0))
         self.deg += 1

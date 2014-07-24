@@ -19,7 +19,6 @@
 
 namespace cube { namespace gl { namespace matrix {
 
-	using glm::perspective;
 	using glm::translate;
 	using glm::scale;
 	using glm::ortho;
@@ -39,6 +38,15 @@ namespace cube { namespace gl { namespace matrix {
 	                   units::Angle const angle,
 	                   vector::Vector3<T> const& axis) ETC_NOEXCEPT
 	{ return ::glm::rotate(mat, units::rad_value(angle), axis); }
+
+	template<typename T>
+	inline
+	Matrix44<T> perspective(units::Angle const fov,
+	                        T const aspect,
+	                        T const near,
+	                        T const far) ETC_NOEXCEPT
+	{ return ::glm::perspective(units::rad_value(fov), aspect, near, far); }
+
 
 }}}
 

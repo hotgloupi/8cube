@@ -17,7 +17,7 @@ class _(Case):
         self.assertIs(self.s, self.s.look_at(
             gl.vec3f(0,0,0), gl.vec3f(1,2,3), gl.vec3f(0, 1, 0)
         ))
-        self.assertIs(self.s, self.s.perspective(45, 1, 31, 32))
+        self.assertIs(self.s, self.s.perspective(angle.deg(45), 1, 31, 32))
         self.assertIs(self.s, self.s.ortho(0, 0, 200, 200))
 
         self.assertIs(
@@ -26,7 +26,7 @@ class _(Case):
                 angle.deg(0), gl.vec3f(1,2,3)
             ).look_at(
                 gl.vec3f(0,0,0), gl.vec3f(1,2,3), gl.vec3f(0, 1, 0)
-            ).perspective(45, 1, 31, 32).ortho(0, 0, 200, 200)
+            ).perspective(angle.deg(45), 1, 31, 32).ortho(0, 0, 200, 200)
         )
 
     def test_look_at(self):
@@ -59,7 +59,7 @@ class _(Case):
         self.assertEqual(p, self.s.projection)
         self.assertEqual(mvp, self.s.mvp)
 
-        self.s.perspective(45, 1, 0.1, 300)
+        self.s.perspective(angle.deg(45), 1, 0.1, 300)
 
         self.assertEqual(m, self.s.model)
         self.assertEqual(v, self.s.view)

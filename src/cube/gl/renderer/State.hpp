@@ -111,7 +111,7 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Set the projection matrix to a perspective frustum.
 		 */
-		State& perspective(component_type const fov,
+		State& perspective(units::Angle const fov,
 		                   component_type const aspect,
 		                   component_type const near,
 		                   component_type const far) ETC_NOEXCEPT;
