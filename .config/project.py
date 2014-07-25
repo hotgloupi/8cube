@@ -28,7 +28,8 @@ class Assimp(CMakeDependency):
                  source_directory,
                  boost = None,
                  shared = True,
-                 c_compiler = None):
+                 c_compiler = None,
+                 zlib = None):
         super().__init__(
             build,
             "Assimp",
@@ -61,7 +62,9 @@ class Assimp(CMakeDependency):
                 'BOOST_LIBRARYDIR': boost.library_directory,
             }
         )
-        if not shared and platform.IS_WINDOWS:
+        if zlib is not None:
+            self.libraries.extend(zlib.libraries)
+        elif not shared and platform.IS_WINDOWS:
             dir = self.absolute_build_path('build/contrib/zlib')
             if compiler.name == 'msvc':
                 dir = path.join(dir, self.build_type)
@@ -433,7 +436,8 @@ def main(build):
         'deps/assimp',
         boost = boost,
         c_compiler = c_compiler,
-        shared = False
+        shared = False,
+        zlib = zlib
     )
 
     sdl = build.add_dependency(
