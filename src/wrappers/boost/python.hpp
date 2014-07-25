@@ -38,20 +38,17 @@
 # include <memory>
 # include <boost/shared_ptr.hpp>
 
-namespace boost { 
+namespace boost {
 
 	template<class T>
 	T* get_pointer(std::weak_ptr<T> const& ptr)
 	{ return ptr.lock().get(); };
 
+# ifdef BOOST_NO_CXX11_SMART_PTR
 	template<typename T>
-	T* get_pointer( //std::shared_ptr<T> const& ptr)
-	typename std::enable_if<
-		! std::is_convertible<std::shared_ptr<T>, boost::shared_ptr<T>>::value,
-		std::shared_ptr<T>
-	>::type const& ptr)
+	T* get_pointer( std::shared_ptr<T> const& ptr)
 	{ return ptr.get(); }
-
+# endif
 }
 
 # include <boost/python.hpp>
