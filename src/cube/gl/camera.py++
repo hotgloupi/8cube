@@ -1,6 +1,7 @@
 #include <cube/python.hpp>
 
 #include "camera.hpp"
+#include "frustum.hpp"
 
 namespace py = boost::python;
 using namespace cube::gl::camera;
@@ -8,6 +9,12 @@ using namespace cube::gl::camera;
 BOOST_PYTHON_MODULE(camera)
 {
 	typedef cube::gl::vector::Vector3f vector_type;
+
+	typedef
+		Camera& (Camera::*set_frustum_t)(cube::units::Angle,
+		                                 float const,
+		                                 float const,
+		                                 float const);
 
 	py::class_<Camera, boost::noncopyable>(
 			"Camera"
@@ -37,5 +44,8 @@ BOOST_PYTHON_MODULE(camera)
 		.add_property("right", &Camera::right)
 		.def("move", &Camera::move, py::return_self<>())
 		.def("rotate", &Camera::rotate, py::return_self<>())
+		.add_property("has_frustum", &Camera::has_frustum)
+		.add_property("frustum", py::select_getter(&Camera::frustum))
+		.def("init_frustum", static_cast<set_frustum_t>(&Camera::init_frustum), py::return_self<>())
 	;
 }

@@ -56,6 +56,7 @@ namespace cube { namespace gl { namespace frustum {
 		        float const ratio,
 		        T const ndist,
 		        T const fdist) ETC_NOEXCEPT;
+		Frustum(Frustum const& other) ETC_NOEXCEPT;
 
 		void update(vec3f const& front,
 		            vec3f const& up) ETC_NOEXCEPT;

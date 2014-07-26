@@ -12,6 +12,7 @@ class _(Case):
         self.assertEqual(c.yaw, angle.rad(0))
         self.assertEqual(c.roll, angle.rad(0))
         self.assertEqual(c.position, gl.vec3f())
+        self.assertFalse(c.has_frustum)
 
     def test_pitch(self):
         c = Camera()
@@ -39,3 +40,10 @@ class _(Case):
         self.assertEqual(c.yaw.degree, 0)
         c.yaw = angle.deg(12)
         self.assertAlmostEqual(c.yaw.degree, 12, .2)
+
+
+    def test_frustum(self):
+        c = Camera()
+        c.init_frustum(angle.deg(30), 1, 10, 20)
+        self.assertTrue(c.has_frustum)
+        f = c.frustum

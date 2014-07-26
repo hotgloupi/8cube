@@ -5,7 +5,7 @@
 
 #include <etc/print.hpp>
 
-//#include <glm/core/func_trigonometric.hpp>
+#include <cstring>
 
 namespace cube { namespace gl { namespace frustum {
 
@@ -22,6 +22,16 @@ namespace cube { namespace gl { namespace frustum {
 		, far_size(_plane_size(fov, ratio, fdist))
 		, _planes()
 	{}
+
+	template<typename T>
+	Frustum<T>::Frustum(Frustum const& other) ETC_NOEXCEPT
+		: fov{other.fov}
+		, ratio{other.ratio}
+		, near_distance{other.near_distance}
+		, far_distance{other.far_distance}
+		, near_size{other.near_size}
+		, far_size{other.far_size}
+	{ std::memcpy(_planes, other._planes, sizeof(_planes)); }
 
 	template<typename T>
 	bool

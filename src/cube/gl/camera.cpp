@@ -1,9 +1,13 @@
 #include "camera.hpp"
 #include "matrix.hpp"
+#include "frustum.hpp"
+
+#include <cube/exception.hpp>
 
 #include <etc/assert.hpp>
 #include <etc/print.hpp>
 #include <etc/test.hpp>
+#include <etc/stack_ptr.hpp>
 
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -18,13 +22,16 @@ namespace cube { namespace gl { namespace camera {
 	{
 		vec3 position;
 		glm::quat orientation;
+		etc::stack_ptr<Camera::frustum_t> frustum;
 
 		Impl()
+			: frustum(etc::stack_ptr_no_init)
 		{}
 
 		Impl(Impl const& other)
 			: position(other.position)
 			, orientation(other.orientation)
+			, frustum(other.frustum)
 		{}
 	};
 
@@ -58,13 +65,6 @@ namespace cube { namespace gl { namespace camera {
 	Camera& Camera::position(vec3 const& position) ETC_NOEXCEPT
 	{ _this->position = position; return *this; }
 
-	Camera& Camera::look_at(vec3 const& position) ETC_NOEXCEPT
-	{
-		ETC_ASSERT_NEQ(_this->position, position);
-		vec3 target = glm::normalize(position - _this->position);
-
-		return *this;
-	}
 
 	Camera::vec3 Camera::front() const ETC_NOEXCEPT
 	{ return CAMERA_FRONT * _this->orientation; }
@@ -98,12 +98,29 @@ namespace cube { namespace gl { namespace camera {
 	Camera& Camera::roll(units::Angle const angle) ETC_NOEXCEPT
 	{ return this->rotate(angle, CAMERA_FRONT); }
 
-	//void Camera::look_at(vec3 const& position) ETC_NOEXCEPT
-	//{
-	//	_front = vector::normalize(position - _position);
-	//	vec3 right = this->right();
-	//	_up = vector::normalize(vector::cross(right, _front));
-	//}
+	// Camera& Camera::look_at(vec3 const& position) ETC_NOEXCEPT
+	// {
+	// 	ETC_ASSERT_NEQ(_this->position, position);
+	// 	vec3 target = glm::normalize(position - _this->position);
+
+	// 	return *this;
+	// }
+	bool Camera::has_frustum() const ETC_NOEXCEPT
+	{ return _this->frustum; }
+
+	Camera::frustum_t Camera::frustum() const
+	{
+		if (!_this->frustum)
+			throw exception::Exception("No frustum set");
+		_this->frustum->update(this->front(), this->up());
+		return *_this->frustum;
+	}
+
+	Camera& Camera::init_frustum(units::Angle fov,
+	                             float const ratio,
+	                             float const ndist,
+	                             float const fdist) ETC_NOEXCEPT
+	{ _this->frustum.reset(fov, ratio, ndist, fdist); return *this; }
 
 	namespace {
 
