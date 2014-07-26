@@ -113,10 +113,10 @@ CURL_URL="http://curl.haxx.se/download/${CURL_TARBALL}"
 
 ############################### LIBIDN ########################################
 debug "Update libidn"
-LIBIDN_VERSION=1.9
+LIBIDN_VERSION=1.28
 LIBIDN_NAME=libidn-${LIBIDN_VERSION}
 LIBIDN_TARBALL=${LIBIDN_NAME}.tar.gz
-LIBIDN_URL=ftp://alpha.gnu.org/pub/gnu/libidn/${LIBIDN_TARBALL}
+LIBIDN_URL=http://ftp.gnu.org/gnu/libidn/${LIBIDN_TARBALL}
 
 [ ! -d "${LIBIDN_NAME}" ] && (
 	[ ! -f "${LIBIDN_TARBALL}" ] && try fetch "${LIBIDN_URL}" "${LIBIDN_TARBALL}"

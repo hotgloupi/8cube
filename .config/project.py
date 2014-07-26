@@ -362,7 +362,7 @@ def main(build):
         idn = build.add_dependency(
             IDNDependency,
             c_compiler,
-            'deps/libidn-1.9',
+            'deps/libidn-1.28',
         )
     else:
         idn = None
