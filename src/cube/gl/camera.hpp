@@ -25,9 +25,17 @@ namespace cube { namespace gl { namespace camera {
 		Camera(Camera&& other);
 		~Camera();
 
+		/// Rotation around the X axis (left-right)
 		units::Angle pitch() const ETC_NOEXCEPT;
+		Camera& pitch(units::Angle const angle) ETC_NOEXCEPT;
+
+		/// Rotation around the Y axis (top-down)
 		units::Angle yaw() const ETC_NOEXCEPT;
+		Camera& yaw(units::Angle const angle) ETC_NOEXCEPT;
+
+		/// Rotation around the -Z axis (front-back)
 		units::Angle roll() const ETC_NOEXCEPT;
+		Camera& roll(units::Angle const angle) ETC_NOEXCEPT;
 
 		vec3 const& position() const ETC_NOEXCEPT;
 		Camera& position(vec3 const& position) ETC_NOEXCEPT;
@@ -38,10 +46,6 @@ namespace cube { namespace gl { namespace camera {
 		Camera& move(vec3 const& v) ETC_NOEXCEPT;
 
 		Camera& rotate(units::Angle const& angle, vec3 const& axis) ETC_NOEXCEPT;
-
-		Camera& rotate_x(units::Angle const& angle) ETC_NOEXCEPT;
-		Camera& rotate_y(units::Angle const& angle) ETC_NOEXCEPT;
-		Camera& rotate_z(units::Angle const& angle) ETC_NOEXCEPT;
 	};
 
 }}}

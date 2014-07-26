@@ -44,13 +44,13 @@ namespace cube { namespace gl { namespace camera {
 	{}
 
 	units::Angle Camera::pitch() const ETC_NOEXCEPT
-	{ return units::deg(glm::pitch(_this->orientation)); }
+	{ return units::rad(glm::pitch(_this->orientation)); }
 
 	units::Angle Camera::yaw() const ETC_NOEXCEPT
-	{ return units::deg(glm::yaw(_this->orientation)); }
+	{ return units::rad(glm::yaw(_this->orientation)); }
 
 	units::Angle Camera::roll() const ETC_NOEXCEPT
-	{ return units::deg(glm::roll(_this->orientation)); }
+	{ return -units::rad(glm::roll(_this->orientation)); }
 
 	Camera::vec3 const& Camera::position() const ETC_NOEXCEPT
 	{ return _this->position; }
@@ -89,13 +89,13 @@ namespace cube { namespace gl { namespace camera {
 		return *this;
 	}
 
-	Camera& Camera::rotate_x(units::Angle const& angle) ETC_NOEXCEPT
+	Camera& Camera::pitch(units::Angle const angle) ETC_NOEXCEPT
 	{ return this->rotate(angle, CAMERA_RIGHT); }
 
-	Camera& Camera::rotate_y(units::Angle const& angle) ETC_NOEXCEPT
+	Camera& Camera::yaw(units::Angle const angle) ETC_NOEXCEPT
 	{ return this->rotate(angle, CAMERA_UP); }
 
-	Camera& Camera::rotate_z(units::Angle const& angle) ETC_NOEXCEPT
+	Camera& Camera::roll(units::Angle const angle) ETC_NOEXCEPT
 	{ return this->rotate(angle, CAMERA_FRONT); }
 
 	//void Camera::look_at(vec3 const& position) ETC_NOEXCEPT
@@ -134,7 +134,7 @@ namespace cube { namespace gl { namespace camera {
 		ETC_TEST_CASE(rotate)
 		{
 			Camera c;
-			c.rotate_y(units::deg(-90));
+			c.yaw(units::deg(-90));
 			ETC_TEST_LT(std::fabs(glm::length(c.front() - -CAMERA_RIGHT)), 1e-6);
 			ETC_TEST_LT(std::fabs(glm::length(c.right() - CAMERA_FRONT)), 1e-6);
 		}
