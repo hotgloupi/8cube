@@ -3,6 +3,7 @@
 
 #include <etc/abort.hpp>
 #include <etc/assert.hpp>
+#include <etc/backtrace.hpp>
 #include <etc/exception.hpp>
 #include <etc/log.hpp>
 #include <etc/path.hpp>
@@ -39,6 +40,7 @@ namespace etc { namespace test {
 		size_t failure = 0;
 		size_t count = 0;
 		ETC_TRACE("Launching tests");
+		backtrace::Backtrace bt_base;
 		for (auto ptr: _this->cases)
 		{
 			if (!path::match(pattern, ptr->name))
@@ -56,14 +58,24 @@ namespace etc { namespace test {
 				ETC_SCOPE_EXIT{ ptr->tearDown(); };
 				ptr->setup().run_case();
 				success = true;
-			} catch (std::exception const& e) {
-				error = std::string("Exception: ") + e.what();
-			} catch (AssertError const& e) {
-				error = std::string("AssertError: ") + e.what();
-			} catch (AbortError const& e) {
-				error = std::string("AbortError: ") + e.what();
+			//} catch (std::exception const& e) {
+			//	error = std::string("Exception: ") + e.what();
+			//} catch (AssertError const& e) {
+			//	error = std::string("AssertError: ") + e.what();
+			//} catch (AbortError const& e) {
+			//	error = std::string("AbortError: ") + e.what();
+			} catch (exception::Exception const& e) {
+				error = e.what();
+				std::stringstream ss;
+				if (auto full = e.backtrace())
+				{
+					backtrace::Backtrace bt = *full;
+					bt.strip_base(bt_base);
+					ss << "\n" << bt;
+				}
+				error += ss.str();
 			} catch (...) {
-				error = "Unknown error";
+				error = exception::string();
 			}
 
 			if (success)
