@@ -81,9 +81,10 @@ fi
 
 ################################ SDL ##########################################
 debug "Updating SDL"
-SDL_VERSION=2.0.3
+#SDL_VERSION=release-2.0.3
+SDL_VERSION=default
 [ ! -d SDL ] && try hg clone http://hg.libsdl.org/SDL
-( try cd SDL && hg pull && hg update && hg checkout release-${SDL_VERSION} )
+( try cd SDL && hg pull && hg update && hg checkout ${SDL_VERSION} )
 [ ! -d SDL_image ] && try hg clone http://hg.libsdl.org/SDL_image
 ( try cd SDL_image && hg pull && hg update )
 
