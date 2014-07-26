@@ -1,6 +1,8 @@
 #ifndef  CUBE_UNITS_ANGLE_HPP
 # define CUBE_UNITS_ANGLE_HPP
 
+# include <cube/api.hpp>
+
 # include <boost/units/physical_dimensions/plane_angle.hpp>
 # include <boost/units/quantity.hpp>
 # include <boost/units/systems/si/plane_angle.hpp>
@@ -39,6 +41,7 @@ namespace cube { namespace units {
 
 // Must be implemented in the global namespace because Angle is a typedef...
 // (The must be something I don't now yet about C++)
+CUBE_API
 std::ostream& operator<<(std::ostream& out, cube::units::Angle const angle);
 
 

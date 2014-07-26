@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+CUBE_API
 std::ostream& operator<<(std::ostream& out, cube::units::Angle const angle)
 {
 	return out << "<Angle " << cube::units::rad_value(angle) << " rad>";
