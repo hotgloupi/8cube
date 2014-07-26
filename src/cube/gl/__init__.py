@@ -58,14 +58,15 @@ from . import matrix
 from .camera import Camera
 from .color import Color3f, Color4f
 from .cube import Cube3f, Cube3d, Cube3i, Cube3u, Cube3il, Cube3ul
-from .text import Text
 from .font import Font
+from .frustum import Frustumf
 from .material import *
 from .matrix import mat4f
 from .mesh import Mesh
 from .plane import Planef, Planed
 from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul
 from .surface import Surface
+from .text import Text
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul
 from .vector import Vector4f, Vector4d, Vector4i, Vector4u, Vector4il, Vector4ul
