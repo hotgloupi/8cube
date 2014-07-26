@@ -23,3 +23,6 @@ class _(Case):
     def test_convert(self):
         self.assertAlmostEqual(deg(180).radian, rad(3.14159265).radian, 1e-5)
 
+    def test_equals(self):
+        self.assertEqual(deg(0), deg(0))
+        self.assertEqual(deg(0), rad(0))
