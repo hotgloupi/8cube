@@ -28,13 +28,17 @@ namespace etc { namespace exception {
 		{ return "Unknown error type"; }
 	}
 
-	Exception::Exception(std::string const& msg)
+	Exception::Exception(std::string const& msg,
+	                     backtrace::Backtrace const* bt)
 		: std::runtime_error(msg)
 		, _backtrace(nullptr)
 	{
 		try
 		{
-			_backtrace.reset(new backtrace::Backtrace());
+			if (bt != nullptr)
+				_backtrace.reset(new backtrace::Backtrace(*bt));
+			else
+				_backtrace.reset(new backtrace::Backtrace());
 		}
 		catch (std::exception const& err)
 		{

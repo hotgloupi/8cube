@@ -24,7 +24,8 @@ namespace etc { namespace exception {
 		std::string  _msg;
 
 	public:
-		Exception(std::string const& message);
+		explicit Exception(std::string const& message,
+		                   backtrace::Backtrace const* bt = nullptr);
 		Exception(Exception&& other);
 		Exception(Exception const& other);
 
