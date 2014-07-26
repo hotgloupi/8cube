@@ -6,6 +6,8 @@
 # include <boost/units/systems/si/plane_angle.hpp>
 # include <boost/units/systems/angle/degrees.hpp>
 
+# include <iosfwd>
+
 namespace cube { namespace units {
 
 	namespace bu = boost::units;
@@ -33,5 +35,11 @@ namespace cube { namespace units {
 	{ return static_cast<T>(Degree(a).value()); }
 
 }} // !cube::units
+
+
+// Must be implemented in the global namespace because Angle is a typedef...
+// (The must be something I don't now yet about C++)
+std::ostream& operator<<(std::ostream& out, cube::units::Angle const angle);
+
 
 #endif
