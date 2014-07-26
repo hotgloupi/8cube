@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include "inputs.hpp"
 
@@ -37,7 +37,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(inputs)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 	{

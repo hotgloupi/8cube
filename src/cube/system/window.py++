@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -35,7 +35,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(window)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 	using namespace cube::system::window;

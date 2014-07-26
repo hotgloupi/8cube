@@ -6,7 +6,7 @@
 
 #include <etc/to_string.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace {
 

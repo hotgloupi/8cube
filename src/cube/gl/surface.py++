@@ -1,6 +1,6 @@
 #include "surface.hpp"
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 BOOST_PYTHON_MODULE(surface)
 {

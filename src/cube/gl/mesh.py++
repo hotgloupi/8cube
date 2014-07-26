@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 #include <boost/python/raw_function.hpp>
 
 #include "mesh.hpp"

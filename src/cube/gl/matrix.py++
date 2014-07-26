@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include "matrix.hpp"
 
@@ -33,7 +33,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(matrix)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	py::class_<matrix::mat4f>("mat4f", py::init<>())
 		.def(py::init<matrix::mat4f const&>())
 		.def("__str__", &print_obj<matrix::mat4f>)

@@ -3,10 +3,11 @@
 
 #include <etc/log.hpp>
 #include <etc/memory.hpp>
+#include <etc/backtrace.hpp>
 
 #include <cube/exception.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 using namespace etc::test;
 namespace py = boost::python;
@@ -14,40 +15,6 @@ namespace py = boost::python;
 namespace {
 
 	ETC_LOG_COMPONENT("cube.test.registry");
-
-	// XXX use the one in wrappers/boost/python.hpp
-	template<typename Fn>
-	void propagate_exception(Fn&& fn)
-	{
-		try { fn(); }
-		catch (py::error_already_set const&)
-		{
-			py::object exception, value, traceback;
-
-			{
-				PyObject* py_exception;
-				PyObject* py_value;
-				PyObject* py_traceback;
-				PyErr_Fetch(&py_exception, &py_value, &py_traceback);
-				//PyErr_Display(py_exception, py_value, py_traceback);
-
-				if (py_exception == nullptr)
-					throw std::runtime_error(
-						"Internal boost python error while catching a python "
-						"exception"
-					);
-				exception = py::object(py::handle<>(py_exception));
-				value = py::object(py::handle<>(py::allow_null(py_value)));
-				traceback = py::object(py::handle<>(py::allow_null(py_traceback)));
-			}
-
-			auto msg = py::to_string(exception.attr("__name__"))
-				+ ": " + py::to_string(value);
-			// XXX missing traceback
-			ETC_LOG.warn("Python exception caught:", msg);
-			throw cube::exception::Exception(msg);
-		}
-	}
 
 	class PythonTestCase
 		: public Case
@@ -65,7 +32,7 @@ namespace {
 		{}
 
 		void operator ()() override
-		{ propagate_exception(_callable); }
+		{ cube::python::propagate_exception(_callable); }
 	};
 
 	class PythonSetupTestCase
@@ -80,8 +47,8 @@ namespace {
 			: _setup(setup)
 			, _teardown(teardown)
 		{}
-		void setUp() override { propagate_exception(_setup); }
-		void tearDown() override { propagate_exception(_teardown); }
+		void setUp() override { cube::python::propagate_exception(_setup); }
+		void tearDown() override { cube::python::propagate_exception(_teardown); }
 	};
 
 	void registry_add(py::object setup,

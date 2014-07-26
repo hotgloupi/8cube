@@ -10,7 +10,7 @@
 #include <etc/test/Registry.hpp>
 
 #include <wrappers/boost/filesystem.hpp>
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -96,7 +96,7 @@ int _main(int argc, char** argv)
 	;
 	interpreter.exec(init_script);
 	int ret;
-	boost::python::propagate_exception([&] {
+	cube::python::propagate_exception([&] {
 		ret = boost::python::extract<int>(interpreter.globals()["main"](pyargs));
 	});
 	return ret;

@@ -1,13 +1,5 @@
-#ifndef  WRAPPERS_PYTHON_BOOST_HPP
-# define WRAPPERS_PYTHON_BOOST_HPP
-
-/**
- * This Macro can be used to link statically with python. Unfortunatly,
- * it's not working because boost::python defines a global registry
- * that has to be shared between all python modules ...
- * Tested on windows 7.
- */
-//#define BOOST_PYTHON_STATIC_LIB 1
+#ifndef CUBE_PYTHON_HPP
+# define CUBE_PYTHON_HPP
 
 # if (defined(__MINGW32__) || defined(mingw32) || defined(__MINGW64__) || defined(mingw64)) && (__GNUC__ == 4)
 
@@ -23,6 +15,8 @@
 //int swprintf (wchar_t *, size_t, const wchar_t *, ...);
 
 # endif
+
+# include <etc/to_string.hpp>
 
 // Workaround to remove silly macros defined somewhere by Python
 # include <Python.h>
@@ -62,14 +56,6 @@ namespace boost { namespace python {
 	template<class T>
 	struct pointee<std::weak_ptr<T>> { typedef T type; };
 
-	template<typename T>
-	std::string stringof(T const& val)
-	{
-		std::stringstream ss;
-		ss << val;
-		return ss.str();
-	};
-
 	inline
 	std::string to_string(object o)
 	{ return extract<std::string>(str(o)); }
@@ -108,19 +94,65 @@ namespace boost { namespace python {
 		to_python_converter<std::unique_ptr<T>, unique_ptr_converter<T>>();
 	}
 
+	template<
+		  typename C
+		, typename Ret
+		, typename Policy = return_value_policy<return_by_value>
+	>
+	inline
+	object select_getter(Ret (C::*value)() const,
+	                   Policy const& policy = Policy())
+	{ return make_function(value, policy); }
+
+	template<
+		  typename C
+		, typename Ret
+		, typename Policy = return_internal_reference<>
+	>
+	inline
+	object select_getter(Ret const& (C::*value)() const,
+	                   Policy const& policy = Policy())
+	{ return make_function(value, policy); }
+
+	template<
+		  typename Ret
+		, typename C
+		, typename Arg
+		, typename Policy = return_self<>
+	>
+	inline
+	object select_setter(Ret (C::*value)(Arg),
+	                   Policy const& policy = Policy())
+	{ return make_function(value, policy); }
+
+	template<typename T>
+	std::string stringof(T const& el)
+	{ return etc::to_string(el); }
+}}
+
+# include <cube/exception.hpp>
+# include <etc/backtrace.hpp>
+
+#define CUBE_PYTHON_DOCSTRING_OPTIONS()                                       \
+	boost::python::docstring_options __docstring_options{true, true, false};  \
+/**/
+
+namespace cube { namespace python {
+
 	template<typename Fn, typename... Args>
 	void propagate_exception(Fn&& fn, Args&&... args)
 	{
 		try { fn(std::forward<Args>(args)...); }
-		catch (error_already_set const&)
+		catch (boost::python::error_already_set const&)
 		{
+			using namespace boost::python;
 			object exception, value, traceback;
-
 			{
 				PyObject* py_exception;
 				PyObject* py_value;
 				PyObject* py_traceback;
 				PyErr_Fetch(&py_exception, &py_value, &py_traceback);
+				//PyErr_Display(py_exception, py_value, py_traceback);
 
 				if (py_exception == nullptr)
 					throw std::runtime_error(
@@ -132,31 +164,36 @@ namespace boost { namespace python {
 				traceback = object(handle<>(allow_null(py_traceback)));
 			}
 
-			auto msg = to_string(exception.attr("__name__")) + ": "
-			           + to_string(value);
-			// XXX missing traceback
-			throw std::runtime_error(msg);
+			auto msg = to_string(exception.attr("__name__"))
+				+ ": " + to_string(value);
+			etc::backtrace::Backtrace bt;
+			if (traceback.ptr() != nullptr)
+			{
+				object tb_mod = import("traceback");
+				list tb = extract<list>(tb_mod.attr("extract_tb")(traceback));
+				for (int i = 0, l = len(tb); i < l; ++i)
+				{
+					tuple el = extract<tuple>(tb[i]);
+					std::string file = to_string(el[0]);
+					auto pos = file.find("/cube");
+					if (pos != std::string::npos)
+						file = file.substr(pos + 1, std::string::npos);
+					bt.insert(
+						bt.begin(), //XXX painfully slow
+						etc::backtrace::StackFrame{
+							file + ": " + to_string(el[3]),
+							extract<unsigned int>(el[1]),
+							to_string(el[2]),
+							to_string(el[2]),
+							nullptr,
+							0
+						}
+					);
+				}
+			}
+			throw cube::exception::Exception(msg, &bt);
 		}
 	}
-
-
-	template<typename C, typename Ret>
-	inline
-	object make_getter(Ret (C::*value)() const)
-	{ return make_function(value, return_internal_reference<>()); }
-
-	template<
-		  typename Ret
-		, typename C
-		, typename Arg
-	>
-	inline
-	object make_setter(Ret (C::*value)(Arg const&))
-	{ return make_function(value, return_internal_reference<>()); }
 }}
-
-#define BOOST_PYTHON_DOCSTRING_OPTIONS()                                      \
-	boost::python::docstring_options __docstring_options{true, true, false};  \
-/**/
 
 #endif

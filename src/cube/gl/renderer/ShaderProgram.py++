@@ -5,7 +5,7 @@
 #include <cube/gl/vector.hpp>
 #include <cube/gl/color.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace py = boost::python;
 using namespace ::cube::gl::renderer;

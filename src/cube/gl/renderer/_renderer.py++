@@ -4,7 +4,7 @@
 #include <cube/gl/renderer.hpp>
 #include <cube/system/window.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace {
 
@@ -17,7 +17,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(_renderer)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 	using namespace cube::gl::renderer;
 

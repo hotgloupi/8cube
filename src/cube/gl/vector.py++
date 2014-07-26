@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include "vector.hpp"
 using namespace ::cube::gl::vector;
@@ -43,7 +43,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(vector)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 #define EXPORT_VECTOR(__value_type, __arity, __suffix)                        \

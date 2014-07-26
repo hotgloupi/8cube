@@ -5,14 +5,14 @@
 #include <cube/gl/renderer/ShaderProgram.hpp>
 #include <cube/gl/renderer/Painter.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace py = boost::python;
 using namespace cube::gl;
 
 BOOST_PYTHON_MODULE(text)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	py::class_<
 			  text::Text
 			, boost::noncopyable

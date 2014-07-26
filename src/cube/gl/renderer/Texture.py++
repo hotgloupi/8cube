@@ -1,7 +1,7 @@
 #include "ShaderProgram.hpp"
 #include "Texture.hpp"
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 BOOST_PYTHON_MODULE(Texture)
 {

@@ -1,6 +1,6 @@
 #include "Bindable.hpp"
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 BOOST_PYTHON_MODULE(Bindable)
 {

@@ -1,6 +1,8 @@
-#include <wrappers/boost/python.hpp>
-
 #include "cube.hpp"
+
+#include <cube/python.hpp>
+
+#include <etc/to_string.hpp>
 
 template<typename T>
 static
@@ -34,7 +36,7 @@ void export_cube_class(std::string const& suffix)
 			"vertex",
 			static_cast<get_vertex_from_index_t>(&cube_t::vertex)
 		)
-		.def("__str__", &py::stringof<cube_t>)
+		.def("__str__", &etc::to_string<cube_t const&>)
 		.def(
 			"contains",
 			static_cast<contains_components_t>(&cube_t::contains)
@@ -56,7 +58,7 @@ void export_cube_class(std::string const& suffix)
 
 BOOST_PYTHON_MODULE(cube)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 	using namespace cube::gl::cube;
 

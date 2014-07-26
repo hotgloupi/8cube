@@ -1,6 +1,6 @@
 #include "angle.hpp"
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 BOOST_PYTHON_MODULE(angle)
 {
@@ -12,6 +12,7 @@ BOOST_PYTHON_MODULE(angle)
 		.def(py::self + py::self)
 		.add_property("radian", &rad_value<float>)
 		.add_property("degree", &deg_value<float>)
+		.def("__str__", &etc::to_string<Angle const&>)
 	;
 
 	py::def("rad", &rad);

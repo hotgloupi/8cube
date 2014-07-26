@@ -1,10 +1,10 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include "../constants.hpp"
 
 BOOST_PYTHON_MODULE(system)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	using namespace cube::constants::system;
 	namespace py = boost::python;
 

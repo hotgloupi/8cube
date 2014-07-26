@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 #include <boost/python/import.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -57,7 +57,7 @@ namespace cubeapp { namespace python {
 	{
 		ETC_TRACE.debug("Execute:\n", script);
 		py::object res;
-		py::propagate_exception([&] {
+		cube::python::propagate_exception([&] {
 			res = py::exec(script.c_str(),
 			               _impl->globals,
 			               _impl->globals);

@@ -3,7 +3,7 @@
 
 #include <etc/log.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 #include <boost/python/make_constructor.hpp>
 
 namespace py = boost::python;

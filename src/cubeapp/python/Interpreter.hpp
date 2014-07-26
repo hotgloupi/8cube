@@ -4,7 +4,7 @@
 # include <cubeapp/api.hpp>
 
 # include <wrappers/boost/filesystem.hpp>
-# include <wrappers/boost/python.hpp>
+# include <cube/python.hpp>
 
 # include <string>
 

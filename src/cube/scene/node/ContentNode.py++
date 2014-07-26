@@ -5,7 +5,7 @@
 #include <cube/gl/renderer/Bindable.hpp>
 #include <cube/gl/renderer/Drawable.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace py = boost::python;
 using namespace cube::scene;

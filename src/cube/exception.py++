@@ -1,4 +1,4 @@
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include "exception.hpp"
 
@@ -58,7 +58,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(exception)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 
 	ExceptionType = create_exception_type("Exception");
 	py::register_exception_translator<cube::exception::Exception>(&translator);

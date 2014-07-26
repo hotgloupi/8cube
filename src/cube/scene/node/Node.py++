@@ -6,7 +6,7 @@
 #include <etc/log.hpp>
 #include <etc/scope_exit.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 #include <boost/python/raw_function.hpp>
 
 namespace py = boost::python;

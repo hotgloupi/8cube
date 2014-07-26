@@ -2,7 +2,7 @@
 #include <cube/gl/renderer/Renderer.hpp>
 #include <cube/gl/renderer/Bindable.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace {
 

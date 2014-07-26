@@ -1,6 +1,6 @@
 #include "State.hpp"
 #include <etc/print.hpp>
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace {
 

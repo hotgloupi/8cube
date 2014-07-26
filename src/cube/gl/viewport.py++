@@ -1,5 +1,5 @@
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include "viewport.hpp"
 using namespace cube::gl::viewport;
@@ -7,7 +7,7 @@ using namespace cube::gl::viewport;
 
 BOOST_PYTHON_MODULE(viewport)
 {
-	BOOST_PYTHON_DOCSTRING_OPTIONS();
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 
 	py::class_<

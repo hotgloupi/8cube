@@ -12,7 +12,7 @@
 #include <cube/resource/Manager.hpp>
 #include <cube/system/window.hpp>
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 namespace {
 

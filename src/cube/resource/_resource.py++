@@ -1,7 +1,7 @@
 #include "Resource.hpp"
 #include "Manager.hpp"
 
-#include <wrappers/boost/python.hpp>
+#include <cube/python.hpp>
 
 #include <cube/exception.hpp>
 #include <etc/print.hpp>
