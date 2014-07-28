@@ -4,6 +4,7 @@
 
 BOOST_PYTHON_MODULE(angle)
 {
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	namespace py = boost::python;
 	using namespace cube::units;
 
