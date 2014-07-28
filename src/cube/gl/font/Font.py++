@@ -93,7 +93,7 @@ namespace {
 
 } // !anonymous
 
-BOOST_PYTHON_MODULE(font)
+BOOST_PYTHON_MODULE(Font)
 {
 	CUBE_PYTHON_DOCSTRING_OPTIONS();
 	py::class_<font::Font, boost::noncopyable>(

@@ -6,8 +6,8 @@ from cube import gl
 
 class _(PainterSetup, Case):
 
-    font_path = os.path.join(os.path.dirname(__file__), 'font_test.ttf')
-    takao_font_path = os.path.join(os.path.dirname(__file__), 'font_test_takao.ttf')
+    font_path = os.path.join(os.path.dirname(__file__), 'font', 'font_test.ttf')
+    takao_font_path = os.path.join(os.path.dirname(__file__), 'font', 'font_test_takao.ttf')
 
     def setUp(self):
         super().setUp()
