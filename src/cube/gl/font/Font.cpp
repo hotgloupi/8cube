@@ -1,13 +1,13 @@
-#include "font.hpp"
+#include "Font.hpp"
 
-#include "exception.hpp"
-#include "renderer/Painter.hpp"
-#include "renderer/Renderer.hpp"
-#include "renderer/ShaderProgram.hpp"
-#include "renderer/Texture.hpp"
-#include "renderer/VertexBuffer.hpp"
-#include "surface.hpp"
-#include "vector.hpp"
+#include <cube/gl/exception.hpp>
+#include <cube/gl/renderer/Painter.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/Texture.hpp>
+#include <cube/gl/renderer/VertexBuffer.hpp>
+#include <cube/gl/surface.hpp>
+#include <cube/gl/vector.hpp>
 
 #include <etc/assert.hpp>
 #include <etc/compiler.hpp>

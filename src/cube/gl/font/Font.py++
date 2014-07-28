@@ -1,8 +1,8 @@
-#include "font.hpp"
-#include "renderer/Texture.hpp"
-#include "renderer/Renderer.hpp"
-#include "renderer.hpp"
-#include "renderer/VertexBuffer.hpp"
+#include "Font.hpp"
+#include <cube/gl/renderer/Texture.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/renderer.hpp>
+#include <cube/gl/renderer/VertexBuffer.hpp>
 
 #include <cube/python.hpp>
 
