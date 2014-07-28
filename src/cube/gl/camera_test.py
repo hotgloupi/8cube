@@ -21,16 +21,16 @@ class _(Case):
         c.pitch = angle.deg(-90)
         self.assertEqual(c.pitch.degree, 0)
         c.pitch = angle.deg(12)
-        self.assertEqual(c.pitch.degree, 12)
+        self.assertAlmostEqual(c.pitch.degree, 12, 1e-5)
 
     def test_roll(self):
         c = Camera()
         c.roll = angle.deg(90)
-        self.assertAlmostEqual(c.roll.degree, 90, .2)
+        self.assertAlmostEqual(c.roll.degree, 90, 1e-5)
         c.roll = angle.deg(-90)
         self.assertEqual(c.roll.degree, 0)
         c.roll = angle.deg(12)
-        self.assertEqual(c.roll.degree, 12)
+        self.assertAlmostEqual(c.roll.degree, 12, 1e-5)
 
     def test_yaw(self):
         c = Camera()
