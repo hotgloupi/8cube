@@ -1,0 +1,53 @@
+#include "Color.hpp"
+
+#include <cube/python.hpp>
+
+#include <etc/to_string.hpp>
+
+using namespace cube::gl::color;
+
+namespace {
+
+
+	template<typename T>
+	void export_for(std::string const& suffix, std::string const&)
+	{
+		namespace py = boost::python;
+
+		std::string name3 = "Color3" + suffix;
+		py::class_<Color3<T>>(name3.c_str())
+			.def_readwrite("r", &Color3<T>::r)
+			.def_readwrite("g", &Color3<T>::g)
+			.def_readwrite("b", &Color3<T>::b)
+			.def(py::init<>("default constructor (black)"))
+			.def(py::init<std::string>("parse color string (color name or #0x0x0x)"))
+			.def(py::init<T, T, T>(py::args("r", "g", "b")))
+			.def(py::self == py::self)
+			.def("__str__", &etc::to_string<Color3<T> const&>)
+		;
+
+		std::string name4 = "Color4" + suffix;
+		py::class_<Color4<T>>(name4.c_str())
+			.def_readwrite("r", &Color4<T>::r)
+			.def_readwrite("g", &Color4<T>::g)
+			.def_readwrite("b", &Color4<T>::b)
+			.def_readwrite("a", &Color4<T>::a)
+			.def(py::init<>("default constructor (transparent black)"))
+			.def(py::init<std::string>("parse color string (color name or #0x0x0x)"))
+			.def(py::init<T, T, T>(py::args("r", "g", "b")))
+			.def(py::init<T, T, T, T>(py::args("r", "g", "b", "a")))
+			.def(py::self == py::self)
+			.def("__str__", &etc::to_string<Color4<T> const&>)
+		;
+	}
+
+}
+
+BOOST_PYTHON_MODULE(Color)
+{
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
+	boost::python::scope().attr("__doc__") =
+		"Color types.\n"
+	;
+	export_for<float>("f", "float");
+}

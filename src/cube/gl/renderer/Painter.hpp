@@ -193,7 +193,7 @@ namespace cube { namespace gl { namespace renderer {
 			: _self(other._self)
 			, _state(std::move(other._state))
 		{
-			for (int i = 0; i < bounds; ++i)
+			for (etc::size_type i = 0; i < bounds; ++i)
 			{
 				auto ptr = ((guard_type*) _guards) + i;
 				auto guards = ((guard_type*) other._guards) + i;
@@ -203,7 +203,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		~Proxy()
 		{
-			for (int i = 0; i < bounds; ++i)
+			for (etc::size_type i = 0; i < bounds; ++i)
 			{
 				auto ptr = ((guard_type*) _guards) + i;
 				ptr->~guard_type();

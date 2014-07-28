@@ -1,0 +1,38 @@
+#include "Text.hpp"
+
+#include <cube/gl/font.hpp>
+#include <cube/gl/color.hpp>
+#include <cube/gl/renderer/ShaderProgram.hpp>
+#include <cube/gl/renderer/Painter.hpp>
+
+#include <cube/python.hpp>
+
+namespace py = boost::python;
+using namespace cube::gl;
+
+BOOST_PYTHON_MODULE(Text)
+{
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
+	py::class_<
+			  text::Text
+			, boost::noncopyable
+		>(
+			"Text",
+			py::init<font::Font&, std::basic_string<char> const&>()
+		)
+		.def("draw", &text::Text::draw)
+		.add_property(
+			"color",
+			py::make_function(
+				static_cast<color::Color3f const&(text::Text::*)() const>(
+					&text::Text::color
+				),
+				py::return_value_policy<py::return_by_value>()
+			),
+			static_cast<void(text::Text::*)(color::Color3f const&)>(
+				&text::Text::color
+			)
+		)
+	;
+}
+

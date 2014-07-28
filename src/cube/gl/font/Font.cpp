@@ -193,7 +193,6 @@ namespace cube { namespace gl { namespace font {
 		private:
 			renderer::Renderer&                     _renderer;
 			std::unordered_map<char32_t, GlyphPtr>  _glyphs;
-			bool                                    _full;
 			Face&                                   _face;
 			vector::Vector2f                        _texture_size;
 			TexturePtr                              _texture;
@@ -206,7 +205,6 @@ namespace cube { namespace gl { namespace font {
 			GlyphMap(Face& face, renderer::Renderer& renderer)
 				: _renderer(renderer)
 				, _glyphs{}
-				, _full{false}
 				, _face(face)
 				, _texture_size{512, 512}
 				, _texture{renderer.new_texture(
@@ -293,7 +291,7 @@ namespace cube { namespace gl { namespace font {
 					_pen.y / _texture_size.y
 				);
 				std::vector<uint8_t> buffer(glyph.bitmap.width * glyph.bitmap.rows * 4);
-				ETC_ASSERT_EQ(buffer.size(), glyph.bitmap.width * glyph.bitmap.rows * 4);
+				ETC_ASSERT_EQ(buffer.size(), static_cast<size_t>(glyph.bitmap.width * glyph.bitmap.rows * 4));
 				for (int i = 0; i < glyph.bitmap.width; ++i)
 					for (int j = 0; j < glyph.bitmap.rows; ++j)
 					{

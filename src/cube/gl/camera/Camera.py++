@@ -1,0 +1,52 @@
+#include <cube/python.hpp>
+
+#include "Camera.hpp"
+
+#include <cube/gl/frustum.hpp>
+
+namespace py = boost::python;
+using namespace cube::gl::camera;
+
+BOOST_PYTHON_MODULE(Camera)
+{
+	typedef cube::gl::vector::Vector3f vector_type;
+
+	typedef
+		Camera& (Camera::*set_frustum_t)(cube::units::Angle,
+		                                 float const,
+		                                 float const,
+		                                 float const);
+
+	py::class_<Camera, boost::noncopyable>(
+			"Camera"
+		)
+		.add_property(
+			"position",
+			py::select_getter(&Camera::position),
+			py::select_setter(&Camera::position)
+		)
+		.add_property(
+			"pitch",
+			py::select_getter(&Camera::pitch),
+			py::select_setter(&Camera::pitch)
+		)
+		.add_property(
+			"roll",
+			py::select_getter(&Camera::roll),
+			py::select_setter(&Camera::roll)
+		)
+		.add_property(
+			"yaw",
+			py::select_getter(&Camera::yaw),
+			py::select_setter(&Camera::yaw)
+		)
+		.add_property("front", &Camera::front)
+		.add_property("up", &Camera::up)
+		.add_property("right", &Camera::right)
+		.def("move", &Camera::move, py::return_self<>())
+		.def("rotate", &Camera::rotate, py::return_self<>())
+		.add_property("has_frustum", &Camera::has_frustum)
+		.add_property("frustum", py::select_getter(&Camera::frustum))
+		.def("init_frustum", static_cast<set_frustum_t>(&Camera::init_frustum), py::return_self<>())
+	;
+}

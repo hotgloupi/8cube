@@ -17,7 +17,7 @@ namespace cube { namespace gl { namespace renderer {
 	{}
 
 	Bindable::~Bindable()
-	{ ETC_ASSERT_EQ(_bound, 0); }
+	{ ETC_ASSERT_EQ(_bound, 0u); }
 
 	void Bindable::_bind(InternalMethod)
 	{
@@ -33,7 +33,7 @@ namespace cube { namespace gl { namespace renderer {
 	void Bindable::_unbind(InternalMethod) ETC_NOEXCEPT
 	{
 		ETC_TRACE.debug("Unbind", *this);
-		ETC_ASSERT_GT(_bound, 0);
+		ETC_ASSERT_GT(_bound, 0u);
 		if (--_bound == 0) _unbind();
 	}
 
@@ -82,21 +82,21 @@ namespace cube { namespace gl { namespace renderer {
 
 			Dummy dummy;
 			auto state = std::make_shared<State>(Mode::_2d);
-			ETC_ENFORCE_EQ(dummy.bound(), 0);
+			ETC_ENFORCE_EQ(dummy.bound(), 0u);
 			ETC_ENFORCE_EQ(dummy.called, 0);
 			{
 				Bindable::Guard g(dummy, state);
-				ETC_ENFORCE_EQ(dummy.bound(), 1);
+				ETC_ENFORCE_EQ(dummy.bound(), 1u);
 				ETC_ENFORCE_EQ(dummy.called, 1);
 				{
 					Bindable::Guard g(dummy, state);
-					ETC_ENFORCE_EQ(dummy.bound(), 2);
+					ETC_ENFORCE_EQ(dummy.bound(), 2u);
 					ETC_ENFORCE_EQ(dummy.called, 1);
 				}
-				ETC_ENFORCE_EQ(dummy.bound(), 1);
+				ETC_ENFORCE_EQ(dummy.bound(), 1u);
 				ETC_ENFORCE_EQ(dummy.called, 1);
 			}
-			ETC_ENFORCE_EQ(dummy.bound(), 0);
+			ETC_ENFORCE_EQ(dummy.bound(), 0u);
 			ETC_ENFORCE_EQ(dummy.called, 0);
 		}
 
