@@ -1,5 +1,5 @@
-from .material import Material, StackOperation
-from .renderer.Painter_test import PainterSetup, painter_test
+from .Material import Material, StackOperation
+from cube.gl.renderer.Painter_test import PainterSetup, painter_test
 from cube.units import angle
 
 from cube import gl

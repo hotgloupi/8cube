@@ -1,5 +1,5 @@
-from .material import Material
-from .renderer.Painter_test import PainterSetup, painter_test
+from . import Material
+from cube.gl.renderer.Painter_test import PainterSetup, painter_test
 from cube.units import angle
 from cube import gl
 from cube.test import Case

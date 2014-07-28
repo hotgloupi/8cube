@@ -1,9 +1,8 @@
-#ifndef  CUBE_GL_MATERIAL_HPP
-# define CUBE_GL_MATERIAL_HPP
+#ifndef  CUBE_GL_MATERIAL_MATERIAL_HPP
+# define CUBE_GL_MATERIAL_MATERIAL_HPP
 
-# include "fwd.hpp"
-# include "color.hpp"
-
+# include <cube/gl/color.hpp>
+# include <cube/gl/fwd.hpp>
 # include <cube/gl/renderer/fwd.hpp>
 # include <cube/resource/Resource.hpp>
 

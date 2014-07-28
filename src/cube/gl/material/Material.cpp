@@ -1,4 +1,4 @@
-#include "material.hpp"
+#include "Material.hpp"
 
 #include <cube/gl/renderer/Renderer.hpp>
 #include <cube/gl/renderer/Bindable.hpp>
