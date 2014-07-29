@@ -251,7 +251,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					(int)this->linked.major, '.', (int)this->linked.minor, '-',
 					(int)this->linked.patch
 				);
-				//SDL_SetMainReady();
+				SDL_SetMainReady();
 				if (::SDL_Init(SDL_INIT_VIDEO) != 0)
 				{
 					counter = 0;
