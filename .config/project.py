@@ -133,6 +133,38 @@ class BulletPhysics(CMakeDependency):
             ],
         )
 
+class LibRocketDependency(CMakeDependency):
+
+    def __init__(self,
+                 build,
+                 compiler,
+                 source_directory,
+                 c_compiler = None,
+                 freetype2 = None,
+                 shared = False):
+
+        configure_variables = {}
+        if c_compiler is not None:
+            configure_variables['CMAKE_C_COMPILER'] = c_compiler.binary
+        if freetype2 is not None:
+            configure_variables['FREETYPE_INCLUDE_DIRS'] = freetype2.libraries[0].include_directories[0]
+            configure_variables['FREETYPE_LIBRARY'] = freetype2.libraries[0].files[0]
+        configure_variables['BUILD_SHARED_LIBS'] = shared
+        super().__init__(
+            build,
+            "libRocket",
+            compiler = compiler,
+            source_directory = source_directory + '/Build',
+            libraries = [
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'Rocket',
+                    'shared': shared,
+                },
+            ],
+            configure_variables = configure_variables,
+        )
+
 class GLM(Dependency):
     def __init__(self, build, compiler, source_directory):
         super().__init__(
@@ -265,6 +297,7 @@ class IDNDependency(AutotoolsDependency):
             configure_arguments = configure_args,
         )
 
+
 def main(build):
     build_type = build.env.get('BUILD_TYPE', 'DEBUG')
     build.env.BUILD_TYPE = build_type
@@ -387,6 +420,14 @@ def main(build):
         BulletPhysics,
         compiler,
         "deps/bullet-2.82-r2704",
+    )
+
+    librocket = build.add_dependency(
+        LibRocketDependency,
+        compiler,
+        "deps/libRocket",
+        c_compiler = c_compiler,
+        freetype2 = freetype2,
     )
 
     if platform.IS_WINDOWS:
