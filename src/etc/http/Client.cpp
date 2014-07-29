@@ -68,7 +68,10 @@ namespace etc { namespace http {
 			// It took me 3 fucking days to locate the problem, so be aware !
 			std::unique_ptr<scheduler::Scheduler> _sched;
 			void setUp() { _sched.reset(new scheduler::Scheduler()); }
-			void tearDown() {_sched.reset();}
+			void tearDown() {
+				ETC_TRACE.debug("Deleting scheduler of test case", _case->name);
+				_sched.reset();
+			}
 			void run_case()
 			{
 				_sched->spawn(
