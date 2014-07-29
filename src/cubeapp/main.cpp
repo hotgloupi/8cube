@@ -102,14 +102,69 @@ int _main(int argc, char** argv)
 	return ret;
 }
 
-int main(int ac, char** av)
+int main(int ac, char* av[])
 {
 	try {
 		return _main(ac, av);
-	} catch (std::exception const& err) {
-		std::cerr << "Fatal error:" << err.what() << std::endl;
 	} catch (...) {
-		std::cerr << "Fatal error: exiting badly...\n";
+		std::cerr << "Fatal error: " << etc::exception::string() << std::endl;
 	}
 	return EXIT_FAILURE;
 }
+
+#ifdef _WIN32
+#include <windows.h>
+#include <io.h>
+#include <fcntl.h>
+int CALLBACK WinMain(
+    HINSTANCE   hInstance,
+    HINSTANCE   hPrevInstance,
+    LPSTR       lpCmdLine,
+    int         nCmdShow
+    )
+{
+	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0)
+	{
+		FILE* ignored;
+		freopen_s(&ignored, "conin$","r", stdin);
+		freopen_s(&ignored, "conout$","w", stdout);
+		freopen_s(&ignored, "conout$","w", stderr);
+	}
+
+	int ac;
+	LPWSTR* args = ::CommandLineToArgvW(GetCommandLineW(), &ac);
+	char** av = new char*[ac];
+	for (int i = 0; i < ac; ++i)
+	{
+		int len = WideCharToMultiByte(
+			CP_UTF8, // codepage
+			WC_ERR_INVALID_CHARS, // fail if invalid caracters are found
+			args[i],
+			-1,                   // len of args[i] or -1 if null-terminated
+			nullptr, // Out
+			0,       // Out buffer size or ignored and return the length
+			nullptr, // default character (always NULL with CP_UTF8)
+			nullptr  // use the default character (bool), alway NULL when using CP_UTF8
+		);
+		if (len == 0)
+		{
+			std::wcerr << L"Couldn't parse: " << args[i] << std::endl;
+			return EXIT_FAILURE;
+		}
+		av[i] = new char[len + 1];
+		int res = WideCharToMultiByte(
+			CP_UTF8, // codepage
+			WC_ERR_INVALID_CHARS, // fail if invalid caracters are found
+			args[i],
+			-1,                   // len of args[i] or -1 if null-terminated
+			av[i], // Out
+			len + 1,       // Out buffer size or ignored and return the length
+			nullptr, // default character (always NULL with CP_UTF8)
+			nullptr  // use the default character (bool), alway NULL when using CP_UTF8
+		);
+		av[i][len] = '\0';
+	}
+	return main(ac, av);
+}
+#endif
+
