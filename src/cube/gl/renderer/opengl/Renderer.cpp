@@ -51,7 +51,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			ETC_LOG.info("OpenGL renderer", (char*) glGetString(GL_RENDERER));
 			ETC_LOG.info("OpenGL vendor",   (char*) glGetString(GL_VENDOR));
 			ETC_LOG.info("GLSL version",    (char*) glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+			if (glBindFragDataLocation == nullptr)
+			{
+				glBindFragDataLocation = glBindFragDataLocationEXT;
+			}
+
 			initialized = true;
+
 		}
 		gl::ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
