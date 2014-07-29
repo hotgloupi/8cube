@@ -21,6 +21,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	GLRenderer::~GLRenderer()
 	{}
 
+	static void glBindFragDataLocation_DONOTHING(GLuint program,
+	                                   GLuint colorNumber,
+	                                   const char * name)
+	{
+		ETC_LOG.debug("Ignore call to glBindFragDataLocation(",
+		              program, colorNumber, name, ")");
+	}
+
 	GLRenderer::GLRenderer(system::window::RendererContext& context)
 		: Renderer(context)
 	{
@@ -65,9 +73,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 #endif
 			}
 			if (glBindFragDataLocation == nullptr)
-				throw Exception{
-					"glBindFragDataLocation is not available"
-				};
+			{
+				ETC_LOG.warn("glBindFragDataLocation is not available",
+				             "replacing with a do-nothing implementation");
+				glBindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC) &glBindFragDataLocation_DONOTHING;
+			}
 
 			initialized = true;
 
