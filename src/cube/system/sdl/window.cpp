@@ -311,19 +311,35 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			{
 				ETC_TRACE.debug("Create accelerated window and renderer");
 				int num_drivers = SDL_GetNumRenderDrivers();
-				int driver_index = 0;
-				for (; driver_index < num_drivers; ++driver_index)
+				int driver_index = -1;
+				for (int i = 0; i < num_drivers; ++i)
 				{
 					SDL_RendererInfo info;
 					SDL_GetRenderDriverInfo(
 						driver_index,
 						&info
 					);
+					ETC_TRACE.debug("Driver", i, info.name);
+					ETC_LOG.debug(
+						"Supported renderer flags:",
+						"software:", (info.flags & SDL_RENDERER_SOFTWARE ? "yes" : "no"),
+						"accelerated:", (info.flags & SDL_RENDERER_ACCELERATED ? "yes" : "no"),
+						"present vsync:", (info.flags & SDL_RENDERER_PRESENTVSYNC ? "yes" : "no"),
+						"target texture:", (info.flags & SDL_RENDERER_TARGETTEXTURE ? "yes" : "no")
+					);
+					ETC_LOG.debug(
+						"Max texture size",
+						info.max_texture_width, 'x', info.max_texture_height
+					);
 					if (info.name == std::string("opengl"))
-						break;
+					{
+						ETC_LOG.debug("Selecting this driver");
+						driver_index = i;
+					}
 				}
-				if (driver_index == num_drivers)
+				if (driver_index == num_drivers || driver_index == -1)
 					throw Exception{"No renderer available"};
+				ETC_LOG.debug("Selected driver is", driver_index);
 				this->renderer = SDL_CreateRenderer(
 					this->window,
 					driver_index,
