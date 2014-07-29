@@ -9,6 +9,7 @@
 # include <wrappers/sdl.hpp>
 # include <wrappers/opengl.hpp>
 
+# include <etc/assert.hpp>
 # include <etc/log.hpp>
 
 # include <stdexcept>
@@ -57,9 +58,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_PROTO(name, void)                                     \
 		{                                                                     \
 			_CUBE_GL_OPENGL_LOG(gl_name);                                     \
-			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer"); \
+			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer");            \
+			ETC_ASSERT_NEQ(((void*) gl_name), nullptr);                       \
 			::gl_name(values...);                                             \
-			_check_error<error_policy>(#gl_name);                              \
+			_check_error<error_policy>(#gl_name);                             \
 		}
 	/**/
 
@@ -67,9 +69,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_PROTO(name, type)                                     \
 		{                                                                     \
 			_CUBE_GL_OPENGL_LOG(gl_name);                                     \
-			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer"); \
+			CUBE_DEBUG_PERFORMANCE_SECTION("cube.OpenGLRenderer");            \
+			ETC_ASSERT_NEQ(((void*) gl_name), nullptr);                       \
 			type ret = ::gl_name(values...);                                  \
-			_check_error<error_policy>(#gl_name);                              \
+			_check_error<error_policy>(#gl_name);                             \
 			return ret;                                                       \
 		}
 	/**/
