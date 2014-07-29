@@ -113,7 +113,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		if (!frag_data_var.empty())
 			ETC_LOG.debug(
 				"FragData named", frag_data_var, "at index ",
-				glGetFragDataLocation(_id, frag_data_var.c_str())
+				gl::GetFragDataLocation(_id, frag_data_var.c_str())
 			);
 
 	}

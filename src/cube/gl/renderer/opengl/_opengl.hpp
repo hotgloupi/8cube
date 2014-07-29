@@ -148,6 +148,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP_RET(CreateProgram, GLuint);
 		_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
 		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
+		_CUBE_GL_OPENGL_WRAP_RET(GetFragDataLocation, GLint);
 
 # undef _CUBE_GL_OPENGL_WRAP
 # undef _CUBE_GL_OPENGL_WRAP_RET
