@@ -55,7 +55,14 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			if (glBindFragDataLocation == nullptr)
 			{
 				glBindFragDataLocation = glBindFragDataLocationEXT;
+				ETC_LOG.debug("Using extension for glBindFragDataLocation",
+				              glBindFragDataLocation,
+				              '->', glBindFragDataLocationEXT);
 			}
+			if (glBindFragDataLocation == nullptr)
+				throw Exception{
+					"glBindFragDataLocation is not available"
+				};
 
 			initialized = true;
 
