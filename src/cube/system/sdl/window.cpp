@@ -316,7 +316,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				{
 					SDL_RendererInfo info;
 					SDL_GetRenderDriverInfo(
-						driver_index,
+						i,
 						&info
 					);
 					ETC_TRACE.debug("Driver", i, info.name);
