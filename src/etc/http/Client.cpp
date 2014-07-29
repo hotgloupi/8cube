@@ -90,13 +90,13 @@ namespace etc { namespace http {
 			                         "http://test.8cube.io");
 		}
 
-		ETC_HTTP_TEST_CASE(get)
+		/*ETC_HTTP_TEST_CASE(get)
 		{
 			Client c(test_url());
 
 			ETC_ENFORCE_GT(c.fire(Request()).read().size(), 0u);
 			ETC_ENFORCE_EQ(c.fire(Request()).code(), etc::http::ResponseCode::ok);
-		}
+		}*/
 
 	}
 
