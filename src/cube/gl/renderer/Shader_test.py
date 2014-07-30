@@ -53,7 +53,7 @@ class _(ShaderSetup, Case):
         try:
             self.renderer.new_fragment_shader([":LOL:"])
         except CubeException as e:
-            self.assertTrue(str(e).startswith("Cannot compile shader:"))
+            self.assertTrue(str(e).startswith("Couldn't compile shader of "))
         else:
             self.fail("Shouldn't be able to create a shader from an invalid "
                       "source")

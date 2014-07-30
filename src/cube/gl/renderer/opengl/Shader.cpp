@@ -50,7 +50,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 				ETC_LOG.error(*this, "has errors:", buf.get());
 		}
 		if (!success)
-			throw Exception{"Couldn't compile shader " + etc::to_string(*this)};
+			throw Exception{"Couldn't compile shader of " + etc::to_string(*this)};
 	}
 
 	Shader::~Shader()
