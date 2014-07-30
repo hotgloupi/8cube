@@ -8,79 +8,76 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
-	typedef gl::SubVBO::method_t method_t;
-	typedef gl::SubVBO::method_array_t method_array_t;
-	static size_t const content_kinds = gl::SubVBO::content_kinds;
-
-
-	namespace {
-
-		method_array_t methods()
-		{
-			// WARNING: called before main()
-			method_array_t res;
-#ifdef CUBE_DEBUG
-			std::memset(&res[0], 0, sizeof(res));
-#endif
-
-#define SET_METHOD_RAW(idx, method) res[idx] = &gl::SubVBO::method
-#define SET_METHOD(kind) \
-			SET_METHOD_RAW(((int)ContentKind::kind), kind ## _pointer)
-
-			SET_METHOD(vertex);
-			SET_METHOD(index);
-			SET_METHOD(normal);
-			SET_METHOD(color);
-			for (int i = (int) ContentKind::color0;
-			     i < (int) ContentKind::_max_color;
-			     ++i)
-				SET_METHOD_RAW(i, color_pointer);
-			SET_METHOD(tex_coord);
-			for (int i = (int) ContentKind::tex_coord0;
-			     i < (int) ContentKind::_max_tex_coord;
-			     ++i)
-				SET_METHOD_RAW(i, tex_coord_pointer);
-
-#ifdef CUBE_DEBUG
-			for (size_t i = 0; i < content_kinds; ++i)
-				assert(res[i] != nullptr && "Some kind is not addressed");
-#endif
-#undef SET_METHOD
-#undef SET_METHOD_RAW
-			return res;
-		}
-
-	}
-
-	method_array_t gl::SubVBO::_methods = methods();
 	void gl::SubVBO::bind()
 	{
 		static bool old_behavior = etc::sys::environ::try_as<bool>(
 		    "CUBE_GL_RENDERER_OPENGL21"
 		);
-		//static std::map<GLenum, std::string> array_types = {
-		//	{ GL_VERTEX_ARRAY, "GL_VERTEX_ARRAY" },
-		//	{ GL_TEXTURE_COORD_ARRAY, "GL_TEXTURE_COORD_ARRAY" },
-		//	{ GL_COLOR_ARRAY, "GL_COLOR_ARRAY" },
-		//	{ GL_NORMAL_ARRAY, "GL_NORMAL_ARRAY" },
-		//};
+		ETC_TRACE.debug(*this,
+			"Set pointer for", this->attr->kind, "of type", this->attr->type, "with",
+			"arity =", this->attr->arity,
+			"GL type =", this->gl_type,
+			"stride =", this->stride,
+			"offset =", this->offset
+		);
 		if (old_behavior)
 		{
-			if (this->gl_kind != 0)
+			switch(this->attr->kind)
 			{
-				if (this->attr->kind == ContentKind::tex_coord0)
-					gl::ClientActiveTexture(GL_TEXTURE0);
-				//ETC_LOG.debug("Enable", array_types.at(this->gl_kind));
+			case ContentKind::vertex:
 				gl::EnableClientState(this->gl_kind);
+				gl::VertexPointer(
+					this->attr->arity,
+					this->gl_type,
+					this->stride,
+					this->offset
+				);
+				break;
+			case ContentKind::index:
+				break;
+			case ContentKind::color:
+			case ContentKind::color1:
+			case ContentKind::color2:
+			case ContentKind::color3:
+				gl::EnableClientState(this->gl_kind);
+				gl::ColorPointer(
+					this->attr->arity,
+					this->gl_type,
+					this->stride,
+					this->offset
+				);
+				break;
+			case ContentKind::normal:
+				gl::EnableClientState(this->gl_kind);
+				gl::NormalPointer(
+					this->gl_type,
+					this->stride,
+					this->offset
+				);
+				break;
+			case ContentKind::tex_coord0:
+			case ContentKind::tex_coord1:
+			case ContentKind::tex_coord2:
+			case ContentKind::tex_coord3:
+			case ContentKind::tex_coord4:
+			case ContentKind::tex_coord5:
+			case ContentKind::tex_coord6:
+			case ContentKind::tex_coord7:
+				gl::ClientActiveTexture(
+					GL_TEXTURE0
+					+ ((int) this->attr->kind) - ((int) ContentKind::tex_coord0)
+				);
+				gl::TexCoordPointer(
+					this->attr->arity,
+					this->gl_type,
+					this->stride,
+					this->offset
+				);
+				gl::EnableClientState(this->gl_kind);
+				break;
+			default:
+				ETC_ERROR("Invalid value: " + etc::to_string(this->attr->kind));
 			}
-			ETC_TRACE.debug(*this,
-				"Set pointer for", this->attr->kind, "of type", this->attr->type, "with",
-				"arity =", this->attr->arity,
-				"GL type =", this->gl_type,
-				"stride =", this->stride,
-				"offset =", this->offset
-			);
-			_methods[(size_t) this->attr->kind](*this);
 		}
 		else
 		{

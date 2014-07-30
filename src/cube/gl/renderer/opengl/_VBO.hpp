@@ -15,21 +15,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	{
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.SubVBO");
 	public:
-		typedef void (*method_t)(SubVBO const&);
-		static size_t const content_kinds = (size_t)ContentKind::_max_value;
-		typedef std::array<method_t, content_kinds> method_array_t;
-
-	public:
 		GLuint                          id;
 		VertexBufferAttribute const*    attr;
 		GLenum                          gl_kind;
 		GLenum                          gl_type;
 		GLvoid*                         offset;
 		GLsizei                         stride;
-
-
-	private:
-		static method_array_t _methods;
 
 	public:
 		inline
@@ -54,50 +45,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		void bind();
 
 		void unbind() ETC_NOEXCEPT;
-
-		static void vertex_pointer(SubVBO const& self)
-		{
-			gl::VertexPointer(
-				self.attr->arity,
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
-		}
-
-		static void index_pointer(SubVBO const& )
-		{
-		}
-
-		static void color_pointer(SubVBO const& self)
-		{
-			gl::ColorPointer(
-				self.attr->arity,
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
-		}
-
-		static void normal_pointer(SubVBO const& self)
-		{
-			gl::NormalPointer(
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
-		}
-
-		static void tex_coord_pointer(SubVBO const& self)
-		{
-			gl::TexCoordPointer(
-				self.attr->arity,
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
-		}
-
 	};
 
 	template<bool is_indices>
