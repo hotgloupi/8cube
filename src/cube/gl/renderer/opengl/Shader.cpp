@@ -37,15 +37,20 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		gl::CompileShader(_id);
 		GLint success = 0;
 		gl::GetShaderiv(_id, GL_COMPILE_STATUS, &success);
-		if (!success)
+
+		GLint length;
+		gl::GetShaderiv(_id, GL_INFO_LOG_LENGTH, &length);
+		if (length > 1)
 		{
-			std::vector<GLchar> log{};
-			log.resize(4096);
-			gl::GetShaderInfoLog(_id, log.size(), nullptr, &log[0]);
-			throw Exception{
-				"Cannot compile shader: " + std::string(&log[0])
-			};
+			std::unique_ptr<GLchar[]> buf(new GLchar[length + 1]);
+			gl::GetShaderInfoLog(_id, length, nullptr, buf.get());
+			if (success)
+				ETC_LOG.warn(*this, "has warnings:", buf.get());
+			else
+				ETC_LOG.error(*this, "has errors:", buf.get());
 		}
+		if (!success)
+			throw Exception{"Couldn't compile shader " + etc::to_string(*this)};
 	}
 
 	Shader::~Shader()
