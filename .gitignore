@@ -21,3 +21,6 @@ deps/openssl-1.0.1f.tar.gz
 deps/openssl-1.0.1f/
 deps/zlib-1.2.8.tar.gz
 deps/zlib-1.2.8/
+deps/libRocket/
+deps/libidn-1.28.tar.gz
+deps/libidn-1.28/
