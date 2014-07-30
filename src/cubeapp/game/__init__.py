@@ -23,7 +23,7 @@ def load(games_path, name, window):
         sys.path = old_python_path
 
     return game_module.Game(
-        window,
+        window = window,
         directory = os.path.join(games_path, name)
     )
 
