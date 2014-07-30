@@ -57,13 +57,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		static void vertex_pointer(SubVBO const& self)
 		{
-			ETC_TRACE.debug(self, "Set the vertex pointer",
-				self.attr->kind,
-				self.attr->arity,
-				self.gl_type,
-				self.stride,
-				self.offset
-			);
 			gl::VertexPointer(
 				self.attr->arity,
 				self.gl_type,
@@ -78,12 +71,6 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		static void color_pointer(SubVBO const& self)
 		{
-			ETC_TRACE.debug(self, "Set the color pointer",
-				self.attr->arity,
-				self.gl_type, (int) self.attr->kind,
-				self.stride,
-				self.offset
-			);
 			gl::ColorPointer(
 				self.attr->arity,
 				self.gl_type,
@@ -92,9 +79,13 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			);
 		}
 
-		static void normal_pointer(SubVBO const& )
+		static void normal_pointer(SubVBO const& self)
 		{
-			throw false;
+			gl::NormalPointer(
+				self.gl_type,
+				self.stride,
+				self.offset
+			);
 		}
 
 		static void tex_coord_pointer(SubVBO const& self)

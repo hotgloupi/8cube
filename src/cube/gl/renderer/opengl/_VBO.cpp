@@ -1,7 +1,9 @@
 #include "_VBO.hpp"
 
 #include <etc/assert.hpp>
+#include <etc/sys/environ.hpp>
 
+#include <map>
 #include <cstring>
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
@@ -53,27 +55,63 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	method_array_t gl::SubVBO::_methods = methods();
 	void gl::SubVBO::bind()
 	{
-		//if (this->gl_kind != 0)
-		//	gl::EnableClientState(this->gl_kind);
-		//_methods[(size_t) this->attr->kind](*this);
-
-		gl::EnableVertexAttribArray((int) this->attr->kind);
-		gl::VertexAttribPointer(
-			(int) this->attr->kind,
-			this->attr->arity,
-			this->gl_type,
-			GL_FALSE, // normalized
-			this->stride,
-			this->offset
+		static bool old_behavior = etc::sys::environ::try_as<bool>(
+		    "CUBE_GL_RENDERER_OPENGL21"
 		);
-
+		//static std::map<GLenum, std::string> array_types = {
+		//	{ GL_VERTEX_ARRAY, "GL_VERTEX_ARRAY" },
+		//	{ GL_TEXTURE_COORD_ARRAY, "GL_TEXTURE_COORD_ARRAY" },
+		//	{ GL_COLOR_ARRAY, "GL_COLOR_ARRAY" },
+		//	{ GL_NORMAL_ARRAY, "GL_NORMAL_ARRAY" },
+		//};
+		if (old_behavior)
+		{
+			if (this->gl_kind != 0)
+			{
+				if (this->attr->kind == ContentKind::tex_coord0)
+					gl::ClientActiveTexture(GL_TEXTURE0);
+				//ETC_LOG.debug("Enable", array_types.at(this->gl_kind));
+				gl::EnableClientState(this->gl_kind);
+			}
+			ETC_TRACE.debug(*this,
+				"Set pointer for", this->attr->kind, "of type", this->attr->type, "with",
+				"arity =", this->attr->arity,
+				"GL type =", this->gl_type,
+				"stride =", this->stride,
+				"offset =", this->offset
+			);
+			_methods[(size_t) this->attr->kind](*this);
+		}
+		else
+		{
+			gl::EnableVertexAttribArray((int) this->attr->kind);
+			gl::VertexAttribPointer(
+				(int) this->attr->kind,
+				this->attr->arity,
+				this->gl_type,
+				GL_FALSE, // normalized
+				this->stride,
+				this->offset
+			);
+		}
 	}
 
 	void gl::SubVBO::unbind() ETC_NOEXCEPT
 	{
-		//if (this->gl_kind != 0)
-		//	gl::DisableClientState<gl::no_throw>(this->gl_kind);
-		gl::DisableVertexAttribArray((int) this->attr->kind);
+		static bool old_behavior = etc::sys::environ::try_as<bool>(
+		    "CUBE_GL_RENDERER_OPENGL21"
+		);
+		if (old_behavior)
+		{
+			if (this->gl_kind != 0)
+			{
+				if (this->attr->kind == ContentKind::tex_coord0)
+					gl::ClientActiveTexture<gl::no_throw>(GL_TEXTURE0);
+				gl::DisableClientState<gl::no_throw>(this->gl_kind);
+			}
+		}
+		else
+			gl::DisableVertexAttribArray<gl::no_throw>((int) this->attr->kind);
 	}
 
 	template<>
