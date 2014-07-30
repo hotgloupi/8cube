@@ -91,7 +91,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_CALL_RET(name, gl ## name ## ARB, type)               \
 	/**/
 
-		_CUBE_GL_OPENGL_WRAP(ActiveTexture);
+//_CUBE_GL_OPENGL_WRAP(ActiveTexture);
 		_CUBE_GL_OPENGL_WRAP(AttachShader);
 		_CUBE_GL_OPENGL_WRAP(BindAttribLocation);
 		_CUBE_GL_OPENGL_WRAP(BindFragDataLocation);
@@ -140,6 +140,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(VertexPointer);
 		_CUBE_GL_OPENGL_WRAP(VertexAttribPointer);
 		_CUBE_GL_OPENGL_WRAP(Viewport);
+		_CUBE_GL_OPENGL_WRAP_ARB(ActiveTexture);
 		_CUBE_GL_OPENGL_WRAP_ARB(BindBuffer);
 		_CUBE_GL_OPENGL_WRAP_ARB(BufferData);
 		_CUBE_GL_OPENGL_WRAP_ARB(BufferSubData);
