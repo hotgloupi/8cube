@@ -36,6 +36,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		return -1;
 	}
 
+	static void glGenerateMipmap_OLD(GLenum target)
+	{
+		ETC_LOG.debug("Use the old OpenGL 1.4 way to generate mipmaps");
+		gl::TexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
+	}
+
 	GLRenderer::GLRenderer(system::window::RendererContext& context)
 		: Renderer(context)
 	{
@@ -69,22 +75,17 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 			if (glBindFragDataLocation == nullptr)
 			{
-#ifdef _WIN32
-				glBindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC)
-					wglGetProcAddress( "glBindFragDataLocation" );
-				if (glBindFragDataLocation == nullptr)
-				glBindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC)
-					wglGetProcAddress( "glBindFragDataLocationEXT" );
-#else
-				glBindFragDataLocation = glBindFragDataLocationEXT;
-#endif
-			}
-			if (glBindFragDataLocation == nullptr)
-			{
 				ETC_LOG.warn("glBindFragDataLocation is not available",
 				             "replacing with a do-nothing implementation");
 				glBindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC) &glBindFragDataLocation_DONOTHING;
 				glGetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC) &glGetFragDataLocation_DONOTHING;
+			}
+
+			if (glGenerateMipmap == nullptr)
+			{
+				ETC_LOG.warn("glGenerateMipmap is not available",
+				             "replacing with old behavior");
+				glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC) &glGenerateMipmap_OLD;
 			}
 
 			initialized = true;
