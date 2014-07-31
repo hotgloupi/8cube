@@ -3,7 +3,6 @@
 
 #include <cube/debug/Performance.hpp>
 
-#include <etc/init.hpp>
 #include <etc/log.hpp>
 #include <etc/scope_exit.hpp>
 #include <etc/sys/environ.hpp>
@@ -11,6 +10,7 @@
 
 #include <wrappers/boost/filesystem.hpp>
 #include <cube/python.hpp>
+#include <cube/init.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -33,7 +33,7 @@ ETC_LOG_COMPONENT("cubeapp.main");
 
 int _main(int argc, char** argv)
 {
-	etc::Init etc_init_guard;
+	cube::Init cube_init_guard;
 
 	{
 		std::string args = "{";
@@ -46,11 +46,6 @@ int _main(int argc, char** argv)
 		args += "}";
 		ETC_LOG.info("Starting 8cube:", args);
 	}
-	ETC_SCOPE_EXIT{
-		cube::debug::Performance::instance().shutdown();
-		if (etc::sys::environ::get("CUBE_PERFORMANCE_DUMP", "").size())
-			cube::debug::Performance::instance().dump();
-	};
 
 	for (int i = 1; i < argc; i++)
 	{
