@@ -15,7 +15,7 @@ namespace cube { namespace scene { namespace visit {
 		{
 			void constraints()
 			{
-				node::Node* node;
+				node::Node* node = nullptr;
 				_visitor.initialize_vertex(*node);
 				_visitor.discover_vertex(*node);
 				_visitor.examine_vertex(*node);
