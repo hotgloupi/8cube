@@ -243,4 +243,64 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		                  data);
 	}
 
+	void Texture::save_bmp(boost::filesystem::path const& p)
+	{
+		Guard guard(*this);
+		static GLenum const tex_kind = GL_TEXTURE_2D;
+		int width, height, fmt, red_size, green_size, blue_size, alpha_size;
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_WIDTH, &width);
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_HEIGHT, &height);
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_RED_SIZE, &red_size);
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_GREEN_SIZE, &green_size);
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_BLUE_SIZE, &blue_size);
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_ALPHA_SIZE, &alpha_size);
+		glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
+		ETC_LOG.debug("Internal texture size is", width, height);
+		ETC_LOG.debug("Internal texture is", gl::to_pixel_format(fmt));
+		ETC_LOG.debug("Component sizes:", red_size, green_size, blue_size, alpha_size);
+		{
+#define GL_GET(k) \
+			{ \
+				GLint value; \
+				glGetIntegerv(k, &value); \
+				ETC_LOG.debug(#k " =", value); \
+			} \
+/**/
+
+			GL_GET(GL_UNPACK_SWAP_BYTES);
+			GL_GET(GL_UNPACK_LSB_FIRST);
+			GL_GET(GL_UNPACK_ROW_LENGTH);
+			GL_GET(GL_UNPACK_IMAGE_HEIGHT);
+			GL_GET(GL_UNPACK_SKIP_PIXELS);
+			GL_GET(GL_UNPACK_SKIP_ROWS);
+			GL_GET(GL_UNPACK_SKIP_IMAGES);
+			GL_GET(GL_UNPACK_ALIGNMENT);
+#undef GL_GET
+		}
+		int bpp = 4;
+		std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
+		memset(pixels.get(), 0, width * height * bpp);
+		gl::GetTexImage(
+			tex_kind,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			(void*)pixels.get()
+		);
+		int pitch = bpp * width;
+		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
+			pixels.get(),
+			width,
+			height,
+			bpp * 8,
+			pitch,
+			0, 0, 0, 0
+		);
+		if (surface == nullptr)
+			throw Exception{"CreateRGBSurfaceFrom"};
+		ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
+		if (SDL_SaveBMP(surface, p.string().c_str()) != 0)
+			throw Exception("SDL_SaveBMP");
+	}
+
 }}}}

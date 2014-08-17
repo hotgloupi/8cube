@@ -8,6 +8,8 @@
 
 # include <etc/types.hpp>
 
+# include <wrappers/boost/filesystem.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	class CUBE_API Texture
@@ -72,6 +74,9 @@ namespace cube { namespace gl { namespace renderer {
 			}
 			this->generate_mipmap(levels);
 		}
+
+		virtual
+		void save_bmp(boost::filesystem::path const& p) = 0;
 	};
 
 }}}

@@ -41,6 +41,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		void min_filter_bilinear(TextureFilter const filter) override;
 		void min_filter_trilinear(TextureFilter const filter) override;
 		void generate_mipmap(etc::size_type const levels) override;
+		void save_bmp(boost::filesystem::path const& p) override;
 	protected:
 		void _bind() override;
 		void _unbind() ETC_NOEXCEPT override;

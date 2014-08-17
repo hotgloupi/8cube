@@ -41,5 +41,9 @@ BOOST_PYTHON_MODULE(Texture)
 			"generate_mipmap",
 			static_cast<void(Texture::*)()>(&Texture::generate_mipmap)
 		)
+		.def(
+			"save_bmp",
+			&Texture::save_bmp
+		)
 	;
 }

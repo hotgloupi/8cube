@@ -3,6 +3,8 @@ from .Painter_test import PainterSetup, painter_test
 from cube import gl
 from cube.test import Case
 
+from pathlib import Path
+
 class _(PainterSetup, Case):
     class VSRoutine(gl.ShaderRoutine):
         def source(self, lang):
