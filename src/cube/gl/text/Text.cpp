@@ -62,7 +62,7 @@ namespace cube { namespace gl { namespace text {
 	void Text::color(color::Color3f const& color)
 	{
 		_material->ambient(color);
-		_material_view = nullptr;
+		_material_view = nullptr; // XXX not needed ?
 	}
 
 }}}
