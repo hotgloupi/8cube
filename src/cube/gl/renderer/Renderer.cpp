@@ -88,8 +88,10 @@ namespace cube { namespace gl { namespace renderer {
 			break;
 		case Mode::_2d:
 			state->ortho(
-				_viewport.x, _viewport.w - _viewport.x,
-				_viewport.h - _viewport.y, _viewport.y
+				_viewport.x,                 // left
+				_viewport.w - _viewport.x,   // right
+				_viewport.h - _viewport.y,   // bottom
+				_viewport.y                  // top
 			);
 			ETC_LOG.debug("New mvp matrix:", state->mvp());
 			break;
