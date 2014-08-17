@@ -59,6 +59,8 @@ namespace cube { namespace gl { namespace surface {
 		PixelFormat pixel_format() const ETC_NOEXCEPT;
 
 		double difference(Surface const& other) const;
+
+		void save_bmp(boost::filesystem::path const& p);
 	};
 
 }}}

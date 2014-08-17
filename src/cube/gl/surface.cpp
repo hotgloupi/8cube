@@ -170,4 +170,13 @@ namespace cube { namespace gl { namespace surface {
 		return ((double) diff) / ((double) (size * 255));
 	}
 
+	void Surface::save_bmp(boost::filesystem::path const& p)
+	{
+		if (SDL_SaveBMP(_this->surface, p.string().c_str()) != 0)
+			throw Exception{
+				"Couldn't save the surface to '" + p.string() +
+				"': " + std::string(SDL_GetError())
+			};
+	}
+
 }}}

@@ -16,5 +16,6 @@ BOOST_PYTHON_MODULE(surface)
 		.add_property("height", &Surface::height)
 		.add_property("pixel_format", &Surface::pixel_format)
 		.def("difference", &Surface::difference)
+		.def("save_bmp", &Surface::save_bmp)
 	;
 }
