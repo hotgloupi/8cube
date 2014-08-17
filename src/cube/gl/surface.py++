@@ -14,6 +14,7 @@ BOOST_PYTHON_MODULE(surface)
 		.add_property("bytes_per_pixel", &Surface::bytes_per_pixel)
 		.add_property("width", &Surface::width)
 		.add_property("height", &Surface::height)
+		.add_property("pixel_format", &Surface::pixel_format)
 		.def("difference", &Surface::difference)
 	;
 }
