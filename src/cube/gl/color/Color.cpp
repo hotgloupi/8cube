@@ -319,7 +319,7 @@ namespace cube { namespace gl { namespace color {
 	std::ostream&
 	operator <<(std::ostream& out, Color3<T> const& c)
 	{
-		out << "<Color3 " << c.r << ' ' << c.g << ' ' << c.b << '>';
+		out << "<Color3 " << +c.r << ' ' << +c.g << ' ' << +c.b << '>';
 		return out;
 	}
 
@@ -327,8 +327,8 @@ namespace cube { namespace gl { namespace color {
 	std::ostream&
 	operator <<(std::ostream& out, Color4<T> const& c)
 	{
-		out << "<Color4 " << c.r << ' ' << c.g << ' ' << c.b << ' '
-		    << c.a << '>';
+		out << "<Color4 " << +c.r << ' ' << +c.g << ' ' << +c.b << ' '
+		    << +c.a << '>';
 		return out;
 	}
 
@@ -337,4 +337,14 @@ namespace cube { namespace gl { namespace color {
 
 	template CUBE_API std::ostream& operator <<(std::ostream&, Color3<int> const&);
 	template CUBE_API std::ostream& operator <<(std::ostream&, Color4<int> const&);
+
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color3<unsigned int> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color4<unsigned int> const&);
+
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color3<char> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color4<char> const&);
+
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color3<unsigned char> const&);
+	template CUBE_API std::ostream& operator <<(std::ostream&, Color4<unsigned char> const&);
+
 }}}
