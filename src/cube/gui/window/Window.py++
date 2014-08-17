@@ -1,0 +1,84 @@
+#include "Window.hpp"
+
+#include <cube/gl/renderer/Painter.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gl/vector/Vector.hpp>
+#include <cube/python.hpp>
+#include <cube/system/inputs.hpp>
+
+#include <etc/meta/select_override.hpp>
+
+using cube::gui::window::Window;
+using etc::meta::select_override;
+namespace py = boost::python;
+
+namespace {
+
+	struct register_path_from_python
+	{
+		static void* convertible(PyObject* ptr)
+		{
+			py::object PathType = py::import("pathlib").attr("Path");
+			if (::PyObject_IsInstance(ptr, PathType.ptr()))
+				return ptr;
+			return nullptr;
+		}
+
+		static void construct(PyObject* obj_ptr,
+		                      py::converter::rvalue_from_python_stage1_data* data)
+		{
+			// Extract the character data from the python string
+			std::string value = py::to_string(py::object(py::borrowed(obj_ptr)));
+
+			void* storage = ((py::converter::rvalue_from_python_storage<boost::filesystem::path>*) data)->storage.bytes;
+			new (storage) boost::filesystem::path(value);
+
+			// Stash the memory chunk pointer for later use by boost.python
+			data->convertible = storage;
+		}
+
+		register_path_from_python()
+		{
+			py::converter::registry::push_back(
+				&convertible,
+				&construct,
+				py::type_id<boost::filesystem::path>()
+			);
+		}
+	};
+
+} // ! anonymous
+
+BOOST_PYTHON_MODULE(Window)
+{
+	register_path_from_python();
+
+	py::class_<Window, boost::noncopyable>("Window", py::no_init)
+		.def(py::init<int, int, std::string>())
+		.def(py::init<int, int>())
+		.add_property("size", py::select_getter(&Window::size))
+		.add_property("width", py::select_getter(&Window::width))
+		.add_property("height", py::select_getter(&Window::height))
+		.add_property("renderer", py::make_function(&Window::renderer, py::return_internal_reference<>()))
+		.add_property(
+			"title",
+			py::select_getter(
+				&Window::title,
+				py::return_value_policy<py::return_by_value>()
+			),
+			py::select_setter(&Window::title)
+		)
+		.def("render", &Window::render)
+		.def("swap_buffers", &Window::swap_buffers)
+		.def("poll", &Window::poll)
+		.def(
+			"load_document",
+			select_override<std::string const&>::of(&Window::load_document)
+		)
+		.def("add_font", &Window::add_font)
+		.def("show", &Window::show)
+		.def("hide", &Window::hide)
+		.add_property("inputs", py::make_function(&Window::inputs, py::return_internal_reference<>()))
+	;
+}
+
