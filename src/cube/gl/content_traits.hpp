@@ -31,6 +31,9 @@ namespace cube { namespace gl {
 		_CUBE_GL_CONTENT_TRAITS(uint8_t);
 		_CUBE_GL_CONTENT_TRAITS(uint16_t);
 		_CUBE_GL_CONTENT_TRAITS(uint32_t);
+		_CUBE_GL_CONTENT_TRAITS(int8_t);
+		_CUBE_GL_CONTENT_TRAITS(int16_t);
+		_CUBE_GL_CONTENT_TRAITS(int32_t);
 
 # undef _CUBE_GL_CONTENT_TRAITS
 
