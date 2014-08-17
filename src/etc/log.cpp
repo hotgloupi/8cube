@@ -1,4 +1,5 @@
 #include "log.hpp"
+#include "log/Logger.hpp"
 
 #include <boost/thread/tss.hpp>
 
@@ -52,20 +53,20 @@ namespace etc { namespace log {
 	         std::string const& component) ETC_NOEXCEPT
 		: _line{level, file, line, function, component, indent().increment()}
 		, _logger{&logger(component)}
-		, _should_log{_logger->should_log(_line)}
 		, _message{}
+		, _sent{false}
 	{}
 
 	Log::Log(Log&& other) ETC_NOEXCEPT
 		: _line{std::move(other._line)}
 		, _logger{other._logger}
-		, _should_log{other._should_log}
 		, _message{std::move(other._message)}
+		, _sent{other._sent}
 	{
 		other._logger = nullptr;
-		if (_should_log && !_message.empty())
+		if (_should_log())
 		{
-			_should_log = false;
+			_sent = true;
 			_logger->message(std::move(_line), std::move(_message));
 		}
 	}
@@ -74,10 +75,14 @@ namespace etc { namespace log {
 	{
 		if (_logger != nullptr)
 		{
-			if (_should_log)
+			if (_should_log())
 				_logger->message(std::move(_line), std::move(_message));
 			indent().decrement();
 		}
 	}
 
+	bool Log::_should_log() ETC_NOEXCEPT
+	{
+		return !_sent && _logger->should_log(_line);
+	}
 }}

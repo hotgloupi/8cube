@@ -2,6 +2,8 @@
 
 #include <etc/exception.hpp>
 #include <etc/log.hpp>
+#include <etc/log/Logger.hpp>
+#include <etc/log/detail/log.hpp>
 
 namespace etc { namespace log {
 
@@ -15,8 +17,10 @@ namespace etc { namespace log {
 		ETC_TRACE_DTOR();
 		try { shutdown(); }
 		catch (...) {
-			std::cerr << "Couldn't shutdown the logger: "
-			          << exception::string() << std::endl;
+			detail::log(
+			 	"Couldn't shutdown the logger:",
+			 	exception::string()
+			);
 		}
 	}
 

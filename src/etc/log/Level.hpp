@@ -1,7 +1,7 @@
 #ifndef  ETC_LOG_LEVEL_HPP
 # define ETC_LOG_LEVEL_HPP
 
-# include "../api.hpp"
+# include <cube/api.hpp>
 
 # include <iosfwd>
 
@@ -20,7 +20,11 @@ namespace etc { namespace log {
 
 	ETC_API std::ostream& operator <<(std::ostream& out, Level level);
 
+	Level level_from_string(std::string const& str,
+	                        bool ignore_case = true);
+
+	Level default_level();
+
 }}
 
 #endif
-

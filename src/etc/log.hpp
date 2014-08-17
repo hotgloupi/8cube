@@ -2,7 +2,8 @@
 # define ETC_LOG_HPP
 
 # include "log/component.hpp"
-# include "log/Logger.hpp"
+# include "log/fwd.hpp"
+# include "log/Line.hpp"
 
 # include "api.hpp"
 # include "types.hpp"
@@ -56,7 +57,7 @@
 		::etc::log::Level::info,                                              \
 		__FILE__,                                                             \
 		__LINE__,                                                             \
-		_ETC_LOG_FUNCTION,                                                    \
+		ETC_PRETTY_FUNCTION,                                                  \
 		etc_log_component()                                                   \
 	)                                                                         \
 /**/
@@ -78,8 +79,8 @@ namespace etc { namespace log {
 	private:
 		Line            _line;
 		Logger*         _logger;
-		bool            _should_log;
 		std::string     _message;
+		bool            _sent;
 
 	public:
 		/// Create a new Line with an incremented indentation.
@@ -90,7 +91,7 @@ namespace etc { namespace log {
 		    std::string const& component) ETC_NOEXCEPT;
 		/// Send the message to the logger.
 		Log(Log&& o) ETC_NOEXCEPT;
-		/// Send the message to the logger is not already done and decrement
+		/// Send the message to the logger if not already done and decrement
 		/// the general indentation.
 		~Log();
 
@@ -117,7 +118,7 @@ namespace etc { namespace log {
 		Log&& send(T&&... strs) ETC_NOEXCEPT
 		{
 			try {
-				if (_should_log)
+				if (_should_log())
 				{
 					if (_message.size() > 0)
 						_message.append(" ");
@@ -140,18 +141,10 @@ namespace etc { namespace log {
 		{                                                                     \
 			assert(_message.size() == 0 || _line.level == Level::lvl);        \
 			_line.level = Level::lvl;                                         \
-			_should_log = _logger->should_log(_line);                         \
 			return this->send(std::forward<T>(strs)...);                      \
 		}                                                                     \
 	/**/
-# ifdef NDEBUG
-		template<typename... T>
-		inline
-		Log&& debug(T const&...) ETC_NOEXCEPT
-		{ _should_log = false; return std::move(*this); }
-# else
 		_ETC_LOG_LEVEL_PRINTER(debug)
-# endif
 		_ETC_LOG_LEVEL_PRINTER(info)
 		_ETC_LOG_LEVEL_PRINTER(warn)
 		_ETC_LOG_LEVEL_PRINTER(error)
@@ -161,6 +154,8 @@ namespace etc { namespace log {
 		inline
 		operator bool() const ETC_NOEXCEPT
 		{ return false; }
+
+		bool _should_log() ETC_NOEXCEPT;
 	};
 
 }}

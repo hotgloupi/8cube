@@ -1,41 +1,20 @@
 #ifndef  ETC_IO_LOGGER_HH
 # define ETC_IO_LOGGER_HH
 
+# include "fwd.hpp"
+
 # include "Line.hpp"
+# include "backend/Interface.hpp"
+# include "detail/Runner.hpp"
 
 # include <etc/api.hpp>
 
 # include <boost/noncopyable.hpp>
 
 # include <iosfwd>
+# include <vector>
 
 namespace etc { namespace log {
-
-	enum class Flag : int
-	{
-		none        = 0x00,
-		level       = 0x01,
-		component   = 0x02,
-		location    = 0x04,
-		function    = 0x08,
-	};
-
-	inline
-	Flag operator |(Flag const lhs, Flag const rhs)
-	{
-		return static_cast<Flag>(
-			static_cast<int>(lhs) | static_cast<int>(rhs)
-		);
-	}
-
-	inline
-	bool operator &(Flag const lhs, Flag const rhs)
-	{
-		// C4800 warning when casting to bool
-		if (static_cast<int>(lhs) & static_cast<int>(rhs))
-			return true;
-		return false;
-	}
 
 	class Logger;
 	struct Line;
@@ -45,36 +24,12 @@ namespace etc { namespace log {
 
 	ETC_API void shutdown();
 
-	enum class Mode
-	{
-		synchroneous = 0,
-		asynchroneous = 1
-	};
-
 	ETC_API void set_mode(Mode mode);
 
 	class ETC_API Logger
 		: private boost::noncopyable
 	{
-	public:
-
 	private:
-		struct OutStream
-		{
-			std::ostream* out;
-			bool          owned;
-
-			OutStream()
-				: out{nullptr}
-				, owned{false}
-			{}
-
-			OutStream(std::ostream* out, bool owned)
-				: out{out}
-				, owned{owned}
-			{}
-		};
-
 		struct ComponentConfig
 		{
 			Level level;
@@ -98,7 +53,8 @@ namespace etc { namespace log {
 		}
 
 		static
-		void enable_component(std::string const& name, Level lvl = Level::_maxvalue)
+		void enable_component(std::string const& name,
+		                      Level lvl = Level::_maxvalue)
 		{
 			if (lvl == Level::_maxvalue)
 				lvl = logger(name)._level;
@@ -111,15 +67,14 @@ namespace etc { namespace log {
 		{ _component_config(name).enabled = false; }
 
 	private:
-		std::string     _name;
-		Level           _level;
-		OutStream       _streams[static_cast<size_t>(Level::_maxvalue)];
-		Flag            _flags;
+		std::string                                      _name;
+		Level                                            _level;
+		std::vector<std::shared_ptr<backend::Interface>> _backends;
 
 	private:
+		explicit
 		Logger(std::string const& name,
-		       Level lvl = Level::debug,
-		       Flag const flags = Flag::level | Flag::component);
+		       Level lvl = Level::debug);
 		friend ETC_API Logger& logger(std::string const&);
 
 	public:
@@ -127,17 +82,13 @@ namespace etc { namespace log {
 		Logger& level(Level const level) { _level = level; return *this; }
 
 	public:
-		void message(Line const& line, std::string message) ETC_NOEXCEPT;
+		void add_backend(std::shared_ptr<backend::Interface> b)
+		{ _backends.emplace_back(std::move(b)); }
+
+	public:
+		void message(Line line, std::string message) ETC_NOEXCEPT;
 	};
 
 }} // !etc::log
-
-# include <boost/config.hpp>
-
-# ifdef BOOST_MSVC
-#  define _ETC_LOG_FUNCTION __FUNCTION__
-# else
-#  define _ETC_LOG_FUNCTION __PRETTY_FUNCTION__
-# endif
 
 #endif
