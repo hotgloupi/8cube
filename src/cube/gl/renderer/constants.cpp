@@ -150,6 +150,41 @@ namespace cube { namespace gl { namespace renderer {
 		return out;
 	}
 
+	std::ostream& operator <<(std::ostream& out, ContentPacking const value)
+	{
+		switch (value)
+		{
+#define _CASE(name)                                                           \
+		case ContentPacking::name:                                            \
+			out << "ContentPacking::" #name;                                  \
+			break                                                             \
+/**/
+		_CASE(int8);
+		_CASE(uint8);
+		_CASE(int16);
+		_CASE(uint16);
+		_CASE(int32);
+		_CASE(uint32);
+		_CASE(float32);
+		_CASE(uint8_3_3_2);
+		_CASE(uint8_2_3_3_rev);
+		_CASE(uint16_5_6_5);
+		_CASE(uint16_5_6_5_rev);
+		_CASE(uint16_4_4_4_4);
+		_CASE(uint16_4_4_4_4_rev);
+		_CASE(uint16_5_5_5_1);
+		_CASE(uint16_1_5_5_5_rev);
+		_CASE(uint32_8_8_8_8);
+		_CASE(uint32_8_8_8_8_rev);
+		_CASE(uint32_10_10_10_2);
+		_CASE(uint32_2_10_10_10_rev);
+#undef _CASE
+		default:
+			out << "ContentPacking::INVALID";
+		}
+		return out;
+
+	}
 
 	std::ostream& operator <<(std::ostream& out, ContentHint const hint)
 	{
@@ -197,86 +232,99 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		switch (format)
 		{
-#define _CASE(name)                                                           \
+#define CASE(name)                                                            \
 		case PixelFormat::name:                                               \
 			out << "PixelFormat::" #name;                                     \
 			break                                                             \
 /**/
-		_CASE(depth_component);
-		_CASE(depth_stencil);
-		_CASE(red);
-		_CASE(rg);
-		_CASE(rgb);
-		_CASE(rgba);
-		_CASE(r8);
-		_CASE(r8_snorm);
-		_CASE(r16);
-		_CASE(r16_snorm);
-		_CASE(rg8);
-		_CASE(rg8_snorm);
-		_CASE(rg16);
-		_CASE(rg16_snorm);
-		_CASE(r3_g3_b2);
-		_CASE(rgb4);
-		_CASE(rgb5);
-		_CASE(rgb8);
-		_CASE(rgb8_snorm);
-		_CASE(rgb10);
-		_CASE(rgb12);
-		_CASE(rgb16_snorm);
-		_CASE(rgba2);
-		_CASE(rgba4);
-		_CASE(rgb5_a1);
-		_CASE(rgba8);
-		_CASE(rgba8_snorm);
-		_CASE(rgb10_a2);
-		_CASE(rgb10_a2ui);
-		_CASE(rgba12);
-		_CASE(rgba16);
-		_CASE(srgb8);
-		_CASE(srgb8_alpha8);
-		_CASE(r16f);
-		_CASE(rg16f);
-		_CASE(rgb16f);
-		_CASE(rgba16f);
-		_CASE(r32f);
-		_CASE(rg32f);
-		_CASE(rgb32f);
-		_CASE(rgba32f);
-		_CASE(r11f_g11f_b10f);
-		_CASE(rgb9_e5);
-		_CASE(r8i);
-		_CASE(r8ui);
-		_CASE(r16i);
-		_CASE(r16ui);
-		_CASE(r32i);
-		_CASE(r32ui);
-		_CASE(rg8i);
-		_CASE(rg8ui);
-		_CASE(rg16i);
-		_CASE(rg16ui);
-		_CASE(rg32i);
-		_CASE(rg32ui);
-		_CASE(rgb8i);
-		_CASE(rgb8ui);
-		_CASE(rgb16i);
-		_CASE(rgb16ui);
-		_CASE(rgb32i);
-		_CASE(rgb32ui);
-		_CASE(rgba8i);
-		_CASE(rgba8ui);
-		_CASE(rgba16i);
-		_CASE(rgba16ui);
-		_CASE(rgba32i);
-		_CASE(rgba32ui);
-		_CASE(compressed_red);
-		_CASE(compressed_rg);
-		_CASE(compressed_rgb);
-		_CASE(compressed_rgba);
-		_CASE(compressed_srgb);
-		_CASE(compressed_srgb_alpha);
+		CASE(depth_component);
+		CASE(depth_stencil);
+		CASE(red);
+		CASE(rg);
+		CASE(rgb);
+		CASE(rgba);
+		CASE(r8);
+		CASE(r8_snorm);
+		CASE(r16);
+		CASE(r16_snorm);
+		CASE(rg8);
+		CASE(rg8_snorm);
+		CASE(rg16);
+		CASE(rg16_snorm);
+		CASE(r3_g3_b2);
+		CASE(rgb4);
+		CASE(rgb5);
+		CASE(bgr5);
+		CASE(rgb8);
+		CASE(rgb8_snorm);
+		CASE(bgr8);
+		CASE(rgb10);
+		CASE(rgb12);
+		CASE(rgb16_snorm);
+		CASE(rgba2);
+		CASE(argb4);
+		CASE(rgba4);
+		CASE(abgr4);
+		CASE(bgra4);
+		CASE(a1_rgb5);
+		CASE(a1_bgr5);
+		CASE(bgr5_a1);
+		CASE(rgb5_a1);
+		CASE(argb8);
+		CASE(rgba8);
+		CASE(abgr8);
+		CASE(bgra8);
+		CASE(rgba8_snorm);
+		CASE(a2_rgb10);
+		CASE(rgb10_a2);
+		CASE(rgb10_a2ui);
+		CASE(rgba12);
+		CASE(rgba16);
+		CASE(srgb8);
+		CASE(srgb8_alpha8);
+		CASE(r16f);
+		CASE(rg16f);
+		CASE(rgb16f);
+		CASE(rgba16f);
+		CASE(r32f);
+		CASE(rg32f);
+		CASE(rgb32f);
+		CASE(rgba32f);
+		CASE(r11f_g11f_b10f);
+		CASE(rgb9_e5);
+		CASE(r8i);
+		CASE(r8ui);
+		CASE(r16i);
+		CASE(r16ui);
+		CASE(r32i);
+		CASE(r32ui);
+		CASE(rg8i);
+		CASE(rg8ui);
+		CASE(rg16i);
+		CASE(rg16ui);
+		CASE(rg32i);
+		CASE(rg32ui);
+		CASE(rgb8i);
+		CASE(rgb8ui);
+		CASE(rgb16i);
+		CASE(rgb16ui);
+		CASE(rgb32i);
+		CASE(rgb32ui);
+		CASE(rgba8i);
+		CASE(rgba8ui);
+		CASE(rgba16i);
+		CASE(rgba16ui);
+		CASE(rgba32i);
+		CASE(rgba32ui);
+		CASE(compressed_red);
+		CASE(compressed_rg);
+		CASE(compressed_rgb);
+		CASE(compressed_rgba);
+		CASE(compressed_srgb);
+		CASE(compressed_srgb_alpha);
+#undef CASE
 		default:
-			out << "Unknown PixelFormat";
+			out << "PixelFormat::INVALID";
 		}
 		return out;
 	}
@@ -351,6 +399,11 @@ namespace cube { namespace gl { namespace renderer {
 			res.green = 0x00ff0000;
 			res.blue =  0x0000ff00;
 			break;
+		case PixelFormat::bgr8:
+			res.blue =  0xff000000;
+			res.green = 0x00ff0000;
+			res.red =   0x0000ff00;
+			break;
 
 		case PixelFormat::rgba:
 		case PixelFormat::rgba8:
@@ -360,6 +413,24 @@ namespace cube { namespace gl { namespace renderer {
 			res.red =   0xff000000;
 			res.green = 0x00ff0000;
 			res.blue =  0x0000ff00;
+			res.alpha = 0x000000ff;
+			break;
+		case PixelFormat::argb8:
+			res.alpha = 0xff000000;
+			res.red =   0x00ff0000;
+			res.green = 0x0000ff00;
+			res.blue =  0x000000ff;
+			break;
+		case PixelFormat::abgr8:
+			res.alpha = 0xff000000;
+			res.blue =  0x00ff0000;
+			res.green = 0x0000ff00;
+			res.red =   0x000000ff;
+			break;
+		case PixelFormat::bgra8:
+			res.blue =  0xff000000;
+			res.green = 0x00ff0000;
+			res.red =   0x0000ff00;
 			res.alpha = 0x000000ff;
 			break;
 
