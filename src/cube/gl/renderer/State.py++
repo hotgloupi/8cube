@@ -21,6 +21,13 @@ namespace {
 		std::weak_ptr<State> state() { return _state; }
 	};
 
+	State& simple_ortho(State& self,
+	                    State::component_type const l,
+	                    State::component_type const r,
+	                    State::component_type const b,
+	                    State::component_type const t)
+	{ return  self.ortho(l, r, b, t); }
+
 }
 
 BOOST_PYTHON_MODULE(State)
@@ -51,6 +58,10 @@ BOOST_PYTHON_MODULE(State)
 	                                        component_t const,
 	                                        component_t const);
 	typedef State& (State::*vector_op_t)(vector_t const&);
+	typedef State& (State::*ortho_simple_t)(component_t const,
+	                                        component_t const,
+	                                        component_t const,
+	                                        component_t const);
 
 	py::class_<State, boost::noncopyable, std::weak_ptr<State>>(
 		"State", py::no_init
@@ -87,6 +98,7 @@ BOOST_PYTHON_MODULE(State)
 		.def("look_at", &State::look_at, py::return_self<>())
 		.def("perspective", &State::perspective, py::return_self<>())
 		.def("ortho", &State::ortho, py::return_self<>())
+		.def("ortho", &simple_ortho, py::return_self<>())
 		.def("__eq__", compare_state)
 	;
 }

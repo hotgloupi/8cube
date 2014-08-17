@@ -119,10 +119,12 @@ namespace cube { namespace gl { namespace renderer {
 		/**
 		 * Set the projection matrix to an orthogonal frustum.
 		 */
-		State& ortho(component_type const x,
-		             component_type const y,
-		             component_type const w,
-		             component_type const h) ETC_NOEXCEPT;
+		State& ortho(component_type const left,
+		             component_type const right,
+		             component_type const bottom,
+		             component_type const top,
+		             component_type const near = 0.0f,
+		             component_type const far = 1.0f) ETC_NOEXCEPT;
 
 	public:
 		typedef std::vector<std::reference_wrapper<Light const>> LightList;

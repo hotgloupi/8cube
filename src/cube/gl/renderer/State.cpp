@@ -235,13 +235,17 @@ namespace cube { namespace gl { namespace renderer {
 		return this->projection(matrix::perspective(fov, aspect, near, far));
 	}
 
-	State& State::ortho(component_type const x,
-	                    component_type const y,
-	                    component_type const w,
-	                    component_type const h) ETC_NOEXCEPT
+	State& State::ortho(component_type const left,
+	                    component_type const right,
+	                    component_type const bottom,
+	                    component_type const top,
+	                    component_type const near,
+	                    component_type const far) ETC_NOEXCEPT
 	{
 		ETC_CONTRACT_CLASS_INVARIANT();
-		return this->projection(matrix::ortho(x, y, w, h));
+		return this->projection(
+			glm::ortho(left, right, bottom, top, near, far)
+		);
 	}
 
 	State::LightList const& State::lights() const ETC_NOEXCEPT
