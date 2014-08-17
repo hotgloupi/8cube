@@ -1,6 +1,7 @@
 #include <cube/python.hpp>
 
 #include <etc/log.hpp>
+#include <etc/log/Logger.hpp>
 #include <etc/stack_ptr.hpp>
 
 #include <unordered_set>
