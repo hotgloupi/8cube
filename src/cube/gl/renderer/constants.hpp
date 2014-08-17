@@ -194,6 +194,8 @@ namespace cube { namespace gl { namespace renderer {
 
 		_max_value
 	};
+	CUBE_API
+	std::ostream& operator <<(std::ostream& out, ContentPacking const value);
 
 	enum class ContentHint
 	{
@@ -269,16 +271,31 @@ namespace cube { namespace gl { namespace renderer {
 		r3_g3_b2,
 		rgb4,
 		rgb5,
+		bgr5,
 		rgb8,
 		rgb8_snorm,
+		bgr8,
 		rgb10,
 		rgb12,
 		rgb16_snorm,
 		rgba2,
+
+		argb4,
 		rgba4,
+		abgr4,
+		bgra4,
+
+		a1_rgb5,
+		a1_bgr5,
+		bgr5_a1,
 		rgb5_a1,
+
+		argb8,
 		rgba8,
+		abgr8,
+		bgra8,
 		rgba8_snorm,
+		a2_rgb10,
 		rgb10_a2,
 		rgb10_a2ui,
 		rgba12,
