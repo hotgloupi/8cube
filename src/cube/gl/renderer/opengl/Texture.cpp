@@ -48,6 +48,35 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		// Bug in ATI drivers
 		gl::Enable(GL_TEXTURE_2D);
 
+		GLenum type = GL_UNSIGNED_BYTE;
+		GLenum format;
+		switch(surface.pixel_format())
+		{
+		case PixelFormat::rgba:
+		case PixelFormat::rgba8:
+			format = GL_RGBA;
+			break;
+		case PixelFormat::bgra8:
+			format = GL_BGRA;
+			break;
+		case PixelFormat::argb8:
+			format = GL_BGRA;
+			type = GL_UNSIGNED_INT_8_8_8_8_REV;
+			break;
+		case PixelFormat::bgr8:
+			format = GL_BGR;
+			break;
+		case PixelFormat::rgb:
+		case PixelFormat::rgb8:
+			format = GL_RGB;
+			break;
+		default:
+			throw Exception{
+				"Cannot import surface of pixel format '" +
+					etc::to_string(surface.pixel_format()) + "'"
+			};
+		}
+
 		gl::TexImage2D(
 			GL_TEXTURE_2D,
 			0,
@@ -55,8 +84,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			surface.width(),
 			surface.height(),
 			0,
-			bpp == 3 ? GL_BGR : GL_BGRA,
-			GL_UNSIGNED_BYTE,
+			format,
+			type,
 			surface.pixels()
 		);
 
@@ -228,7 +257,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		ETC_TRACE.debug(
 			"Set data of texture", _id,
 			"at", x, y, "of size", width, height,
-			data_format, data_packing
+			data_format, '=', gl::get_pixel_format(data_format),
+			data_packing,'=', gl::get_content_packing(data_packing)
 		);
 		if (width == 0 || height == 0)
 			return;
