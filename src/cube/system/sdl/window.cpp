@@ -45,6 +45,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		SDL_Renderer* _renderer;
 		SDL_Surface* _renderer_surface;
 		SDL_Texture* _previous;
+		uint32_t const _pixel_format;
 
 	public:
 		SDLRenderTarget(SDL_Renderer* renderer,
@@ -60,9 +61,11 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			, _renderer{renderer}
 			, _renderer_surface{renderer_surface}
 			, _previous{nullptr}
+			, _pixel_format{sdl_format}
 		{
 			ETC_TRACE.debug(
-				"Creating", *this, "of size", _width, 'x', _height
+				"Creating", *this, "of size", _width, 'x', _height,
+				"with format =", SDL_GetPixelFormatName(sdl_format)
 			);
 			assert(_renderer != nullptr);
 			_texture = SDL_CreateTexture(
@@ -141,6 +144,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				{ throw Exception{"Not implemented"}; }
 				void generate_mipmap(etc::size_type const) override
 				{ throw Exception{"Not implemented"}; }
+				void save_bmp(boost::filesystem::path const&) override
+				{ throw Exception{"Not implemented"}; }
 
 				void _bind() override
 				{
@@ -160,55 +165,122 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		save(std::string const& file) const
 		{
 			ETC_TRACE.debug("Save", *this, "to", file);
-			if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)
-				throw SDLException("GL_BindTexture");
-			ETC_SCOPE_EXIT{ SDL_GL_UnbindTexture(_texture); };
-			static GLenum const tex_kind = GL_TEXTURE_RECTANGLE;
-			int width, height, fmt, red_size, green_size, blue_size, alpha_size;
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_WIDTH, &width);
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_HEIGHT, &height);
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_RED_SIZE, &red_size);
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_GREEN_SIZE, &green_size);
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_BLUE_SIZE, &blue_size);
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_ALPHA_SIZE, &alpha_size);
-			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
-			ETC_LOG.debug("Internal texture size is", width, height);
-			ETC_LOG.debug("Internal texture is", gl::renderer::opengl::gl::to_pixel_format(fmt));
-			ETC_LOG.debug("Component sizes:", red_size, green_size, blue_size, alpha_size);
-			int bpp = 4;
-			std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
-			memset(pixels.get(), 0, width * height * bpp);
-			gl::renderer::opengl::gl::GetTexImage(
-				tex_kind,
-				0,
-				GL_BGRA,
-				GL_UNSIGNED_INT_8_8_8_8_REV,
-				(void*)pixels.get()
-			);
-			int pitch = bpp * width;
-			std::unique_ptr<char[]> row{new char[pitch]};
-			for (int line = 0; 2 * line < height - 1; line++)
-			{
-				char* down_row = pixels.get() + line * pitch;
-				char* up_row = pixels.get() + (height - 1 - line) * pitch;
-				memcpy(row.get(), down_row, pitch); // save down
-				memcpy(down_row, up_row, pitch); // copy up to down
-				memcpy(up_row, row.get(), pitch); // copy down to up
-			}
+			int t1, t2;
+			bool was_bound = this->bound();
+			if (!was_bound)
+				const_cast<SDLRenderTarget*>(this)->_bind();
+			ETC_SCOPE_EXIT{
+				if (!was_bound) const_cast<SDLRenderTarget*>(this)->_unbind();
+			};
+			int bpp;
+			gl::renderer::Mask mask;
+			if (SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_RGB888,
+			                               &bpp,
+			                               &mask.red,
+			                               &mask.green,
+			                               &mask.blue,
+			                               &mask.alpha) != SDL_TRUE)
+				throw SDLException{"PixelFormatEnumToMasks"};
+
+			int const pitch = bpp * _width;
+			std::unique_ptr<char[]> pixels{new char[_width * _height * bpp]};
+			memset(pixels.get(), 0, _width * _height * bpp);
+			if (::SDL_RenderReadPixels(_renderer,
+			                           nullptr, // full size
+			                           SDL_PIXELFORMAT_RGB888,
+			                           pixels.get(),
+			                           pitch) != 0)
+				throw SDLException("RenderReadPixels");
+
 			SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
 				pixels.get(),
-				width,
-				height,
-				bpp * 8,
+				_width,
+				_height,
+				bpp,
 				pitch,
-				0, 0, 0, 0
-				//0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
+				mask.red, mask.green, mask.blue, mask.alpha
 			);
 			if (surface == nullptr)
 				throw SDLException{"CreateRGBSurfaceFrom"};
 			ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
 			if (SDL_SaveBMP(surface, file.c_str()) != 0)
 				throw SDLException("SDL_SaveBMP");
+
+//			if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)
+//				throw SDLException("GL_BindTexture");
+//			ETC_SCOPE_EXIT{ SDL_GL_UnbindTexture(_texture); };
+//			static GLenum const tex_kind = GL_TEXTURE_RECTANGLE;
+//			int width, height, fmt, red_size, green_size, blue_size, alpha_size;
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_WIDTH, &width);
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_HEIGHT, &height);
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_RED_SIZE, &red_size);
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_GREEN_SIZE, &green_size);
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_BLUE_SIZE, &blue_size);
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_ALPHA_SIZE, &alpha_size);
+//			glGetTexLevelParameteriv(tex_kind, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
+//			ETC_LOG.debug("Internal texture size is", width, height);
+//			ETC_LOG.debug("Internal texture is", gl::renderer::opengl::gl::to_pixel_format(fmt));
+//			ETC_LOG.debug("Component sizes:", red_size, green_size, blue_size, alpha_size);
+//			{
+//#define GL_GET(k) \
+//				{ \
+//					GLint value; \
+//					glGetIntegerv(k, &value); \
+//					ETC_LOG.debug(#k " =", value); \
+//				} \
+///**/
+//				GL_GET(GL_UNPACK_SWAP_BYTES);
+//				GL_GET(GL_UNPACK_LSB_FIRST);
+//				GL_GET(GL_UNPACK_ROW_LENGTH);
+//				GL_GET(GL_UNPACK_IMAGE_HEIGHT);
+//				GL_GET(GL_UNPACK_SKIP_PIXELS);
+//				GL_GET(GL_UNPACK_SKIP_ROWS);
+//				GL_GET(GL_UNPACK_SKIP_IMAGES);
+//				GL_GET(GL_UNPACK_ALIGNMENT);
+//				GL_GET(GL_PACK_SWAP_BYTES);
+//				GL_GET(GL_PACK_LSB_FIRST);
+//				GL_GET(GL_PACK_ROW_LENGTH);
+//				GL_GET(GL_PACK_IMAGE_HEIGHT);
+//				GL_GET(GL_PACK_SKIP_PIXELS);
+//				GL_GET(GL_PACK_SKIP_ROWS);
+//				GL_GET(GL_PACK_SKIP_IMAGES);
+//				GL_GET(GL_PACK_ALIGNMENT);
+//#undef GL_GET
+//			}
+//			int bpp = 4;
+//			std::unique_ptr<char[]> pixels{new char[width * height * bpp]};
+//			memset(pixels.get(), 0, width * height * bpp);
+//			gl::renderer::opengl::gl::GetTexImage(
+//				tex_kind,
+//				0,
+//				GL_RGBA,
+//				GL_UNSIGNED_BYTE,
+//				(void*)pixels.get()
+//			);
+//			int pitch = bpp * width;
+//			std::unique_ptr<char[]> row{new char[pitch]};
+//			for (int line = 0; 2 * line < height - 1; line++)
+//			{
+//				char* down_row = pixels.get() + line * pitch;
+//				char* up_row = pixels.get() + (height - 1 - line) * pitch;
+//				memcpy(row.get(), down_row, pitch); // save down
+//				memcpy(down_row, up_row, pitch); // copy up to down
+//				memcpy(up_row, row.get(), pitch); // copy down to up
+//			}
+//			SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
+//				pixels.get(),
+//				width,
+//				height,
+//				bpp * 8,
+//				pitch,
+//				0, 0, 0, 0
+//				//0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
+//			);
+//			if (surface == nullptr)
+//				throw SDLException{"CreateRGBSurfaceFrom"};
+//			ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
+//			if (SDL_SaveBMP(surface, file.c_str()) != 0)
+//				throw SDLException("SDL_SaveBMP");
 		}
 	};
 
