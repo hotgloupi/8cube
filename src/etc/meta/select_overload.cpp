@@ -6,7 +6,7 @@ namespace {
 
 	using etc::meta::select_overload;
 
-	class A
+	struct A
 	{
 		void f(int) {}
 		void f(float) {}
