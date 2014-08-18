@@ -5,6 +5,10 @@
 #include <vector>
 #include <iostream>
 
+#ifdef _WIN32
+# include <wrappers/windows.hpp>
+#endif
+
 namespace etc { namespace log { namespace backend {
 
 	struct Console::Impl
@@ -52,8 +56,8 @@ namespace etc { namespace log { namespace backend {
 
 		// And update them.
 #define _UPDATE_SIZE(__name)                                                  \
-		if (max_size.__name < size.__name)                                \
-			max_size.__name = size.__name;                                \
+		if (max_size.__name < size.__name)                                    \
+			max_size.__name = size.__name;                                    \
 /**/
 		_UPDATE_SIZE(line);
 		_UPDATE_SIZE(file);
