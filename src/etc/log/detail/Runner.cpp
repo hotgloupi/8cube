@@ -6,6 +6,8 @@
 
 #include <boost/lockfree/queue.hpp>
 
+#include <atomic>
+#include <mutex>
 #include <thread>
 #include <unordered_map>
 
@@ -14,7 +16,10 @@ namespace etc { namespace log { namespace detail {
 	struct Runner::Impl
 	{
 		typedef std::pair<Line, std::string> message_type;
-		typedef boost::lockfree::queue<message_type*> queue_type;
+		typedef boost::lockfree::queue<
+			message_type*,
+			boost::lockfree::capacity<2000>
+		> queue_type;
 
 		backend::Interface& backend;
 		std::mutex          backend_lock;
