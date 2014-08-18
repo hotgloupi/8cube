@@ -16,14 +16,17 @@ include_dirs = [
     'src',
     'src/glew',
     'deps/SDL/include',
+    'deps/SDL_image',
     'deps/Boost_1_55_0',
     'build/dependencies/Python34/gcc/release/no-pymalloc/install/include/python3.4',
+    'build/dependencies/Python34/clang/release/no-pymalloc/install/include/python3.4',
     'deps/freetype2/include',
     'build/dependencies/SDL/install/include/SDL2',
     'build/dependencies/SDL_image/install/include/SDL2',
     'deps/assimp/include',
     'deps/glm',
     'build/dependencies/BulletPhysics/install/include/bullet',
+    'deps/libRocket/Include'
 ]
 
 if sys.platform.startswith('win32'):
