@@ -150,6 +150,7 @@ class LibRocketDependency(CMakeDependency):
             configure_variables['FREETYPE_INCLUDE_DIRS'] = freetype2.libraries[0].include_directories[0]
             configure_variables['FREETYPE_LIBRARY'] = freetype2.libraries[0].files[0]
         configure_variables['BUILD_SHARED_LIBS'] = shared
+        configure_variables['CMAKE_INSTALL_LIBDIR'] = 'lib' # Prevent arch subdirectory
         super().__init__(
             build,
             "libRocket",
