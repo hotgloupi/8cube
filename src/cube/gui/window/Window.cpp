@@ -165,7 +165,8 @@ namespace cube { namespace gui { namespace window {
 
 	void Window::load_document(boost::filesystem::path const& p)
 	{
-		ETC_LOG.debug("Loading document", p);
+		ETC_TRACE.debug("Loading document from file:", p);
+		_this->rocket_context->UnloadAllDocuments();
 		auto d = _this->rocket_context->LoadDocument(p.string().c_str());
 		if (d == nullptr)
 			throw Exception{"Couldn't load '" + p.string() + "': "};
@@ -175,7 +176,8 @@ namespace cube { namespace gui { namespace window {
 
 	void Window::load_document(std::string const& src)
 	{
-		ETC_LOG.debug("Loading document", src);
+		ETC_TRACE.debug("Loading document from string:", etc::io::newlinesep(), src);
+		_this->rocket_context->UnloadAllDocuments();
 		auto d = _this->rocket_context->LoadDocumentFromMemory(src.c_str());
 		if (d == nullptr)
 			throw Exception{"Couldn't load '" + src + "': "};

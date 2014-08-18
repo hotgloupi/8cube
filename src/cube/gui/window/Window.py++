@@ -6,10 +6,10 @@
 #include <cube/python.hpp>
 #include <cube/system/inputs.hpp>
 
-#include <etc/meta/select_override.hpp>
+#include <etc/meta/select_overload.hpp>
 
 using cube::gui::window::Window;
-using etc::meta::select_override;
+using etc::meta::select_overload;
 namespace py = boost::python;
 
 namespace {
@@ -73,7 +73,11 @@ BOOST_PYTHON_MODULE(Window)
 		.def("poll", &Window::poll)
 		.def(
 			"load_document",
-			select_override<std::string const&>::of(&Window::load_document)
+			select_overload<std::string const&>::of(&Window::load_document)
+		)
+		.def(
+			"load_document",
+			select_overload<boost::filesystem::path const&>::of(&Window::load_document)
 		)
 		.def("add_font", &Window::add_font)
 		.def("show", &Window::show)
