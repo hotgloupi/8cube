@@ -29,7 +29,7 @@ namespace etc { namespace log { namespace detail {
 		std::unique_ptr<std::thread> thread;
 
 		Impl(backend::Interface& b)
-			: backend{b}
+			: backend(b)
 			, backend_lock{}
 			, running{false}
 			, async{!sys::environ::try_as<bool>("ETC_LOG_SYNC")}
