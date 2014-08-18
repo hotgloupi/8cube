@@ -1,0 +1,14 @@
+<rml>
+	<head>
+		<style>
+			body {
+				font-family: FreeMono;
+				font-size: 40pt;
+				color: white;
+			}
+	</style>
+	</head>
+	<body>
+		<p>Hello world</p>
+	</body>
+</rml>
