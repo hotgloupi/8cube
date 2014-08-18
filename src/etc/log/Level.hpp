@@ -3,6 +3,7 @@
 
 # include <cube/api.hpp>
 
+# include <string>
 # include <iosfwd>
 
 namespace etc { namespace log {
