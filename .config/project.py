@@ -158,7 +158,17 @@ class LibRocketDependency(CMakeDependency):
             libraries = [
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
-                    'name': 'Rocket',
+                    'name': 'RocketCore',
+                    'shared': shared,
+                },
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'RocketControls',
+                    'shared': shared,
+                },
+                {
+                    'prefix': compiler.name != 'msvc' and 'lib' or '',
+                    'name': 'RocketDebugger',
                     'shared': shared,
                 },
             ],
@@ -485,7 +495,7 @@ def main(build):
         c.libraries.SDLDependency,
         c_compiler,
         'deps/SDL',
-        shared = True, #platform.IS_WINDOWS,
+        shared = False, #platform.IS_WINDOWS,
         audio = False,
     )
     sdl_image = build.add_dependency(
@@ -512,7 +522,8 @@ def main(build):
         #assimp.libraries +
         freetype2.libraries +
         glm.libraries +
-        bullet_physics.libraries
+        bullet_physics.libraries +
+        librocket.libraries
     )
     #if not platform.IS_WINDOWS:
     #    list(c.libraries.simple(s, compiler) for s in ['png', 'jpeg'])
@@ -702,7 +713,7 @@ def main(build):
                     build.fs.copy(lib, dest_dir = 'release/bin')
 
 
-    exts = ['py', 'bmp', 'ttf']
+    exts = ['py', 'bmp', 'ttf', 'rml']
 
     for ext in exts:
         for src in rglob("cube/*.%s" % ext, dir = 'src'):
