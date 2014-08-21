@@ -266,9 +266,6 @@ namespace cube { namespace gui { namespace window {
 			texture->generate_mipmap();
 			_this->textures.push_back(texture);
 			texture_handle = _this->textures.size(); // 0 is reserved
-			texture->save_bmp("/tmp/lol.bmp");
-			s.save_bmp("/tmp/surface.bmp");
-
 			ETC_LOG.debug("Generated texture at index", texture_handle);
 		} catch (...) {
 			ETC_LOG.error(
