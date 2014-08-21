@@ -57,7 +57,7 @@ namespace cube { namespace gl { namespace renderer {
 	void Painter::pop_state()
 	{
 		ETC_TRACE.debug(*this, "Pop state");
-		ETC_ENFORCE_GT(_state_count, 1);
+		ETC_ENFORCE_GT(_state_count, 1u);
 		_renderer._pop_state();
 		_state_count -= 1;
 	}
