@@ -161,16 +161,22 @@ class LibRocketDependency(CMakeDependency):
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'RocketCore',
                     'shared': shared,
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'RocketControls',
                     'shared': shared,
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'RocketDebugger',
                     'shared': shared,
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
             ],
             configure_variables = configure_variables,
@@ -439,6 +445,7 @@ def main(build):
         "deps/libRocket",
         c_compiler = c_compiler,
         freetype2 = freetype2,
+        shared = platform.IS_WINDOWS
     )
 
     if platform.IS_WINDOWS:
