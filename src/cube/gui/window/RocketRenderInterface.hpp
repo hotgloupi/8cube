@@ -3,7 +3,8 @@
 
 # include <cube/gl/renderer/fwd.hpp>
 
-# include <Rocket/Core.h>
+# define STATIC_LIB // XXX when linking with librocket statically
+#  include <Rocket/Core.h>
 
 # include <memory>
 
