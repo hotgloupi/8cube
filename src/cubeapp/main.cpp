@@ -3,6 +3,7 @@
 
 #include <cube/debug/Performance.hpp>
 
+#include <etc/assert.hpp>
 #include <etc/log.hpp>
 #include <etc/scope_exit.hpp>
 #include <etc/sys/environ.hpp>
@@ -71,6 +72,25 @@ int _main(int argc, char** argv)
 
 	auto& interpreter = cubeapp::python::Interpreter::instance(lib_dir);
 	ETC_SCOPE_EXIT{ cubeapp::python::Interpreter::release(); };
+
+	/*
+#ifdef _WIN32
+	{
+		// Since AllocConsole reopened streams...
+		PyObject* sys = PyImport_ImportModule("sys");
+		PyObject* io = PyImport_ImportModule("io");
+		PyObject* pystdout = PyObject_CallMethod(io, "open", "ss", "CONOUT$", "wt");
+		PyObject* pystdin = PyObject_CallMethod(io, "open", "ss", "CONIN$", "rt");
+		ETC_ENFORCE_NEQ(PyObject_SetAttrString(sys, "stdout", pystdout), -1);
+		ETC_ENFORCE_NEQ(PyObject_SetAttrString(sys, "stderr", pystdout), -1);
+		ETC_ENFORCE_NEQ(PyObject_SetAttrString(sys, "stdin", pystdin), -1);
+		Py_DECREF(sys);
+		Py_DECREF(io);
+		Py_DECREF(pystdout);
+		Py_DECREF(pystdin);
+	}
+#endif
+*/
 
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
