@@ -97,21 +97,29 @@ class BulletPhysics(CMakeDependency):
                     'name': 'BulletDynamics',
                     'shared': shared,
                     'include_directories': ['install/include/bullet'],
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'BulletCollision',
                     'shared': shared,
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'BulletSoftBody',
                     'shared': shared,
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
                 {
                     'prefix': compiler.name != 'msvc' and 'lib' or '',
                     'name': 'LinearMath',
                     'shared': shared,
+                    'directory': (shared and platform.IS_WINDOWS) and 'bin' or 'lib',
+                    'imp_directory': 'lib',
                 },
             ],
             configure_variables = [
@@ -124,6 +132,7 @@ class BulletPhysics(CMakeDependency):
                 ('BUILD_INTEL_OPENCL_DEMOS', False),
                 ('BUILD_MINICL_OPENCL_DEMOS', False),
                 ('BUILD_AMD_OPENCL_DEMOS', False),
+                ('BUILD_SHARED_LIBS', shared),
                 ('USE_GLUT', False),
                 ('USE_DX11', False),
                 ('USE_GRAPHICAL_BENCHMARK', False),
@@ -437,7 +446,7 @@ def main(build):
         BulletPhysics,
         compiler,
         "deps/bullet-2.82-r2704",
-        shared = platform.IS_WINDOWS,
+        shared = False, #platform.IS_WINDOWS,
     )
 
     librocket = build.add_dependency(
@@ -446,7 +455,7 @@ def main(build):
         "deps/libRocket",
         c_compiler = c_compiler,
         freetype2 = freetype2,
-        shared = platform.IS_WINDOWS,
+        shared = False, #platform.IS_WINDOWS,
     )
 
     if platform.IS_WINDOWS:
@@ -481,7 +490,7 @@ def main(build):
         ],
         #preferred_shared = False,
         #        python3_shared = True,
-        thread_shared = True,
+        #thread_shared = True,
     )
 
     glm = build.add_dependency(GLM, compiler, "deps/glm")
@@ -498,14 +507,14 @@ def main(build):
         boost = boost,
         c_compiler = c_compiler,
         zlib = zlib,
-        shared = platform.IS_WINDOWS
+        shared = False, #platform.IS_WINDOWS
     )
 
     sdl = build.add_dependency(
         c.libraries.SDLDependency,
         c_compiler,
         'deps/SDL',
-        shared = False, #platform.IS_WINDOWS,
+        shared = platform.IS_WINDOWS,
         audio = False,
         haptic = False, # Fails on windows
     )
@@ -557,7 +566,9 @@ def main(build):
                 'OleAut32',
                 'Advapi32',
                 'Kernel32',
-        #'msvcrt', 'libcmt'
+                'msvcrt',
+                'msvcprt',
+                #'libcmt'
             ]
         )
     else: # OSX and Linux
