@@ -431,6 +431,7 @@ def main(build):
         BulletPhysics,
         compiler,
         "deps/bullet-2.82-r2704",
+        shared = platform.IS_WINDOWS,
     )
 
     librocket = build.add_dependency(
@@ -439,6 +440,7 @@ def main(build):
         "deps/libRocket",
         c_compiler = c_compiler,
         freetype2 = freetype2,
+        shared = platform.IS_WINDOWS,
     )
 
     if platform.IS_WINDOWS:
@@ -473,6 +475,7 @@ def main(build):
         ],
         #preferred_shared = False,
         #        python3_shared = True,
+        thread_shared = True,
     )
 
     glm = build.add_dependency(GLM, compiler, "deps/glm")
@@ -488,8 +491,8 @@ def main(build):
         'deps/assimp',
         boost = boost,
         c_compiler = c_compiler,
-        shared = False,
-        zlib = zlib
+        zlib = zlib,
+        shared = platform.IS_WINDOWS
     )
 
     sdl = build.add_dependency(
@@ -702,17 +705,20 @@ def main(build):
 
 
     if platform.IS_WINDOWS:
+        seen = set()
         for lib in infinit_cube_libraries + assimp.libraries:
             if not isinstance(lib, Target):
                 #print("lib %s" % lib.files, lib.shared, lib.system)
                 if lib.shared and not lib.system:
                     for f in lib.files:
-                        #print("copy", f)
-                        build.fs.copy(f, dest_dir = 'release/bin')
+                        if f not in seen:
+                            seen.add(f)
+                            build.fs.copy(f, dest_dir = 'release/bin')
             else:
                 if lib.shared:
-                    #print("copy %s" % lib.path)
-                    build.fs.copy(lib, dest_dir = 'release/bin')
+                    if lib.path not in seen:
+                        seen.add(lib.path)
+                        build.fs.copy(lib, dest_dir = 'release/bin')
 
 
     exts = ['py', 'bmp', 'ttf', 'rml']
