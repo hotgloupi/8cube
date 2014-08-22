@@ -151,7 +151,7 @@ namespace cube { namespace gl { namespace renderer {
 	void Renderer::_pop_state()
 	{
 		ETC_TRACE.debug("pop state");
-		ETC_ASSERT_GT(_this->states.size(), 0);
+		ETC_ASSERT_GT(_this->states.size(), 0u);
 		if (_this->states.back().use_count() > 1)
 			ETC_LOG.warn(
 				"Popping a state in use ("
