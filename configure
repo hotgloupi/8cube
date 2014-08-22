@@ -133,7 +133,7 @@ def self_install(project_config_dir, args):
         cmd(['git', 'clone', CONFIGURE_PY_GIT_URL, configure_py_install_dir])
     else:
         status("Updating configure.py")
-        cmd(['git', 'pull'], cwd = configure_py_install_dir)
+        cmd(['git', 'pull', 'origin', 'master'], cwd = configure_py_install_dir)
 
 def tup_install(root_dir, install_dir):
     from configure import platform
