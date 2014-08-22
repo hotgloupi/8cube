@@ -11,7 +11,16 @@
 #include <thread>
 #include <unordered_map>
 
+#if defined(__GNUC__) && __GNUC__ == 4 && __GNUC_MINOR__ < 8
+#include <boost/thread.hpp>
+# define THIS_THREAD_YIELD() boost::this_thread::yield()
+#else
+# define THIS_THREAD_YIELD() std::this_thread::yield()
+#endif
+
 namespace etc { namespace log { namespace detail {
+
+
 
 	struct Runner::Impl
 	{
@@ -55,7 +64,7 @@ namespace etc { namespace log { namespace detail {
 						delete res;
 					}
 					else
-						std::this_thread::yield();
+						THIS_THREAD_YIELD();
 				}
 			}});
 		}
