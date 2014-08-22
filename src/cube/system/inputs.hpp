@@ -199,7 +199,9 @@ namespace cube { namespace system { namespace inputs {
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(quit, void);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keydown, KeyMod, KeySym, uint16_t);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keyup, KeyMod, KeySym, uint16_t);
-		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousemove, int32_t xrel, int32_t yrel);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousemove, int32_t xrel, int32_t yrel, KeyMod);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousedown, uint8_t, KeyMod);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mouseup, uint8_t, KeyMod);
 # undef CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL
 
 		~Inputs();

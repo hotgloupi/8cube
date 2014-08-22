@@ -29,6 +29,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		void minimize() override;
 		void maximize() override;
 		void screenshot(std::string const& file) const override;
+		gl::vector::Vector2i mouse_position() const override;
 
 	public:
 		static

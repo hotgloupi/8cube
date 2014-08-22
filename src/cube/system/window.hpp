@@ -107,6 +107,9 @@ namespace cube { namespace system { namespace window {
 
 		virtual
 		void screenshot(std::string const& file) const = 0;
+
+		virtual
+		gl::vector::Vector2i mouse_position() const = 0;
 	};
 
 	class CUBE_API RendererContext

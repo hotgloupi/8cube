@@ -654,15 +654,44 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			else if (e.type == SDL_MOUSEMOTION)
 			{
 				ETC_LOG.debug("Mouse motion event");
-				this->inputs().on_mousemove()(e.motion.xrel, e.motion.yrel);
+				this->inputs().on_mousemove()(
+					e.motion.xrel, e.motion.yrel,
+					((inputs::KeyMod) SDL_GetModState())
+				);
 			}
 			else if (e.type == SDL_FINGERMOTION)
 			{
 				ETC_LOG.debug("Finger motion event");
-				this->inputs().on_mousemove()(e.motion.xrel, e.motion.yrel);
+				this->inputs().on_mousemove()(
+					e.motion.xrel, e.motion.yrel,
+					((inputs::KeyMod) SDL_GetModState())
+				);
+			}
+			else if (e.type == SDL_MOUSEBUTTONDOWN ||
+			         e.type == SDL_MOUSEBUTTONUP)
+			{
+				uint8_t b = 0xff;
+				switch (e.button.button)
+				{
+				case SDL_BUTTON_LEFT:   b = 0; break;
+				case SDL_BUTTON_RIGHT:  b = 1; break;
+				case SDL_BUTTON_MIDDLE: b = 2; break;
+				case SDL_BUTTON_X1:     b = 3; break;
+				case SDL_BUTTON_X2:     b = 4; break;
+				default:
+					ETC_LOG.warn("Unknown mouse button", +e.button.button);
+				}
+				ETC_LOG.debug("Mouse button down event", +b);
+				if (b != 0xff)
+				{
+					if (e.type == SDL_MOUSEBUTTONDOWN)
+						this->inputs().on_mousedown()(b, ((inputs::KeyMod) SDL_GetModState()));
+					else
+						this->inputs().on_mouseup()(b, ((inputs::KeyMod) SDL_GetModState()));
+				}
 			}
 			else
-				ETC_LOG.debug("Ignore event", e.type, SDL_MOUSEMOTION);
+				ETC_LOG.debug("Ignore event", e.type);
 			if (++count >= max)
 				break;
 		}
@@ -737,6 +766,13 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		return RendererContextPtr{
 			new SDLRendererContext{width, height, flags, name}
 		};
+	}
+
+	gl::vector::Vector2i Window::mouse_position() const
+	{
+		gl::vector::Vector2i res;
+		SDL_GetMouseState(&res.x, &res.y);
+		return res;
 	}
 
 	// Check that SDL implem won't change
