@@ -8,6 +8,7 @@
 #define STATIC_LIB
 #include <Rocket/Debugger.h>
 #include <Rocket/Core/Core.h>
+#include <Rocket/Controls.h>
 
 #include <chrono>
 
@@ -78,9 +79,10 @@ namespace cube { namespace gui {
 	{
 		Rocket::Core::SetSystemInterface(new RocketSystemInterface);
 		if (!Rocket::Core::Initialise())
-			throw cube::exception::Exception{
+			throw exception::Exception{
 				"Couldn't initialize libRocket"
 			};
+		Rocket::Controls::Initialise();
 	}
 
 	Init::~Init()
