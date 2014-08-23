@@ -5,7 +5,6 @@
 
 #include <etc/assert.hpp>
 
-#include <atomic>
 #include <fstream>
 
 namespace cube { namespace gui { namespace window {

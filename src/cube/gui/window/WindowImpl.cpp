@@ -1,7 +1,8 @@
 #include "WindowImpl.hpp"
 
-
 #include <etc/assert.hpp>
+
+#include <atomic>
 
 namespace cube { namespace gui { namespace window {
 
