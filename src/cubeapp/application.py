@@ -27,16 +27,16 @@ class Application(cube.gui.Application):
         )
         #self.window.confine_mouse(True)
 
-        self._main_menu = self.viewport.emplace_child(
-            cube.gui.widgets.VerticalLayout,
-            renderer = self.window.renderer
-        )
-        self.__fps_label = self._main_menu.emplace_child(
-            cube.gui.widgets.Label,
-            "Frame time:", x = 0, y = 400, w = 400, h = 90,
-            renderer = self.window.renderer
-        )
-        self.viewport.insert_child(self._game.view)
+        #self._main_menu = self.viewport.emplace_child(
+        #    cube.gui.widgets.VerticalLayout,
+        #    renderer = self.window.renderer
+        #)
+        #self.__fps_label = self._main_menu.emplace_child(
+        #    cube.gui.widgets.Label,
+        #    "Frame time:", x = 0, y = 400, w = 400, h = 90,
+        #    renderer = self.window.renderer
+        #)
+        #self.viewport.insert_child(self._game.view)
 
     def run(self):
         self._running = True
@@ -50,14 +50,19 @@ class Application(cube.gui.Application):
             last_update = start
             self._window.poll()
             self.render()
-            self._window.renderer.flush()
+            self.window.renderer.flush()
+            self._window.swap_buffers()
             frame_time = time.time() - start
             if frame_time < frame_time_target - 0.001:
                 time.sleep(frame_time_target - frame_time)
 
     def _update(self, delta, frame_time):
         self._game.update(delta)
-        self.__fps_label.text = "F: %6.2f ms" % (frame_time * 1000)
+        #self.__fps_label.text = "F: %6.2f ms" % (frame_time * 1000)
+
+    def render(self):
+        self._game.render()
+        super().render()
 
     def _on_quit(self):
         self.stop()

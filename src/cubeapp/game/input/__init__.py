@@ -110,7 +110,8 @@ class Translator:
             self.__events.append(i.key_released)
             self.__held.remove(i)
 
-    def __on_mousemove(self, xrel, yrel):
+    def __on_mousemove(self, xrel, yrel, keymod):
+        # XXX use keymod ?
         self.mouse.xrel += xrel
         self.mouse.yrel += yrel
 

@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 import os
+import pathlib
 
 from cube import gl, log, gui, scene
 
@@ -34,7 +35,6 @@ class Game():
         * window: The operating system window instance.
         * renderer: The renderer.
         * world: An optional World instance.
-        * view: An optional cube.gui.View object.
         * event_manager: The event manager (game related).
         * input_translator: Exposes bindings as event channels.
     """
@@ -44,7 +44,6 @@ class Game():
                  directory,
                  bindings = {},
                  scene = scene.Scene(),
-                 view = gui.widgets.Viewport(),
                  event_manager = event.Manager()):
         """Construct a game instance.
 
@@ -54,7 +53,6 @@ class Game():
         # Optional parameters
             * bindings: Bindings map (see cubeapp.game.input.Translator).
             * scene: An instance of cube.scene.Scene.
-            * view: An instance of cube.gui.View.
 
         # Bindings description
             Bindings constist of a dictionary where keys are simple string, and
@@ -63,11 +61,12 @@ class Game():
         self.window = window
         self.renderer = window.renderer
         self.resource_manager = self.renderer.resource_manager
+        self.directory = pathlib.Path(directory)
+        # XXX Use Path class
         resources_dir = os.path.join(directory, 'resources')
         if os.path.isdir(resources_dir):
             self.resource_manager.add_path(resources_dir)
         self.scene = scene
-        self.view = view
         self.event_manager = event_manager
         self.input_translator = input.Translator(window, bindings)
         self.entity_manager = entity.Manager(
@@ -86,6 +85,9 @@ class Game():
         """
         self.input_translator.poll()
         self.event_manager.poll(delta)
+
+    def render(self):
+        pass
 
     def _on_quit(self):
         pass
