@@ -38,6 +38,9 @@ class Application(cube.gui.Application):
         #)
         #self.viewport.insert_child(self._game.view)
 
+    def __del__(self):
+        self._game = None
+
     def run(self):
         self._running = True
         fps_target = 60
