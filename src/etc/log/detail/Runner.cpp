@@ -52,7 +52,7 @@ namespace etc { namespace log { namespace detail {
 			this->running = true;
 			this->thread.reset(new std::thread{[this] {
 				std::lock_guard<std::mutex> guard(this->backend_lock);
-				while (this->running)
+				while (this->running || !this->queue.empty())
 				{
 					message_type* res = nullptr;
 					if (this->queue.pop(res))
