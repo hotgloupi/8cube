@@ -50,10 +50,10 @@ class _(Case):
         )
         self.window.render(painter)
 
-    #@painter_test(gl.mode_2d)
-    #def test_load_document_from_file(self, painter):
-    #    self.window.renderer.clear(0xfffffff)
-    #    self.window.load_document(
-    #        Path(__file__).resolve().parent / 'simple_window_test.rml'
-    #    )
-    #    self.window.render(painter)
+    @painter_test(gl.mode_2d)
+    def test_load_document_from_file(self, painter):
+        self.window.renderer.clear(0xfffffff)
+        self.window.load_document(
+            Path(__file__).resolve().parent / 'simple_window_test.rml'
+        )
+        self.window.render(painter)
