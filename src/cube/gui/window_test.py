@@ -17,6 +17,14 @@ class _(Case):
         self.renderer = self.window.renderer
         self.target = self.renderer.context.new_render_target()
 
+    def tearDown(self):
+        # XXX without this target/context mixup happens
+        del self.window
+        del self.renderer
+        del self.target
+        import gc
+        gc.collect()
+
     @painter_test(gl.mode_2d)
     def test_load_document_from_string(self, painter):
         self.window.load_document(
