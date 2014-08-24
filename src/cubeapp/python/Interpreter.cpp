@@ -47,7 +47,12 @@ namespace cubeapp { namespace python {
 		delete _impl;
 		_impl = nullptr;
 		if (Py_IsInitialized())
+		{
+			int i = 0;
+			while (::PyGC_Collect() != 0 && i < 10)
+				i++;
 			Py_Finalize();
+		}
 	}
 
 	boost::python::dict& Interpreter::globals()

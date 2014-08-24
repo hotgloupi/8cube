@@ -44,6 +44,7 @@ namespace cube { namespace gui { namespace window {
 		void show();
 		void hide();
 		system::inputs::Inputs& inputs();
+		void shutdown();
 	};
 
 }}}

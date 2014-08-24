@@ -206,7 +206,7 @@ BOOST_PYTHON_MODULE(inputs)
 			"disconnect",
 			&boost::signals2::connection::disconnect,
 			"Disconnects the signal"
-		).def(
+		).add_property(
 			"connected",
 			&boost::signals2::connection::connected,
 			"True if the connection is both initialized and active"
@@ -237,10 +237,11 @@ BOOST_PYTHON_MODULE(inputs)
 			)                                                                 \
 			.def(                                                             \
 				"connect",                                                    \
-				&Signal::connect,                                            \
-				py::with_custodian_and_ward<1, 2>()                           \
+				&Signal::connect                                            \
 			)                                                                 \
-		    .def("__call__", static_cast<signature_t>(&signal_t::operator()));\
+		    .def("__call__", static_cast<signature_t>(&signal_t::operator())) \
+			.def("disconnect_all", &signal_t::disconnect_all_slots)                         \
+		;                                                                     \
 	}                                                                         \
 } while (false)                                                               \
 	/**/

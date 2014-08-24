@@ -86,6 +86,28 @@ namespace cube { namespace system { namespace window {
 	{ _impl->context->size(w, h); }
 
 
+	void Window::shutdown()
+	{
+		_impl->inputs->on_mousedown().disconnect_all_slots();
+		_impl->inputs->on_expose().disconnect_all_slots();
+		_impl->inputs->on_resize().disconnect_all_slots();
+		_impl->inputs->on_idle().disconnect_all_slots();
+		_impl->inputs->on_quit().disconnect_all_slots();
+		_impl->inputs->on_keydown().disconnect_all_slots();
+		_impl->inputs->on_keyup().disconnect_all_slots();
+		_impl->inputs->on_mousemove().disconnect_all_slots();
+		_impl->inputs->on_mousedown().disconnect_all_slots();
+		_impl->inputs->on_mouseup().disconnect_all_slots();
+		_impl->inputs->on_textinput().disconnect_all_slots();
+
+		// This forces removal of callable objects registered in slots.
+		// THIS ALLOW PYTHON TO GARBAGE DISCONNECTED OBJECTS
+		_impl->inputs.reset(new inputs::Inputs);
+	}
+
+	void Window::_shutdown()
+	{}
+
 	std::unique_ptr<Window>
 	Window::create(std::string title,
 	               RendererContextPtr renderer_context)

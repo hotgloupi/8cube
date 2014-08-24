@@ -690,7 +690,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 						this->inputs().on_mouseup()(b, ((inputs::KeyMod) SDL_GetModState()));
 				}
 			}
-			else if (e.type = SDL_TEXTINPUT)
+			else if (e.type == SDL_TEXTINPUT)
 			{
 				ETC_LOG.debug("Got text input", e.text.text);
 				this->inputs().on_textinput()(e.text.text);

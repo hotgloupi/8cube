@@ -77,6 +77,14 @@ class Game():
         )
         self.window.inputs.on_quit.connect(self._on_quit)
 
+    def __del__(self):
+        self.scene = None
+        self.event_manager = None
+        self.input_translator = None
+        self.entity_manager = None
+        self.resource_manager = None
+        self.window = None
+
     def update(self, delta):
         """
         @brief Update the game state according to the delta (in seconds).

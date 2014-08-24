@@ -48,13 +48,13 @@ class Application(cube.gui.Application):
             start = time.time()
             self._update(start - last_update, frame_time)
             last_update = start
-            self._window.poll()
             self.render()
             self.window.renderer.flush()
             self._window.swap_buffers()
             frame_time = time.time() - start
             if frame_time < frame_time_target - 0.001:
                 time.sleep(frame_time_target - frame_time)
+            self._window.poll()
 
     def _update(self, delta, frame_time):
         self._game.update(delta)
@@ -64,6 +64,6 @@ class Application(cube.gui.Application):
         self._game.render()
         super().render()
 
-    def _on_quit(self):
-        self.stop()
-
+    def shutdown(self):
+        super().shutdown()
+        self._game = None

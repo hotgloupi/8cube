@@ -175,6 +175,7 @@ def main(argv):
             stats.dump_stats(args.profile_output)
         else:
             ret = _main(parser, args)
+        gc.collect()
         return ret
     except KeyboardInterrupt:
         return 1

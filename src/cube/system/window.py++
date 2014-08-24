@@ -107,6 +107,7 @@ BOOST_PYTHON_MODULE(window)
 			&Window::swap_buffers
 		)
 		.def("screenshot", &Window::screenshot)
+		.def("shutdown", &Window::shutdown)
 	;
 	py::class_<
 		  RendererContext

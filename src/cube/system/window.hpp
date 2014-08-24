@@ -116,6 +116,12 @@ namespace cube { namespace system { namespace window {
 
 		virtual
 		void stop_text_input() = 0;
+
+	public:
+		void shutdown();
+
+	protected:
+		virtual void _shutdown();
 	};
 
 	class CUBE_API RendererContext

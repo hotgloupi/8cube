@@ -118,6 +118,9 @@ namespace cube { namespace gui { namespace window {
 	system::inputs::Inputs& Window::inputs()
 	{ return _this->root_window->inputs(); }
 
+	void Window::shutdown()
+	{ _this->root_window->shutdown(); }
+
 	Window& Window::title(std::string const& title)
 	{
 		_this->root_window->title(title);

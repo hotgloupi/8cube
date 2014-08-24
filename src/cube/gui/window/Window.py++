@@ -82,6 +82,7 @@ BOOST_PYTHON_MODULE(Window)
 		.def("add_font", &Window::add_font)
 		.def("show", &Window::show)
 		.def("hide", &Window::hide)
+		.def("shutdown", &Window::shutdown)
 		.add_property("inputs", py::make_function(&Window::inputs, py::return_internal_reference<>()))
 	;
 }

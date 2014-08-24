@@ -16,9 +16,8 @@ class Application(cube.Application):
             ).connect(getattr(self, '_on_' + event))
             self._handlers[event] = {'connection': connection}
 
-    @property
-    def viewport(self):
-        return self._window.root_widget
+    def __del__(self):
+        self._window = None
 
     @property
     def window(self):
@@ -49,18 +48,20 @@ class Application(cube.Application):
         with self._window.renderer.begin(cube.gl.renderer.mode_2d) as painter:
             self._window.render(painter)
 
-    def stop(self):
-        self._running = False
 
     def shutdown(self):
         cube.debug("shutting down")
-        for ev, hdlr in self._handlers.items():
-            hdlr['connection'].disconnect()
-        self._handlers = {}
-
+        # This call is very important:
+        #  gui.Window.shutdown() -> system.Window.shutdown() -> clean inputs
+        #  Some bound methods are released, and python is able to collect
+        #  properly again.
+        self._window.shutdown()
+        self._handlers = None
+        self._window = None
+        self._running = False
 
     def _on_idle(self):
         pass
 
     def _on_quit(self):
-        self._running = False
+        self.shutdown()
