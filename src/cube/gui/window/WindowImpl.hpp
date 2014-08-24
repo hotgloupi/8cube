@@ -40,6 +40,7 @@ namespace cube { namespace gui { namespace window {
 		            system::inputs::KeyMod mod,
 		            system::inputs::KeySym sym,
 		            uint16_t);
+		void on_textinput(std::string const& text);
 		void on_mouse(bool down, uint8_t button, system::inputs::KeyMod mod);
 		void on_mousemove(int32_t, int32_t, system::inputs::KeyMod mod);
 	private:

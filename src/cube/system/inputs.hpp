@@ -6,6 +6,7 @@
 # include <wrappers/boost/signals2.hpp>
 
 # include <iosfwd>
+# include <string>
 
 namespace cube { namespace system { namespace inputs {
 
@@ -202,6 +203,7 @@ namespace cube { namespace system { namespace inputs {
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousemove, int32_t xrel, int32_t yrel, KeyMod);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousedown, uint8_t, KeyMod);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mouseup, uint8_t, KeyMod);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(textinput, std::string const&);
 # undef CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL
 
 		~Inputs();

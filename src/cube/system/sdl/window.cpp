@@ -690,6 +690,11 @@ namespace cube { namespace system { namespace sdl { namespace window {
 						this->inputs().on_mouseup()(b, ((inputs::KeyMod) SDL_GetModState()));
 				}
 			}
+			else if (e.type = SDL_TEXTINPUT)
+			{
+				ETC_LOG.debug("Got text input", e.text.text);
+				this->inputs().on_textinput()(e.text.text);
+			}
 			else
 				ETC_LOG.debug("Ignore event", e.type);
 			if (++count >= max)
@@ -757,6 +762,19 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	void Window::maximize()
 	{ SDL_MaximizeWindow(_context().window); }
 
+	void Window::start_text_input()
+	{ SDL_StartTextInput(); }
+
+	void Window::stop_text_input()
+	{ SDL_StopTextInput(); }
+
+	gl::vector::Vector2i Window::mouse_position() const
+	{
+		gl::vector::Vector2i res;
+		SDL_GetMouseState(&res.x, &res.y);
+		return res;
+	}
+
 	Window::RendererContextPtr
 	Window::create_renderer_context(etc::size_type const width,
 	                                etc::size_type const height,
@@ -766,13 +784,6 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		return RendererContextPtr{
 			new SDLRendererContext{width, height, flags, name}
 		};
-	}
-
-	gl::vector::Vector2i Window::mouse_position() const
-	{
-		gl::vector::Vector2i res;
-		SDL_GetMouseState(&res.x, &res.y);
-		return res;
 	}
 
 	// Check that SDL implem won't change

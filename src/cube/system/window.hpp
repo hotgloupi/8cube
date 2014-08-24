@@ -110,6 +110,12 @@ namespace cube { namespace system { namespace window {
 
 		virtual
 		gl::vector::Vector2i mouse_position() const = 0;
+
+		virtual
+		void start_text_input() = 0;
+
+		virtual
+		void stop_text_input() = 0;
 	};
 
 	class CUBE_API RendererContext

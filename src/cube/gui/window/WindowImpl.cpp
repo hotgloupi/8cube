@@ -86,6 +86,12 @@ namespace cube { namespace gui { namespace window {
 					std::placeholders::_3
 				)
 			),
+			this->root_window->inputs().on_textinput().connect(
+				std::bind(
+					&Impl::on_textinput, this,
+					std::placeholders::_1
+				)
+			),
 		};
 		this->rocket_context->AddEventListener("focus", this);
 		this->rocket_context->AddEventListener("blur", this);
@@ -117,6 +123,12 @@ namespace cube { namespace gui { namespace window {
 			this->rocket_context->ProcessKeyUp(key_id, key_mod);
 	}
 
+	void Window::Impl::on_textinput(std::string const& text)
+	{
+		ETC_TRACE.debug("Got text input", text);
+		this->rocket_context->ProcessTextInput(text.c_str());
+	}
+
 	void Window::Impl::on_mouse(bool down, uint8_t button, system::inputs::KeyMod mod)
 	{
 		ETC_TRACE.debug("Got a mouse", (down ? "press" : "release"), +button, mod);
@@ -136,7 +148,23 @@ namespace cube { namespace gui { namespace window {
 
 	void Window::Impl::ProcessEvent(Rocket::Core::Event& event)
 	{
-		etc::print("GOT", event.GetType().CString());
+		auto target = event.GetTargetElement();
+		ETC_TRACE.debug(
+		    "Got event", event.GetType().CString(),
+			"on target element",
+			(target ? event.GetTargetElement()->GetTagName() : "(null)")
+		);
+		if (auto el = event.GetTargetElement())
+		{
+			if (el->GetTagName() == "input" ||
+			    el->GetTagName() == "textarea")
+			{
+				if (event.GetType() == "focus")
+					this->root_window->start_text_input();
+				else if (event.GetType() == "blur")
+					this->root_window->stop_text_input();
+			}
+		}
 	}
 
 	Rocket::Core::Input::KeyIdentifier
