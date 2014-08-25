@@ -1,6 +1,7 @@
 
 import cubeapp
 import cube
+from cube import gl, units
 
 DOCUMENT = """
 <rml>
@@ -25,4 +26,23 @@ class Game(cubeapp.game.Game):
         super().__init__(**kw)
         self.window.add_font(self.directory / 'FreeMono.ttf')
         self.window.load_document(DOCUMENT)
+        self.cube = gl.Spheref(cube.gl.vec3f(), 1) # cube.gl.Cube3f(cube.gl.vec3f(), 1)
+        self.view = self.cube.drawable(self.renderer)
+        material = gl.Material()
+        material.ambient = gl.Color3f("red")
+        self.material_view = material.bindable(self.renderer)
+
+    def render(self):
+        print("BEGIN")
+        with self.renderer.begin(gl.mode_3d) as painter:
+            painter.state.look_at(
+                gl.vec3f(0,0,-10), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
+            )
+            painter.state.perspective(
+                units.deg(45), self.window.width / self.window.height, 0.005, 300.0
+            )
+            with painter.bind([self.material_view]):
+                painter.draw([self.view])
+        print("END")
+
 
