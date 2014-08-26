@@ -19,11 +19,21 @@ namespace cube { namespace gui { namespace window {
 	public:
 		RocketRenderInterface(gl::renderer::Renderer& renderer);
 		~RocketRenderInterface();
+		Rocket::Core::CompiledGeometryHandle
+		CompileGeometry(Rocket::Core::Vertex* vertices,
+		                int num_vertices,
+		                int* indices,
+		                int num_indices,
+		                Rocket::Core::TextureHandle texture) override;
+		void
+		RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry,
+		                       Rocket::Core::Vector2f const& translation) override;
+		void ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry) override;
 		void RenderGeometry(Rocket::Core::Vertex* vertices,
 		                    int num_vertices,
 		                    int* indices,
 		                    int num_indices,
-		                    Rocket::Core::TextureHandle texture_handle,
+		                    Rocket::Core::TextureHandle texture,
 		                    Rocket::Core::Vector2f const& translation) override;
 		void EnableScissorRegion(bool enable) override;
 		void SetScissorRegion(int x, int y, int width, int height) override;
