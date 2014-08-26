@@ -55,10 +55,10 @@ namespace cube { namespace gui { namespace window {
 	void Window::render(gl::renderer::Painter& p)
 	{
 		ETC_TRACE.debug(*this, "Rendering everything");
-		_this->root_window->renderer().clear(
-			gl::renderer::BufferBit::depth |
-			gl::renderer::BufferBit::color
-		);
+		//_this->root_window->renderer().clear(
+		//	gl::renderer::BufferBit::depth |
+		//	gl::renderer::BufferBit::color
+		//);
 		if (_this->new_size)
 		{
 			ETC_LOG.debug(*this, "Set new size", *_this->new_size);
