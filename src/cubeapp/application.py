@@ -4,6 +4,7 @@ import os
 import time
 
 import cube
+from cube import gl
 
 from . import game
 
@@ -64,6 +65,9 @@ class Application(cube.gui.Application):
         #self.__fps_label.text = "F: %6.2f ms" % (frame_time * 1000)
 
     def render(self):
+        self.window.renderer.clear(
+            gl.BufferBit.color | gl.BufferBit.depth
+        )
         self._game.render()
         super().render()
 
