@@ -5,6 +5,7 @@
 
 # include <cube/gl/matrix.hpp>
 # include <cube/gl/vector.hpp>
+# include <cube/units/angle.hpp>
 
 namespace cube { namespace scene { namespace node {
 
@@ -32,6 +33,9 @@ namespace cube { namespace scene { namespace node {
 
 		void translate(vector_type const& v)
 		{ _transformation = gl::matrix::translate(_transformation, v); }
+
+		void rotate(units::Angle angle, vector_type const& v)
+		{ _transformation = gl::matrix::rotate(_transformation, angle, v); }
 
 	public:
 		using Visitable<Transform>::visit;

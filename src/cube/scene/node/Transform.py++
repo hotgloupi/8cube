@@ -12,5 +12,6 @@ BOOST_PYTHON_MODULE(Transform)
 			py::init<std::string, Transform::matrix_type>()
 		)
 		.def("translate", &Transform::translate)
+		.def("rotate", &Transform::rotate)
 	;
 }
