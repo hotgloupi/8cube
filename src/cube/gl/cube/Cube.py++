@@ -1,6 +1,7 @@
 #include "Cube.hpp"
 
 #include <cube/python.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
 
 #include <etc/to_string.hpp>
 
@@ -53,6 +54,7 @@ void export_cube_class(std::string const& suffix)
 			"width",
 			&cube_t::width
 		)
+		.def("drawable", &cube_t::drawable)
 	;
 }
 

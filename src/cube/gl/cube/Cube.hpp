@@ -2,6 +2,7 @@
 # define CUBE_GL_CUBE_CUBE_HPP
 
 # include <cube/gl/vector.hpp>
+# include <cube/gl/renderer/fwd.hpp>
 # include <cube/api.hpp>
 
 # include <etc/meta/if.hpp>
@@ -87,6 +88,7 @@ namespace cube { namespace gl { namespace cube {
 				||  glm::abs(((signed_t) pos.z) - ((signed_t) this->center.z)) > r
 			);
 		}
+		renderer::DrawablePtr drawable(renderer::Renderer& r) const;
 	};
 
 	typedef Cube3<float>    Cube3f;
