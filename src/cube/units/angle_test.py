@@ -26,3 +26,9 @@ class _(Case):
     def test_equals(self):
         self.assertEqual(deg(0), deg(0))
         self.assertEqual(deg(0), rad(0))
+
+    def test_scale(self):
+        a = deg(1)
+        self.assertEqual(a * 2, deg(2))
+        self.assertEqual(a * 2.0, deg(2))
+
