@@ -748,8 +748,9 @@ def main(build):
 
 
     import os
-    for src in rglob(path.join('share/games/default', '*.py')):
-        build.fs.copy(src, "release/" + src[6:])
+    for ext in exts:
+        for src in rglob(path.join('share/games/default', '*.%s' % ext)):
+            build.fs.copy(src, "release/" + src[6:])
 
 
     # Default game launcher
