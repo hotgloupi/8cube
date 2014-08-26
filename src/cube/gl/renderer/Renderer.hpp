@@ -104,7 +104,7 @@ namespace cube { namespace gl { namespace renderer {
 		viewport::Viewport const& viewport() const ETC_NOEXCEPT
 		{ return _viewport; }
 		virtual
-		void viewport(cube::gl::viewport::Viewport const& vp);
+		void viewport(viewport::Viewport const& vp);
 
 		///
 		virtual
@@ -315,7 +315,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual
 		std::unique_ptr<Renderer>
-		create(cube::system::window::RendererContext& context) = 0;
+		create(system::window::RendererContext& context) = 0;
 
 		virtual std::string __str__() const = 0;
 		virtual Name name() const = 0;
