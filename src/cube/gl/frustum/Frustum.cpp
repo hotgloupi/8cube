@@ -1,6 +1,7 @@
 #include "Frustum.hpp"
 
 #include <cube/gl/mesh.hpp>
+#include <cube/gl/color.hpp>
 #include <cube/gl/renderer/Drawable.hpp>
 
 #include <etc/print.hpp>
@@ -136,6 +137,38 @@ namespace cube { namespace gl { namespace frustum {
 		};
 		for (vec3d& p: quads)
 			mesh.append(vec3f{p.x, p.y, p.z});
+		mesh.kind(Mesh::Kind::color);
+		mesh.extend({
+			color::Color3f("#300"),
+			color::Color3f("#300"),
+			color::Color3f("#300"),
+			color::Color3f("#300"),
+
+			color::Color3f("#030"),
+			color::Color3f("#030"),
+			color::Color3f("#030"),
+			color::Color3f("#030"),
+
+			color::Color3f("#083"),
+			color::Color3f("#083"),
+			color::Color3f("#083"),
+			color::Color3f("#083"),
+
+			color::Color3f("violet"),
+			color::Color3f("violet"),
+			color::Color3f("violet"),
+			color::Color3f("violet"),
+
+			color::Color3f("purple"),
+			color::Color3f("purple"),
+			color::Color3f("purple"),
+			color::Color3f("purple"),
+
+			color::Color3f("#840"),
+			color::Color3f("#840"),
+			color::Color3f("#840"),
+			color::Color3f("#840"),
+		});
 		return mesh;
 	}
 
