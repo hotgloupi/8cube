@@ -6,6 +6,7 @@
 
 namespace py = boost::python;
 using namespace cube::gl::camera;
+using cube::gl::renderer::Bindable;
 
 BOOST_PYTHON_MODULE(Camera)
 {
@@ -17,7 +18,7 @@ BOOST_PYTHON_MODULE(Camera)
 		                                 float const,
 		                                 float const);
 
-	py::class_<Camera, boost::noncopyable>(
+	py::class_<Camera, boost::noncopyable, py::bases<Bindable>>(
 			"Camera"
 		)
 		.add_property(

@@ -51,6 +51,8 @@ Exported enumerations:
     LightKind (point, spot, directional)
 """
 
+from .renderer.Bindable import Bindable # Required by camera
+
 from . import font
 from . import frustum
 from . import matrix

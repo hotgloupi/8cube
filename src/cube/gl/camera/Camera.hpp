@@ -3,6 +3,7 @@
 
 # include <cube/api.hpp>
 # include <cube/gl/fwd.hpp>
+# include <cube/gl/renderer/Bindable.hpp>
 # include <cube/gl/vector.hpp>
 # include <cube/units/angle.hpp>
 
@@ -11,6 +12,7 @@
 namespace cube { namespace gl { namespace camera {
 
 	struct CUBE_API Camera
+		: public renderer::Bindable
 	{
 	public:
 		typedef vector::Vector3f vec3;
@@ -73,6 +75,11 @@ namespace cube { namespace gl { namespace camera {
 		                     float const fdist) ETC_NOEXCEPT;
 
 		Camera& look_at(vec3 const& position) ETC_NOEXCEPT;
+
+
+	private:
+		void _bind() override;
+		void _unbind() ETC_NOEXCEPT override;
 	};
 
 }}}

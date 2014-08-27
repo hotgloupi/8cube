@@ -2,6 +2,7 @@
 
 #include <cube/gl/matrix.hpp>
 #include <cube/gl/frustum.hpp>
+#include <cube/gl/renderer/State.hpp>
 
 #include <cube/exception.hpp>
 
@@ -129,6 +130,25 @@ namespace cube { namespace gl { namespace camera {
 	                             float const ndist,
 	                             float const fdist) ETC_NOEXCEPT
 	{ _this->frustum.reset(fov, ratio, ndist, fdist); return *this; }
+
+	void Camera::_bind()
+	{
+		this->bound_state().view(
+		    glm::translate(glm::toMat4(_this->orientation), -_this->position)
+		);
+		if (_this->frustum)
+			this->bound_state().projection(
+				matrix::perspective<float>(
+					_this->frustum->fov,
+					_this->frustum->ratio,
+					_this->frustum->near_distance,
+					_this->frustum->far_distance
+				)
+			);
+	}
+
+	void Camera::_unbind() ETC_NOEXCEPT
+	{}
 
 	namespace {
 
