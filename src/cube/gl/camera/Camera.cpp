@@ -6,6 +6,7 @@
 #include <cube/exception.hpp>
 
 #include <etc/assert.hpp>
+#include <etc/log.hpp>
 #include <etc/print.hpp>
 #include <etc/test.hpp>
 #include <etc/stack_ptr.hpp>
@@ -14,6 +15,8 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace cube { namespace gl { namespace camera {
+
+	ETC_LOG_COMPONENT("cube.gl.Camera");
 
 #define CAMERA_FRONT Camera::vec3(0.0f, 0.0f, -1.0f)
 #define CAMERA_RIGHT Camera::vec3(1.0f, 0.0f, 0.0f)
@@ -99,13 +102,17 @@ namespace cube { namespace gl { namespace camera {
 	Camera& Camera::roll(units::Angle const angle) ETC_NOEXCEPT
 	{ return this->rotate(angle, CAMERA_FRONT); }
 
-	// Camera& Camera::look_at(vec3 const& position) ETC_NOEXCEPT
-	// {
-	// 	ETC_ASSERT_NEQ(_this->position, position);
-	// 	vec3 target = glm::normalize(position - _this->position);
+	Camera& Camera::look_at(vec3 const& position) ETC_NOEXCEPT
+	{
+		if (_this->position != position)
+			_this->orientation = glm::toQuat(
+				glm::lookAt(_this->position, position, CAMERA_UP)
+			);
+		else
+			ETC_LOG.warn("Trying to look at the camera position", position);
+		return *this;
+	}
 
-	// 	return *this;
-	// }
 	bool Camera::has_frustum() const ETC_NOEXCEPT
 	{ return _this->frustum; }
 

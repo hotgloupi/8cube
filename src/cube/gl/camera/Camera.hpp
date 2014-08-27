@@ -72,7 +72,7 @@ namespace cube { namespace gl { namespace camera {
 		                     float const ndist,
 		                     float const fdist) ETC_NOEXCEPT;
 
-		//Camera& look_at(vec3 const& position) ETC_NOEXCEPT;
+		Camera& look_at(vec3 const& position) ETC_NOEXCEPT;
 	};
 
 }}}

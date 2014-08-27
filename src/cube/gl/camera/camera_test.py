@@ -13,6 +13,9 @@ class _(Case):
         self.assertEqual(c.roll, angle.rad(0))
         self.assertEqual(c.position, gl.vec3f())
         self.assertFalse(c.has_frustum)
+        self.assertEqual(c.right, gl.vec3f(1, 0, 0))
+        self.assertEqual(c.front, gl.vec3f(0, 0, -1))
+        self.assertEqual(c.up, gl.vec3f(0, 1, 0))
 
     def test_pitch(self):
         c = Camera()
@@ -47,3 +50,34 @@ class _(Case):
         c.init_frustum(angle.deg(30), 1, 10, 20)
         self.assertTrue(c.has_frustum)
         f = c.frustum
+
+    def test_look_at_identity(self):
+        c = Camera()
+        c.look_at(c.front)
+        self.assertEqual(c.yaw, angle.deg(0))
+        self.assertEqual(c.roll, angle.rad(0))
+        self.assertEqual(c.pitch, angle.rad(0))
+
+    def test_look_at_back(self):
+        c = Camera()
+        front, up, right = c.front, c.up, c.right
+        c.look_at(-c.front)
+        self.assertEqual(c.front, -front)
+        self.assertEqual(c.up, up)
+        self.assertEqual(c.right, -right)
+
+        c.look_at(-c.front)
+        self.assertEqual(c.front, front)
+        self.assertEqual(c.up, up)
+        self.assertEqual(c.right, right)
+
+    def test_look_at_self(self):
+        c = Camera()
+        c.look_at(c.position)
+
+    def test_look_at_normalized(self):
+        c = Camera()
+        front = c.front
+        c.look_at(front * 2)
+        self.assertEqual(c.front, front)
+

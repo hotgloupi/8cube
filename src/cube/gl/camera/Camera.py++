@@ -48,5 +48,6 @@ BOOST_PYTHON_MODULE(Camera)
 		.add_property("has_frustum", &Camera::has_frustum)
 		.add_property("frustum", py::select_getter(&Camera::frustum))
 		.def("init_frustum", static_cast<set_frustum_t>(&Camera::init_frustum), py::return_self<>())
+		.def("look_at", &Camera::look_at, py::return_self<>())
 	;
 }
