@@ -76,6 +76,7 @@ class Game():
             inputs = self.input_translator,
         )
         self.window.inputs.on_quit.connect(self._on_quit)
+        self.shutdown_channel = event.Channel()
 
     def __del__(self):
         self.scene = None
@@ -99,3 +100,7 @@ class Game():
 
     def _on_quit(self):
         pass
+
+    def shutdown(self):
+        self.event_manager.push(event.Event(self.shutdown_channel))
+        self.event_manager.poll(0)
