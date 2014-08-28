@@ -16,7 +16,7 @@ namespace cube { namespace gl { namespace camera {
 	{
 	public:
 		typedef vector::Vector3f vec3;
-		typedef frustum::Frustumf frustum_t;
+		typedef frustum::Frustumd frustum_t;
 
 	private:
 		struct Impl;
