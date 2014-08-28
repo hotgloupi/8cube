@@ -30,13 +30,12 @@ class World:
 
     def update(self, delta, camera, referential):
         self.referential = referential
-        self.__player = player
         self.__pos = gl.vec3d(
             referential.x + camera.position.x / Chunk.size,
             referential.y + camera.position.y / Chunk.size,
             referential.z + camera.position.z / Chunk.size,
         )
-        self.__frustum.update(camera.front, camera.up)
+        self.__frustum = camera.frustum
 
         if not hasattr(self, 'tree_thread'):
             self.tree_thread = threading.Thread(target=self._update_nodes)
