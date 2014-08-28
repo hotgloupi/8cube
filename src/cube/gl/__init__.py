@@ -61,7 +61,7 @@ from .camera import Camera
 from .color import Color3f, Color4f
 from .cube import Cube3f, Cube3d, Cube3i, Cube3u, Cube3il, Cube3ul
 from .font import Font
-from .frustum import Frustumf
+from .frustum import Frustumf, Frustumd
 from .material import *
 from .matrix import mat4f
 from .mesh import Mesh
