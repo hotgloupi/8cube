@@ -58,6 +58,7 @@ class Application(cube.gui.Application):
             frame_time = time.time() - start
             if frame_time < frame_time_target - 0.001:
                 time.sleep(frame_time_target - frame_time)
+                #print("%6.2f ms\n" % frame_time * 1000)
             self._window.poll()
 
     def _update(self, delta, frame_time):
@@ -73,4 +74,5 @@ class Application(cube.gui.Application):
 
     def shutdown(self):
         super().shutdown()
+        self._game.shutdown()
         self._game = None
