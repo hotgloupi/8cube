@@ -44,4 +44,18 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	           cube::gl::vector::Vector3d const& pos,
 	           cube::gl::frustum::Frustumd const& frustum);
 
+	template<typename size_type>
+	std::ostream& operator <<(std::ostream& out, Node<size_type> const& node)
+	{
+		return out
+			<< "<Node level=" << node.level
+			<< " origin=" << node.origin
+			<< " size=" << node.size
+			<< ">";
+	}
+
+	template
+	CUBEAPP_API
+	std::ostream& operator <<(std::ostream& out, Node<int64_t> const& node);
+
 }}}}

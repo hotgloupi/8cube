@@ -58,5 +58,6 @@ BOOST_PYTHON_MODULE(tree)
 		.def_readonly("level", &Node<int64_t>::level)
 		.def_readonly("origin", &Node<int64_t>::origin)
 		.def_readonly("size", &Node<int64_t>::size)
+		.def("__str__", &py::stringof<Node<int64_t>>)
 	;
 }

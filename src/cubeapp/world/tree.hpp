@@ -145,6 +145,10 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	           cube::gl::vector::Vector3d const& pos,
 	           cube::gl::frustum::Frustumd const& frustum) ETC_NOEXCEPT;
 
+	template<typename size_type>
+	CUBEAPP_API
+	std::ostream& operator <<(std::ostream& out, Node<size_type> const& node);
+
 }}}}
 
 #endif
