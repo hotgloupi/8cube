@@ -4,7 +4,16 @@
 #include <cube/gl/frustum.hpp>
 #include <cube/gl/sphere.hpp>
 
+#include <etc/log.hpp>
+
+#include <iostream>
+
+#define MAX_ITER 100000
+#define MAX_NODES 30000
+
 namespace cubeapp { namespace core { namespace world { namespace tree {
+
+	ETC_LOG_COMPONENT("cubeapp.core.world.Tree");
 
 	template<typename size_type>
 	std::vector<Node<size_type>>
@@ -15,10 +24,16 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 		CUBE_DEBUG_PERFORMANCE_SECTION("app.WorldTree");
 		std::vector<Node<size_type>> res;
 		typedef typename Tree<size_type>::vector_type vector_type;
+		etc::size_type i = 0;
 		tree.visit(
 			[&] (unsigned int level,
 			     vector_type const& origin,
 			     size_type const size)  {
+
+				if (i >= MAX_ITER || res.size() >= MAX_NODES)
+					return VisitorAction::stop;
+				i += 1;
+
 				cube::gl::vector::Vector3d center{
 					origin.x + size / 2 ,
 					origin.y + size / 2 ,
@@ -35,6 +50,11 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
                 res.emplace_back(Node<size_type>{level, origin, size});
 			return VisitorAction::continue_;
 		});
+		if (i >= MAX_ITER)
+			ETC_LOG.warn("Some nodes are ignored (too much iterations)");
+		if (res.size() >= MAX_NODES)
+			ETC_LOG.warn("Some nodes are ignored (too much results)");
+		ETC_LOG.debug("Found", res.size(), "nodes in", i, "iterations");
 		return res;
 	}
 
