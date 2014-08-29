@@ -1,16 +1,35 @@
-#include "surface.hpp"
+#include "Surface.hpp"
 
 #include <cube/python.hpp>
 
-BOOST_PYTHON_MODULE(surface)
+BOOST_PYTHON_MODULE(Surface)
 {
 	using namespace cube::gl::surface;
 	namespace py = boost::python;
 
 	py::class_<Surface, boost::noncopyable>(
 		"Surface",
-		py::init<std::string const&>()
+		py::init<boost::filesystem::path const&>()
 	)
+		.def(
+			py::init<
+				PixelFormat const,
+				unsigned int,
+		        unsigned int,
+		        PixelFormat const,
+		        ContentPacking const,
+		        void const*
+			>(
+				(
+					py::arg("format"),
+					py::arg("width"),
+					py::arg("height"),
+					py::arg("data_format"),
+					py::arg("data_packing"),
+					py::arg("data")
+				)
+			)
+		)
 		.add_property("bytes_per_pixel", &Surface::bytes_per_pixel)
 		.add_property("width", &Surface::width)
 		.add_property("height", &Surface::height)

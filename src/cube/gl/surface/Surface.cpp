@@ -1,5 +1,8 @@
-#include "surface.hpp"
-#include "exception.hpp"
+#include "Surface.hpp"
+
+#include <cube/gl/exception.hpp>
+#include <cube/gl/rectangle.hpp>
+#include <cube/gl/color.hpp>
 
 #include <etc/log.hpp>
 
@@ -36,6 +39,7 @@ namespace cube { namespace gl { namespace surface {
 				CASE(SDL_PIXELFORMAT_ABGR1555, PixelFormat::a1_bgr5);
 				CASE(SDL_PIXELFORMAT_BGRA5551, PixelFormat::bgr5_a1);
 				CASE(SDL_PIXELFORMAT_RGB888, PixelFormat::rgb8);
+				CASE(SDL_PIXELFORMAT_RGBX8888, PixelFormat::rgb8);
 				CASE(SDL_PIXELFORMAT_BGR888, PixelFormat::bgr8);
 				CASE(SDL_PIXELFORMAT_RGB24, PixelFormat::rgb8);
 				CASE(SDL_PIXELFORMAT_BGR24, PixelFormat::bgr8);
@@ -80,6 +84,23 @@ namespace cube { namespace gl { namespace surface {
 
 	Surface::Surface(PixelFormat const format,
 	                 unsigned int width,
+	                 unsigned int height)
+		: _this{nullptr}
+	{
+		auto mask = renderer::pixel_mask(format);
+		int depth = renderer::pixel_depth(format);
+		SDL_Surface* surface = SDL_CreateRGBSurface(
+			0, width, height, depth,
+			mask.red, mask.green, mask.blue, mask.alpha
+		);
+		if (surface == nullptr)
+			throw Exception{
+				"Couldn't create the surface: " + std::string(SDL_GetError())
+			};
+	}
+
+	Surface::Surface(PixelFormat const format,
+	                 unsigned int width,
 	                 unsigned int height,
 	                 PixelFormat const data_format,
 	                 ContentPacking const data_packing,
@@ -89,12 +110,14 @@ namespace cube { namespace gl { namespace surface {
 		SDL_Surface* surface = nullptr;
 		if (data == nullptr)
 		{
-			auto mask = renderer::pixel_mask(format);
-			int depth = renderer::pixel_depth(format);
-			surface = SDL_CreateRGBSurface(
-				0, width, height, depth,
-				mask.red, mask.green, mask.blue, mask.alpha
-			);
+			new (this) Surface(format, width, height);
+			return;
+			//auto mask = renderer::pixel_mask(format);
+			//int depth = renderer::pixel_depth(format);
+			//surface = SDL_CreateRGBSurface(
+			//	0, width, height, depth,
+			//	mask.red, mask.green, mask.blue, mask.alpha
+			//);
 		}
 		else
 		{
@@ -176,6 +199,30 @@ namespace cube { namespace gl { namespace surface {
 			throw Exception{
 				"Couldn't save the surface to '" + p.string() +
 				"': " + std::string(SDL_GetError())
+			};
+	}
+
+
+	void Surface::fill_rect(rectangle::Rectanglei const& rect, color::Color3f const& color)
+	{
+		::SDL_Rect r = {rect.x, rect.y, rect.w, rect.h};
+
+		int res = ::SDL_FillRect(
+			_this->surface,
+			&r,
+			SDL_MapRGB(
+				_this->surface->format,
+				static_cast<uint8_t>(color.r * 255.0f),
+				static_cast<uint8_t>(color.g * 255.0f),
+				static_cast<uint8_t>(color.b * 255.0f)
+			)
+		);
+		if (res != 0)
+			throw Exception{
+				etc::to_string(
+					"Couldn't fill", rect, "with", color,
+					etc::io::nosep(), ": ", SDL_GetError()
+				)
 			};
 	}
 

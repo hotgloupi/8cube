@@ -1,9 +1,8 @@
-#ifndef  CUBE_GL_SURFACE_HPP
-# define CUBE_GL_SURFACE_HPP
+#ifndef  CUBE_GL_SURFACE_SURFACE_HPP
+# define CUBE_GL_SURFACE_SURFACE_HPP
 
-# include "fwd.hpp"
-# include "renderer/constants.hpp"
-
+# include <cube/gl/fwd.hpp>
+# include <cube/gl/renderer/constants.hpp>
 # include <cube/resource/Resource.hpp>
 
 # include <etc/types.hpp>
@@ -29,7 +28,19 @@ namespace cube { namespace gl { namespace surface {
 		/**
 		 * @brief   Create a surface from a file.
 		 */
+		explicit
 		Surface(boost::filesystem::path const& path);
+
+		/**
+		 * @brief Create an empty surface
+		 *
+		 * @param   format              New surface format.
+		 * @param   width               New surface width.
+		 * @param   height              New surface height.
+		 */
+		Surface(PixelFormat const format,
+		        unsigned int width,
+		        unsigned int height);
 
 		/**
 		 * @brief   Create a surface from raw data.
@@ -61,6 +72,9 @@ namespace cube { namespace gl { namespace surface {
 		double difference(Surface const& other) const;
 
 		void save_bmp(boost::filesystem::path const& p);
+
+		void fill_rect(rectangle::Rectanglei const& rect,
+		               color::Color3f const& color);
 	};
 
 }}}
