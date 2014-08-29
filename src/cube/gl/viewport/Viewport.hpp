@@ -7,22 +7,22 @@
 namespace cube { namespace gl { namespace viewport {
 
 	struct CUBE_API Viewport
-		: public rectangle::Rectangle2f
+		: public rectangle::Rectanglef
 	{
 		inline
 		Viewport(float x, float y, float w, float h) ETC_NOEXCEPT
-			: rectangle::Rectangle2f{x, y, w, h}
+			: rectangle::Rectanglef{x, y, w, h}
 		{}
 
 		inline
 		Viewport(Viewport const& other) ETC_NOEXCEPT
-			: rectangle::Rectangle2f{other}
+			: rectangle::Rectanglef{other}
 		{}
 
 		inline
 		Viewport& operator =(Viewport const& other) ETC_NOEXCEPT
 		{
-			this->rectangle::Rectangle2f::operator =(other);
+			this->rectangle::Rectanglef::operator =(other);
 			return *this;
 		}
 	};
