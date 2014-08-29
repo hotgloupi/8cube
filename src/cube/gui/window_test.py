@@ -47,9 +47,9 @@ class _(Case):
             <br />
             <p class="half">Some text in half blended white</p>
             <br />
-            <p class="red">Some text in red</h1>
+            <p class="red">Some text in red</p>
             <br />
-            <p class="green">Some text in green</h1>
+            <p class="green">Some text in green</p>
             <br />
             <p class="blue">Some text in blue</p>
             </body>
