@@ -3,12 +3,14 @@
 
 # include "vector.hpp"
 
+# include <cube/gl/fwd.hpp>
+
 # include <etc/compiler.hpp>
 
 namespace cube { namespace gl { namespace rectangle {
 
 	template<typename T>
-	struct Rectangle2
+	struct Rectangle
 	{
 	public:
 		union { struct { T x, y; }; T _position[2]; };
@@ -16,7 +18,7 @@ namespace cube { namespace gl { namespace rectangle {
 
 	public:
 		inline
-		Rectangle2(T x, T y, T w, T h) ETC_NOEXCEPT
+		Rectangle(T x, T y, T w, T h) ETC_NOEXCEPT
 			: x{x}
 			, y{y}
 			, w{w}
@@ -24,12 +26,10 @@ namespace cube { namespace gl { namespace rectangle {
 		{}
 
 		inline
-		Rectangle2(Rectangle2 const&) = default;
+		Rectangle(Rectangle const&) = default;
 		inline
-		Rectangle2& operator =(Rectangle2 const&) = default;
+		Rectangle& operator =(Rectangle const&) = default;
 	};
-
-	typedef Rectangle2<float> Rectangle2f;
 
 }}} // !cube::gl::rectangle
 

@@ -71,8 +71,10 @@ namespace cube { namespace gl {
 
 	namespace rectangle {
 
-		template<typename T> struct Rectangle2;
-		typedef Rectangle2<float> Rectangle2f;
+		template<typename T> struct Rectangle;
+		typedef Rectangle<float> Rectanglef;
+		typedef Rectangle<uint32_t> Rectangleu;
+		typedef Rectangle<int32_t> Rectanglei;
 
 	}
 
