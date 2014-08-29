@@ -8,8 +8,8 @@
 
 #include <iostream>
 
-#define MAX_ITER 100000
-#define MAX_NODES 30000
+#define MAX_ITER 1000000
+#define MAX_NODES 1000000
 
 namespace cubeapp { namespace core { namespace world { namespace tree {
 
