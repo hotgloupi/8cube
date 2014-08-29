@@ -18,6 +18,7 @@ from os import path
 import time
 import sys
 import inspect
+import pathlib
 
 from cube.test import Case
 
@@ -159,10 +160,10 @@ def painter_test(mode, delta = 0.01):
             cls = self.__class__.__name__.lower().replace('_', '')
             if cls: fname += '_' + cls
             fname += '_' + func.__name__
-            source_dir = path.dirname(inspect.getfile(self.__class__))
-            thruth = path.join(source_dir, "%s.bmp" % fname)
-            img = path.join(source_dir, "%s-tmp.bmp" % fname)
-            first_time = not path.exists(thruth)
+            source_dir = pathlib.Path(path.dirname(inspect.getfile(self.__class__)))
+            thruth = source_dir / ("%s.bmp" % fname)
+            img = source_dir / ("%s-tmp.bmp" % fname)
+            first_time = not thruth.exists()
 
             with self.renderer.begin(mode) as painter:
                 with painter.bind([self.target]):
@@ -203,7 +204,7 @@ def painter_test(mode, delta = 0.01):
             diff = Surface(img).difference(Surface(thruth))
             self.assertAlmostEqual(diff, 0, delta = delta,
                                    msg = "%s and %s are not the same" % (thruth, img))
-            os.unlink(img)
+            img.unlink()
         return wrapper
     return _painter_test
 

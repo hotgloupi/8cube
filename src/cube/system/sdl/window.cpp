@@ -162,7 +162,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		}
 
 		void
-		save(std::string const& file) const
+		save(boost::filesystem::path const& file) const
 		{
 			ETC_TRACE.debug("Save", *this, "to", file);
 			int t1, t2;
@@ -203,7 +203,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			if (surface == nullptr)
 				throw SDLException{"CreateRGBSurfaceFrom"};
 			ETC_SCOPE_EXIT{ SDL_FreeSurface(surface); };
-			if (SDL_SaveBMP(surface, file.c_str()) != 0)
+			if (SDL_SaveBMP(surface, file.string().c_str()) != 0)
 				throw SDLException("SDL_SaveBMP");
 
 //			if (SDL_GL_BindTexture(_texture, nullptr, nullptr) != 0)

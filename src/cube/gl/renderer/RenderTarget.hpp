@@ -6,6 +6,8 @@
 # include <cube/api.hpp>
 # include <cube/resource/Resource.hpp>
 
+# include <boost/filesystem/path.hpp>
+
 namespace cube { namespace gl { namespace renderer {
 
 	class CUBE_API RenderTarget
@@ -18,7 +20,7 @@ namespace cube { namespace gl { namespace renderer {
 
 		virtual
 		void
-		save(std::string const& file) const = 0;
+		save(boost::filesystem::path const& file) const = 0;
 
 		virtual ~RenderTarget();
 	};

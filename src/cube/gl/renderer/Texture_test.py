@@ -101,7 +101,7 @@ class _(PainterSetup, Case):
         )
         from os import path
         self.texture = self.renderer.new_texture(
-            gl.Surface(path.join(path.dirname(__file__), "texture_test.bmp"))
+            gl.Surface(Path(path.join(path.dirname(__file__), "texture_test.bmp")))
         )
         self.texture.generate_mipmap()
         self.texture.min_filter_bilinear(gl.TextureFilter.linear)

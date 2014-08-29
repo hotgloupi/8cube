@@ -4,6 +4,7 @@ from cube.units import angle
 from cube import gl
 from cube.test import Case
 
+from pathlib import Path
 
 class _(PainterSetup, Case):
     __cube = None
@@ -109,7 +110,7 @@ class _(PainterSetup, Case):
         import os
         texture = self.renderer.new_texture(
             gl.Surface(
-                os.path.join(os.path.dirname(__file__), "material_test.bmp")
+                Path(os.path.join(os.path.dirname(__file__), "material_test.bmp"))
             )
         )
         texture.generate_mipmap()
