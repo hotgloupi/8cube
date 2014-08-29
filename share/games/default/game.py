@@ -56,8 +56,9 @@ class Game(cubeapp.game.Game):
         entity.add_component(Drawable(mesh))
         class Animate:
             channels = ['tick']
+            velocity = 10
             def __call__(self, ev, delta):
-                transform.node.rotate(units.deg(45) * delta, gl.vec3f(1, .5, 0))
+                transform.node.rotate(units.deg(45) * delta * self.velocity, gl.vec3f(1, .5, 0))
         entity.add_component(Controller(Animate()))
         return entity
 
