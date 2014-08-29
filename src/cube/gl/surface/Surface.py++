@@ -1,4 +1,6 @@
 #include "Surface.hpp"
+#include <cube/gl/rectangle.hpp>
+#include <cube/gl/color.hpp>
 
 #include <cube/python.hpp>
 
@@ -9,25 +11,16 @@ BOOST_PYTHON_MODULE(Surface)
 
 	py::class_<Surface, boost::noncopyable>(
 		"Surface",
-		py::init<boost::filesystem::path const&>()
+		py::init<boost::filesystem::path const&>(py::arg("path"))
 	)
 		.def(
-			py::init<
-				PixelFormat const,
-				unsigned int,
-		        unsigned int,
-		        PixelFormat const,
-		        ContentPacking const,
-		        void const*
-			>(
-				(
-					py::arg("format"),
-					py::arg("width"),
-					py::arg("height"),
-					py::arg("data_format"),
-					py::arg("data_packing"),
-					py::arg("data")
-				)
+			py::init<PixelFormat const, unsigned int, unsigned int>(
+				(py::arg("format"), py::arg("width"), py::arg("height"))
+			)
+		)
+		.def(
+			py::init<unsigned int, unsigned int>(
+				(py::arg("width"), py::arg("height"))
 			)
 		)
 		.add_property("bytes_per_pixel", &Surface::bytes_per_pixel)
@@ -36,5 +29,6 @@ BOOST_PYTHON_MODULE(Surface)
 		.add_property("pixel_format", &Surface::pixel_format)
 		.def("difference", &Surface::difference)
 		.def("save_bmp", &Surface::save_bmp)
+		.def("fill_rect", &Surface::fill_rect)
 	;
 }

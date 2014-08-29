@@ -5,6 +5,7 @@
 #include <cube/gl/color.hpp>
 
 #include <etc/log.hpp>
+#include <etc/scope_exit.hpp>
 
 #include <SDL_image.h>
 
@@ -23,6 +24,7 @@ namespace cube { namespace gl { namespace surface {
 		Impl(SDL_Surface* surface)
 			: surface{surface}
 		{
+			auto guard = etc::scope_exit([&] {SDL_FreeSurface(surface);});
 			switch(this->surface->format->format)
 			{
 #define CASE(sdl, pf) case sdl: this->pixel_format = pf; break
@@ -56,6 +58,7 @@ namespace cube { namespace gl { namespace surface {
 				};
 			}
 			ETC_LOG.debug("Created surface of format", this->pixel_format);
+			guard.dismiss();
 		}
 
 		~Impl()
@@ -87,6 +90,7 @@ namespace cube { namespace gl { namespace surface {
 	                 unsigned int height)
 		: _this{nullptr}
 	{
+		ETC_TRACE_CTOR("of", format, width, 'x', height);
 		auto mask = renderer::pixel_mask(format);
 		int depth = renderer::pixel_depth(format);
 		SDL_Surface* surface = SDL_CreateRGBSurface(
@@ -97,6 +101,7 @@ namespace cube { namespace gl { namespace surface {
 			throw Exception{
 				"Couldn't create the surface: " + std::string(SDL_GetError())
 			};
+		_this.reset(new Impl{surface});
 	}
 
 	Surface::Surface(PixelFormat const format,
@@ -107,7 +112,6 @@ namespace cube { namespace gl { namespace surface {
 	                 void const* data)
 		: _this{nullptr}
 	{
-		SDL_Surface* surface = nullptr;
 		if (data == nullptr)
 		{
 			new (this) Surface(format, width, height);
@@ -119,26 +123,24 @@ namespace cube { namespace gl { namespace surface {
 			//	mask.red, mask.green, mask.blue, mask.alpha
 			//);
 		}
-		else
-		{
-			if (format != data_format)
-				throw Exception{"Conversion not supported"};
-			int depth = renderer::pixel_depth(data_format);
-			auto mask = renderer::pixel_mask(data_format);
-			int pitch = depth / 8 * width;
-			ETC_LOG.debug("Creating surface from data with width =", width,
-			              "height =", height,
-			              "depth =", depth,
-			              "pitch =", pitch,
-			              "mask.red =", mask.red,
-			              "mask.green =", mask.green,
-			              "mask.blue =", mask.blue,
-			              "mask.alpha =", mask.alpha);
-			surface = SDL_CreateRGBSurfaceFrom(
-				(void*)data, width, height, depth, pitch,
-				mask.red, mask.green, mask.blue, mask.alpha
-			);
-		}
+		if (format != data_format)
+			throw Exception{"Conversion not supported"};
+		int depth = renderer::pixel_depth(data_format);
+		auto mask = renderer::pixel_mask(data_format);
+		int pitch = depth / 8 * width;
+		ETC_TRACE_CTOR("from data with width =", width,
+		               "height =", height,
+		               "depth =", depth,
+		               "pitch =", pitch,
+		               "mask.red =", mask.red,
+		               "mask.green =", mask.green,
+		               "mask.blue =", mask.blue,
+		               "mask.alpha =", mask.alpha);
+		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
+			(void*)data, width, height, depth, pitch,
+			mask.red, mask.green, mask.blue, mask.alpha
+		);
+
 		if (surface == nullptr)
 			throw Exception{
 				"Couldn't create the surface: " + std::string(SDL_GetError())

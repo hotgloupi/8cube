@@ -32,6 +32,18 @@ namespace cube { namespace gl { namespace surface {
 		Surface(boost::filesystem::path const& path);
 
 		/**
+		 * @brief Create an empty RGB surface
+		 *
+		 * @param   width               New surface width.
+		 * @param   height              New surface height.
+		 */
+		inline
+		Surface(unsigned int width,
+		        unsigned int height)
+			: Surface{PixelFormat::rgb, width, height}
+		{}
+
+		/**
 		 * @brief Create an empty surface
 		 *
 		 * @param   format              New surface format.
