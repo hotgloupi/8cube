@@ -1,0 +1,31 @@
+#include "rectangle.hpp"
+
+#include <cube/python.hpp>
+
+namespace py = boost::python;
+using namespace cube::gl::rectangle;
+
+
+template<typename T>
+static
+void export_rectangle(std::string const& suffix)
+{
+	static std::string name =  "Rectangle" + suffix;
+	py::class_<Rectangle<T>>(
+		name.c_str(),
+		py::init<T, T, T, T>((py::arg("x"), py::arg("y"), py::arg("w"), py::arg("h")))
+	)
+		.def_readonly("x", &Rectangle<T>::x)
+		.def_readonly("y", &Rectangle<T>::y)
+		.def_readonly("w", &Rectangle<T>::w)
+		.def_readonly("h", &Rectangle<T>::h)
+	;
+}
+
+
+BOOST_PYTHON_MODULE(rectangle)
+{
+	export_rectangle<float>("f");
+	export_rectangle<int32_t>("i");
+	export_rectangle<uint32_t>("u");
+}

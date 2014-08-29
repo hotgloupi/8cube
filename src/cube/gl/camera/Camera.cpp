@@ -107,7 +107,11 @@ namespace cube { namespace gl { namespace camera {
 	{
 		if (_this->position != position)
 			_this->orientation = glm::toQuat(
-				glm::lookAt(_this->position, position, CAMERA_UP)
+				glm::lookAt(
+					_this->position,
+					position,
+					-glm::cross(position - _this->position, this->right())
+				)
 			);
 		else
 			ETC_LOG.warn("Trying to look at the camera position", position);

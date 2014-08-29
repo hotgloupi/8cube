@@ -66,12 +66,17 @@ from .material import *
 from .matrix import mat4f
 from .mesh import Mesh
 from .plane import Planef, Planed
+from .rectangle import Rectanglef, Rectangleu, Rectanglei
 from .sphere import Spheref, Sphered, Spherei, Sphereu, Sphereil, Sphereul
 from .surface import Surface
 from .text import Text
 from .vector import Vector2f, Vector2d, Vector2i, Vector2u, Vector2il, Vector2ul
 from .vector import Vector3f, Vector3d, Vector3i, Vector3u, Vector3il, Vector3ul
 from .vector import Vector4f, Vector4d, Vector4i, Vector4u, Vector4il, Vector4ul
+
+recti = Rectanglei
+rectf = Rectanglef
+rectu = Rectangleu
 
 vec2f = Vector2f
 vec2d = Vector2d
@@ -94,6 +99,7 @@ vec4ul = Vector4ul
 
 col3f = Color3f
 col4f = Color4f
+
 
 from .viewport import Viewport
 
