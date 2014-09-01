@@ -3,5 +3,5 @@
 from .chunk import Chunk
 
 class Generator:
-    def gen_chunk(self, pos):
-        return Chunk()
+    def gen_chunk(self, node):
+        return Chunk(node)

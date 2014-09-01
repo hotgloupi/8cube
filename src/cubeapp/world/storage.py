@@ -6,14 +6,12 @@ class Storage:
     def __init__(self):
         self.__chunks = {}
 
-    def get_chunk(self, pos):
-        assert pos is not None
-        return self.__chunks.get(
-            (pos.x, pos.y, pos.z)
-        )
+    def get_chunk(self, node):
+        assert node is not None
+        return self.__chunks.get(node)
 
-    def set_chunk(self, pos, chunk):
-        assert pos is not None
+    def set_chunk(self, node, chunk):
+        assert node is not None
         assert chunk is not None
-        assert self.__chunks.get((pos.x, pos.y, pos.z)) is None
-        self.__chunks[(pos.x, pos.y, pos.z)] = chunk
+        assert self.__chunks.get(node) is None
+        self.__chunks[node] = chunk

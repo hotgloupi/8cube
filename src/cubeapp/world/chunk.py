@@ -5,11 +5,13 @@ import cube
 
 class Chunk:
 
+    def __init__(self, node):
+        self.node = node
+
     size = 16
 
     @classmethod
     def prepare(cls, renderer):
-        print("PREPARE")
         r = renderer
         w = cls.size
         h = cls.size
@@ -38,7 +40,7 @@ class Chunk:
                 gl.ContentHint.static_content
             )
         ])
-        cls.__indices = r.new_index_buffer(
+        cls.indices = r.new_index_buffer(
             attr(
                 gl.ContentKind.index,
                 [0, 1, 2, 3],
@@ -55,11 +57,15 @@ class Chunk:
         cls.material_view = cls.material.bindable(r)
 
     @cube.check_performance("app.ChunkRender")
-    def render(self, pos, painter):
+    def render(self, painter):
         state = painter.push_state().translate(
-            pos.x * self.size, pos.y * self.size, pos.z * self.size
+            self.node.origin.x * self.size,
+            self.node.origin.y * self.size,
+            self.node.origin.z * self.size
         )
         with painter.bind([self.material_view]):
             painter.draw_elements(gl.DrawMode.quads, self.__indices, 0, 4)
         painter.pop_state()
 
+    def __str__(self):
+        return "<Chunk of %s>" % self.node
