@@ -1,5 +1,5 @@
-#ifndef  CUBEAPP_CORE_WORLD_TREE_HPP
-# define CUBEAPP_CORE_WORLD_TREE_HPP
+#ifndef  CUBEAPP_WORLD_TREE_HPP
+# define CUBEAPP_WORLD_TREE_HPP
 
 # include <cubeapp/api.hpp>
 
@@ -16,7 +16,7 @@
 # include <vector>
 # include <iosfwd>
 
-namespace cubeapp { namespace core { namespace world { namespace tree {
+namespace cubeapp { namespace world { namespace tree {
 
 	/// Return type for the visitor.
 	enum class VisitorAction
@@ -133,9 +133,20 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	>
 	struct CUBEAPP_API Node
 	{
-		unsigned int const level;
 		vector_type const origin;
 		size_type const size;
+
+		Node(vector_type const& origin, size_type size)
+			: origin(origin)
+			, size(size)
+		{}
+		Node(Node const& other)
+			: origin(other.origin)
+			, size(other.size)
+		{}
+
+		bool operator ==(Node const& other) const
+		{ return this->size == other.size && other.origin == this->origin; }
 	};
 
 	template<typename size_type>
@@ -149,6 +160,6 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	CUBEAPP_API
 	std::ostream& operator <<(std::ostream& out, Node<size_type> const& node);
 
-}}}}
+}}}
 
 #endif
