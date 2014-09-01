@@ -106,13 +106,24 @@ namespace cube { namespace gl { namespace camera {
 	Camera& Camera::look_at(vec3 const& position) ETC_NOEXCEPT
 	{
 		if (_this->position != position)
+		{
+			vec3 target = position - _this->position;
+			vec3 up = this->up();
+			if (glm::cross(target, up) == vec3(0)) // target || up
+			{
+				if (up != CAMERA_UP)
+					up = CAMERA_UP;
+				else
+					up = -this->front();
+			}
 			_this->orientation = glm::toQuat(
 				glm::lookAt(
 					_this->position,
 					position,
-					-glm::cross(position - _this->position, this->right())
+					up
 				)
 			);
+		}
 		else
 			ETC_LOG.warn("Trying to look at the camera position", position);
 		return *this;

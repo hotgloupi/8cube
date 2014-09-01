@@ -63,8 +63,8 @@ class _(Case):
         front, up, right = c.front, c.up, c.right
         c.look_at(-c.front)
         self.assertEqual(c.front, -front)
-        self.assertEqual(c.up, -up)
-        self.assertEqual(c.right, right)
+        self.assertEqual(c.up, up)
+        self.assertEqual(c.right, -right)
 
         c.look_at(-c.front)
         self.assertEqual(c.front, front)
