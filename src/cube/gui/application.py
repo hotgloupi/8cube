@@ -23,7 +23,7 @@ class Application(cube.Application):
     def window(self):
         return self._window
 
-    def run(self):
+    def _run(self):
         self._running = True
         fps_target = 50
         frame_time_target = 1.0 / fps_target

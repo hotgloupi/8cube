@@ -42,7 +42,7 @@ class Application(cube.gui.Application):
     def __del__(self):
         self._game = None
 
-    def run(self):
+    def _run(self):
         self._running = True
         fps_target = 60
         frame_time_target = 1.0 / fps_target
