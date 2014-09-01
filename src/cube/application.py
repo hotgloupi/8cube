@@ -1,5 +1,15 @@
 
 class Application:
     def run(self):
-        print("running")
+        try:
+            self._run()
+        except:
+            self.shutdown()
+            raise
+
+    def _run(self):
+        """This method should be overriden"""
+        pass
+
+    def shutdown(self):
         pass
