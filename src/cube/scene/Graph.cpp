@@ -109,13 +109,15 @@ namespace cube { namespace scene {
 
 	std::shared_ptr<Node> Graph::remove(Node& node)
 	{
-		ETC_LOG.debug("Remove", node, "from index");
+		ETC_TRACE.debug("Remove", node, "from index");
 
-		auto ptr = _this->graph[node.id()];
+		auto id = node.id();
+		auto ptr = _this->graph[id];
+		ETC_LOG.debug("Found", *ptr, "in the graph");
+		ETC_ASSERT_EQ(ptr->id(), id);
 		ETC_ASSERT_EQ(ptr.get(), &node);
 		ETC_ASSERT_EQ(ptr.use_count(), 2);
 
-		auto id = node.id();
 		boost::clear_vertex(id, _this->graph);
 		boost::remove_vertex(id, _this->graph);
 		ETC_ASSERT_EQ(ptr.unique(), true);
