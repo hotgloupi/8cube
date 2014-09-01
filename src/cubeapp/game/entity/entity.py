@@ -23,6 +23,12 @@ class Entity:
         assert self.manager is not None, "Entity not registered"
         return self.manager._Manager__register_component(self, component, **kw)
 
+    def destroy(self):
+        self.manager._Manager__destroy(self)
+
+    def remove_component(self, component):
+        self.manager._Manager__unregister_component(self, component)
+
     @property
     def components(self):
         return self.manager.components(self)

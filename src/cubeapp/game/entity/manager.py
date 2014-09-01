@@ -71,6 +71,21 @@ class Manager:
         self.__entities[entity] = []
         return entity
 
+    def __destroy(self, entity):
+        """Called by an entity that is destroying itself."""
+        for component in entity.components:
+            self.__unregister_component(entity, component)
+        del self.__entities[entity]
+
+    def __unregister_component(self, entity, component):
+        """Called by an entity that remove a component."""
+        assert entity in self.__entities
+        assert component in self.__entities[entity]
+        for system_cls in component.systems:
+            system = self.__registered_systems[system_cls]
+            system._System__shutdown_component(entity, component)
+        self.__entities[entity].remove(component)
+
     def __register_component(self, entity, component, **kw):
         """Called by an entity that has a new component."""
         for system_cls in component.systems:

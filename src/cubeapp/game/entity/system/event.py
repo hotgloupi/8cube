@@ -15,3 +15,5 @@ class Event(System):
     def init_component(self, entity, component):
         self.event_manager.add(component)
 
+    def shutdown_component(self, entity, component):
+        self.event_manager.unregister(component)

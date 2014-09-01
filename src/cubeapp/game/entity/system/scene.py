@@ -51,3 +51,6 @@ class Scene(System):
             entity.name + '-' + component.content.__class__.__name__.lower(),
             component.content
         )
+
+    def shutdown_component(self, entity, component):
+        self.scene.graph.remove(component.node)
