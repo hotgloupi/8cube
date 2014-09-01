@@ -4,43 +4,57 @@
 
 #include <cube/gl/frustum.hpp>
 
+#include <functional>
+
+namespace py = boost::python;
+using namespace cubeapp::world::tree;
+
 namespace {
 
 	template<typename size_type>
-	void tree_visit(cubeapp::core::world::tree::Tree<size_type>& self,
-	                boost::python::object visitor)
+	void tree_visit(Tree<size_type>& self, py::object visitor)
 	{
 		self.visit(visitor);
 	}
 
 	template<typename size_type>
 	boost::python::list
-	_find_nodes(cubeapp::core::world::tree::Tree<size_type> const& tree,
-	           cube::gl::vector::Vector3d const& pos,
-	           cube::gl::frustum::Frustumd const& frustum)
+	_find_nodes(Tree<size_type> const& tree,
+	            cube::gl::vector::Vector3d const& pos,
+	            cube::gl::frustum::Frustumd const& frustum)
 	{
-		std::vector<cubeapp::core::world::tree::Node<size_type>> nodes;
+		std::vector<Node<size_type>> nodes;
 
 		Py_BEGIN_ALLOW_THREADS
-		nodes = cubeapp::core::world::tree::find_nodes<size_type>(
+		nodes = find_nodes<size_type>(
 			tree,
 			pos,
 			frustum
 		);
 		Py_END_ALLOW_THREADS
 
-		boost::python::list res;
+		py::list res;
 		for (auto const& node: nodes)
 			res.append(node);
 		return res;
+	}
+
+	template<typename size_type>
+	size_t hash_node(Node<size_type>& self)
+	{
+		static std::hash<size_type> hash;
+		return (
+		    hash(self.origin.x) +
+		    hash(self.origin.y) +
+		    hash(self.origin.z) +
+		    hash(self.size)
+		);
 	}
 
 }
 
 BOOST_PYTHON_MODULE(tree)
 {
-	namespace py = boost::python;
-	using namespace cubeapp::core::world::tree;
 
 	py::enum_<VisitorAction>("VisitorAction")
 		.value("stop", VisitorAction::stop)
@@ -54,10 +68,11 @@ BOOST_PYTHON_MODULE(tree)
 
 	py::def("find_nodes", &_find_nodes<int64_t>);
 
-	py::class_<Node<int64_t>>("Node", py::no_init)
-		.def_readonly("level", &Node<int64_t>::level)
+	py::class_<Node<int64_t>>("Node", py::init<typename Tree<int64_t>::vector_type, int64_t>() )
 		.def_readonly("origin", &Node<int64_t>::origin)
 		.def_readonly("size", &Node<int64_t>::size)
 		.def("__str__", &py::stringof<Node<int64_t>>)
+		.def("__hash__", &hash_node<int64_t>)
+		.def(py::self == py::self)
 	;
 }
