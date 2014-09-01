@@ -11,7 +11,7 @@
 #define MAX_ITER 1000000
 #define MAX_NODES 1000000
 
-namespace cubeapp { namespace core { namespace world { namespace tree {
+namespace cubeapp { namespace world { namespace tree {
 
 	ETC_LOG_COMPONENT("cubeapp.core.world.Tree");
 
@@ -40,16 +40,22 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 					origin.z + size / 2 ,
 				};
 
-			cube::gl::sphere::Sphered s{
-				center - pos,
-				static_cast<double>(size) * 0.8660254037844386
-			};
-			if (!frustum.intersects(s))
-				return VisitorAction::stop;
-			if (level == 0)
-                res.emplace_back(Node<size_type>{level, origin, size});
-			return VisitorAction::continue_;
-		});
+				cube::gl::sphere::Sphered s{
+					center - pos,
+					static_cast<double>(size) * 0.8660254037844386
+				};
+				if (!frustum.intersects(s))
+					return VisitorAction::stop;
+				if (static_cast<double>(size) < glm::distance(center, pos))
+				{
+					res.emplace_back(Node<size_type>{origin, size});
+					return VisitorAction::stop;
+				}
+				if (level == 0)
+					res.emplace_back(Node<size_type>{origin, size});
+				return VisitorAction::continue_;
+			}
+		);
 		if (i >= MAX_ITER)
 			ETC_LOG.warn("Some nodes are ignored (too much iterations)");
 		if (res.size() >= MAX_NODES)
@@ -68,8 +74,7 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	std::ostream& operator <<(std::ostream& out, Node<size_type> const& node)
 	{
 		return out
-			<< "<Node level=" << node.level
-			<< " origin=" << node.origin
+			<< "<Node origin=" << node.origin
 			<< " size=" << node.size
 			<< ">";
 	}
@@ -78,4 +83,4 @@ namespace cubeapp { namespace core { namespace world { namespace tree {
 	CUBEAPP_API
 	std::ostream& operator <<(std::ostream& out, Node<int64_t> const& node);
 
-}}}}
+}}}
