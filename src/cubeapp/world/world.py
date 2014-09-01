@@ -2,6 +2,7 @@
 
 import threading
 import time
+import queue
 
 from cube import gl, units, debug
 import cube
@@ -27,43 +28,72 @@ class World:
         self.referential = gl.Vector3il()
         self.__nodes_to_render = []
         self.__nodes_to_render_found = []
+        self.__running = False
+        self.__thread = None
+        self.__nodes = set()
+        self.__event_queue = queue.Queue()
 
-    def update(self, delta, camera, referential):
+    def start(self, camera, ref):
+        if self.__running:
+            raise Exception("Already running")
+        self.update(camera, ref)
+        self.__running = True
+        self.__thread = threading.Thread(target = self.__run)
+        self.__thread.start()
+
+    def update(self, camera, referential):
         self.referential = referential
-        self.__pos = gl.vec3d(
+        self.__position = gl.vec3d(
             referential.x + camera.position.x / Chunk.size,
             referential.y + camera.position.y / Chunk.size,
             referential.z + camera.position.z / Chunk.size,
         )
         self.__frustum = camera.frustum
 
-        if not hasattr(self, 'tree_thread'):
-            self.tree_thread = threading.Thread(target=self._update_nodes)
-            self.tree_thread.start()
+    def poll(self):
+        """Return two set of nodes, those no longer required, those new"""
+        to_add = set()
+        to_remove = set()
+        while not self.__event_queue.empty():
+            ev, nodes = self.__event_queue.get_nowait()
+            if ev == 'ADD':
+                to_add.update(nodes)
+            elif ev == 'RM':
+                to_remove.update(nodes)
+            else:
+                raise Exception("Unknown event")
+        return (
+            [self.get_chunk(n) for n in to_remove],
+            [self.get_chunk(n) for n in to_add],
+        )
 
-    def _update_nodes(self):
-        self._search_nodes = True
-        while self._search_nodes:
-            self.__nodes_to_render_found = list(n for n in tree.find_nodes(
+    def __run(self):
+        while self.__running:
+            time.sleep(0.1)
+            nodes = set(tree.find_nodes(
                 self.__tree,
-                self.__pos,
+                self.__position,
                 self.__frustum
-            ) if n.origin.y == -1)
-            time.sleep(.1)
-            #self.__checked = 0
-            #self.__tree.visit(self.__on_tree_node)
-            #print("Found", len(self.__nodes_to_render_found), "nodes")#,  self.__checked, "checked")
+            ))
+            to_remove = self.__nodes.difference(nodes)
+            to_add = nodes.difference(self.__nodes)
+            self.__nodes = nodes
+            if to_add:
+                self.__event_queue.put(("ADD", to_add))
+            if to_remove:
+                self.__event_queue.put(("RM", to_remove))
 
     def stop(self):
-        print("Stopping world")
-        self._search_nodes = False
-        self.tree_thread.join()
+        if not self.__running:
+            raise Exception("Not running")
+        self.__running = False
+        self.__thread.join()
 
-    def get_chunk(self, pos):
-        chunk = self.__storage.get_chunk(pos)
+    def get_chunk(self, node):
+        chunk = self.__storage.get_chunk(node)
         if chunk is None:
-            chunk = self.__generator.gen_chunk(pos)
-            self.__storage.set_chunk(pos, chunk)
+            chunk = self.__generator.gen_chunk(node)
+            self.__storage.set_chunk(node, chunk)
         return chunk
 
     #def _render(self, painter):
