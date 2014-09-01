@@ -87,6 +87,10 @@ class Case(metaclass = _AutoRegister):
         if lhs not in rhs:
             raise Exception("%s not in %s" % (lhs, rhs))
 
+    def assertNotIn(self, lhs, rhs):
+        if lhs in rhs:
+            raise Exception("%s in %s" % (lhs, rhs))
+
     def assertIsInstance(self, val, types):
         if not isinstance(val, types):
             raise Exception("%s is not an instance of types %s" % (val, types))
