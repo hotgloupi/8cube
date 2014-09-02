@@ -61,44 +61,31 @@ namespace cube { namespace scene {
 
 	Node& Graph::_insert(std::unique_ptr<Node> node)
 	{
-		ETC_ASSERT(node.get() != nullptr);
-		ETC_TRACE.debug("Insert node ", *node);
-
-		// Insert in the graph.
-		Node::id_type const id = boost::add_vertex(_this->graph);
-		auto remove_vertex
-			= etc::scope_exit([&] { boost::remove_vertex(id, _this->graph); });
-		// Release the pointer and insert it in the graph.
-		_this->graph[id] = std::shared_ptr<Node>{
-			node.get(),
-			[] (Node* n) { if (!n->attached()) delete n; }
-		};
-		auto& node_ref = *node.release();
-
-		// Set the node id.
-		node_ref.attach(*this, id);
-
-		// Every thing went well, release the guard.
-		remove_vertex.dismiss();
-
-		_this->call_hooks(Event::insert, node_ref);
-		return node_ref;
+		this->insert(
+			*node,
+			[] (Node* ptr) { ETC_ASSERT(!ptr->attached()); delete ptr; }
+		);
+		return *node.release();
 	}
-
 
 	Node& Graph::insert(Node& node, std::function<void(Node*)> deleter)
 	{
-		ETC_TRACE.debug("Insert weak node ", node);
+		ETC_TRACE.debug("Insert node ", node);
 
 		// Insert in the graph.
-		Node::id_type const id = boost::add_vertex(_this->graph);
-		auto remove_vertex
-			= etc::scope_exit([&] { boost::remove_vertex(id, _this->graph); });
-		// Release the pointer and insert it in the graph.
-		_this->graph[id] = std::shared_ptr<Node>{&node, deleter};
+		auto const id = boost::add_vertex(_this->graph);
+		auto remove_vertex = etc::scope_exit([&] {
+			boost::remove_vertex(id, _this->graph);
+			_this->nodes.erase(&node);
+		});
 
-		// Set the node id.
-		node.attach(*this, id);
+		// Release the pointer and insert it in the graph.
+
+		boost::put(_this->vertex_node_map, id, &node);
+		boost::put(_this->vertex_node_deleter_map, id, deleter);
+		_this->nodes.insert(std::make_pair(&node, id));
+
+		node.attach(*this);
 
 		// Every thing went well, release the guard.
 		remove_vertex.dismiss();
@@ -109,49 +96,52 @@ namespace cube { namespace scene {
 
 	std::shared_ptr<Node> Graph::remove(Node& node)
 	{
-		ETC_TRACE.debug("Remove", node, "from index");
+		ETC_LOG.debug("Remove node", node, "from the graph");
+		auto it = _this->nodes.find(&node);
+		if (it == _this->nodes.end())
+			throw Exception{
+				etc::to_string("The node", node, "does not belong to", *this)
+			};
 
-		auto id = node.id();
-		auto ptr = _this->graph[id];
-		ETC_LOG.debug("Found", *ptr, "in the graph");
-		ETC_ASSERT_EQ(ptr->id(), id);
-		ETC_ASSERT_EQ(ptr.get(), &node);
-		ETC_ASSERT_EQ(ptr.use_count(), 2);
-
+		auto id = it->second;
+		auto deleter = boost::get(_this->vertex_node_deleter_map, id);
 		boost::clear_vertex(id, _this->graph);
 		boost::remove_vertex(id, _this->graph);
-		ETC_ASSERT_EQ(ptr.unique(), true);
+		node.detach(*this);
 
-		ptr->detach(*this);
 		_this->call_hooks(Event::remove, node);
-		return ptr;
+		return std::shared_ptr<Node>{&node, deleter};
 	}
 
 	void Graph::connect(Node& from, Node& to)
 	{
-		ETC_ASSERT_EQ(_this->graph[from.id()].get(), &from);
-		ETC_ASSERT_EQ(_this->graph[to.id()].get(), &to);
-		boost::add_edge(from.id(), to.id(), _this->graph);
+		ETC_TRACE.debug("Connect", from, "to", to);
+		auto from_id = _this->nodes.at(&from);
+		auto to_id = _this->nodes.at(&to);
+		boost::add_edge(from_id, to_id, _this->graph);
 	}
-
 
 	std::vector<Node*> Graph::children(Node& node)
 	{
 		std::vector<Node*> res;
 		Impl::out_edge_iterator it, end;
-		for (boost::tie(it, end) = boost::out_edges(node.id(), _this->graph);
-		     it != end;
-		     ++it)
-			res.push_back(_this->graph[boost::target(*it, _this->graph)].get());
+		boost::tie(it, end) = boost::out_edges(
+			_this->nodes.at(&node),
+			_this->graph
+		);
+		for (; it != end; ++it)
+			res.push_back(
+				_this->vertex_node_map[boost::target(*it, _this->graph)]
+			);
 		return res;
 	}
 
 	void Graph::traverse(Visitor<Node>& visitor)
 	{
-		auto it = boost::vertices(_this->graph).first;
-		auto end = boost::vertices(_this->graph).second;
+		Impl::vertex_iterator it, end;
+		boost::tie(it, end) = boost::vertices(_this->graph);
 		for (; it != end; ++it)
-			visitor.visit(*_this->graph[*it]);
+			visitor.visit(*_this->vertex_node_map[*it]);
 	}
 
 	namespace {
@@ -159,11 +149,13 @@ namespace cube { namespace scene {
 			: public visit::DefaultBreadthFirstVisitor
 		{
 			Visitor<Node>& _wrapped;
+
+			inline explicit
 			SimpleBFSVisitor(Visitor<Node>& wrapped)
 				: _wrapped(wrapped)
 			{}
 
-			void examine_vertex(Node& n) { _wrapped.visit(n); }
+			inline void examine_vertex(Node& n) { _wrapped.visit(n); }
 		};
 	} // !anonymous
 
@@ -178,11 +170,13 @@ namespace cube { namespace scene {
 			: public visit::DefaultDepthFirstVisitor
 		{
 			Visitor<Node>& _wrapped;
+
+			inline explicit
 			SimpleDFSVisitor(Visitor<Node>& wrapped)
 				: _wrapped(wrapped)
 			{}
 
-			void discover_vertex(Node& n) { _wrapped.visit(n); }
+			inline void discover_vertex(Node& n) { _wrapped.visit(n); }
 		};
 	} // !anonymous
 
@@ -214,6 +208,19 @@ namespace cube { namespace scene {
 			Graph g;
 			ETC_ENFORCE_EQ(g.size(), 1u);
 			ETC_ENFORCE_EQ(&g.root().graph(), &g);
+		}
+
+		ETC_TEST_CASE(children)
+		{
+			Graph g;
+			ETC_ENFORCE_EQ(g.children(g.root()).size(), 0u);
+			auto& child = g.root().emplace<Node>("test");
+			ETC_ENFORCE_EQ(g.children(g.root()).size(), 1u);
+
+			ETC_ENFORCE_EQ(g.children(child).size(), 0u);
+			child.emplace<Node>("last born");
+			ETC_ENFORCE_EQ(g.children(child).size(), 1u);
+			ETC_ENFORCE_EQ(g.children(g.root()).size(), 1u);
 		}
 
 	} // !anonymous

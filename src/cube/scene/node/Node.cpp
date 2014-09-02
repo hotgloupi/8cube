@@ -19,18 +19,10 @@ namespace cube { namespace scene { namespace node {
 	Node::Node(std::string name)
 		: _name{std::move(name)}
 		, _graph{nullptr}
-		, _id{0}
 	{ ETC_TRACE_CTOR(name); }
 
 	Node::~Node()
 	{ ETC_TRACE_DTOR(_name); }
-
-	Node::id_type Node::id() const
-	{
-		if (!this->attached())
-			throw exception::Exception{"Node is detached"};
-		return _id;
-	}
 
 	Graph& Node::graph() const
 	{
@@ -40,20 +32,18 @@ namespace cube { namespace scene { namespace node {
 		return *_graph;
 	}
 
-	void Node::attach(Graph& g, id_type const id)
+	void Node::attach(Graph& g)
 	{
-		ETC_LOG.debug("Attach", *this, "to", g, "with id", id);
+		ETC_LOG.debug("Attach", *this, "to", g);
 		ETC_ENFORCE(!this->attached());
 		_graph = &g;
-		_id = id; // XXX Should ensure that id is valid in the graph.
 	}
 
 	void Node::detach(Graph& g)
 	{
-		ETC_LOG.debug("Detach", *this, "from", g, "with id", _id);
+		ETC_LOG.debug("Detach", *this, "from", g);
 		ETC_ASSERT_EQ(_graph, &g);
 		_graph = nullptr;
-		_id = 0;
 	}
 
 	Node& Node::_insert_child(std::unique_ptr<Node> node)

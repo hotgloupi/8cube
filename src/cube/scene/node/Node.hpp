@@ -27,12 +27,10 @@ namespace cube { namespace scene { namespace node {
 	{
 	public:
 		ETC_LOG_COMPONENT("cube.scene.Node");
-		typedef size_t id_type;
 
 	protected:
 		std::string _name;
 		Graph*      _graph;
-		id_type     _id;
 
 	public:
 		/// Construct a Node with a name.
@@ -51,16 +49,12 @@ namespace cube { namespace scene { namespace node {
 		/// Whether or not the node is attached to a graph.
 		bool attached() const ETC_NOEXCEPT { return _graph != nullptr; }
 
-		/// Get the node id. If the node has not been attached to any graph,
-		/// throws an exception.
-		id_type id() const;
-
 		/// Get the graph containing this node or throw an error.
 		Graph& graph() const;
 
 		/// Attach a node into the graph, ensuring that the node is not already
 		/// attached to another graph.
-		void attach(Graph& g, id_type const id);
+		void attach(Graph& g);
 
 		/// Detach a node from its graph. id() and graph() methods will throw.
 		void detach(Graph& g);

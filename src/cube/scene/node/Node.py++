@@ -43,11 +43,6 @@ namespace {
 		~PythonNode() {
 			ETC_TRACE.debug(*this, "released by", *_self);
 		}
-
-		void print(std::ostream& out) const ETC_NOEXCEPT
-		{
-			out << "<" << _class_name << " " << this->name() << ">";
-		}
 	};
 
 	std::string get_node_name(Node const& n)

@@ -21,15 +21,21 @@ namespace cube { namespace scene { namespace visit {
 		{
 			typedef boost::default_dfs_visitor super_type;
 			Visitor& _visitor;
-			DepthFirstVisitorWrapper(Visitor& visitor) : _visitor(visitor) {}
+			Graph& _graph;
+			DepthFirstVisitorWrapper(Graph& graph, Visitor& visitor)
+				: _visitor(visitor)
+				, _graph(graph)
+			{}
+
 			DepthFirstVisitorWrapper(DepthFirstVisitorWrapper const& other)
 				: super_type(other)
 				, _visitor(other._visitor)
+				, _graph(other._graph)
 			{}
 # define _CUBE_SCENE_VISIT_DFS_FORWARD(__name)                                \
 			template<typename V, typename G>                                  \
-			inline void __name ## _vertex(V vertex, G const& g)               \
-			{ _visitor.__name ## _vertex(*g[vertex]); }                       \
+			inline void __name ## _vertex(V vertex, G const&)                 \
+			{ _visitor.__name ## _vertex(*_graph.impl().vertex_node_map[vertex]); }\
 /**/
 			_CUBE_SCENE_VISIT_DFS_FORWARD(discover);
 			_CUBE_SCENE_VISIT_DFS_FORWARD(initialize);
@@ -52,10 +58,12 @@ namespace cube { namespace scene { namespace visit {
 	{
 		BOOST_CONCEPT_ASSERT(( detail::DepthFirstSearchVisitorConcept<Visitor> ));
 		auto& graph_impl = graph.impl().graph;
-		detail::DepthFirstVisitorWrapper<Visitor> wrapped(v);
+		detail::DepthFirstVisitorWrapper<Visitor> wrapped(graph, v);
 		boost::depth_first_search(
 			graph_impl,
-			boost::visitor(wrapped).root_vertex(graph.root().id())
+			boost::visitor(wrapped)
+				.root_vertex(graph.impl().nodes.at(&graph.root()))
+				.color_map(graph.impl().vertex_color_map)
 		);
 	}
 

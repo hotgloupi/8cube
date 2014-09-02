@@ -7,10 +7,10 @@ class _(Case):
         n = Node("LOL")
         self.assertIsInstance(n, Node)
         self.assertEqual(n.name, "LOL")
-        self.assertEqual(str(n), "<Node LOL>")
+        self.assertEqual(str(n), "<PythonNode LOL>")
         n.name = "MEGALOL"
         self.assertEqual(n.name, "MEGALOL")
-        self.assertEqual(str(n), "<Node MEGALOL>")
+        self.assertEqual(str(n), "<PythonNode MEGALOL>")
 
     def test_visitor(self):
         visited = []
