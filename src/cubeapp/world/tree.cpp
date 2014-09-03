@@ -46,7 +46,7 @@ namespace cubeapp { namespace world { namespace tree {
 				};
 				if (!frustum.intersects(s))
 					return VisitorAction::stop;
-				if (static_cast<double>(size) < glm::distance(center, pos))
+				if (static_cast<double>(size) * 4 < glm::distance(center, pos))
 				{
 					res.emplace_back(Node<size_type>{origin, size});
 					return VisitorAction::stop;
