@@ -1,5 +1,6 @@
 from . import registry
 
+import gc
 import inspect
 import os
 
@@ -29,8 +30,8 @@ class _AutoRegister(type):
                 )
                 test_name = name + '.' + k
                 registry.add(
-                    case.setUp,
-                    case.tearDown,
+                    case._Case__setUp,
+                    case._Case__tearDown,
                     method,
                     file,
                     line,
@@ -38,6 +39,12 @@ class _AutoRegister(type):
                 )
 
 class Case(metaclass = _AutoRegister):
+
+    def __setUp(self):
+        self.setUp()
+
+    def __tearDown(self):
+        gc.collect()
 
     def setUp(self):
         pass
