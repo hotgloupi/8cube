@@ -146,11 +146,12 @@ namespace {
 		);
 
 		// Insertion succeeded, the deleter will be called.
-		// Py_INCREF(py_child_ptr); // XXX
+		Py_INCREF(py_child_ptr); // XXX
 
 		// In case of errors, we remove the inserted Node.
-		auto insert_guard =
-			etc::scope_exit([&] { self.graph().remove(result); });
+		auto insert_guard = etc::scope_exit([&] {
+			self.graph().remove(result);
+		});
 
 		// Motherly bound.
 		self.graph().connect(self, result);
