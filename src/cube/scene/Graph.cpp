@@ -51,7 +51,18 @@ namespace cube { namespace scene {
 	}
 
 	Graph::~Graph()
-	{ ETC_TRACE_DTOR(); _this.reset(); }
+	{
+		ETC_TRACE_DTOR();
+		for (auto& it: _this->nodes)
+		{
+			node::Node* n = it.first;
+			auto id = it.second;
+			n->detach(*this);
+			_this->vertex_node_deleter_map[id](n);
+		}
+		_this.reset();
+		ETC_LOG.debug(*this, "All nodes free'd");
+	}
 
 	Node& Graph::root() ETC_NOEXCEPT
 	{ return *_this->root; }
