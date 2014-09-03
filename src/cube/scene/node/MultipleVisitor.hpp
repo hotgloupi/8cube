@@ -2,6 +2,7 @@
 # define CUBE_SCENE_NODE_MULTIPLEVISITOR_HPP
 
 # include "Node.hpp"
+# include "pretty_type.hpp"
 
 namespace cube { namespace scene { namespace node {
 
@@ -10,7 +11,7 @@ namespace cube { namespace scene { namespace node {
 		: public Visitor<NodeType>
 		, public MultipleVisitor<NodeTypes...>
 	{
-		ETC_LOG_COMPONENT("cube.scene.MultipleVisitor<" + ETC_TYPE_STRING(NodeType) + ">");
+		ETC_LOG_COMPONENT("cube.scene.MultipleVisitor<" + pretty_type<NodeType>() + ">");
 	public:
 		bool visit(Node& node) override
 		{

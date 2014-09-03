@@ -1,6 +1,7 @@
 #include "Node.hpp"
 #include "Visitor.hpp"
 #include "MultipleVisitor.hpp"
+#include "pretty_type.hpp"
 
 #include <cube/scene/Graph.hpp>
 
@@ -49,18 +50,9 @@ namespace cube { namespace scene { namespace node {
 	Node& Node::_insert_child(std::unique_ptr<Node> node)
 	{ return this->graph().insert_child(*this, std::move(node)); }
 
-	static std::string node_type(Node const* node)
-	{
-		std::string res = ETC_TYPE_STRING(*node);
-		res = res.substr(res.find_last_of(":") + 1, std::string::npos);
-		res = res.substr(0, res.find_first_of(" *"));
-		res = res.substr(0, res.find_last_of(">"));
-		return res;
-	}
-
 	void Node::print(std::ostream& out) const ETC_NOEXCEPT
 	{
-		out << "<" << node_type(this) << " " << _name << ">";
+		out << "<" << pretty_type(*this) << " " << _name << ">";
 	}
 
 	namespace {

@@ -2,6 +2,8 @@
 # define CUBE_SCENE_NODE_VISITOR_HPP
 
 # include "fwd.hpp"
+# include "pretty_type.hpp"
+
 # include <cube/api.hpp>
 
 # include <etc/log.hpp>
@@ -21,8 +23,7 @@ namespace cube { namespace scene { namespace node {
 	class Visitor
 		: public virtual Visitor<Node>
 	{
-		ETC_LOG_COMPONENT("cube.scene.Visitor<" + ETC_TYPE_STRING(NodeType)
-		                  + ">");
+		ETC_LOG_COMPONENT("cube.scene.Visitor<" + pretty_type<NodeType>() + ">");
 
 	public:
 		bool visit(Node& node) override
