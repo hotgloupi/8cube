@@ -210,6 +210,17 @@ namespace cube { namespace scene {
 
 	}
 
+	std::ostream& operator <<(std::ostream& out, Graph::Event const e)
+	{
+		switch (e)
+		{
+		case Graph::Event::insert: return out << "Event::insert";
+		case Graph::Event::update: return out << "Event::update";
+		case Graph::Event::remove: return out << "Event::remove";
+		default: return out << "Event::INVALID";
+		}
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	// unit tests
 

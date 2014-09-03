@@ -140,6 +140,9 @@ namespace cube { namespace scene {
 		Node& _insert(std::unique_ptr<Node> node);
 	};
 
+	CUBE_API
+	std::ostream& operator <<(std::ostream& out, Graph::Event const e);
+
 }}
 
 #endif
