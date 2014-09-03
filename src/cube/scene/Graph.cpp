@@ -119,6 +119,7 @@ namespace cube { namespace scene {
 		boost::clear_vertex(id, _this->graph);
 		boost::remove_vertex(id, _this->graph);
 		node.detach(*this);
+		_this->nodes.erase(it);
 
 		_this->call_hooks(Event::remove, node);
 		return std::shared_ptr<Node>{&node, deleter};
