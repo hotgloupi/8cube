@@ -33,7 +33,7 @@ namespace etc { namespace log {
 		Logger&           logger;
 	};
 
-	Component& component(std::string const& name);
+	ETC_API Component& component(std::string const& name);
 
 }}
 
