@@ -44,6 +44,7 @@ class Case(metaclass = _AutoRegister):
         self.setUp()
 
     def __tearDown(self):
+        self.tearDown()
         gc.collect()
 
     def setUp(self):
