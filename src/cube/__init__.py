@@ -8,6 +8,7 @@ The cube library provides:
     * a system abstraction (cube.system)
 
 """
+from . import converters
 
 from .exception import Exception
 from .debug import check_performance

@@ -1,0 +1,62 @@
+#include <cube/python.hpp>
+
+#include <wrappers/boost/filesystem.hpp>
+
+namespace py = boost::python;
+
+namespace {
+
+	struct register_path_from_python
+	{
+		static void* convertible(PyObject* ptr)
+		{
+			// XXX should not import all over the time
+			py::object PathType = py::import("pathlib").attr("Path");
+			if (::PyObject_IsInstance(ptr, PathType.ptr()))
+				return ptr;
+			return nullptr;
+		}
+
+		static void construct(PyObject* obj_ptr,
+		                      py::converter::rvalue_from_python_stage1_data* data)
+		{
+			// Extract the character data from the python string
+			std::string value = py::to_string(py::object(py::borrowed(obj_ptr)));
+
+			void* storage = ((py::converter::rvalue_from_python_storage<boost::filesystem::path>*) data)->storage.bytes;
+			new (storage) boost::filesystem::path(value);
+
+			// Stash the memory chunk pointer for later use by boost.python
+			data->convertible = storage;
+		}
+
+		register_path_from_python()
+		{
+			py::converter::registry::push_back(
+				&convertible,
+				&construct,
+				py::type_id<boost::filesystem::path>()
+			);
+		}
+	};
+
+	struct to_python_path
+	{
+		static PyObject* convert(boost::filesystem::path const& p)
+		{
+			// XXX should not import all over the time
+			return boost::python::incref(
+				boost::python::object(
+					py::import("pathlib").attr("Path")(p.string())
+				).ptr()
+			);
+		}
+	};
+
+} // ! anonymous
+
+BOOST_PYTHON_MODULE(converters)
+{
+	register_path_from_python();
+	py::to_python_converter<boost::filesystem::path, to_python_path>();
+}
