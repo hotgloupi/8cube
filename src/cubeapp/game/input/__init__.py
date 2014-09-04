@@ -53,8 +53,14 @@ class Translator:
         for name, key in bindings.get('keyboard', {}).items():
             key, mod = self.__translate_key(name, key)
             key_input = KeyboardInput(name)
+            log.debug("Map key", mod, key, 'to', name, key_input)
+            assert (mod, key) not in self.__keyboard_map
             setattr(self.keyboard, name, key_input)
-            self.__keyboard_map[(mod, key)] = key_input
+            if mod == KeyMod.ctrl:
+                self.__keyboard_map[(KeyMod.lctrl, key)] = key_input
+                self.__keyboard_map[(KeyMod.rctrl, key)] = key_input
+            else:
+                self.__keyboard_map[(mod, key)] = key_input
 
         self.mouse = MouseInput()
 
@@ -97,18 +103,23 @@ class Translator:
         return i
 
     def __on_keydown(self, keymod, keysym, keycode):
-        log.debug("Got keyboard input:", keymod, keysym, keycode)
         i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
             self.__events.append(i.key_pressed)
             self.__held.add(i)
+        log.debug("Got keyboard input:", keymod, keysym, keycode, "add", i)
 
     def __on_keyup(self, keymod, keysym, keycode):
         log.debug("Got keyboard input:", keymod, keysym, keycode)
         i = self.__get_keyboard_input(keymod, keysym, keycode)
         if i is not None:
             self.__events.append(i.key_released)
-            self.__held.remove(i)
+            try:
+                self.__held.remove(i)
+            except:
+                log.warn("Couldn't remove held key", keymod, keysym, keycode, "cleaning up")
+                self.__held = set()
+        log.debug("Got keyboard input:", keymod, keysym, keycode, "remove", i)
 
     def __on_mousemove(self, xrel, yrel, keymod):
         # XXX use keymod ?
@@ -121,6 +132,7 @@ class Translator:
         for func in to_fire:
             func()
         for key in self.__held:
+            log.debug("Trigger held key", key)
             key.key_held()
 
 
