@@ -1,7 +1,7 @@
 #ifndef  ETC_LOG_LEVEL_HPP
 # define ETC_LOG_LEVEL_HPP
 
-# include <cube/api.hpp>
+# include <etc/api.hpp>
 
 # include <string>
 # include <iosfwd>
