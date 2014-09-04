@@ -9,7 +9,7 @@ BOOST_PYTHON_MODULE(Surface)
 	using namespace cube::gl::surface;
 	namespace py = boost::python;
 
-	py::class_<Surface, boost::noncopyable>(
+	py::class_<Surface, py::bases<cube::resource::Resource>, boost::noncopyable>(
 		"Surface",
 		py::init<boost::filesystem::path const&>(py::arg("path"))
 	)
