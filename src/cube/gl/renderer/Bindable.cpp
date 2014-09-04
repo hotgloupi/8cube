@@ -125,14 +125,14 @@ namespace cube { namespace gl { namespace renderer {
 			}
 
 			ETC_ENFORCE_EQ(dummy.called, 1);
-			ETC_ENFORCE_EQ(dummy.bound(), 0);
+			ETC_ENFORCE_EQ(dummy.bound(), 0u);
 		}
 
 		ETC_TEST_CASE(bound_in_bind_method)
 		{
 			struct Dummy : public Bindable
 			{
-				void _bind() override { ETC_ENFORCE(this->bound()); }
+				void _bind() override { ETC_ENFORCE_GT(this->bound(), 0u); }
 				void _unbind() ETC_NOEXCEPT override {}
 			};
 			Dummy d;
