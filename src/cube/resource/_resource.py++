@@ -77,9 +77,9 @@ namespace {
 			return result;
 		}
 		static
-		py::object load(Manager& self, py::object cls, std::string path)
+		py::object load(Manager& self, py::object cls, boost::filesystem::path path)
 		{
-			auto obj =  create(self, cls, py::make_tuple(path), py::dict());
+			auto obj = create(self, cls, py::make_tuple(path), py::dict());
 			self.set_loaded(py::extract<Resource&>(obj)(), path);
 			return obj;
 		}
