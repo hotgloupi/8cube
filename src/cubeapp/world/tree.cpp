@@ -6,6 +6,8 @@
 
 #include <etc/log.hpp>
 
+#include <boost/thread.hpp>
+
 #include <iostream>
 
 #define MAX_ITER 1000000
@@ -46,13 +48,14 @@ namespace cubeapp { namespace world { namespace tree {
 				};
 				if (!frustum.intersects(s))
 					return VisitorAction::stop;
-				if (static_cast<double>(size) * 4 < glm::distance(center, pos))
+				if (static_cast<double>(size) * 2 < glm::distance(center, pos))
 				{
 					res.emplace_back(Node<size_type>{origin, size});
 					return VisitorAction::stop;
 				}
 				if (level == 0)
 					res.emplace_back(Node<size_type>{origin, size});
+				boost::this_thread::sleep_for(boost::chrono::microseconds(10));
 				return VisitorAction::continue_;
 			}
 		);
@@ -82,5 +85,7 @@ namespace cubeapp { namespace world { namespace tree {
 	template
 	CUBEAPP_API
 	std::ostream& operator <<(std::ostream& out, Node<int64_t> const& node);
+
+	template struct CUBEAPP_API Node<int64_t>;
 
 }}}

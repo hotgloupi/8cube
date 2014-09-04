@@ -55,7 +55,6 @@ namespace {
 
 BOOST_PYTHON_MODULE(tree)
 {
-
 	py::enum_<VisitorAction>("VisitorAction")
 		.value("stop", VisitorAction::stop)
 		.value("continue_", VisitorAction::continue_)
