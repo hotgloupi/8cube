@@ -603,7 +603,7 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	etc::size_type
 	Window::_poll(etc::size_type const max)
 	{
-		ETC_LOG_SUB_COMPONENT("Poll");
+		ETC_LOG_SCOPE_COMPONENT("cube.system.sdl.window.poll");
 		uint32_t count = 0;
 		bool has_expose = false;
 		bool has_resize = false;

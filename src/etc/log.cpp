@@ -38,10 +38,15 @@ namespace etc { namespace log {
 
 		Indent& indent()
 		{
+# if (defined(__GNUC__) && __GNUC__ == 4 &&  __GNUC_MINOR__ <= 7 ) && !defined(__clang__)
 			static boost::thread_specific_ptr<Indent> indent;
 			if (indent.get() == nullptr)
 				indent.reset(new Indent);
 			return *indent;
+#else
+			static thread_local Indent value;
+			return value;
+#endif
 		}
 
 	} // !anonymous
@@ -50,39 +55,38 @@ namespace etc { namespace log {
 	         char const* file,
 	         size_type const line,
 	         char const* function,
-	         std::string const& component) ETC_NOEXCEPT
-		: _line{level, file, line, function, component, indent().increment()}
-		, _logger{&logger(component)}
+	         Component const& component) ETC_NOEXCEPT
+		: _line{level, file, line, function, component, 1}
 		, _message{}
 		, _sent{false}
 	{}
 
 	Log::Log(Log&& other) ETC_NOEXCEPT
 		: _line{std::move(other._line)}
-		, _logger{other._logger}
 		, _message{std::move(other._message)}
 		, _sent{other._sent}
 	{
-		other._logger = nullptr;
-		if (_should_log())
+		if (!_sent && !_message.empty() && _should_log())
 		{
+			_line.indent = indent().increment();
+			_logger().message(std::move(_line), std::move(_message));
 			_sent = true;
-			_logger->message(std::move(_line), std::move(_message));
 		}
+		other._sent = false;
 	}
 
 	Log::~Log()
 	{
-		if (_logger != nullptr)
+		if (!_sent && !_message.empty() && _should_log())
 		{
-			if (_should_log())
-				_logger->message(std::move(_line), std::move(_message));
-			indent().decrement();
+			_logger().message(std::move(_line), std::move(_message));
 		}
+		else if (_sent)
+			indent().decrement();
 	}
 
 	bool Log::_should_log() ETC_NOEXCEPT
 	{
-		return !_sent && _logger->should_log(_line);
+		return _logger().should_log(_line);
 	}
 }}

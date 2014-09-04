@@ -78,7 +78,6 @@ namespace etc { namespace log {
 	{
 	private:
 		Line            _line;
-		Logger*         _logger;
 		std::string     _message;
 		bool            _sent;
 
@@ -88,7 +87,7 @@ namespace etc { namespace log {
 		    char const* file,
 		    size_type const line,
 		    char const* function,
-		    std::string const& component) ETC_NOEXCEPT;
+		    Component const& component) ETC_NOEXCEPT;
 		/// Send the message to the logger.
 		Log(Log&& o) ETC_NOEXCEPT;
 		/// Send the message to the logger if not already done and decrement
@@ -156,6 +155,9 @@ namespace etc { namespace log {
 		{ return false; }
 
 		bool _should_log() ETC_NOEXCEPT;
+
+		inline Logger& _logger() const ETC_NOEXCEPT
+		{ return _line.component.logger; }
 	};
 
 }}

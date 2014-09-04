@@ -1,12 +1,10 @@
 #include "Logger.hpp"
 #include "detail/log.hpp"
-#include "detail/Pattern.hpp"
 #include "backend/Factory.hpp"
 #include "Level.hpp"
 
 #include <etc/meta/enum.hpp>
 #include <etc/assert.hpp>
-#include <etc/sys/environ.hpp>
 #include <etc/to_string.hpp>
 #include <etc/memory.hpp>
 
@@ -14,11 +12,6 @@
 #include <unordered_map>
 #include <vector>
 
-#ifdef _WIN32
-# include <wrappers/windows.hpp>
-#else
-# include <fnmatch.h>
-#endif
 #define ETC_DEBUG
 
 namespace etc { namespace log {
@@ -56,63 +49,6 @@ namespace etc { namespace log {
 		, _level(level)
 	{
 		detail::log("Creating logger for", name, "with level", level);
-	}
-
-	template<typename Config>
-	struct ComponentConfigMap
-	{
-		std::unordered_map<std::string, Config> _components;
-
-		ComponentConfigMap() : _components{}
-		{ detail::log("Creating ComponentConfigMap"); }
-		~ComponentConfigMap()
-		{ detail::log("Destroying ComponentConfigMap"); }
-
-#define FORWARD_METHOD(__method) \
-		template<typename... Args> \
-		auto __method(Args&&... args) const \
-			-> decltype(_components.__method(std::forward<Args>(args)...)) \
-		{ return _components.__method(std::forward<Args>(args)...); } \
-		template<typename... Args> \
-		auto __method(Args&&... args) \
-			-> decltype(_components.__method(std::forward<Args>(args)...)) \
-		{ return _components.__method(std::forward<Args>(args)...); } \
-/**/
-
-		FORWARD_METHOD(find);
-		FORWARD_METHOD(begin);
-		FORWARD_METHOD(end);
-		FORWARD_METHOD(operator []);
-	};
-
-	Logger::ComponentConfig&
-	Logger::_component_config(std::string const& name)
-	{
-		static ComponentConfigMap<ComponentConfig> components;
-		auto it = components.find(name);
-		if (it != components.end())
-			return it->second;
-		static std::string envvar = etc::sys::environ::get("ETC_LOG", "*");
-		static std::vector<detail::Pattern> patterns = detail::get_patterns(envvar);
-		ComponentConfig res = {default_level(), false};
-		for (auto const& pattern: patterns)
-		{
-#ifdef _WIN32
-			if (::PathMatchSpec(name.c_str(), pattern.str.c_str()) == TRUE)
-#else
-			if (::fnmatch(pattern.str.c_str(), name.c_str(), 0) == 0)
-#endif
-			{
-				res = {pattern.level, (pattern.op == detail::Pattern::add_match)};
-				break;
-			}
-		}
-		detail::log(
-			"Component", name,
-			(res.enabled ? "enabled" : "disabled"),
-			"for level", res.level
-		);
-		return components[name] = res;
 	}
 
 	void Logger::message(Line line,

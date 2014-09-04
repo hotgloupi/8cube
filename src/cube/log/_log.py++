@@ -28,7 +28,7 @@ namespace {
 			static_storage(std::move(file)).c_str(),
 			line,
 			static_storage(std::move(function)).c_str(),
-			static_storage(std::move(component)),
+			etc::log::component(component),
 		}.send(std::move(msg));
 	}
 
@@ -65,7 +65,7 @@ namespace {
 					static_storage(std::move(this->file)).c_str(),
 					this->line,
 					static_storage(std::move(this->function)).c_str(),
-					static_storage(std::move(this->component)),
+					etc::log::component(this->component),
 				}.send(std::move(this->msg))
 			);
 			return *this;

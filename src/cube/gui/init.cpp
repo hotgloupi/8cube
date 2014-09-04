@@ -49,7 +49,8 @@ namespace {
 			ETC_ASSERT_GTE(((int) type), 0);
 			ETC_ASSERT_LT(((size_t) type), sizeof(map) / sizeof(map[0]));
 
-			static std::string const component = "cube.gui.RocketSystemInterface";
+			static auto const& component =
+				etc::log::component("cube.gui.RocketSystemInterface");
 			etc::log::Log(
 				map[type],
 				"",

@@ -2,6 +2,7 @@
 # define ETC_LOG_LINE_HPP
 
 # include "Level.hpp"
+# include "component.hpp"
 
 # include <etc/types.hpp>
 
@@ -17,7 +18,7 @@ namespace etc { namespace log {
 		char const*        file;
 		etc::size_type     line;
 		char const*        function;
-		std::string const& component;
+		Component const&   component;
 		etc::size_type     indent;
 
 	public:
@@ -26,7 +27,7 @@ namespace etc { namespace log {
 		     char const* file,
 		     etc::size_type const line,
 		     char const* function,
-		     std::string const& component,
+		     Component const& component,
 			 etc::size_type indent) ETC_NOEXCEPT
 			: level{level}
 			, file{file}

@@ -1,6 +1,9 @@
 #ifndef  ETC_LOG_COMPONENT_HPP
 # define ETC_LOG_COMPONENT_HPP
 
+# include "fwd.hpp"
+# include "Level.hpp"
+
 # include <boost/preprocessor/cat.hpp>
 
 # include <string>
@@ -9,23 +12,29 @@
 	struct BOOST_PP_CAT(log, __LINE__) {                                      \
 		BOOST_PP_CAT(log, __LINE__)() {}                                      \
 		inline                                                                \
-		std::string const& operator ()() const ETC_NOEXCEPT                   \
-		{ static std::string n{__name}; return n; }                           \
+		etc::log::Component const& operator ()() const ETC_NOEXCEPT           \
+		{ static etc::log::Component const& c = etc::log::component(__name); return c; }\
 	} const etc_log_component;                                                \
 /**/
 
 # define ETC_LOG_COMPONENT(__name)                                            \
 	static inline                                                             \
-	std::string const& etc_log_component() ETC_NOEXCEPT                       \
-	{ static std::string n{__name}; return n; }                               \
+	etc::log::Component const& etc_log_component() ETC_NOEXCEPT               \
+	{ static etc::log::Component const& c = etc::log::component(__name); return c; }\
 /**/
 
-# define ETC_LOG_SUB_COMPONENT(__name)                                        \
-	static auto BOOST_PP_CAT(log, __LINE__) =                                 \
-		std::string{etc_log_component()} + "#" __name;                        \
-	static auto etc_log_component = [&] () -> std::string const& {            \
-		return BOOST_PP_CAT(log, __LINE__);                                   \
-	};                                                                        \
-/**/
+namespace etc { namespace log {
+
+	struct Component
+	{
+		std::string const name;
+		Level             level;
+		bool              enabled;
+		Logger&           logger;
+	};
+
+	Component& component(std::string const& name);
+
+}}
 
 #endif

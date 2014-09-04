@@ -29,24 +29,13 @@ namespace etc { namespace log {
 	class ETC_API Logger
 		: private boost::noncopyable
 	{
-	private:
-		struct ComponentConfig
-		{
-			Level level;
-			bool enabled;
-		};
-
-		static
-		ComponentConfig& _component_config(std::string const& name);
-
 	public:
 		inline
 		bool should_log(Line const& line)
 		{
 			if (line.level < _level) // lesser than global log level
 			{
-				auto const& config = _component_config(line.component);
-				if (line.level < config.level || !config.enabled)
+				if (line.level < line.component.level || !line.component.enabled)
 					return false;
 			}
 			return true;
@@ -58,13 +47,13 @@ namespace etc { namespace log {
 		{
 			if (lvl == Level::_maxvalue)
 				lvl = logger(name)._level;
-			_component_config(name).level = lvl;
-			_component_config(name).enabled = true;
+			component(name).level = lvl;
+			component(name).enabled = true;
 		}
 
 		static
 		void disable_component(std::string const& name)
-		{ _component_config(name).enabled = false; }
+		{ component(name).enabled = false; }
 
 	private:
 		std::string                                      _name;

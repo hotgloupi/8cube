@@ -8,6 +8,7 @@ namespace etc { namespace log {
 
 	class Logger;
 	struct Line;
+	struct Component;
 
 	namespace backend { class Interface; }
 

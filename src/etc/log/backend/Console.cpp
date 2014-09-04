@@ -50,7 +50,7 @@ namespace etc { namespace log { namespace backend {
 			strlen(line.file),
 			line_string.size(),
 			strlen(line.function),
-			line.component.size(),
+			line.component.name.size(),
 		};
 
 
@@ -152,7 +152,7 @@ namespace etc { namespace log { namespace backend {
 		//_PRINT_PART(file, line.file, location);
 		//_PRINT_PART(line, line_string, location);
 		//_PRINT_PART(function, line.function, function);
-		_PRINT_PART(component, line.component, component);
+		_PRINT_PART(component, line.component.name, component);
 #undef _PRINT_PART
 
 		res.append(line.indent * 2, ' ');
