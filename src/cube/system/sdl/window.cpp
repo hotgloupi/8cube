@@ -609,6 +609,8 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		bool has_resize = false;
 
 		SDL_Event e;
+		inputs::KeyMod mod;
+		inputs::KeySym sym;
 		while (SDL_PollEvent(&e))
 		{
 			if (e.type == SDL_QUIT)
@@ -641,6 +643,11 @@ namespace cube { namespace system { namespace sdl { namespace window {
 					break;
 				}
 #define MOD(e) static_cast<inputs::KeyMod>(static_cast<int>(e.key.keysym.mod))
+
+				mod = MOD(e);
+				sym = to_keysym(e.key.keysym.sym);
+				if (sym == inputs::KeySym::unknown && mod == inputs::KeyMod::none)
+					mod = ((inputs::KeyMod) SDL_GetModState());
 				ETC_LOG.debug(
 					"Got key event",
 					e.key.keysym.mod,"=", MOD(e),
@@ -763,10 +770,16 @@ namespace cube { namespace system { namespace sdl { namespace window {
 	{ SDL_MaximizeWindow(_context().window); }
 
 	void Window::start_text_input()
-	{ SDL_StartTextInput(); }
+	{
+		ETC_LOG.debug("Starting text input mode");
+		SDL_StartTextInput();
+	}
 
 	void Window::stop_text_input()
-	{ SDL_StopTextInput(); }
+	{
+		ETC_LOG.debug("Stop text input mode");
+		SDL_StopTextInput();
+	}
 
 	gl::vector::Vector2i Window::mouse_position() const
 	{
@@ -937,7 +950,11 @@ namespace cube { namespace system { namespace sdl { namespace window {
 				{SDLK_KP_0, inputs::KeySym::kp0},
 				{SDLK_KP_PERIOD, inputs::KeySym::kp_period}
 			};
-			return translation_table[sym];
+			try {
+				return translation_table.at(sym);
+			} catch (std::out_of_range const&) {
+				return inputs::KeySym::unknown;
+			}
 		}
 	}
 
