@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-#define MAX_ITER 1000000
-#define MAX_NODES 1000000
+#define MAX_ITER 10000
+#define MAX_NODES 1000
 
 namespace cubeapp { namespace world { namespace tree {
 
@@ -48,14 +48,15 @@ namespace cubeapp { namespace world { namespace tree {
 				};
 				if (!frustum.intersects(s))
 					return VisitorAction::stop;
-				if (static_cast<double>(size) * 2 < glm::distance(center, pos))
+				if (s.radius * 2 < glm::length(s.center))
 				{
-					res.emplace_back(Node<size_type>{origin, size});
+					if (level < 9)
+						res.emplace_back(Node<size_type>{origin, size});
 					return VisitorAction::stop;
 				}
+				boost::this_thread::sleep_for(boost::chrono::nanoseconds(1));
 				if (level == 0)
 					res.emplace_back(Node<size_type>{origin, size});
-				boost::this_thread::sleep_for(boost::chrono::microseconds(10));
 				return VisitorAction::continue_;
 			}
 		);
