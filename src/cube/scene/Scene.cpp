@@ -138,7 +138,7 @@ namespace cube { namespace scene {
 			, Light
 		>
 	{
-		ETC_LOG_COMPONENT("cube.scene." + etc::to_string(ev) + "Observer");
+		ETC_LOG_COMPONENT("cube.scene.Observer(" + etc::to_string(ev) + ")");
 		typedef MultipleVisitor<
 			  ContentNode<MeshPtr>
 			, ContentNode<MaterialPtr>
