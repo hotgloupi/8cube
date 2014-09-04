@@ -77,6 +77,7 @@ namespace cube { namespace scene {
 			std::shared_ptr<gl::renderer::State> _state;
 			std::vector<gl::renderer::Painter::Proxy<1>> _proxies;
 			bool enter;
+			std::map<std::string, etc::size_type> visited;
 
 			DirectDraw(SceneView::Impl& impl, gl::renderer::Painter& painter)
 				: _impl(impl)
@@ -90,6 +91,7 @@ namespace cube { namespace scene {
 			{
 				if (this->enter)
 				{
+					this->visited[node.name()] += 1;
 					ETC_TRACE.debug("Push transform node", node);
 					_painter.push_state().lock()->model(node.value());
 				}
@@ -105,6 +107,7 @@ namespace cube { namespace scene {
 			{
 				if (this->enter)
 				{
+					this->visited[node.name()] += 1;
 					ETC_TRACE.debug("Draw node", node);
 					_painter.draw(node.value());
 				}
@@ -114,13 +117,16 @@ namespace cube { namespace scene {
 			void _visit_bindable(BindablePtr& b)
 			{
 				if (this->enter)
+				{
 					_proxies.emplace_back(_painter.with(*b));
+				}
 				else
 					_proxies.pop_back();
 			}
 
 			bool visit(ContentNode<BindablePtr>& node) override
 			{
+				this->visited[node.name()] += 1;
 				_visit_bindable(node.value());
 				return true;
 			}
@@ -155,6 +161,7 @@ namespace cube { namespace scene {
 				auto it = _impl.drawables.find(&node);
 				if (it == _impl.drawables.end())
 				{
+					this->visited[node.name()] += 1;
 					auto ptr = node.value()->drawable(_painter.renderer());
 					_painter.draw((_impl.drawables[&node] = ptr));
 				}
@@ -193,6 +200,10 @@ namespace cube { namespace scene {
 		}
 		DFSVisitor v{*_this, painter};
 		visit::depth_first_search(_this->scene->graph(), v);
+		std::string msg;
+		for (auto const& pair: v.draw.visited)
+			msg += "\n- " + pair.first + ": " + std::to_string(pair.second);
+		ETC_LOG.debug("Visited nodes:", msg);
 	}
 
 }}
