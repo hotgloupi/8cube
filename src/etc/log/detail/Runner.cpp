@@ -11,12 +11,7 @@
 #include <thread>
 #include <unordered_map>
 
-#if defined(__GNUC__) && __GNUC__ == 4 && __GNUC_MINOR__ < 8
 #include <boost/thread.hpp>
-# define THIS_THREAD_YIELD() boost::this_thread::yield()
-#else
-# define THIS_THREAD_YIELD() std::this_thread::yield()
-#endif
 
 namespace etc { namespace log { namespace detail {
 
@@ -62,9 +57,12 @@ namespace etc { namespace log { namespace detail {
 							std::move(std::get<1>(*res))
 						);
 						delete res;
+						boost::this_thread::yield();
 					}
 					else
-						THIS_THREAD_YIELD();
+						boost::this_thread::sleep_for(
+							boost::chrono::microseconds(10)
+						);
 				}
 			}});
 		}
