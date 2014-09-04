@@ -1,3 +1,4 @@
+import cube
 
 from .entity import Entity
 from .component import Component
@@ -73,7 +74,7 @@ class Manager:
 
     def __destroy(self, entity):
         """Called by an entity that is destroying itself."""
-        for component in entity.components:
+        for component in entity.components[:]:
             self.__unregister_component(entity, component)
         del self.__entities[entity]
 
