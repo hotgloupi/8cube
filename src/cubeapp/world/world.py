@@ -54,7 +54,7 @@ class World:
         """Return two set of nodes, those no longer required, those new"""
         to_add = set()
         to_remove = set()
-        while not self.__event_queue.empty():
+        while not self.__event_queue.empty() and len(to_add) + len(to_remove) < 1:
             ev, nodes = self.__event_queue.get_nowait()
             if ev == 'ADD':
                 to_add.update(nodes)
@@ -69,7 +69,7 @@ class World:
 
     def __run(self):
         while self.__running:
-            time.sleep(0.1)
+            time.sleep(0)
             nodes = set(tree.find_nodes(
                 self.__tree,
                 self.__position,
