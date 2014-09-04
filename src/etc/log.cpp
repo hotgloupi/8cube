@@ -38,7 +38,8 @@ namespace etc { namespace log {
 
 		Indent& indent()
 		{
-# if (defined(__GNUC__) && __GNUC__ == 4 &&  __GNUC_MINOR__ <= 7 ) && !defined(__clang__)
+# if ((defined(__GNUC__) && __GNUC__ == 4 &&  __GNUC_MINOR__ <= 7 ) && !defined(__clang__)) || \
+			defined(BOOST_MSVC)
 			static boost::thread_specific_ptr<Indent> indent;
 			if (indent.get() == nullptr)
 				indent.reset(new Indent);
