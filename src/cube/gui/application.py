@@ -55,10 +55,11 @@ class Application(cube.Application):
         #  gui.Window.shutdown() -> system.Window.shutdown() -> clean inputs
         #  Some bound methods are released, and python is able to collect
         #  properly again.
-        self._window.shutdown()
-        self._handlers = None
-        self._window = None
-        self._running = False
+        if self._window is not None:
+            self._window.shutdown()
+            self._handlers = None
+            self._window = None
+            self._running = False
 
     def _on_idle(self):
         pass

@@ -76,7 +76,12 @@ class Game():
             inputs = self.input_translator,
         )
         self.window.inputs.on_quit.connect(self._on_quit)
+        self.escape_channel = event.Channel()
         self.shutdown_channel = event.Channel()
+        self.event_manager.register(
+            lambda ev, delta: self._on_quit(),
+            self.escape_channel
+        )
 
     def __del__(self):
         self.scene = None
@@ -92,6 +97,9 @@ class Game():
 
         @note should be overridden.
         """
+        pass
+
+    def _poll(self, delta):
         self.input_translator.poll()
         self.event_manager.poll(delta)
 
@@ -99,8 +107,13 @@ class Game():
         pass
 
     def _on_quit(self):
-        pass
+        """
+        Handler registered at Game construction that is triggered when
+        an "escape" event is triggered.
+        Default implementation triggers a shutdown event.
+        """
+        self.event_manager.push(event.Event(self.shutdown_channel))
 
     def shutdown(self):
-        self.event_manager.push(event.Event(self.shutdown_channel))
-        self.event_manager.poll(0)
+        """Called by the application when it receive a shutdown event."""
+        pass

@@ -26,6 +26,10 @@ class Application(cube.gui.Application):
             game_name,
             self.window,
         )
+        self._game.event_manager.register(
+            lambda ev, delta: self.shutdown(),
+            self._game.shutdown_channel
+        )
         #self.window.confine_mouse(True)
 
         #self._main_menu = self.viewport.emplace_child(
@@ -50,20 +54,18 @@ class Application(cube.gui.Application):
         frame_time = frame_time_target
         while self._running is True:
             start = time.time()
-            self._update(start - last_update, frame_time)
+            delta = start - last_update
             last_update = start
+            self._game.update(delta)
             self.render()
             self.window.renderer.flush()
             self._window.swap_buffers()
+            self._window.poll()
+            self._game._poll(delta)
             frame_time = time.time() - start
             if frame_time < frame_time_target - 0.001:
                 time.sleep(frame_time_target - frame_time)
                 #print("%6.2f ms\n" % frame_time * 1000)
-            self._window.poll()
-
-    def _update(self, delta, frame_time):
-        self._game.update(delta)
-        #self.__fps_label.text = "F: %6.2f ms" % (frame_time * 1000)
 
     def render(self):
         self.window.renderer.clear(
@@ -72,7 +74,15 @@ class Application(cube.gui.Application):
         self._game.render()
         super().render()
 
+    def _on_quit(self):
+        self._game.event_manager.push(
+            game.event.Event(self._game.escape_channel)
+        )
+
     def shutdown(self):
+        self._running = False
         super().shutdown()
-        self._game.shutdown()
-        self._game = None
+        if self._game is not None:
+            self._game.event_manager.clear()
+            self._game.shutdown()
+            self._game = None
