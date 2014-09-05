@@ -255,6 +255,8 @@ BOOST_PYTHON_MODULE(inputs)
 	DEF_CONNECT(cls, keydown);
 	DEF_CONNECT(cls, keyup);
 	DEF_CONNECT(cls, mousemove);
+	DEF_CONNECT(cls, mousedown);
+	DEF_CONNECT(cls, mouseup);
 
 # undef DEF_CONNECT
 
