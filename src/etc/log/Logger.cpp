@@ -12,8 +12,6 @@
 #include <unordered_map>
 #include <vector>
 
-#define ETC_DEBUG
-
 namespace etc { namespace log {
 
 	Logger& logger(std::string const& name)
