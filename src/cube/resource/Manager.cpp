@@ -80,7 +80,7 @@ namespace cube { namespace resource {
 		return *this;
 	}
 
-	Manager::path_type Manager::find(path_type path)
+	Manager::path_type Manager::find(path_type const& path)
 	{
 		ETC_TRACE.debug("Searching for resource file at", path);
 		if (!path.is_absolute())
@@ -110,6 +110,15 @@ namespace cube { namespace resource {
 	bool Manager::loaded(path_type const& path)
 	{
 		return _this->by_path.left.find(this->find(path)) != _this->by_path.left.end();
+	}
+
+	ResourcePtr& Manager::get(path_type const& path)
+	{
+		auto p = this->find(path);
+		auto it = _this->by_path.left.find(p);
+		if (it != _this->by_path.left.end())
+			return _this->resources[it->second];
+		throw Exception{"Couldn't find any file at '" + path.string() + "'"};
 	}
 
 	Resource* Manager::_loaded_resource(path_type const& path)

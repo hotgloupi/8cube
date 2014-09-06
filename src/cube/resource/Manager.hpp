@@ -50,7 +50,8 @@ namespace cube { namespace resource {
 
 		bool loaded(path_type const& path);
 
-		path_type find(path_type path);
+		path_type find(path_type const& path);
+		ResourcePtr& get(path_type const& path);
 
 		void set_loaded(Resource& resource, path_type path);
 	private:
