@@ -73,7 +73,6 @@ int _main(int argc, char** argv)
 	auto& interpreter = cubeapp::python::Interpreter::instance(lib_dir);
 	ETC_SCOPE_EXIT{ cubeapp::python::Interpreter::release(); };
 
-	/*
 #ifdef _WIN32
 	{
 		// Since AllocConsole reopened streams...
@@ -90,7 +89,6 @@ int _main(int argc, char** argv)
 		Py_DECREF(pystdin);
 	}
 #endif
-*/
 
 	fs::path python_lib_dir = lib_dir / "python";
 	interpreter.setglobal("lib_dir", safe_path(python_lib_dir.string()));
