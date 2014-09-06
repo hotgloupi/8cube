@@ -149,10 +149,17 @@ namespace cube { namespace resource {
 	ResourcePtr
 	Manager::_manage(Resource& resource)
 	{
-		auto resource_ptr = resource.shared_from_this();
-		if (resource_ptr.use_count() == 1)
-			throw Exception{"This resource has been created on the stack"};
-		return this->manage(std::move(resource_ptr));
+		try {
+			auto resource_ptr = resource.shared_from_this();
+			if (resource_ptr.use_count() == 1)
+				throw Exception{"This resource has been created on the stack"};
+			return this->manage(std::move(resource_ptr));
+		} catch (std::bad_weak_ptr const&) {
+			throw Exception{
+				"Cannot manage resource '" + etc::to_string(resource) +
+				"' created on the stack"
+			};
+		}
 	}
 
 	ResourcePtr
