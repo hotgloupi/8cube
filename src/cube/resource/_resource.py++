@@ -95,11 +95,17 @@ namespace {
 			return result;
 		}
 		static
-		py::object load(Manager& self, py::object cls, boost::filesystem::path path)
+		std::shared_ptr<Resource> load(Manager& self, py::object cls, boost::filesystem::path path)
 		{
-			auto obj = create(self, cls, py::make_tuple(path), py::dict());
-			self.set_loaded(py::extract<Resource&>(obj)(), path);
-			return obj;
+			auto resource_path = self.find(path);
+			if (self.loaded(resource_path))
+			{
+				return self.get(resource_path);
+			}
+			auto obj = create(self, cls, py::make_tuple(resource_path), py::dict());
+			Resource& ref = py::extract<Resource&>(obj)();
+			self.set_loaded(ref, path);
+			return ref.shared_ptr();
 		}
 
 		static
