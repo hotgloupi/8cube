@@ -63,8 +63,26 @@ namespace {
 			// It seems that even with borrowed(), the refcount is incremented
 			Py_DECREF(result_ptr);
 
+
 			try
-			{ self.manage(py::extract<Resource&>(result)()); }
+			{
+				ResourcePtr resource_ptr;
+				// XXX Boost.Python does not honor storage specifications, it
+				// does store the resource as a boost::shared_ptr<Resource>
+				// instead of the std::shared_ptr<Resource> (as asked).  We try
+				// first the correct behavior, then fallback to the hackish
+				// way.
+				try {
+					resource_ptr = py::extract<Resource&>(result)().shared_ptr();
+				} catch (...) {
+					boost::shared_ptr<Resource> ptr =
+						py::extract<boost::shared_ptr<Resource>>(result)();
+					resource_ptr = ResourcePtr(
+						ptr.get(), [ptr](Resource*) mutable {ptr.reset();}
+					);
+				}
+				self.manage(resource_ptr);
+			}
 			catch (py::error_already_set const&)
 			{
 				PyErr_SetString(
