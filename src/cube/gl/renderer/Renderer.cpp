@@ -64,6 +64,7 @@ namespace cube { namespace gl { namespace renderer {
 		assert(_this->states.size() == 1);
 		assert(_this->states.back()->mode == Mode::none);
 		_pop_state();
+		this->shutdown();
 	}
 
 	void Renderer::shutdown()
