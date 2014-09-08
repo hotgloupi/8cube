@@ -53,4 +53,6 @@ class Scene(System):
         )
 
     def shutdown_component(self, entity, component):
-        self.scene.graph.remove(component.node)
+        if component.node.attached:
+            self.scene.graph.remove(component.node)
+        del component.node
