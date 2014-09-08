@@ -17,6 +17,7 @@
 
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
+#include <etc/enum.hpp>
 
 namespace cube { namespace gl { namespace renderer {
 
@@ -55,15 +56,11 @@ namespace cube { namespace gl { namespace renderer {
 		, _this{new Impl{context}}
 	{
 		ETC_TRACE_CTOR("with", _viewport);
-		_push_state(State(Mode::none));
 	}
 
 	Renderer::~Renderer()
 	{
 		ETC_TRACE_DTOR();
-		assert(_this->states.size() == 1);
-		assert(_this->states.back()->mode == Mode::none);
-		_pop_state();
 		this->shutdown();
 	}
 
@@ -75,6 +72,10 @@ namespace cube { namespace gl { namespace renderer {
 
 	system::window::RendererContext& Renderer::context() const ETC_NOEXCEPT
 	{ return _this->context; }
+
+	std::vector<std::shared_ptr<State>> const&
+	Renderer::states() const ETC_NOEXCEPT
+	{ return _this->states; }
 
 	void
 	Renderer::update_projection_matrix()
@@ -97,6 +98,7 @@ namespace cube { namespace gl { namespace renderer {
 			ETC_LOG.debug("New mvp matrix:", state->mvp());
 			break;
 		case Mode::_3d:
+			_this->states.back()->render_state(RenderState::depth_test, true);
 			break;
 		default:
 			throw Exception{"Unknown render mode."};
@@ -107,20 +109,10 @@ namespace cube { namespace gl { namespace renderer {
 	{
 		CUBE_DEBUG_PERFORMANCE_SECTION("cube.Renderer");
 		ETC_TRACE.debug("Begining new state in mode", state.mode);
-		switch (state.mode)
-		{
-		case Mode::none:
-			throw Exception{"Cannot begin rendering in Mode::none."};
-		case Mode::_2d:
-		case Mode::_3d:
-			break;
-		default:
-			throw Exception{"Unknown render mode."};
-		}
 		_push_state(std::move(state));
 		Painter p(*this);
-		this->update_projection_matrix();
-		return p;//Painter(*this);
+		this->update_projection_matrix(); // XXX remove this ?
+		return std::move(p);
 	}
 
 	void Renderer::viewport(cube::gl::viewport::Viewport const& vp)
@@ -159,7 +151,21 @@ namespace cube { namespace gl { namespace renderer {
 				+ etc::to_string(_this->states.back().use_count() - 1)
 				+ " instance left)"
 			);
+
+		auto old_top = _this->states.back();
+
 		_this->states.pop_back();
+		if (_this->states.empty())
+			return;
+
+		// Restore old state (minimizing state changes).
+		auto& top = _this->states.back();
+		for (auto const e: etc::enum_values<RenderState>())
+		{
+			auto s = top->render_state(e);
+			if (s != old_top->render_state(e))
+				_render_state(e, s);
+		}
 	}
 
 	ShaderPtr

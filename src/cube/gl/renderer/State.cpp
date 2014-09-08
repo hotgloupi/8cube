@@ -9,6 +9,7 @@
 #include <etc/log.hpp>
 #include <etc/to_string.hpp>
 #include <etc/stack_ptr.hpp>
+#include <etc/enum.hpp>
 
 #include <glm/gtc/matrix_inverse.hpp>
 
@@ -27,11 +28,14 @@ namespace cube { namespace gl { namespace renderer {
 		etc::stack_ptr<matrix_type>        mvp;
 		etc::stack_ptr<matrix_type>        model_view;
 		etc::stack_ptr<normal_matrix_type> normal;
+		etc::enum_map<RenderState, bool>   render_states;
+		Painter*                           painter;
 
 		Impl()
 			: mvp{etc::stack_ptr_no_init}
 			, model_view{etc::stack_ptr_no_init}
 			, normal{etc::stack_ptr_no_init}
+			, painter{nullptr}
 		{}
 
 		Impl(Impl const& other)
@@ -42,6 +46,8 @@ namespace cube { namespace gl { namespace renderer {
 			, mvp{other.mvp}
 			, model_view{other.model_view}
 			, normal{other.normal}
+			, render_states(other.render_states)
+			, painter{other.painter}
 		{}
 
 		void clear()
@@ -281,9 +287,37 @@ namespace cube { namespace gl { namespace renderer {
 		throw Exception{"Light not found"};
 	}
 
+
+	bool State::render_state(RenderState const state) const ETC_NOEXCEPT
+	{ return _this->render_states[state]; }
+
+	void State::render_state(RenderState const state, bool const value)
+	{
+		if (_this->render_states[state] != value)
+		{
+			_painter()._render_state(state, value);
+			_this->render_states[state] = value;
+		}
+	}
+
+	void State::enable(RenderState const state)
+	{ this->render_state(state, true); }
+
+	void State::disable(RenderState const state)
+	{ this->render_state(state, false); }
+
 	void State::_invariant() const
 	{
 		ETC_ENFORCE(_this != nullptr);
+	}
+
+	void State::_painter(Painter& p)
+	{ _this->painter = &p; }
+
+	Painter& State::_painter()
+	{
+		ETC_ASSERT_NEQ(_this->painter, nullptr);
+		return *_this->painter;
 	}
 
 }}} // !cube::gl::renderer

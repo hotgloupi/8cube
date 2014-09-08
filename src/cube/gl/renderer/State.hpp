@@ -13,6 +13,13 @@
 
 namespace cube { namespace gl { namespace renderer {
 
+	enum class RenderState
+	{
+		depth_test = 0,
+
+		_max_value,
+	};
+
 	///////////////////////////////////////////////////////////////////////////
 	// State class
 	struct CUBE_API State
@@ -146,9 +153,26 @@ namespace cube { namespace gl { namespace renderer {
 		void enable(Texture const& texture);
 		void disable(Texture const& texture);
 
+
+	public:
+		/**
+		 * Enable, disable, get or set some render state.
+		 */
+		void enable(RenderState const state);
+		void disable(RenderState const state);
+		bool render_state(RenderState const state) const ETC_NOEXCEPT;
+		void render_state(RenderState const state, bool const value);
+
 	private:
 		// contract checks.
 		void _invariant() const;
+
+	private:
+		// When pushed in the renderer state stack, the renderer sets it.
+		friend class Renderer;
+		friend class Painter;
+		void _painter(Painter& p);
+		Painter& _painter();
 	};
 
 }}}

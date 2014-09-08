@@ -1,6 +1,9 @@
 #include "State.hpp"
-#include <etc/print.hpp>
+
 #include <cube/python.hpp>
+
+#include <etc/print.hpp>
+#include <etc/meta/select_overload.hpp>
 
 namespace {
 
@@ -38,6 +41,9 @@ BOOST_PYTHON_MODULE(State)
 	typedef State& (State::*set_matrix_t)(matrix_type const&);
 	typedef matrix_type const& (State::*get_matrix_t)() const;
 
+	py::enum_<RenderState>("RenderState")
+		.value("depth_test", RenderState::depth_test)
+	;
 	py::class_<StateHolder, boost::noncopyable>("StateHolder", py::init<Mode>())
 		.add_property(
 			"state",
@@ -88,6 +94,14 @@ BOOST_PYTHON_MODULE(State)
 				static_cast<get_matrix_t>(&State::mvp),
 				py::return_internal_reference<>()
 			)
+		)
+		.def(
+		    "render_state",
+		    etc::meta::select_overload<RenderState const>::of(&State::render_state)
+		)
+		.def(
+		    "render_state",
+		    etc::meta::select_overload<RenderState const, bool const>::of(&State::render_state)
 		)
 
 		.def("translate", static_cast<component_op_t>(&State::translate), py::return_self<>())

@@ -49,6 +49,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 		void clear(cube::gl::renderer::BufferBit flags);
 		void viewport(cube::gl::viewport::Viewport const& vp);
+
+		void _render_state(RenderState const state, bool const value) override;
 	};
 
 	struct RendererType

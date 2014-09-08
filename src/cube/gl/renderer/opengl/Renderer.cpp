@@ -218,6 +218,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		);
 	}
 
+	void GLRenderer::_render_state(RenderState const state, bool const value)
+	{
+		switch (state)
+		{
+		case RenderState::depth_test:
+			if (value) gl::Enable(GL_DEPTH_TEST);
+			else gl::Disable(GL_DEPTH_TEST);
+			break;
+		case RenderState::_max_value:
+			throw Exception{"Invalid boolean state value"};
+		}
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	// RendererType
 

@@ -48,12 +48,10 @@ namespace cube { namespace gl { namespace renderer {
 		Renderer(system::window::RendererContext& context);
 		virtual ~Renderer();
 
-
 		/**
 		 * RendererContext used to create this renderer.
 		 */
 		system::window::RendererContext& context() const ETC_NOEXCEPT;
-
 
 		/**
 		 * Embedded resource manager/
@@ -80,6 +78,12 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		virtual
 		Painter begin(Mode mode) = 0;
+
+		/**
+		 * Retrieve the state stack.
+		 */
+		std::vector<std::shared_ptr<State>> const&
+		states() const ETC_NOEXCEPT;
 	protected:
 		/**
 		 * This method is meant to be used by the implementation sub class.
@@ -288,6 +292,13 @@ namespace cube { namespace gl { namespace renderer {
 		LightPtr _new_light(SpotLightInfo info);
 		virtual
 		LightPtr _new_light(CustomLightInfoPtr info);
+
+	protected:
+		/**
+		 * Called through the painter.
+		 */
+		virtual
+		void _render_state(RenderState const state, bool const value) = 0;
 
 	public:
 		///
