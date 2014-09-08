@@ -11,7 +11,7 @@ from .RenderTarget import RenderTarget
 from .ShaderGenerator import ShaderGenerator, ShaderRoutine
 from .Shader import Shader
 from .ShaderProgram import ShaderProgram
-from .State import State
+from .State import State, RenderState
 from .Texture import Texture
 from .VertexBufferAttribute import make_vertex_buffer_attribute as make_vba
 from .VertexBuffer import VertexBuffer
