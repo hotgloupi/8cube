@@ -20,7 +20,10 @@ namespace cube { namespace gl { namespace renderer {
 	Painter::Painter(Renderer& renderer)
 		: _renderer(renderer)
 		, _state_count{1}
-	{ ETC_TRACE_CTOR(); }
+	{
+		ETC_TRACE_CTOR();
+		renderer.states().back()->_painter(*this);
+	}
 
 	Painter::Painter(Painter&& other)
 		: _renderer(other._renderer)
@@ -33,6 +36,9 @@ namespace cube { namespace gl { namespace renderer {
 				"A painter cannot be moved while it still has bound drawables"
 			};
 		other._state_count = 0;
+		for (auto const& state: _renderer.states())
+			if (&state->_painter() == &other)
+				state->_painter(*this);
 	}
 
 	Painter::~Painter()
@@ -49,7 +55,9 @@ namespace cube { namespace gl { namespace renderer {
 	std::weak_ptr<State> Painter::push_state()
 	{
 		ETC_TRACE.debug(*this, "Pushing new state");
-		_renderer._push_state(State{*this->state().lock()});
+		State state{*this->state().lock()};
+		state._painter(*this);
+		_renderer._push_state(std::move(state));
 		_state_count += 1;
 		return this->state();
 	}
@@ -133,5 +141,8 @@ namespace cube { namespace gl { namespace renderer {
 		Bindable::Guard guard{vertices, this->state()};
 		_renderer.draw_arrays(mode, start, count);
 	}
+
+	void Painter::_render_state(RenderState const state, bool const value)
+	{ _renderer._render_state(state, value); }
 
 }}} //!cube::gl::renderer

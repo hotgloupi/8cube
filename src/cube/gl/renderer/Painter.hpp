@@ -5,6 +5,7 @@
 # include "Bindable.hpp"
 # include "Drawable.hpp"
 # include "Exception.hpp"
+# include "State.hpp"
 
 # include <etc/compiler.hpp>
 # include <etc/log.hpp>
@@ -102,6 +103,15 @@ namespace cube { namespace gl { namespace renderer {
 			this->_draw_dispatch(std::forward<First>(view));
 			return this->draw(std::forward<Args>(args)...);
 		}
+
+	protected:
+		/**
+		 * Called by the State class when something needs to be changed.
+		 * Default implementation directly forward to the renderer.
+		 */
+		friend class State;
+		virtual
+		void _render_state(RenderState const state, bool const value);
 
 	private:
 		Painter& draw() { return *this; }
