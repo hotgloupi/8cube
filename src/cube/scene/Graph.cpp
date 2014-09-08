@@ -115,6 +115,15 @@ namespace cube { namespace scene {
 			};
 
 		auto id = it->second;
+		{
+			Impl::adjacency_iterator it, end;
+			boost::tie(it, end) = boost::adjacent_vertices(id, _this->graph);
+			for (; it != end; ++it)
+			{
+				Node* child = boost::get(_this->vertex_node_map, *it);
+				this->remove(*child);
+			}
+		}
 		auto deleter = boost::get(_this->vertex_node_deleter_map, id);
 		boost::clear_vertex(id, _this->graph);
 		boost::remove_vertex(id, _this->graph);
