@@ -10,6 +10,10 @@ namespace etc { namespace meta {
 		static auto of(Ret (Class::*fn)(Args...)) -> decltype(fn)
 		{ return fn; }
 
+		template<typename Ret, typename Class>
+		static auto of(Ret (Class::*fn)(Args...) const) -> decltype(fn)
+		{ return fn; }
+
 		template<typename Ret>
 		static auto of(Ret (*fn)(Args...)) -> decltype(fn)
 		{ return fn; }
