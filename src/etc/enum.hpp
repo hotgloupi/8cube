@@ -25,8 +25,14 @@ namespace etc {
 	enum_size() { return enum_cast<size_t>(E::_max_value); }
 
 	template<typename E>
-	std::array<E, static_cast<size_t>(E::_max_value)>
-	enum_values()
+	struct enum_traits
+	{
+		static size_t const size = static_cast<size_t>(E::_max_value);
+	};
+
+	template<typename E>
+	auto enum_values()
+	-> std::array<E, enum_traits<E>::size>
 	{
 		std::array<E, static_cast<size_t>(E::_max_value)> res;
 		for (size_t i = 0; i < res.size(); i++)
