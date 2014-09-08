@@ -193,6 +193,7 @@ BOOST_PYTHON_MODULE(Node)
 		.def("emplace_child", py::raw_function(&node_emplace))
 		.def("insert_child", &node_insert_child)
 		.add_property("children", &node_children)
+		.add_property("attached", &Node::attached)
 	;
 
 	py::to_python_converter<Node, node_to_python>();
