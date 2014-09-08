@@ -18,6 +18,22 @@ namespace etc {
 		return static_cast<To>(value);
 	}
 
+	// Return the number of enum values.
+	template <typename E, typename To = size_t>
+	inline ETC_CONSTEXPR
+	typename std::enable_if<std::is_enum<E>::value, To>::type
+	enum_size() { return enum_cast<size_t>(E::_max_value); }
+
+	template<typename E>
+	std::array<E, static_cast<size_t>(E::_max_value)>
+	enum_values()
+	{
+		std::array<E, static_cast<size_t>(E::_max_value)> res;
+		for (size_t i = 0; i < res.size(); i++)
+			res[i] = static_cast<E>(i);
+		return res;
+	}
+
 	// Hash enums in an unordered container easily.
 	struct enum_hash
 	{
@@ -32,13 +48,18 @@ namespace etc {
 	template<typename E, typename T>
 	struct enum_map
 	{
-		std::array<T, static_cast<unsigned>(E::_max_value)> _value;
+		typedef typename std::underlying_type<E>::type index_type;
+
+		std::array<T, static_cast<index_type>(E::_max_value)> _value;
 
 		inline T& operator [](E const e) ETC_NOEXCEPT
-		{ return _value[static_cast<unsigned>(e)]; }
+		{ return _value[static_cast<index_type>(e)]; }
 
 		inline T const& operator [](E const e) const ETC_NOEXCEPT
-		{ return _value[static_cast<unsigned>(e)]; }
+		{ return _value[static_cast<index_type>(e)]; }
+
+		inline void size() const ETC_NOEXCEPT
+		{ return static_cast<index_type>(E::_max_value); }
 	};
 
 
