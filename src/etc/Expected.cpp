@@ -4,6 +4,12 @@
 
 namespace etc {
 
+	// On OSX using clang-3.5, declaring this exception type in an anonymous namespace make this code crash:
+	//     try { throw TestException(); }
+	//     catch (TestException const&) { /* We never reach this code */ }
+	// This is why the struct is here ...
+	struct TestException {};
+
 	namespace {
 
 #define CHECK_THROW(expr, type, message) \
@@ -177,7 +183,6 @@ namespace etc {
 
 		ETC_TEST_CASE(from_exception)
 		{
-			struct TestException {};
 			{
 				auto e = Expected<int>(std::make_exception_ptr(TestException()));
 				ETC_ENFORCE(!e.valid());
