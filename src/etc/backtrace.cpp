@@ -84,7 +84,11 @@ namespace etc { namespace backtrace {
 #endif
 
 
+#if defined(ETC_PLATFORM_OSX)
+		for (unsigned i = 1; i < frames; ++i)
+#else
 		for (unsigned i = 0; i < frames; ++i)
+#endif
 		{
 			StackFrame frame;
 #ifdef _WIN32
