@@ -4,6 +4,10 @@
 
 namespace etc {
 
+	// See Expected.cpp for the reasoning on why this struct is not in the
+	// anonymous namespace.
+	struct TestException {};
+
 	namespace {
 
 		ETC_TEST_CASE(get_int)
@@ -14,7 +18,6 @@ namespace etc {
 
 		ETC_TEST_CASE(throw_something)
 		{
-			struct TestException {};
 			try
 			{
 				With<int>(
