@@ -41,7 +41,7 @@ namespace etc {
 		 * Expected is valid and its value can be retreived safely.
 		 */
 		template<typename... Args>
-		Expected(Args&&... args) ETC_NOEXCEPT
+		explicit Expected(Args&&... args) ETC_NOEXCEPT
 		{ storage_type::_init(std::forward<Args>(args)...); }
 
 		// Those two constructors are here to allow return value optimizations.
