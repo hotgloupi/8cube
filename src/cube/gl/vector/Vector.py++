@@ -39,6 +39,28 @@ namespace {
 
 	};
 
+	template<typename T, etc::size_type arity> struct VectorPickleSuite;
+	template<typename T> struct VectorPickleSuite<T, 2>
+		: public boost::python::pickle_suite
+	{
+		static boost::python::tuple getinitargs(T const& v)
+		{ return boost::python::make_tuple(v[0], v[1]); }
+	};
+	template<typename T> struct VectorPickleSuite<T, 3>
+		: public boost::python::pickle_suite
+	{
+		static
+		boost::python::tuple getinitargs(T const& v)
+		{ return boost::python::make_tuple(v[0], v[1], v[2]); }
+	};
+	template<typename T> struct VectorPickleSuite<T, 4>
+		: public boost::python::pickle_suite
+	{
+		static
+		boost::python::tuple getinitargs(T const& v)
+		{ return boost::python::make_tuple(v[0], v[1], v[2], v[4]); }
+	};
+
 }
 
 BOOST_PYTHON_MODULE(Vector)
@@ -59,6 +81,7 @@ BOOST_PYTHON_MODULE(Vector)
 		"__setitem__",                                                        \
 		&Wrap<Vector ## __arity<__value_type>, __arity>::setitem              \
 	)                                                                         \
+	.def_pickle(VectorPickleSuite<Vector ## __arity<__value_type>, __arity>())\
 /**/
 
 #define _EXPORT_VECTOR(__value_type, __type, __type_str)                      \
