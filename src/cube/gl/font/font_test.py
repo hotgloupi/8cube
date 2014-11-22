@@ -56,8 +56,8 @@ class _(PainterSetup, Case):
         font = gl.Font(self.renderer, font_info, 48)
         self.assertIsNotNone(font)
 
-        text = font.generate_text("This is a test")
-        self.assertIsInstance(text, gl.VertexBuffer)
+        #text = font.generate_text("This is a test")
+        #self.assertIsInstance(text, gl.VertexBuffer)
         self.assertIsInstance(font.texture, gl.Texture)
 
 
