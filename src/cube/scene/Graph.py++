@@ -15,9 +15,10 @@ namespace {
 
 	Graph* graph_with_root_node(py::object o)
 	{
+		node::Node& root_node = py::extract<node::Node&>(o)();
 		PyObject* ptr = py::incref(o.ptr());
 		return new Graph{
-			py::extract<node::Node&>(o)(),
+			root_node,
 			[=] (node::Node* n) {
 				ETC_LOG.debug(
 					"Decrement python instance",
