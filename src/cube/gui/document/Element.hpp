@@ -1,6 +1,8 @@
 #ifndef  CUBE_GUI_DOCUMENT_ELEMENT_HPP
 # define CUBE_GUI_DOCUMENT_ELEMENT_HPP
 
+# include <cube/api.hpp>
+
 # include <boost/optional.hpp>
 
 # include <memory>
