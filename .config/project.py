@@ -657,7 +657,7 @@ def main(build):
         directory  = 'release/lib',
         libraries = libcube_libs,
         precompiled_headers = precompiled_headers,
-        defines = ['CUBE_BUILD_DYNAMIC_LIBRARY'],
+        defines = ['CUBE_BUILD_DYNAMIC_LIBRARY', 'ROCKET_STATIC_LIB'],
     )
 
 
