@@ -1,0 +1,32 @@
+#include "Element.hpp"
+
+#include <cube/python.hpp>
+
+using cube::gui::document::Element;
+namespace py = boost::python;
+
+namespace {
+
+	py::object first_child(Element& self)
+	{
+		if (auto el = self.first_child())
+			return py::object(*el);
+		return py::object();
+	}
+
+}
+
+BOOST_PYTHON_MODULE(Element)
+{
+	py::class_<Element>("Element", py::no_init)
+		.add_property(
+			"text",
+			py::select_getter(&Element::text),
+			py::select_setter(&Element::text)
+		)
+		.add_property(
+			"first_child",
+			&first_child
+		)
+	;
+}

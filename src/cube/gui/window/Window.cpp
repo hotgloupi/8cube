@@ -1,9 +1,11 @@
 #include "WindowImpl.hpp"
 
-#include <cube/gl/renderer/Renderer.hpp>
 #include <cube/gl/renderer/Painter.hpp>
+#include <cube/gl/renderer/Renderer.hpp>
+#include <cube/gui/document/DocumentImpl.hpp>
 
 #include <etc/assert.hpp>
+#include <etc/scope_exit.hpp>
 
 #include <fstream>
 
@@ -80,7 +82,7 @@ namespace cube { namespace gui { namespace window {
 	void Window::swap_buffers()
 	{ _this->root_window->swap_buffers(); }
 
-	void Window::load_document(boost::filesystem::path const& p)
+	document::Document Window::load_document(boost::filesystem::path const& p)
 	{
 		size_t size = boost::filesystem::file_size(p);
 		std::ifstream file(p.string());
@@ -90,7 +92,7 @@ namespace cube { namespace gui { namespace window {
 		return this->load_document(data);
 	}
 
-	void Window::load_document(std::string const& src)
+	document::Document Window::load_document(std::string const& src)
 	{
 		ETC_TRACE.debug(
 			"Loading document from string:", etc::io::newlinesep(), src
@@ -100,7 +102,29 @@ namespace cube { namespace gui { namespace window {
 		if (d == nullptr)
 			throw Exception{"Couldn't load '" + src + "': "};
 		d->Show();
-		d->RemoveReference();
+		ETC_SCOPE_EXIT{ d->RemoveReference(); };
+		return document::Document{std::make_shared<document::Document::Impl>(d)};
+	}
+
+	document::Document Window::create_document()
+	{
+		auto d = _this->rocket_context->CreateDocument();
+		ETC_SCOPE_EXIT{ d->RemoveReference(); };
+		return document::Document{std::make_shared<document::Document::Impl>(d)};
+	}
+
+	std::vector<document::Document> Window::documents()
+	{
+		std::vector<document::Document> res;
+		for (etc::size_type i = 0, count = _this->rocket_context->GetNumDocuments();
+		     i < count;
+		     i++)
+			res.emplace_back(
+				std::make_shared<document::Document::Impl>(
+					_this->rocket_context->GetDocument(i)
+				)
+			);
+		return res;
 	}
 
 	void Window::add_font(boost::filesystem::path const& p)

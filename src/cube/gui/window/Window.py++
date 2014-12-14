@@ -13,6 +13,18 @@ using cube::gui::window::Window;
 using etc::meta::select_overload;
 namespace py = boost::python;
 
+namespace {
+
+	py::list window_documents(Window& self)
+	{
+		py::list res;
+		for (auto&& el: self.documents())
+			res.append(el);
+		return res;
+	}
+
+}
+
 BOOST_PYTHON_MODULE(Window)
 {
 	py::class_<Window, boost::noncopyable>("Window", py::no_init)
@@ -41,12 +53,14 @@ BOOST_PYTHON_MODULE(Window)
 			"load_document",
 			select_overload<boost::filesystem::path const&>::of(&Window::load_document)
 		)
+		.def("create_document", &Window::create_document)
 		.def("add_font", &Window::add_font)
 		.def("show", &Window::show)
 		.def("hide", &Window::hide)
 		.def("shutdown", &Window::shutdown)
 		.add_property("inputs", py::make_function(&Window::inputs, py::return_internal_reference<>()))
 		.add_property("system_window", py::make_function(&Window::system_window, py::return_internal_reference<>()))
+		.add_property("documents", &window_documents)
 	;
 }
 

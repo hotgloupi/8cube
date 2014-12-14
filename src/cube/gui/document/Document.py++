@@ -1,0 +1,32 @@
+#include "Document.hpp"
+#include "Element.hpp"
+
+#include <cube/python.hpp>
+
+using cube::gui::document::Document;
+namespace py = boost::python;
+
+namespace {
+
+	py::object element_by_id(Document& self, std::string const& id)
+	{
+		if (auto el = self.by_id(id))
+			return py::object(*el);
+		return py::object();
+	}
+
+}
+
+BOOST_PYTHON_MODULE(Document)
+{
+	py::class_<Document>("Document", py::no_init)
+		.def(py::self == py::self)
+		.def(py::self != py::self)
+		.add_property(
+			"title",
+			py::select_getter(&Document::title),
+			py::select_setter(&Document::title)
+		)
+		.def("by_id", &element_by_id)
+	;
+}
