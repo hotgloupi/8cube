@@ -3,6 +3,8 @@
 
 # include "fwd.hpp"
 
+# include <cube/api.hpp>
+
 # include <etc/compiler.hpp>
 
 # include <boost/optional.hpp>
@@ -11,7 +13,7 @@
 
 namespace cube { namespace gui { namespace document {
 
-	class Document
+	class CUBE_API Document
 	{
 	public:
 		struct Impl;

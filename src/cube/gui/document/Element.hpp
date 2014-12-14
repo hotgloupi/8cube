@@ -8,7 +8,7 @@
 
 namespace cube { namespace gui { namespace document {
 
-	class Element
+	class CUBE_API Element
 	{
 	public:
 		struct Impl;
