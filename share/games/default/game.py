@@ -1,4 +1,6 @@
 
+import time
+
 import cubeapp
 import cube
 from cube import gl, units
@@ -16,7 +18,7 @@ DOCUMENT = """
     </style>
     </head>
     <body>
-        <p>8cube framework</p>
+        <p id="title">8cube framework</p>
     </body>
 </rml>
 """
@@ -26,7 +28,8 @@ class Game(cubeapp.game.Game):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.window.add_font(self.directory / 'FreeMono.ttf')
-        self.window.load_document(DOCUMENT)
+        document = self.window.load_document(DOCUMENT)
+        self.title = document.by_id("title")
         self.cube = self.create_cube()
         self.light = self.renderer.new_light(
             gl.PointLightInfo(
@@ -36,6 +39,7 @@ class Game(cubeapp.game.Game):
             )
         )
         self.scene_view = self.scene.drawable(self.renderer)
+        self.last_time = time.time()
 
     def create_cube(self):
         mat = gl.Material('cube')
@@ -64,6 +68,9 @@ class Game(cubeapp.game.Game):
 
 
     def render(self):
+        new_time = time.time()
+        self.title.text = "%.2f ms" % ((new_time - self.last_time) * 1000)
+        self.last_time = new_time
         with self.renderer.begin(gl.mode_3d) as painter:
             painter.state.look_at(
                 gl.vec3f(0,0,-10), gl.vec3f(0, 0, 0), gl.vec3f(0, 1, 0)
