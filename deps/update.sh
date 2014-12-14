@@ -163,7 +163,7 @@ BZIP2_URL=http://www.bzip.org/${BZIP2_VERSION}/${BZIP2_TARBALL}
 ############################## libRocket ######################################
 debug "Update libRocket"
 
-LIBROCKET_URL="https://github.com/libRocket/libRocket.git"
+LIBROCKET_URL="https://github.com/hotgloupi/libRocket.git"
 LIBROCKET_NAME="libRocket"
 LIBROCKET_VERSION=master
 
