@@ -97,7 +97,7 @@ namespace cube { namespace gui { namespace window {
 		ETC_TRACE.debug(
 			"Loading document from string:", etc::io::newlinesep(), src
 		);
-		_this->rocket_context->UnloadAllDocuments();
+		//_this->rocket_context->UnloadAllDocuments();
 		auto d = _this->rocket_context->LoadDocumentFromMemory(src.c_str());
 		if (d == nullptr)
 			throw Exception{"Couldn't load '" + src + "': "};
@@ -126,6 +126,12 @@ namespace cube { namespace gui { namespace window {
 			);
 		return res;
 	}
+
+	void Window::remove_all_documents()
+	{ _this->rocket_context->UnloadAllDocuments(); }
+
+	void Window::remove_document(document::Document const& doc)
+	{ _this->rocket_context->UnloadDocument(doc._this->element); }
 
 	void Window::add_font(boost::filesystem::path const& p)
 	{

@@ -54,13 +54,15 @@ BOOST_PYTHON_MODULE(Window)
 			select_overload<boost::filesystem::path const&>::of(&Window::load_document)
 		)
 		.def("create_document", &Window::create_document)
+		.add_property("documents", &window_documents)
+		.def("remove_document", &Window::remove_document)
+		.def("remove_all_documents", &Window::remove_all_documents)
 		.def("add_font", &Window::add_font)
 		.def("show", &Window::show)
 		.def("hide", &Window::hide)
 		.def("shutdown", &Window::shutdown)
 		.add_property("inputs", py::make_function(&Window::inputs, py::return_internal_reference<>()))
 		.add_property("system_window", py::make_function(&Window::system_window, py::return_internal_reference<>()))
-		.add_property("documents", &window_documents)
 	;
 }
 

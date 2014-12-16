@@ -41,6 +41,8 @@ namespace cube { namespace gui { namespace window {
 		document::Document load_document(std::string const& src);
 		document::Document create_document();
 		std::vector<document::Document> documents();
+		void remove_all_documents();
+		void remove_document(document::Document const& doc);
 
 	public:
 		void add_font(boost::filesystem::path const& p);
