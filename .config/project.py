@@ -48,7 +48,7 @@ class Assimp(CMakeDependency):
                 ('Boost_DETAILED_FAILURE_MSG', True),
                 ('Boost_NO_SYSTEM_PATHS', True),
                 ('Boost_NO_CMAKE', True,),
-                ('Boost_ADDITIONAL_VERSIONS', '1.55'),
+                ('Boost_ADDITIONAL_VERSIONS', "%s.%s.0" % boost.version),
                 ('ASSIMP_BUILD_ASSIMP_TOOLS', False),
                 ('ASSIMP_BUILD_STATIC_LIB', not shared),
                 ('ASSIMP_BUILD_SAMPLES', False),
@@ -474,8 +474,8 @@ def main(build):
     boost = build.add_dependency(
         cxx.libraries.BoostDependency,
         compiler,
-        'deps/Boost_1_55_0',
-        version = (1, 55),
+        'deps/boost_1_57_0',
+        version = (1, 57),
         python = python,
         components = [
             'format',

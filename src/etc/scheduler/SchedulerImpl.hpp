@@ -17,6 +17,7 @@
 # include <vector>
 # include <queue>
 # include <unordered_set>
+# include <map>
 
 namespace etc { namespace scheduler {
 
@@ -181,6 +182,12 @@ namespace etc { namespace scheduler {
 					_jobs_stack.pop_back();
 				};
 				job->coro();
+				if (job->exception != nullptr && job->_yield == nullptr)
+				{
+					// The job is done but has an exception
+					ETC_SCOPE_EXIT{ job->exception = std::exception_ptr{}; };
+					std::rethrow_exception(job->exception);
+				}
 			}
 			catch (...)
 			{

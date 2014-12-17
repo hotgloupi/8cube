@@ -69,14 +69,14 @@ fi
 ( try cd ${PYTHON_DIR} && hg pull && hg update && hg checkout ${PYTHON_VERSION} )
 
 ################################ Boost ########################################
-BOOST_VERSION=1_55_0
-BOOST_DIR=Boost_${BOOST_VERSION}
+BOOST_DIR=boost_1_57_0
+BOOST_TARBALL="${BOOST_DIR}.tar.gz"
+BOOST_URL="http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fboost%2Ffiles%2Fboost%2F1.57.0%2F&ts=1418808100&use_mirror=freefr"
 debug "Updating ${BOOST_DIR}"
 if [ ! -d ${BOOST_DIR} ]
 then
-	try svn co http://svn.boost.org/svn/boost/tags/release/${BOOST_DIR} ${BOOST_DIR}
-else
-	( try cd ${BOOST_DIR} && svn update )
+	[ ! -f "${BOOST_TARBALL}" ] && try fetch "${BOOST_URL}" "${BOOST_TARBALL}"
+	try tar xf "${BOOST_TARBALL}"
 fi
 
 ################################ SDL ##########################################

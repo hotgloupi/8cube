@@ -8,21 +8,21 @@
 # include <etc/scope_exit.hpp>
 
 # include <boost/noncopyable.hpp>
-# include <boost/coroutine/coroutine.hpp>
+# include <boost/coroutine/symmetric_coroutine.hpp>
 
 namespace etc { namespace scheduler {
 
-	typedef boost::coroutines::coroutine<void()> coroutine_type;
+	typedef boost::coroutines::symmetric_coroutine<void> coroutine_type;
 
 	struct Context
 		: private boost::noncopyable
 	{
 		ETC_LOG_COMPONENT("etc.scheduler.Context");
 
-		coroutine_type* _yield;
+		coroutine_type::yield_type* _yield;
 		Context* _parent;
 		std::string name;
-		coroutine_type coro;
+		coroutine_type::call_type coro;
 		std::exception_ptr exception;
 
 		template<typename Handler>
@@ -33,13 +33,15 @@ namespace etc { namespace scheduler {
 			, _parent{parent}
 			, name(std::move(name))
 			, coro(
-				[hdlr, this] (coroutine_type& ca) {
+				[hdlr, this] (coroutine_type::yield_type& ca) {
 					ETC_LOG.debug("Initiated context", this->name, &ca, &this->coro);
 					ca();
 					ETC_LOG.debug("Awaken context", this->name);
 					_yield = &ca;
 					ETC_SCOPE_EXIT{ _yield = nullptr; };
-					hdlr(*this);
+					try { hdlr(*this); }
+					// XXX let force_unwind here ?
+					catch (...) { this->exception = std::current_exception(); }
 				}
 			)
 		{ ETC_TRACE_CTOR(this->name); }

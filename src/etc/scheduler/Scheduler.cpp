@@ -177,11 +177,14 @@ namespace etc { namespace scheduler {
 					}
 				);
 			});
-			try { r.run(); ETC_ERROR("Should have thrown"); }
+			bool succeeded = false;
+			try { r.run(); succeeded = true; }
 			catch (std::runtime_error const& err)
 			{ /*ETC_ENFORCE_EQ(err.what(), std::string("inner"));*/ }
 			catch (...)
 			{ ETC_ERROR("Invalid exception type caught: " + exception::string()); }
+			if (succeeded)
+				ETC_ERROR("Should have thrown");
 		}
 
 		ETC_TEST_CASE(interrupt)

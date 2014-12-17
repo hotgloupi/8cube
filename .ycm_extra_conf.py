@@ -17,7 +17,7 @@ include_dirs = [
     'src/glew',
     'deps/SDL/include',
     'deps/SDL_image',
-    'deps/Boost_1_55_0',
+    'deps/boost_1_57_0',
     'build/dependencies/Python34/gcc/release/no-pymalloc/install/include/python3.4',
     'build/dependencies/Python34/clang/release/no-pymalloc/install/include/python3.4',
     'deps/freetype2/include',
@@ -123,7 +123,7 @@ def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):
   return new_flags
 
 
-def FlagsForFile( filename ):
+def FlagsForFile( filename, **kw):
   if database:
     # Bear in mind that compilation_info.compiler_flags_ does NOT return a
     # python list, but a "list-like" StringVec object

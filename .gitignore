@@ -11,7 +11,8 @@ deps/SDL_image
 .DS_Store
 deps/curl*
 deps/bullet*
-deps/Boost_1_55_0/
+deps/boost_1_57_0/
+deps/Boost_1_57_0.tar.gz
 deps/Python-v3.4.0/
 deps/bzip2-1.0.6.tar.gz
 deps/bzip2-1.0.6/
