@@ -51,7 +51,7 @@ else
 		fetch()
 		{
 			debug "curl $1 -> $2"
-			curl "$1" -o "$2"
+			curl -L "$1" -o "$2"
 		}
 	else
 		fatal "Cannot fetch from internet (wget and curl commands not found)"
