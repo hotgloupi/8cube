@@ -517,6 +517,7 @@ def main(build):
         shared = platform.IS_WINDOWS,
         audio = False,
         haptic = False, # Fails on windows
+        dynamic_api = False,
     )
     sdl_image = build.add_dependency(
         c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image',
