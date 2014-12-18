@@ -5,7 +5,6 @@
 #include <etc/assert.hpp>
 #include <etc/log.hpp>
 
-#define STATIC_LIB
 #include <Rocket/Debugger.h>
 #include <Rocket/Core/Core.h>
 #include <Rocket/Controls.h>
