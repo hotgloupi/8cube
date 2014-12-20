@@ -3,6 +3,7 @@ from cube import gl
 
 import threading
 import math
+import copy
 
 class Renderer:
 
@@ -40,28 +41,32 @@ class Renderer:
         self.__chunks = {}
         self.__chunks_lock = threading.Lock()
 
-    def add_chunk(self, chunk):
+    def add_chunks(self, chunks):
         with self.__chunks_lock:
-            self.__chunks.setdefault(chunk.node.size, set()).add(chunk)
+            for chunk in chunks:
+                self.__chunks.setdefault(chunk.node.size, set()).add(chunk)
 
 
-    def remove_chunk(self, chunk):
+    def remove_chunks(self, chunks):
         with self.__chunks_lock:
-            self.__chunks.setdefault(chunk.node.size, set()).remove(chunk)
+            for chunk in chunks:
+                self.__chunks.setdefault(chunk.node.size, set()).remove(chunk)
 
     def render(self, referential, painter):
         with self.__chunks_lock:
+            chunks = copy.deepcopy(self.__chunks)
             state = painter.push_state()
             state.render_state(gl.RenderState.depth_test, False)
-            keys = reversed(sorted(self.__chunks.keys()))
+            keys = reversed(sorted(chunks.keys()))
             for k in keys:
                 lod = int(math.log(k, 2))
                 if lod not in self.__materials:
+                    print("ignor3d")
                     continue
                 self.__render_size(
                     k,
                     self.__materials[lod],
-                    self.__chunks[k],
+                    chunks[k],
                     referential,
                     painter,
                     state

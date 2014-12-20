@@ -43,33 +43,26 @@ class World:
         self.__thread.start()
 
     def update(self, camera, referential):
-        self.__referential = referential
-        self.__position = gl.vec3d(
-            referential.x + camera.position.x / Chunk.size,
-            referential.y + camera.position.y / Chunk.size,
-            referential.z + camera.position.z / Chunk.size,
-        )
+        self.__referential = tree.Node(referential, 1)
         self.__frustum = camera.frustum
 
     def __run(self):
         while self.__running:
-            time.sleep(0)
-            nodes = set(tree.find_nodes(
-                self.__tree,
-                self.__position,
-                self.__frustum
+            nodes = set(tree.find_close_nodes(
+                self.__referential,
             ))
             to_add = nodes.difference(self.__nodes)
             to_remove = self.__nodes.difference(nodes)
-            self.__nodes = nodes # .update(to_add)
-            for node in to_add:
-                self.__renderer.add_chunk(self.__get_chunk(node))
-            #for node in to_remove:
-            #    self.__renderer.remove_chunk(self.__get_chunk(node))
+            if to_add:
+                self.__nodes = nodes # .update(to_add)
+                self.__renderer.remove_chunks(self.__get_chunk(node) for node in to_remove)
+                self.__renderer.add_chunks(self.__get_chunk(node) for node in to_add)
+            else:
+                time.sleep(.5)
 
     def stop(self):
         if not self.__running:
-            raise Exception("Not running")
+            return
         self.__running = False
         self.__thread.join()
 
@@ -81,6 +74,6 @@ class World:
         return chunk
 
     def render(self, painter):
-        self.__renderer.render(self.__referential, painter)
+        self.__renderer.render(self.__referential.origin, painter)
         return
 

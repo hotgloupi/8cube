@@ -158,6 +158,11 @@ namespace cubeapp { namespace world { namespace tree {
 
 	template<typename size_type>
 	CUBEAPP_API
+	std::vector<Node<size_type>>
+	find_close_nodes(Node<size_type> const& pos);
+
+	template<typename size_type>
+	CUBEAPP_API
 	std::ostream& operator <<(std::ostream& out, Node<size_type> const& node);
 
 }}}

@@ -19,6 +19,21 @@ namespace {
 
 	template<typename size_type>
 	boost::python::list
+	_find_close_nodes(Node<size_type> const& pos)
+	{
+		std::vector<Node<size_type>> nodes;
+		Py_BEGIN_ALLOW_THREADS
+		nodes = find_close_nodes(pos);
+		Py_END_ALLOW_THREADS
+
+		py::list res;
+		for (auto const& node: nodes)
+			res.append(node);
+		return res;
+	}
+
+	template<typename size_type>
+	boost::python::list
 	_find_nodes(Tree<size_type> const& tree,
 	            cube::gl::vector::Vector3d const& pos,
 	            cube::gl::frustum::Frustumd const& frustum)
@@ -51,6 +66,15 @@ namespace {
 		);
 	}
 
+	template<typename size_type>
+	struct NodePickleSuite
+		: public py::pickle_suite
+	{
+		static
+		py::tuple getinitargs(Node<size_type> const& self)
+		{ return py::make_tuple(self.origin, self.size); }
+	};
+
 }
 
 BOOST_PYTHON_MODULE(tree)
@@ -66,12 +90,14 @@ BOOST_PYTHON_MODULE(tree)
 	;
 
 	py::def("find_nodes", &_find_nodes<int64_t>);
+	py::def("find_close_nodes", &_find_close_nodes<int64_t>);
 
 	py::class_<Node<int64_t>>("Node", py::init<typename Tree<int64_t>::vector_type, int64_t>() )
 		.def_readonly("origin", &Node<int64_t>::origin)
 		.def_readonly("size", &Node<int64_t>::size)
 		.def("__str__", &py::stringof<Node<int64_t>>)
 		.def("__hash__", &hash_node<int64_t>)
+		.def_pickle(NodePickleSuite<int64_t>())
 		.def(py::self == py::self)
 	;
 }
