@@ -465,7 +465,7 @@ def main(build):
             c.libraries.PythonDependency,
             c_compiler,
             'deps/Python-v3.4.0',
-            shared = platform.IS_LINUX,
+            shared = True, #platform.IS_LINUX,
             version = (3, 4),
             pymalloc = False,
             with_valgrind_support = False,
@@ -585,7 +585,7 @@ def main(build):
             base_libraries.extend(
                 c.libraries.simple(name, compiler, macosx_framework = True)
                 for name in [
-                    'ForceFeedback', 'IOKit', 'Cocoa', 'Carbon',
+                    'ForceFeedback', 'IOKit', 'Cocoa', 'Carbon', 'CoreVideo'
                     # 'AudioUnit', 'CoreAudio', 'AudioToolbox', # SDL Audio disabled
                 ]
             )
@@ -718,6 +718,7 @@ def main(build):
         ["src/cubeapp/main.cpp"],
         directory = "release/bin",
         libraries = infinit_cube_libraries,
+        export_static_libraries = python.libraries,
     )
 
 
