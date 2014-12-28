@@ -109,7 +109,7 @@ namespace cube { namespace gl { namespace renderer {
 		 * Called by the State class when something needs to be changed.
 		 * Default implementation directly forward to the renderer.
 		 */
-		friend class State;
+		friend struct State;
 		virtual
 		void _render_state(RenderState const state, bool const value);
 
