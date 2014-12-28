@@ -41,9 +41,13 @@ namespace etc { namespace log {
 # if ((defined(__GNUC__) && __GNUC__ == 4 &&  __GNUC_MINOR__ <= 7 ) && !defined(__clang__)) || \
 			defined(BOOST_MSVC) || defined(__clang__)
 			static boost::thread_specific_ptr<Indent> indent;
-			if (indent.get() == nullptr)
-				indent.reset(new Indent);
-			return *indent;
+			Indent* ptr = indent.get();
+			if (ptr == nullptr)
+			{
+				ptr = new Indent;
+				indent.reset(ptr);
+			}
+			return *ptr;
 #else
 			static thread_local Indent value;
 			return value;
