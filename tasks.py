@@ -61,7 +61,7 @@ class Context(tempfile.TemporaryDirectory):
 
     def log(self, *args, **kw):
         silent = kw.pop('silent', False)
-        if not silent:
+        if not silent or True:
             print(*args)
         print("->", *args, file = self.log_file)
 
@@ -259,10 +259,13 @@ def fix_unix_libraries(ctx, dest_dir):
         for l in lines:
             if l.startswith('path '):
                 yield l.split(' ')[1]
+        if sys.platform.lower().startswith("darwin"):
+            yield '/Library/Frameworks'
 
     def solve_rpath_dependency(binary_path, dependency):
         dep = '/'.join(dependency.split('/')[1:])
-        for dir in ctx.get_binary_rpaths(binary_path):
+        for dir in get_binary_rpaths(binary_path):
+            print("CHECK:", join(dir, dep))
             if exists(join(dir, dep)):
                 return join(dir, dep)
 
@@ -310,7 +313,7 @@ def fix_unix_libraries(ctx, dest_dir):
         for dep in dependencies:
             if dep in shipped_dependencies:
                 dep = shipped_dependencies[dep]
-            cmd('chmod', 'u+w', dep)
+            ctx.cmd('chmod', 'u+w', dep)
             reldir = os.path.relpath(dest_lib_dir, start = os.path.dirname(dep))
             if dep.endswith('.so') or dep.endswith('.dylib'):
                 ctx.cmd('install_name_tool', '-id', '@rpath/' + os.path.basename(dep), dep)
@@ -320,23 +323,30 @@ def fix_unix_libraries(ctx, dest_dir):
             deps = dependencies[dep]
             if dep in shipped_dependencies:
                 dep = shipped_dependencies[dep]
-                debug("Which is copied at", dep)
+                ctx.debug("Which is copied at", dep)
             ctx.debug(dep, "has the follwing deps", deps)
             for subdep in deps:
                 buildpath = shipped_dependencies[subdep]
                 reldir = os.path.relpath(os.path.dirname(buildpath), start = os.path.dirname(dep))
                 ctx.debug(dep, 'subdep', subdep, 'at', buildpath)
-                ctx.cmd(
-                    'install_name_tool',
-                    '-change',
-                    subdep,
-                    '@rpath/' + os.path.basename(subdep),
-                    dep
-                )
+                try:
+                    ctx.cmd(
+                        'install_name_tool',
+                        '-change',
+                        subdep,
+                        '@rpath/' + os.path.basename(subdep),
+                        dep
+                    )
+                except:
+                    os.system('install_name_tool -change ' + subdep + '@rpath/' + os.path.basename(subdep) + dep)
+
                 if reldir in rpath_added.get(dep, set()): continue
                 rpath_added.setdefault(dep, set()).add(reldir)
                 for path in get_binary_rpaths(dep):
-                    ctx.cmd('install_name_tool', '-delete_rpath', path, dep)
+                    try:
+                        ctx.cmd('install_name_tool', '-delete_rpath', path, dep)
+                    except:
+                        pass
                 ctx.log(' - Add rpath', reldir, "to", dep)
                 try:
                     ctx.cmd('install_name_tool', '-add_rpath', '@loader_path/' + reldir, dep)
