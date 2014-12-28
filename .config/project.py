@@ -510,15 +510,22 @@ def main(build):
         shared = False, #platform.IS_WINDOWS
     )
 
-    sdl = build.add_dependency(
-        c.libraries.SDLDependency,
-        c_compiler,
-        'deps/SDL',
-        shared = platform.IS_WINDOWS,
-        audio = False,
-        haptic = False, # Fails on windows
-        dynamic_api = False,
-    )
+    if platform.IS_OSX and platform.OSX_VERSION_MAJOR <= 10 and platform.OSX_VERSION_MINOR <= 6:
+         sdl = c.libraries.SDLLibrary(
+             c_compiler,
+             macosx_framework = True,
+             search_macosx_framework_files = True
+         )
+    else:
+        sdl = build.add_dependency(
+            c.libraries.SDLDependency,
+            c_compiler,
+            'deps/SDL',
+            shared = platform.IS_WINDOWS,
+            audio = False,
+            haptic = False, # Fails on windows
+            dynamic_api = False,
+        )
     sdl_image = build.add_dependency(
         c.libraries.SDLImageDependency, c_compiler, 'deps/SDL_image',
         sdl = sdl,
