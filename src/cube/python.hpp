@@ -1,11 +1,13 @@
 #ifndef CUBE_PYTHON_HPP
 # define CUBE_PYTHON_HPP
 
-# if (defined(__MINGW32__) || defined(mingw32) || defined(__MINGW64__) || defined(mingw64)) && (__GNUC__ == 4)
-
 // workaround a mingw bug
 // http://lists.boost.org/boost-users/2010/12/65159.php
+// workaround a bug on OS X 10.6
 #  include <cmath>
+
+# if (defined(__MINGW32__) || defined(mingw32) || defined(__MINGW64__) || defined(mingw64)) && (__GNUC__ == 4)
+
 
 // workaround a mingw bug
 // http://sourceforge.net/tracker/index.php?func=detail&aid=2373234&group_id=2435&atid=102435
