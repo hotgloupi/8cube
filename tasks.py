@@ -456,10 +456,10 @@ def make_tarball(ctx, dir, output_file):
             os.chdir(old)
     ctx.log("Created tarball", output_file, 'of', ctx.cmd_output('du', '-hs', output_file))
 
-def make_release(build_dir, output_file):
+def make_release(build_dir, output_dir, output_file):
     if not isdir(build_dir):
         fatal("Error: ", build_dir, ": not a directory")
-    with Context(output_file.split('.')[0]) as ctx:
+    with Context(output_dir) as ctx:
         ctx.log("Starting release of ", build_dir, "in", ctx.dest_dir, 'at', dt.datetime.utcnow().ctime())
         copy_release_files(ctx, build_dir, ctx.dest_dir)
         python_home = copy_python_files(ctx, locate_python_home(ctx, build_dir), ctx.dest_dir)
@@ -473,4 +473,4 @@ def make_release(build_dir, output_file):
 
 
 if __name__ == '__main__':
-    sys.exit(make_release(sys.argv[1], sys.argv[2]))
+    sys.exit(make_release(sys.argv[1], sys.argv[2], sys.argv[3]))
