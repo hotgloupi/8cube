@@ -465,7 +465,7 @@ def main(build):
             c.libraries.PythonDependency,
             c_compiler,
             'deps/Python-v3.4.0',
-            shared = True, #platform.IS_LINUX,
+            shared = platform.IS_LINUX,
             version = (3, 4),
             pymalloc = False,
             with_valgrind_support = False,
