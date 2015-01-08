@@ -469,6 +469,7 @@ def main(build):
             version = (3, 4),
             pymalloc = False,
             with_valgrind_support = False,
+            threads = False,
         )
 
     boost = build.add_dependency(
