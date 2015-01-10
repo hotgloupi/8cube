@@ -465,7 +465,7 @@ def main(build):
             c.libraries.PythonDependency,
             c_compiler,
             'deps/Python-v3.4.0',
-            shared = platform.IS_LINUX,
+            shared = False,
             version = (3, 4),
             pymalloc = False,
             with_valgrind_support = False,
@@ -478,6 +478,7 @@ def main(build):
         'deps/boost_1_57_0',
         version = (1, 57),
         python = python,
+        export_python = True,
         components = [
             'format',
             'timer',
@@ -583,7 +584,10 @@ def main(build):
     else: # OSX and Linux
         if platform.IS_LINUX:
             base_libraries.extend(
-                c.libraries.simple(name, compiler, system = True) for name in ['rt',]
+                c.libraries.simple(name, compiler, system = True) for name in [
+                    'rt',
+                    'util',
+                ]
             )
             # SDL audio disabled
             #base_libraries.extend(
@@ -678,7 +682,7 @@ def main(build):
             ),
         ])
 
-    python_module_libraries = boost.libraries + python.libraries
+    python_module_libraries = boost.libraries
     if platform.IS_WINDOWS:
         python_module_libraries.extend([libcube, libetc])
     for binding in rglob("cube/*.py++", dir='src'):
@@ -699,7 +703,7 @@ def main(build):
         'libcubeapp',
         (src for src in rglob("src/cubeapp/*.cpp") if not src.endswith('main.cpp')),
         directory  = 'release/lib',
-        libraries = [libetc, libcube] + boost.libraries + python.libraries + glm.libraries,
+        libraries = [libetc, libcube] + boost.libraries + glm.libraries,
         precompiled_headers = precompiled_headers,
         defines = ['CUBEAPP_BUILD_DYNAMIC_LIBRARY'],
     )
@@ -710,7 +714,7 @@ def main(build):
             [binding],
             ext = python.ext,
             directory = path.dirname("release/lib/python", binding[4:]),
-            libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + python.libraries + base_libraries,
+            libraries=[libcubeapp, libcube, libetc] + graphic_libraries + boost.libraries + base_libraries,
             precompiled_headers = precompiled_headers,
         )
 
@@ -719,14 +723,14 @@ def main(build):
         libcubeapp,
         libcube,
         libetc,
-    ] + graphic_libraries + boost.libraries + python.libraries + base_libraries
+    ] + graphic_libraries + boost.libraries + base_libraries
 
     cube_exe = compiler.link_executable(
         "8cube",
         ["src/cubeapp/main.cpp"],
         directory = "release/bin",
         libraries = infinit_cube_libraries,
-        export_static_libraries = python.libraries,
+        export_libraries = [boost.component_library('python')],
     )
 
 
