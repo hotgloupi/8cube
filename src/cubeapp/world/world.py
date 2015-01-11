@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 
-import threading
 import time
 import queue
 
@@ -31,7 +30,6 @@ class World:
         self.__tree = tree.Tree(self.__tree_level)
         self.__referential = gl.Vector3il()
         self.__running = False
-        self.__thread = None
         self.__nodes = set()
 
     def start(self, camera, ref):
@@ -39,8 +37,6 @@ class World:
             raise Exception("Already running")
         self.update(camera, ref)
         self.__running = True
-        self.__thread = threading.Thread(target = self.__run)
-        self.__thread.start()
 
     def update(self, camera, referential):
         self.__referential = tree.Node(referential, 1)
@@ -64,7 +60,6 @@ class World:
         if not self.__running:
             return
         self.__running = False
-        self.__thread.join()
 
     def __get_chunk(self, node):
         chunk = self.__storage.get_chunk(node)
