@@ -1,17 +1,129 @@
 #include "Drawable.hpp"
 
-#include <cube/api.hpp>
+#include "Exception.hpp"
+#include "Painter.hpp"
 
+#include <cube/api.hpp>
 #include <cube/python.hpp>
 
+#include <boost/function_types/components.hpp>
+#include <boost/function_types/result_type.hpp>
+#include <boost/mpl/insert.hpp>
+
+namespace py = boost::python;
+using namespace ::cube::gl::renderer;
+
+
+namespace {
+
+namespace detail {
+
+/// @brief wrapper_constructor will force the initialization
+///        of the wrapper hierarchy when a class is held by
+///        another type and inherits from py::wrapper.
+template <typename Fn>
+class wrapper_constructor
+{
+public:
+
+  typedef typename boost::function_types::result_type<Fn>::type result_type;
+
+public:
+
+  /// @brief Constructor.
+  wrapper_constructor(Fn fn)
+    : constructor_(py::make_constructor(fn))
+  {}
+
+  /// @brief Construct and initialize python object.
+  template <typename... Args>
+  result_type operator()(py::object self, Args&&... args)
+  {
+    constructor_(self, std::forward<Args>(args)...);
+    return initialize(self);
+  }
+
+private:
+
+  /// @brief Explicitly initialize the wrapper.
+  static result_type initialize(py::object self)
+  {
+    // Extract holder from self.
+    result_type ptr = py::extract<result_type>(self);
+
+    // Explicitly initialize the py::wrapper hierarchy.
+    py::detail::initialize_wrapper(self.ptr(),        // PyObject.
+                       ptr.get()); // wrapper hierarchy.
+
+    return ptr;
+  }
+
+private:
+  py::object constructor_;
+};
+
+} // namespace detail
+
+/// @brief Makes a wrapper constructor (constructor that works with
+///        classes inheriting from py::wrapper).
+template <typename Fn>
+py::object make_wrapper_constructor(Fn fn)
+{
+  // Python constructors take the instance/self argument as the first
+  // argument.  Thus, inject the 'self' argument into the provided
+  // constructor function type.
+  typedef typename boost::function_types::components<Fn>::type
+      components_type;
+  typedef typename boost::mpl::begin<components_type>::type begin;
+  typedef typename boost::mpl::next<begin>::type self_pos;
+  typedef typename boost::mpl::insert<
+    components_type, self_pos, py::object>::type signature_type;
+
+  // Create a callable python object that defers to the wrapper_constructor.
+  return py::make_function(
+    detail::wrapper_constructor<Fn>(fn),
+    py::default_call_policies(),
+    signature_type());
+}
+
+
+
+	struct WrapDrawable
+		: Drawable
+		, py::wrapper<Drawable>
+	{
+		void _draw(Painter& p) override
+		{
+			this->get_override("draw")(py::ptr(&p));
+		}
+	};
+
+	std::shared_ptr<WrapDrawable> create()
+	{ return std::make_shared<WrapDrawable>(); }
+
+	struct wrapper_to_python
+	{
+		static PyObject* convert(std::shared_ptr<WrapDrawable> const& n)
+		{
+			return py::incref(
+				py::object(std::static_pointer_cast<Drawable>(n)).ptr()
+			);
+		}
+	};
+}
 
 BOOST_PYTHON_MODULE(Drawable)
 {
-	namespace py = boost::python;
-	using namespace ::cube::gl::renderer;
-
-	py::class_<Drawable, boost::noncopyable, DrawablePtr>(
+	py::class_<WrapDrawable, boost::noncopyable, DrawablePtr>(
 			"Drawable", py::no_init
 		)
+		.def("__init__", make_wrapper_constructor(&create))
+		.def("draw", py::pure_virtual(&Drawable::_draw))
 	;
+	py::implicitly_convertible<
+		std::shared_ptr<WrapDrawable>,
+		DrawablePtr
+	>();
+
+	py::to_python_converter<std::shared_ptr<WrapDrawable>, wrapper_to_python>();
 }

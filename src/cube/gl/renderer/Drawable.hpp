@@ -10,7 +10,7 @@ namespace cube { namespace gl { namespace renderer {
 	public:
 		virtual ~Drawable();
 
-	protected:
+	public:
 		virtual void _draw(Painter& p) = 0;
 		friend Painter;
 	};
