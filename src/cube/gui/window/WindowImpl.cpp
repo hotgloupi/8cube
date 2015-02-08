@@ -129,14 +129,26 @@ namespace cube { namespace gui { namespace window {
 		this->rocket_context->ProcessTextInput(text.c_str());
 	}
 
-	void Window::Impl::on_mouse(bool down, uint8_t button, system::inputs::KeyMod mod)
+	void Window::Impl::on_mouse(bool down,
+	                            system::inputs::Button button,
+	                            system::inputs::KeyMod mod)
 	{
-		ETC_TRACE.debug("Got a mouse", (down ? "press" : "release"), +button, mod);
+		ETC_TRACE.debug("Got a mouse", (down ? "press" : "release"), button, mod);
 		int key_mod = _to_rocket_mod(mod);
+		int rocket_button;
+		switch (button)
+		{
+		case system::inputs::Button::unknown: rocket_button = -1; break;
+		case system::inputs::Button::left: rocket_button = 0; break;
+		case system::inputs::Button::right: rocket_button = 1; break;
+		case system::inputs::Button::middle: rocket_button = 2; break;
+		case system::inputs::Button::x1: rocket_button = 3; break;
+		case system::inputs::Button::x2: rocket_button = 4; break;
+		}
 		if (down)
-			this->rocket_context->ProcessMouseButtonDown(button, key_mod);
+			this->rocket_context->ProcessMouseButtonDown(rocket_button, key_mod);
 		else
-			this->rocket_context->ProcessMouseButtonUp(button, key_mod);
+			this->rocket_context->ProcessMouseButtonUp(rocket_button, key_mod);
 	}
 
 	void Window::Impl::on_mousemove(int32_t, int32_t, system::inputs::KeyMod mod)

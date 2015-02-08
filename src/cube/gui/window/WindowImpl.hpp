@@ -41,7 +41,9 @@ namespace cube { namespace gui { namespace window {
 		            system::inputs::KeySym sym,
 		            uint16_t);
 		void on_textinput(std::string const& text);
-		void on_mouse(bool down, uint8_t button, system::inputs::KeyMod mod);
+		void on_mouse(bool down,
+		              system::inputs::Button button,
+		              system::inputs::KeyMod mod);
 		void on_mousemove(int32_t, int32_t, system::inputs::KeyMod mod);
 	private:
 		static void _delete_rocket_context(Rocket::Core::Context* ctx)

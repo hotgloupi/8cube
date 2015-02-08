@@ -339,3 +339,19 @@ operator <<(std::ostream& out,
 	}
 	return out << ')';
 }
+
+std::ostream&
+operator <<(std::ostream& out,
+            cube::system::inputs::Button const b)
+{
+	switch (b)
+	{
+		case Button::unknown: return out << "Button::unknown";
+		case Button::left: return out << "Button::left";
+		case Button::right: return out << "Button::right";
+		case Button::middle: return out << "Button::middle";
+		case Button::x1: return out << "Button::x1";
+		case Button::x2: return out << "Button::x2";
+	}
+	std::abort();
+}

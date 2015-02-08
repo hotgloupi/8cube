@@ -57,7 +57,7 @@ class Manager:
             channels = controller.channels
         del channel
         for ch in channels:
-            assert isinstance(ch, Channel)
+            ch = Channel(ch)
             l = self.__controllers[ch.name]
             assert controller in l
             l.remove(controller)

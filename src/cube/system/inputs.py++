@@ -66,6 +66,19 @@ BOOST_PYTHON_MODULE(inputs)
 	}
 
 	{
+		py::scope Button_scope = py::enum_<Button>("Button", "Mouse button")
+			.value("unknown", Button::unknown)
+			.value("left", Button::left)
+			.value("right", Button::right)
+			.value("middle", Button::middle)
+			.value("x1", Button::x1)
+			.value("x2", Button::x2)
+		;
+
+		py::def("__str__", &enum_str<Button>);
+	}
+
+	{
 		py::scope KeySym_scope = py::enum_<KeySym>("KeySym", "Symbolic keys")
 			.value("unknown", KeySym::unknown)
 			.value("first", KeySym::first)

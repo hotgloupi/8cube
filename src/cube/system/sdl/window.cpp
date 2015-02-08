@@ -677,19 +677,22 @@ namespace cube { namespace system { namespace sdl { namespace window {
 			else if (e.type == SDL_MOUSEBUTTONDOWN ||
 			         e.type == SDL_MOUSEBUTTONUP)
 			{
-				uint8_t b = 0xff;
+				inputs::Button b;
 				switch (e.button.button)
 				{
-				case SDL_BUTTON_LEFT:   b = 0; break;
-				case SDL_BUTTON_RIGHT:  b = 1; break;
-				case SDL_BUTTON_MIDDLE: b = 2; break;
-				case SDL_BUTTON_X1:     b = 3; break;
-				case SDL_BUTTON_X2:     b = 4; break;
+				case SDL_BUTTON_LEFT:   b = inputs::Button::left; break;
+				case SDL_BUTTON_RIGHT:  b = inputs::Button::right; break;
+				case SDL_BUTTON_MIDDLE: b = inputs::Button::middle; break;
+				case SDL_BUTTON_X1:     b = inputs::Button::x1; break;
+				case SDL_BUTTON_X2:     b = inputs::Button::x2; break;
 				default:
+					b = inputs::Button::unknown;
 					ETC_LOG.warn("Unknown mouse button", +e.button.button);
 				}
-				ETC_LOG.debug("Mouse button down event", +b);
-				if (b != 0xff)
+				ETC_LOG.debug("Mouse button",
+				              (e.type == SDL_MOUSEBUTTONDOWN ? "down" : "up"),
+				              "event", b);
+				if (b != inputs::Button::unknown)
 				{
 					if (e.type == SDL_MOUSEBUTTONDOWN)
 						this->inputs().on_mousedown()(b, ((inputs::KeyMod) SDL_GetModState()));

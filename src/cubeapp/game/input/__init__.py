@@ -68,6 +68,8 @@ class Translator:
             window.inputs.on_keydown.connect(self.__on_keydown),
             window.inputs.on_keyup.connect(self.__on_keyup),
             window.inputs.on_mousemove.connect(self.__on_mousemove),
+            window.inputs.on_mousedown.connect(self.__on_mousedown),
+            window.inputs.on_mouseup.connect(self.__on_mouseup),
         ]
         self.__events = []
         self.__held = set()
@@ -125,6 +127,14 @@ class Translator:
         # XXX use keymod ?
         self.mouse.xrel += xrel
         self.mouse.yrel += yrel
+
+    def __on_mousedown(self, button, keymod):
+        log.debug("Got mouse down event", button, keymod)
+        pass
+
+    def __on_mouseup(self, button, keymod):
+        log.debug("Got mouse up event", button, keymod)
+        pass
 
     def poll(self):
         to_fire = self.__events

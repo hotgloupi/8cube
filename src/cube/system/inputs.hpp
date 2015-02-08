@@ -179,6 +179,15 @@ namespace cube { namespace system { namespace inputs {
 		compose,      /**< Multi-key compose key */
 	};
 
+	enum class Button : int
+	{
+		unknown = 0,
+		left,
+		right,
+		middle,
+		x1,
+		x2,
+	};
 
     struct CUBE_API Inputs:
 		private boost::noncopyable
@@ -201,8 +210,8 @@ namespace cube { namespace system { namespace inputs {
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keydown, KeyMod, KeySym, uint16_t);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(keyup, KeyMod, KeySym, uint16_t);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousemove, int32_t xrel, int32_t yrel, KeyMod);
-		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousedown, uint8_t, KeyMod);
-		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mouseup, uint8_t, KeyMod);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mousedown, Button, KeyMod);
+		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(mouseup, Button, KeyMod);
 		CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL(textinput, std::string const&);
 # undef CUBE_SYSTEM_INPUTS_EXPOSE_SIGNAL
 
@@ -221,5 +230,9 @@ std::ostream&
 operator <<(std::ostream& out,
             cube::system::inputs::KeySym const mod);
 
-#endif
+CUBE_API
+std::ostream&
+operator <<(std::ostream& out,
+            cube::system::inputs::Button const mod);
 
+#endif
