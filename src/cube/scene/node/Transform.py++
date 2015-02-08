@@ -13,5 +13,10 @@ BOOST_PYTHON_MODULE(Transform)
 		)
 		.def("translate", &Transform::translate)
 		.def("rotate", &Transform::rotate)
+		.add_property(
+			"value",
+			py::select_getter(&Transform::value),
+			py::select_setter(&Transform::value)
+		)
 	;
 }

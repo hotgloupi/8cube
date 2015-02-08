@@ -31,6 +31,9 @@ namespace cube { namespace scene { namespace node {
 		inline
 		matrix_type const& value() const { return _transformation; }
 
+		void value(matrix_type const& mat)
+		{ _transformation = mat; }
+
 		void translate(vector_type const& v)
 		{ _transformation = gl::matrix::translate(_transformation, v); }
 
