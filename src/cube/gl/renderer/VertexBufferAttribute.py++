@@ -33,38 +33,51 @@ namespace {
 		for (etc::size_type i = 0; i < len; ++i)
 		{
 			boost::python::object elem = list[i];
-			array.get()[i] = boost::python::extract<T>(elem);
+			array.get()[i] = py::extract<T>(elem);
 		}
 		return make_vertex_buffer_attribute(kind, std::move(array), len, hint);
 	}
 
 	VertexBufferAttributePtr
 	make_vb_attr(ContentKind kind,
-				 boost::python::list list,
+				 py::list list,
 				 ContentHint const hint = ContentHint::static_content)
 	{
-		etc::size_type const len = boost::python::len(list);
+		etc::size_type const len = py::len(list);
 		if (len == 0)
 			throw Exception{
 				"Empty content"
 			};
 
-		boost::python::object first = list[0];
+		py::object first = list[0];
 
 		switch (kind)
 		{
 #define _CHECK(type)                                                          \
-		if (boost::python::extract<type>(first).check())                  \
-			return _make_vb_attr<type>(kind, list, len, hint)             \
+		if (boost::python::extract<type>(first).check())                      \
+			return _make_vb_attr<type>(kind, list, len, hint)                 \
 /**/
 		case ContentKind::color:
 			_CHECK(cube::gl::color::Color3f);
 			_CHECK(cube::gl::color::Color4f);
 			break;
 		case ContentKind::index:
-			_CHECK(uint8_t);
-			_CHECK(uint16_t);
-			_CHECK(uint32_t);
+			{
+				uint64_t max = 0;
+				for (etc::size_type i = 0; i < len; ++i)
+				{
+					uint64_t e = py::extract<uint64_t>(list[i]);
+					if (e > max) max = e;
+				}
+				if (max > std::numeric_limits<uint32_t>::max())
+					throw Exception("Too many indices");
+				else if (max > std::numeric_limits<uint16_t>::max())
+					return _make_vb_attr<uint32_t>(kind, list, len, hint);
+				else if (max > std::numeric_limits<uint8_t>::max())
+					return _make_vb_attr<uint16_t>(kind, list, len, hint);
+				else
+					return _make_vb_attr<uint8_t>(kind, list, len, hint);
+			}
 			break;
 		default:
 			_CHECK(cube::gl::vector::Vector2f);
