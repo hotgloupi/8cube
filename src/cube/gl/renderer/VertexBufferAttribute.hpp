@@ -184,7 +184,7 @@ namespace cube { namespace gl { namespace renderer {
 		         T const& value)
 		{
 			ETC_ASSERT_NEQ(_buffer, nullptr);
-			ETC_ASSERT_EQ(this->arity, typename content_traits<T>::arity);
+			ETC_ASSERT_EQ(this->arity, content_traits<T>::arity);
 			ETC_ASSERT_LT(index, this->nb_elements);
 			static_cast<T*>(_buffer)[index] = value;
 		}
@@ -193,7 +193,7 @@ namespace cube { namespace gl { namespace renderer {
 		T const& get(etc::size_type const index) const
 		{
 			ETC_ASSERT_NEQ(_buffer, nullptr);
-			ETC_ASSERT_EQ(this->arity, typename content_traits<T>::arity);
+			ETC_ASSERT_EQ(this->arity, content_traits<T>::arity);
 			ETC_ASSERT_LT(index, this->nb_elements);
 			return static_cast<T*>(_buffer)[index];
 		}
