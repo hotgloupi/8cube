@@ -165,7 +165,6 @@ namespace cube { namespace system { namespace sdl { namespace window {
 		save(boost::filesystem::path const& file) const
 		{
 			ETC_TRACE.debug("Save", *this, "to", file);
-			int t1, t2;
 			bool was_bound = this->bound();
 			if (!was_bound)
 				const_cast<SDLRenderTarget*>(this)->_bind();
