@@ -5,9 +5,10 @@
 
 # include <cube/gl/content_traits.hpp>
 
-# include <etc/types.hpp>
-# include <etc/memory.hpp>
+# include <etc/assert.hpp>
 # include <etc/log/component.hpp>
+# include <etc/memory.hpp>
+# include <etc/types.hpp>
 
 # include <functional>
 # include <vector>
@@ -176,6 +177,26 @@ namespace cube { namespace gl { namespace renderer {
 				hint
 			)
 		{}
+
+	public:
+		template<typename T>
+		void set(etc::size_type const index,
+		         T const& value)
+		{
+			ETC_ASSERT_NEQ(_buffer, nullptr);
+			ETC_ASSERT_EQ(this->arity, typename content_traits<T>::arity);
+			ETC_ASSERT_LT(index, this->nb_elements);
+			static_cast<T*>(_buffer)[index] = value;
+		}
+
+		template<typename T>
+		T const& get(etc::size_type const index) const
+		{
+			ETC_ASSERT_NEQ(_buffer, nullptr);
+			ETC_ASSERT_EQ(this->arity, typename content_traits<T>::arity);
+			ETC_ASSERT_LT(index, this->nb_elements);
+			return static_cast<T*>(_buffer)[index];
+		}
 
 		/**
 		 * @brief Reset the buffer to a new value.

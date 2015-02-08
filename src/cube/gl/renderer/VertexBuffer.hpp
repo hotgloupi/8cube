@@ -44,7 +44,18 @@ namespace cube { namespace gl { namespace renderer {
 		~VertexBuffer()
 		{}
 
+
+		void reload(etc::size_type const idx)
+		{
+			if (idx >= _attributes.size())
+				throw Exception(
+					etc::to_string(idx, ">=", _attributes.size())
+				);
+			_reload(idx);
+		}
+
 	protected:
+		virtual void _reload(etc::size_type const idx) = 0;
 		friend struct Bindable::InternalGuard<VertexBuffer>;
 
 	//	template<typename T>

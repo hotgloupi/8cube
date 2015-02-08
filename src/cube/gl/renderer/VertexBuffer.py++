@@ -3,11 +3,24 @@
 
 #include <cube/python.hpp>
 
+namespace py = boost::python;
+using namespace ::cube::gl::renderer;
+
+namespace {
+
+	VertexBufferAttribute& getitem(VertexBuffer& self, etc::size_type const idx)
+	{
+		if (idx >= self.attributes().size())
+			throw std::range_error(
+			    etc::to_string(idx, ">=", self.attributes().size())
+			);
+		return *self.attributes()[idx];
+	}
+
+}
+
 BOOST_PYTHON_MODULE(VertexBuffer)
 {
-	namespace py = boost::python;
-	using namespace ::cube::gl::renderer;
-
 	py::class_<
 			VertexBuffer,
 			std::shared_ptr<VertexBuffer>,
@@ -16,6 +29,14 @@ BOOST_PYTHON_MODULE(VertexBuffer)
 		>(
 			"VertexBuffer",
 			py::no_init
+		)
+		.def(
+			"__getitem__",
+			&getitem,
+			py::return_internal_reference<>()
+		)
+		.def(
+			"reload", &VertexBuffer::reload
 		)
 	;
 	py::implicitly_convertible<VertexBufferPtr, BindablePtr>();

@@ -55,6 +55,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		assert(_vbo != nullptr && "Cannot unbind a non finalized VertexBuffer");
 		this->_vbo->unbind();
 	}
+	template<bool is_indices>
+	void _VertexBuffer<is_indices>::_reload(etc::size_type const idx)
+	{
+		ETC_ASSERT_NEQ(_vbo, nullptr);
+		_vbo->reload_attribute(idx);
+	}
 
 	template class _VertexBuffer<true>;
 	template class _VertexBuffer<false>;

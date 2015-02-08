@@ -136,6 +136,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			});
 		}
 
+		void reload_attribute(etc::size_type const index)
+		{
+			auto& attr = *_sub_vbos[index].attr;
+			this->bind(false);
+			gl::BufferSubData(
+				_gl_array_type,
+				reinterpret_cast<uintptr_t>(_sub_vbos[index].offset),
+				attr.buffer_size,
+				attr.buffer()
+			);
+			this->unbind(false);
+		}
+
 		void bind(bool all = true)
 		{
 			ETC_TRACE.debug(*this, "Binding the VBO");

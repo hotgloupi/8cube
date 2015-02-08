@@ -8,13 +8,16 @@
 
 #include <cube/python.hpp>
 
+namespace py = boost::python;
+
+using namespace ::cube::gl::renderer;
+using namespace ::cube::gl::vector;
+using namespace ::cube::gl::color;
+using namespace ::cube::gl;
+
+typedef cube::gl::exception::Exception Exception;
+
 namespace {
-
-	namespace py = boost::python;
-	using namespace ::cube::gl::renderer;
-
-	typedef cube::gl::exception::Exception Exception;
-
 
 	template<typename T>
 	VertexBufferAttributePtr
@@ -96,19 +99,67 @@ namespace {
 		);
 	}
 
+	void setitem(VertexBufferAttribute& self,
+	             etc::size_type index, py::object value)
+	{
+		switch (self.kind)
+		{
+		case ContentKind::index:
+			self.set(index, py::extract<unsigned int>(value)());
+			break;
+		case ContentKind::normal:
+		case ContentKind::vertex:
+		case ContentKind::tex_coord0:
+		case ContentKind::tex_coord1:
+		case ContentKind::tex_coord2:
+		case ContentKind::tex_coord3:
+		case ContentKind::tex_coord4:
+		case ContentKind::tex_coord5:
+		case ContentKind::tex_coord6:
+		case ContentKind::tex_coord7:
+			if (self.arity == 2)
+				self.set(index, py::extract<Vector2f>(value)());
+			else if (self.arity == 3)
+				self.set(index, py::extract<Vector3f>(value)());
+			else if (self.arity == 4)
+				self.set(index, py::extract<Vector4f>(value)());
+			else
+				throw Exception("Unknown arity");
+			break;
+		case ContentKind::color0:
+		case ContentKind::color1:
+		case ContentKind::color2:
+		case ContentKind::color3:
+			if (self.arity == 3)
+				self.set(index, py::extract<Color3f>(value)());
+			else if (self.arity == 4)
+				self.set(index, py::extract<Color4f>(value)());
+			else
+				throw Exception("Unknown arity");
+			break;
+		default:
+			throw Exception("Unknown content kind: " + etc::to_string(self.kind));
+		}
+	}
+
+	py::object getitem(VertexBufferAttribute& self,
+	                   etc::size_type index)
+	{
+		return py::object(self.get<Color3f>(index));
+	}
+
 } // !anonymous
 
 BOOST_PYTHON_MODULE(VertexBufferAttribute)
 {
-	namespace py = boost::python;
-	using namespace ::cube::gl::renderer;
-
 	py::class_<
 		VertexBufferAttribute
 	  , VertexBufferAttributePtr
 	  , boost::noncopyable
 	>("VertexBufferAttribute", py::no_init)
 		.def("__str__", &__str__)
+		.def("__setitem__", &setitem)
+		.def("__getitem__", &getitem)
 	;
 
 	py::def(
