@@ -15,10 +15,10 @@ void export_rectangle(std::string const& suffix)
 		name.c_str(),
 		py::init<T, T, T, T>((py::arg("x"), py::arg("y"), py::arg("w"), py::arg("h")))
 	)
-		.def_readonly("x", &Rectangle<T>::x)
-		.def_readonly("y", &Rectangle<T>::y)
-		.def_readonly("w", &Rectangle<T>::w)
-		.def_readonly("h", &Rectangle<T>::h)
+		.def_readwrite("x", &Rectangle<T>::x)
+		.def_readwrite("y", &Rectangle<T>::y)
+		.def_readwrite("w", &Rectangle<T>::w)
+		.def_readwrite("h", &Rectangle<T>::h)
 	;
 }
 
