@@ -7,10 +7,11 @@ class Entity:
     # Set when the entity is created
     manager = None
 
-    def __init__(self, name = None):
+    def __init__(self, name = None, **kw):
         if name is None:
             name = self.__class__.__name__
         self.name = name.lower()
+        self.__dict__.update(kw)
 
     def add_component(self, component, **kw):
         """Add a component to an entity.

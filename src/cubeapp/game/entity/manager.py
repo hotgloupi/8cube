@@ -56,15 +56,15 @@ class Manager:
             if system.name == name:
                 return system
 
-    def create(self, entity_or_cls, *args, **kw):
+    def create(self, entity_or_cls, **kw):
         """Add an entity.
         """
         if isinstance(entity_or_cls, Entity):
             entity = entity_or_cls
         elif isinstance(entity_or_cls, str):
-            entity = type(entity_or_cls.capitalize(), (Entity,), {})()
+            entity = type(entity_or_cls.capitalize(), (Entity,), kw)()
         elif isinstance(entity_or_cls, type) and issubclass(entity_or_cls, Entity):
-            entity = entity_or_cls(*args, **kw)
+            entity = entity_or_cls(**kw)
         else:
             raise Exception("entity must be a string, a subclass or an instance"
                             " of Entity, got '%s'" % entity_or_cls)
@@ -95,7 +95,7 @@ class Manager:
             component_kw = kw.pop(system.name, {})
             system._System__init_component(entity, component, **component_kw)
         assert not kw, "Some arguments were not used while initializing the " \
-                       "component %s: %s" % (component, str(kw))
+                       "component %s: %s (no systems named (%s))" % (component, str(kw), str(list(kw.keys())))
         self.__entities[entity].append(component)
         return component
 

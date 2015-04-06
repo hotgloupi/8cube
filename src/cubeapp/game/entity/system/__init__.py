@@ -5,8 +5,9 @@ class System:
     # Set when attached to an entity manager
     entity_manager = None
 
-    def __init__(self, name = None):
+    def __init__(self, name = None, **kw):
         self.name = (name or self.__class__.__name__).lower()
+        self.__dict__.update(kw)
         self.__components = set()
 
     def __init_component(self, entity, component, **kw):

@@ -18,7 +18,8 @@ class Component:
     # List of system types that will work on this component.
     systems = []
 
-    def __init__(self, name = None):
+    def __init__(self, name = None, **kw):
+        self.__dict__.update(kw)
         self.name = (name or self.name or self.__class__.__name__).lower()
         for system in self.systems:
             assert isinstance(system, type)
