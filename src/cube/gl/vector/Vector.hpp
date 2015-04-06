@@ -14,6 +14,8 @@
 # include <glm/vec4.hpp>
 # include <glm/gtx/rotate_vector.hpp>
 
+# include <boost/functional/hash.hpp>
+
 # include <iosfwd>
 
 namespace cube { namespace gl { namespace vector {
@@ -110,5 +112,42 @@ namespace glm { namespace detail {                                            \
 	_CUBE_GL_VECTOR_DEF(4, int64_t, il);
 	_CUBE_GL_VECTOR_DEF(4, uint64_t, ul);
 # undef _CUBE_GL_VECTOR_DEF
+
+namespace std {
+
+	template<typename T> struct hash<cube::gl::vector::Vector2<T>>
+	{
+		size_t operator ()(cube::gl::vector::Vector2<T> const& v) const
+		{
+			size_t seed = boost::hash_value(v.x);
+			boost::hash_combine(seed, v.y);
+			return seed;
+		}
+	};
+
+	template<typename T> struct hash<cube::gl::vector::Vector3<T>>
+	{
+		size_t operator ()(cube::gl::vector::Vector3<T> const& v) const
+		{
+			size_t seed = boost::hash_value(v.x);
+			boost::hash_combine(seed, v.y);
+			boost::hash_combine(seed, v.z);
+			return seed;
+		}
+	};
+
+	template<typename T> struct hash<cube::gl::vector::Vector4<T>>
+	{
+		size_t operator ()(cube::gl::vector::Vector4<T> const& v) const
+		{
+			size_t seed = boost::hash_value(v.x);
+			boost::hash_combine(seed, v.y);
+			boost::hash_combine(seed, v.z);
+			boost::hash_combine(seed, v.w);
+			return seed;
+		}
+	};
+
+}
 
 #endif /* ! VECTOR_HPP */

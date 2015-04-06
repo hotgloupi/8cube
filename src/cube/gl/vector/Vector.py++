@@ -1,5 +1,7 @@
 #include <cube/python.hpp>
 
+#include <boost/functional/hash.hpp>
+
 #include "Vector.hpp"
 using namespace ::cube::gl::vector;
 using ::cube::units::Angle;
@@ -63,6 +65,16 @@ namespace {
 
 }
 
+namespace {
+
+	template<typename T>
+	size_t hash_value(T const& v)
+	{
+		return std::hash<T>()(v);
+	}
+
+}
+
 BOOST_PYTHON_MODULE(Vector)
 {
 	CUBE_PYTHON_DOCSTRING_OPTIONS();
@@ -107,6 +119,7 @@ BOOST_PYTHON_MODULE(Vector)
 		.def(py::self -= __type())                                            \
 		.def(-py::self)                                                       \
 		.def(py::self == py::self)                                            \
+		.def("__hash__", &hash_value<__type>)                           \
 /**/
 
 #define EXPORT_VECTOR2(__value_type, __suffix)                                \
