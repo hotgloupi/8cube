@@ -13,19 +13,20 @@ Exported classes:
     Camera
     Color{3,4}f
     Cube3{f,d,i,u,il,ul}
+    Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
     Font
     Light, SpotLightInfo, PointLightInfo, DirectionalLightInfo
-    Material
     mat4f
+    Material
     Mesh
     Plane{f,d}
+    Rectangle{f,u,i}
+    ShaderProgram, ShaderProgramParameter
     Sphere{f,d,i,u,il,ul}
+    Surface
     Text
     Vector{2,3,4}{f,d,i,u,il,ul} (and aliases vec*)
     Viewport
-    Drawable, Painter, Renderer, State, RendererType, Shader, VertexBuffer,
-    ShaderProgram, ShaderProgramParameter
-    Surface
 
 
 Exported enumerations:
