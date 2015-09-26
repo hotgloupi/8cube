@@ -81,4 +81,11 @@ return function(build)
 		boost = boost,
 		install_directory = build:directory(),
 	}
+
+    local bullet = modules.bullet.build{
+		build = build,
+		version = '2.83.6',
+		compiler = cxx_compiler,
+		install_directory = build:directory(),
+	}
 end
