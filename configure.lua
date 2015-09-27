@@ -82,10 +82,27 @@ return function(build)
 		install_directory = build:directory(),
 	}
 
-    local bullet = modules.bullet.build{
+
+	local freetype2 = modules.freetype.build{
+		build = build,
+		version = '2.6',
+		compiler = c_compiler,
+		install_directory = build:directory(),
+	}
+
+	local bullet = modules.bullet.build{
 		build = build,
 		version = '2.83.6',
 		compiler = cxx_compiler,
+		install_directory = build:directory(),
+	}
+
+    local librocket = modules.librocket.build{
+		build = build,
+		version = 'HEAD',
+		compiler = cxx_compiler,
+		c_compiler = c_compiler,
+		freetype2 = freetype2,
 		install_directory = build:directory(),
 	}
 end
