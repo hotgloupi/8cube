@@ -6,7 +6,10 @@ return function(build)
 	build:status("Building on", build:host(), "for", build:target())
 
 	local c_compiler = require('configure.lang.c.compiler').find{build = build}
-	local cxx_compiler = require('configure.lang.cxx.compiler').find{build = build}
+	local cxx_compiler = require('configure.lang.cxx.compiler').find{
+		build = build,
+		standard = 'c++11',
+	}
 
 	local openssl = modules.openssl.build{
 		build = build,
@@ -52,8 +55,13 @@ return function(build)
 		bzip2 = bzip2,
 		python = python,
 		components = {
-			'iostream',
+			'iostreams',
 			'python',
+			'filesystem',
+			'system',
+			'thread',
+			'coroutine',
+			'context',
 		}
 	}
 
@@ -82,7 +90,6 @@ return function(build)
 		install_directory = build:directory(),
 	}
 
-
 	local freetype2 = modules.freetype.build{
 		build = build,
 		version = '2.6',
@@ -104,5 +111,28 @@ return function(build)
 		c_compiler = c_compiler,
 		freetype2 = freetype2,
 		install_directory = build:directory(),
+	}
+
+	local base_libraries = table.extend({
+		zlib,
+		bz2,
+	}, boost)
+
+	local libetc_static = cxx_compiler:link_static_library{
+		name = 'etc',
+		object_directory = 'etc-static',
+		sources = build:fs():rglob('src/etc', '*.cpp'),
+		defines = {'ETC_BUILD_STATIC_LIBRARY'},
+		include_directories = {'src',},
+		libraries = base_libraries,
+	}
+
+	local libetc = cxx_compiler:link_shared_library{
+		name = 'etc',
+		object_directory = 'etc-shared',
+		sources = build:fs():rglob('src/etc', '*.cpp'),
+		defines = {'ETC_BUILD_DYNAMIC_LIBRARY'},
+		include_directories = {'src',},
+		libraries = base_libraries,
 	}
 end
