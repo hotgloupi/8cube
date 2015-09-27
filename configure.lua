@@ -135,4 +135,47 @@ return function(build)
 		include_directories = {'src',},
 		libraries = base_libraries,
 	}
+
+	local opengl = modules.opengl.find{
+		compiler = cxx_compiler,
+	}
+
+
+	local glm = modules.glm.build{
+		build = build,
+		version = '0.9.7.1',
+		compiler = cxx_compiler,
+		install_directory = build:directory(),
+	}
+
+	local glew = modules.glew.build{
+		build = build,
+		version = '1.13.0',
+		compiler = c_compiler,
+		install_directory = build:directory(),
+	}
+
+	local libcube = cxx_compiler:link_shared_library{
+		name = 'cube',
+		object_directory = 'cube-shared',
+		sources = build:fs():rglob('src/cube', '*.cpp'),
+		defines = {'CUBE_BUILD_DYNAMIC_LIBRARY'},
+		include_directories = {'src',},
+		libraries = table.extend(
+			{glm, bullet, sdlimage, sdl, freetype2},
+			base_libraries
+		),
+	}
+
+	local libcubepp = cxx_compiler:link_shared_library{
+		name = 'cubeapp',
+		object_directory = 'cubeapp-shared',
+		sources = build:fs():rglob('src/cubeapp', '*.cpp'),
+		defines = {'CUBEAPP_BUILD_DYNAMIC_LIBRARY'},
+		include_directories = {'src',},
+		libraries = table.extend(
+			{python},
+			base_libraries
+		),
+	}
 end
