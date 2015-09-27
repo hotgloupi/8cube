@@ -50,13 +50,13 @@ namespace cube { namespace gl {
 	namespace matrix {
 
 		template<typename T>
-		using Matrix33 = ::glm::detail::tmat3x3<T, glm::precision::highp>;
+		using Matrix33 = ::glm::tmat3x3<T, glm::precision::highp>;
 		typedef Matrix33<float>    mat3f;
 		typedef Matrix33<double>   mat3d;
 
 
 		template<typename T>
-		using Matrix44 = ::glm::detail::tmat4x4<T, glm::precision::highp>;
+		using Matrix44 = ::glm::tmat4x4<T, glm::precision::highp>;
 		typedef Matrix44<float>    mat4f;
 		typedef Matrix44<double>   mat4d;
 
@@ -93,11 +93,11 @@ namespace cube { namespace gl {
 	namespace vector {
 
 		template<typename T>
-			using Vector2 = glm::detail::tvec2<T, glm::precision::highp>;
+			using Vector2 = glm::tvec2<T, glm::precision::highp>;
 		template<typename T>
-			using Vector3 = glm::detail::tvec3<T, glm::precision::highp>;
+			using Vector3 = glm::tvec3<T, glm::precision::highp>;
 		template<typename T>
-			using Vector4 = glm::detail::tvec4<T, glm::precision::highp>;
+			using Vector4 = glm::tvec4<T, glm::precision::highp>;
 
 		/// Define {vec}{2,3,4}{f,d,i,u,il,ul} aliases.
 # define _CUBE_GL_VECTOR_DEF(__arity, __type, __suffix)                       \
