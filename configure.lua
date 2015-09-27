@@ -18,13 +18,6 @@ return function(build)
 		install_directory = build:directory(),
 	}
 
-	local python = modules.python.build{
-		build = build,
-		version = '3.4.0',
-		compiler = c_compiler,
-		install_directory = build:directory()
-	}
-
 	local bzip2 = modules.bzip2.build{
 		build = build,
 		version = '1.0.6',
@@ -37,6 +30,16 @@ return function(build)
 		version = '1.2.8',
 		compiler = c_compiler,
 		install_directory = build:directory(),
+	}
+
+	local python = modules.python.build{
+		build = build,
+		version = '3.4.0',
+		compiler = c_compiler,
+		bzip2 = bzip2,
+		zlib = zlib,
+		openssl = openssl,
+		install_directory = build:directory()
 	}
 
 	local curl = modules.curl.build{
