@@ -1,5 +1,5 @@
 
-#include "python/Interpreter.hpp"
+#include <cubeapp/python/Interpreter.hpp>
 
 #include <cube/debug/Performance.hpp>
 
