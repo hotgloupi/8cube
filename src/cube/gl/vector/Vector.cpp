@@ -4,7 +4,7 @@
 
 #include <ostream>
 
-namespace glm { namespace detail {
+namespace glm {
 
 # define _CUBE_GL_VECTOR_DEF(__arity, __value_type, __suffix)                 \
 	std::ostream& operator <<(                                                \
@@ -47,5 +47,4 @@ namespace glm { namespace detail {
 	_CUBE_GL_VECTOR_DEF(4, int64_t, il);
 	_CUBE_GL_VECTOR_DEF(4, uint64_t, ul);
 
-}}
-
+}
