@@ -116,33 +116,9 @@ return function(build)
 		install_directory = build:directory(),
 	}
 
-	local base_libraries = table.extend({
-		zlib,
-		bz2,
-	}, boost)
-
-	local libetc_static = cxx_compiler:link_static_library{
-		name = 'etc',
-		object_directory = 'etc-static',
-		sources = build:fs():rglob('src/etc', '*.cpp'),
-		defines = {'ETC_BUILD_STATIC_LIBRARY'},
-		include_directories = {'src',},
-		libraries = base_libraries,
-	}
-
-	local libetc = cxx_compiler:link_shared_library{
-		name = 'etc',
-		object_directory = 'etc-shared',
-		sources = build:fs():rglob('src/etc', '*.cpp'),
-		defines = {'ETC_BUILD_DYNAMIC_LIBRARY'},
-		include_directories = {'src',},
-		libraries = base_libraries,
-	}
-
 	local opengl = modules.opengl.find{
 		compiler = cxx_compiler,
 	}
-
 
 	local glm = modules.glm.build{
 		build = build,
@@ -158,19 +134,54 @@ return function(build)
 		install_directory = build:directory(),
 	}
 
+	local base_libraries = table.extend({
+		zlib,
+		bzip2,
+	}, boost)
+
+	--local libetc_static = cxx_compiler:link_static_library{
+	--	name = 'etc',
+	--	object_directory = 'etc-static',
+	--	sources = build:fs():rglob('src/etc', '*.cpp'),
+	--	defines = {'ETC_BUILD_STATIC_LIBRARY'},
+	--	include_directories = {'src',},
+	--	libraries = base_libraries,
+	--}
+
+	print(table.tostring(curl.files))
+	local libetc = cxx_compiler:link_shared_library{
+		name = 'etc',
+		object_directory = 'etc-shared',
+		sources = build:fs():rglob('src/etc', '*.cpp'),
+		defines = {'ETC_BUILD_DYNAMIC_LIBRARY'},
+		include_directories = {'src',},
+		libraries = table.extend({
+			zlib, bzip2, curl,
+		}, boost)
+	}
+
 	local libcube = cxx_compiler:link_shared_library{
 		name = 'cube',
 		object_directory = 'cube-shared',
 		sources = build:fs():rglob('src/cube', '*.cpp'),
 		defines = {'CUBE_BUILD_DYNAMIC_LIBRARY'},
 		include_directories = {'src',},
-		libraries = table.extend(
-			{glm, bullet, sdlimage, sdl, freetype2},
-			base_libraries
-		),
+		libraries = table.extend({
+			glm,
+			bullet,
+			sdlimage,
+			sdl,
+			freetype2,
+			zlib,
+			bzip2,
+			assimp,
+			glew,
+			librocket,
+			curl,
+		}, boost),
 	}
 
-	local libcubepp = cxx_compiler:link_shared_library{
+	local libcubeapp = cxx_compiler:link_shared_library{
 		name = 'cubeapp',
 		object_directory = 'cubeapp-shared',
 		sources = build:fs():rglob('src/cubeapp', '*.cpp'),
@@ -180,5 +191,22 @@ return function(build)
 			{python},
 			base_libraries
 		),
+	}
+
+	local cube_exe = cxx_compiler:link_executable{
+		name = '8cube',
+		sources = {'src/main.cpp'},
+		libraries = table.extend({
+			opengl,
+			librocket,
+			glew,
+			curl,
+			zlib,
+			assimp,
+			bzip2,
+			libetc,
+			libcube,
+			libcubeapp,
+		}, boost),
 	}
 end
