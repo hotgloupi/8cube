@@ -209,4 +209,25 @@ return function(build)
 			libcubeapp,
 		}, boost),
 	}
+	local exts = {'py', 'bmp', 'ttf', 'rml'}
+
+	local pylib = build:directory() / 'lib' / 'python'
+	for _, ext in ipairs(exts) do
+		for _, src in ipairs(build:fs():rglob('src', "*." .. ext)) do
+			local relpath = src:relative_path(build:project_directory() / "src")
+			build:fs():copy(src, pylib / relpath)
+		end
+	end
+
+	for _, src in ipairs(build:fs():rglob('src', '*.py++')) do
+		local relpath = src:relative_path(build:project_directory() / "src")
+		cxx_compiler:link_shared_library{
+			name = tostring(relpath:stem()),
+			sources = {src},
+			include_directories = {'src',},
+			libraries = {python, glm,},
+			directory = 'lib/python' / relpath:parent_path(),
+			filename_prefix = '',
+		}
+	end
 end
