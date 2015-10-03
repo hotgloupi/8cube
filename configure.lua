@@ -11,133 +11,18 @@ return function(build)
 		standard = 'c++11',
 	}
 
-	local openssl = modules.openssl.build{
-		build = build,
-		version = '1.0.1f',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-	}
-
-	local bzip2 = modules.bzip2.build{
-		build = build,
-		version = '1.0.6',
-		compiler = c_compiler,
-		install_directory = build:directory()
-	}
-
-	local zlib = modules.zlib.build{
-		build = build,
-		version = '1.2.8',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-	}
-
-	local python = modules.python.build{
-		build = build,
-		version = '3.4.0',
-		compiler = c_compiler,
-		bzip2 = bzip2,
-		zlib = zlib,
-		openssl = openssl,
-		install_directory = build:directory()
-	}
-
-	local curl = modules.curl.build{
-		build = build,
-		version = '7.35.0',
-		compiler = c_compiler,
-		install_directory = build:directory()
-	}
-
-	local boost = modules.boost.build{
-		build = build,
-		version = '1.57.0',
-		compiler = cxx_compiler,
-		install_directory = build:directory(),
-		zlib = zlib,
-		bzip2 = bzip2,
-		python = python,
-		components = {
-			'iostreams',
-			'python',
-			'filesystem',
-			'system',
-			'thread',
-			'coroutine',
-			'context',
+	local deps = build:include{
+		directory = "deps",
+		args = {
+			c_compiler = c_compiler,
+			cxx_compiler = cxx_compiler
 		}
 	}
 
-	local sdl = modules.sdl.build{
-		build = build,
-		version = '2.0.3',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-	}
-
-	local sdlimage = modules.sdlimage.build{
-		build = build,
-		version = '2.0.0',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-		sdl = sdl,
-	}
-
-	local assimp = modules.assimp.build{
-		build = build,
-		version = '3.1.1',
-		compiler = cxx_compiler,
-		c_compiler = c_compiler,
-		zlib = zlib,
-		boost = boost,
-		install_directory = build:directory(),
-	}
-
-	local freetype2 = modules.freetype.build{
-		build = build,
-		version = '2.6',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-	}
-
-	local bullet = modules.bullet.build{
-		build = build,
-		version = '2.83.6',
-		compiler = cxx_compiler,
-		install_directory = build:directory(),
-	}
-
-    local librocket = modules.librocket.build{
-		build = build,
-		version = 'HEAD',
-		compiler = cxx_compiler,
-		c_compiler = c_compiler,
-		freetype2 = freetype2,
-		install_directory = build:directory(),
-	}
-
-	local opengl = modules.opengl.find{
-		compiler = cxx_compiler,
-	}
-
-	local glm = modules.glm.build{
-		build = build,
-		version = '0.9.7.1',
-		compiler = cxx_compiler,
-		install_directory = build:directory(),
-	}
-
-	local glew = modules.glew.build{
-		build = build,
-		version = '1.13.0',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-	}
-
 	local base_libraries = table.extend({
-		zlib,
-		bzip2,
-	}, boost)
+		deps.zlib,
+		deps.bzip2,
+	}, deps.boost)
 
 	--local libetc_static = cxx_compiler:link_static_library{
 	--	name = 'etc',
@@ -147,8 +32,6 @@ return function(build)
 	--	include_directories = {'src',},
 	--	libraries = base_libraries,
 	--}
-
-	print(table.tostring(curl.files))
 	local libetc = cxx_compiler:link_shared_library{
 		name = 'etc',
 		object_directory = 'etc-shared',
@@ -156,8 +39,8 @@ return function(build)
 		defines = {'ETC_BUILD_DYNAMIC_LIBRARY'},
 		include_directories = {'src',},
 		libraries = table.extend({
-			zlib, bzip2, curl,
-		}, boost)
+			deps.zlib, deps.bzip2, deps.curl,
+		}, deps.boost)
 	}
 
 	local libcube = cxx_compiler:link_shared_library{
@@ -167,18 +50,18 @@ return function(build)
 		defines = {'CUBE_BUILD_DYNAMIC_LIBRARY'},
 		include_directories = {'src',},
 		libraries = table.extend({
-			glm,
-			bullet,
-			sdlimage,
-			sdl,
-			freetype2,
-			zlib,
-			bzip2,
-			assimp,
-			glew,
-			librocket,
-			curl,
-		}, boost),
+			deps.glm,
+			deps.bullet,
+			deps.sdlimage,
+			deps.sdl,
+			deps.freetype2,
+			deps.zlib,
+			deps.bzip2,
+			deps.assimp,
+			deps.glew,
+			deps.librocket,
+			deps.curl,
+		}, deps.boost),
 	}
 
 	local libcubeapp = cxx_compiler:link_shared_library{
@@ -188,7 +71,7 @@ return function(build)
 		defines = {'CUBEAPP_BUILD_DYNAMIC_LIBRARY'},
 		include_directories = {'src',},
 		libraries = table.extend(
-			{python},
+			{deps.python},
 			base_libraries
 		),
 	}
@@ -197,17 +80,17 @@ return function(build)
 		name = '8cube',
 		sources = {'src/main.cpp'},
 		libraries = table.extend({
-			opengl,
-			librocket,
-			glew,
-			curl,
-			zlib,
-			assimp,
-			bzip2,
+			deps.opengl,
+			deps.librocket,
+			deps.glew,
+			deps.curl,
+			deps.zlib,
+			deps.assimp,
+			deps.bzip2,
 			libetc,
 			libcube,
 			libcubeapp,
-		}, boost),
+		}, deps.boost),
 	}
 	local exts = {'py', 'bmp', 'ttf', 'rml'}
 
@@ -225,7 +108,7 @@ return function(build)
 			name = tostring(relpath:stem()),
 			sources = {src},
 			include_directories = {'src',},
-			libraries = {python, glm,},
+			libraries = {deps.python, deps.glm,},
 			directory = 'lib/python' / relpath:parent_path(),
 			filename_prefix = '',
 		}
