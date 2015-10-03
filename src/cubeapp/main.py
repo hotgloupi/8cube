@@ -155,8 +155,8 @@ def main(argv):
     cube.constants.application.name("8cube")
 
     # XXX remove that
-    with cube.trace_info("Initializing the font manager"):
-        cube.gui.FontManager.populate()
+    #with cube.trace_info("Initializing the font manager"):
+    #    cube.gui.FontManager.populate()
 
     try:
         parser, args = parse_args(argv)
