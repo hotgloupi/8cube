@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-import os, sys
+import os, sys, gc
 
 def console():
     import cube
@@ -114,6 +114,11 @@ def parse_args(args):
         help = 'Enable debugging session',
         action = 'store_true',
     )
+
+    parser.add_argument(
+        '--disable-gc',
+        action = 'store_true',
+    )
     return parser, parser.parse_args(args=args)
 
 
@@ -162,7 +167,13 @@ def main(argv):
         parser, args = parse_args(argv)
     except SystemExit as e:
         return e.code
+
+    if args.disable_gc:
+        gc.disable()
+
     try:
+        if args.debug:
+            gc.set_debug(gc.DEBUG_STATS)
         if args.profile:
             import cProfile, pstats
             pr = cProfile.Profile()
@@ -242,7 +253,7 @@ def _main(parser, args):
                 cube.fatal("Cannot find the file '%s'" % args.script)
                 return 1
             import runpy
-            return runpy.run_path(args.script, run_name = '__main__')
+            runpy.run_path(args.script, run_name = '__main__')
     elif args.game is not None:
         def run():
             from os.path import realpath, isdir, exists, join, dirname, basename
@@ -267,4 +278,8 @@ def _main(parser, args):
         parser.print_usage()
         return 1
 
-    return run() or 0
+    ret = run()
+    if ret is None:
+        return 0
+    print(ret)
+    return ret
