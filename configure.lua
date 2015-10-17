@@ -98,8 +98,8 @@ return function(build)
 			libetc,
 			libcube,
 			libcubeapp,
-			cxx_compiler:find_system_library('util'),
-			cxx_compiler:find_system_library('dl'),
+			cxx_compiler:find_system_library('util', 'shared'),
+			cxx_compiler:find_system_library('dl', 'shared'),
 		}, deps.boost),
 	}
 	local exts = {'py', 'bmp', 'ttf', 'rml'}
