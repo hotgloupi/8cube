@@ -86,6 +86,10 @@ return function(build)
 	local cube_exe = cxx_compiler:link_executable{
 		name = '8cube',
 		sources = {'src/main.cpp'},
+		export_libraries = {
+			deps.python,
+		},
+		export_dynamic = true,
 		libraries = table.extend({
 			libetc,
 			libcube,
@@ -95,7 +99,6 @@ return function(build)
 			deps.glew,
 			deps.curl,
 			deps.assimp,
-			deps.python,
 			deps.bzip2,
 			deps.zlib,
 			cxx_compiler:find_system_library('util', 'shared'),
