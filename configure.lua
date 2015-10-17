@@ -61,6 +61,8 @@ return function(build)
 			deps.glew,
 			deps.librocket,
 			deps.curl,
+			deps.opengl,
+			libetc,
 		}, deps.boost),
 	}
 
@@ -69,11 +71,16 @@ return function(build)
 		object_directory = 'cubeapp-shared',
 		sources = build:fs():rglob('src/cubeapp', '*.cpp'),
 		defines = {'CUBEAPP_BUILD_DYNAMIC_LIBRARY'},
-		include_directories = {'src',},
+		include_directories = table.extend({'src',}, deps.python.include_directories),
 		libraries = table.extend(
-			{deps.python},
-			base_libraries
+			{
+				deps.glm,
+				libetc,
+				libcube,
+			},
+			deps.boost
 		),
+		allow_unresolved_symbols = true,
 	}
 
 	local cube_exe = cxx_compiler:link_executable{
@@ -87,6 +94,7 @@ return function(build)
 			deps.zlib,
 			deps.assimp,
 			deps.bzip2,
+			deps.python,
 			libetc,
 			libcube,
 			libcubeapp,
@@ -107,10 +115,20 @@ return function(build)
 		cxx_compiler:link_shared_library{
 			name = tostring(relpath:stem()),
 			sources = {src},
-			include_directories = {'src',},
-			libraries = {deps.python, deps.glm,},
+			include_directories = table.extend({'src',}, deps.python.include_directories),
+			libraries = table.extend(
+				{
+					deps.glm,
+					libetc,
+					libcube,
+					libcubeapp,
+				},
+				deps.boost
+			),
 			directory = 'lib/python' / relpath:parent_path(),
 			filename_prefix = '',
+			extension = '.so',
+			allow_unresolved_symbols = true,
 		}
 	end
 end

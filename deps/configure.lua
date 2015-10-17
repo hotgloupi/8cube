@@ -35,7 +35,8 @@ return function(build, args)
 		bzip2 = deps.bzip2,
 		zlib = deps.zlib,
 		openssl = deps.openssl,
-		install_directory = build:directory()
+		install_directory = build:directory(),
+		kind = 'static',
 	}
 
 	deps.curl = modules.curl.build{
@@ -47,12 +48,13 @@ return function(build, args)
 
 	deps.boost = modules.boost.build{
 		build = build,
-		version = '1.57.0',
+		version = '1.59.0',
 		compiler = cxx_compiler,
 		install_directory = build:directory(),
 		zlib = deps.zlib,
 		bzip2 = deps.bzip2,
 		python = deps.python,
+		kind = 'static',
 		components = {
 			'iostreams',
 			'python',
@@ -61,7 +63,8 @@ return function(build, args)
 			'thread',
 			'coroutine',
 			'context',
-		}
+		},
+		python_kind = 'shared',
 	}
 
 	deps.sdl = modules.sdl.build{
@@ -69,6 +72,11 @@ return function(build, args)
 		version = '2.0.3',
 		compiler = c_compiler,
 		install_directory = build:directory(),
+		with = {
+			haptic = false,
+			joystick = false,
+		},
+		dynapi = false,
 	}
 
 	deps.sdlimage = modules.sdlimage.build{
