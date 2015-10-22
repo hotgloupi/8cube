@@ -83,27 +83,34 @@ return function(build)
 		allow_unresolved_symbols = true,
 	}
 
+    local cube_libs = table.extend({
+        libetc,
+        libcube,
+        libcubeapp,
+        deps.opengl,
+        deps.librocket,
+        deps.glew,
+        deps.curl,
+        deps.assimp,
+        deps.bzip2,
+        deps.zlib,
+    }, deps.boost)
+
+    if not build:host():is_windows() then
+        table.extend(cube_libs, {
+            cxx_compiler:find_system_library('util', 'shared'),
+            cxx_compiler:find_system_library('dl', 'shared'),
+        })
+    end
+
 	local cube_exe = cxx_compiler:link_executable{
 		name = '8cube',
 		sources = {'src/main.cpp'},
 		export_libraries = {
 			deps.python,
 		},
+        libraries = cube_libs,
 		export_dynamic = true,
-		libraries = table.extend({
-			libetc,
-			libcube,
-			libcubeapp,
-			deps.opengl,
-			deps.librocket,
-			deps.glew,
-			deps.curl,
-			deps.assimp,
-			deps.bzip2,
-			deps.zlib,
-			cxx_compiler:find_system_library('util', 'shared'),
-			cxx_compiler:find_system_library('dl', 'shared'),
-		}, deps.boost),
 	}
 	local exts = {'py', 'bmp', 'ttf', 'rml'}
 
@@ -131,6 +138,7 @@ return function(build)
 				deps.boost
 			),
 			directory = 'lib/python' / relpath:parent_path(),
+			import_library_directory = 'lib/python' / relpath:parent_path(),
 			filename_prefix = '',
 			extension = '.so',
 			allow_unresolved_symbols = true,

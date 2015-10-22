@@ -30,7 +30,7 @@ return function(build, args)
 
 	deps.python = modules.python.build{
 		build = build,
-		version = '3.4.0',
+		version = '3.5.0',
 		compiler = c_compiler,
 		bzip2 = deps.bzip2,
 		zlib = deps.zlib,
@@ -77,6 +77,8 @@ return function(build, args)
 			joystick = false,
 		},
 		dynapi = false,
+		directx = false,
+		kind = build:host():is_windows() and 'shared' or 'static',
 	}
 
 	deps.sdlimage = modules.sdlimage.build{
