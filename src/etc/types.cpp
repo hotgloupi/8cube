@@ -80,12 +80,12 @@ namespace etc {
 	template
 	ETC_API
 	std::string demangle<can_throw_policy>(std::string const& sym)
-		ETC_NOEXCEPT_IF(false);
+		;//ETC_NOEXCEPT_IF(false);
 
 	template
 	ETC_API
 	std::string demangle<no_throw_policy>(std::string const& sym)
-		ETC_NOEXCEPT_IF(true);
+		;//ETC_NOEXCEPT_IF(true);
 
 	namespace {
 
