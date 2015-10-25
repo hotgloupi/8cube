@@ -9,6 +9,10 @@
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 
+#ifdef min
+# undef min
+#endif
+
 namespace etc { namespace http {
 
 	ETC_LOG_COMPONENT("etc.http.Response");
