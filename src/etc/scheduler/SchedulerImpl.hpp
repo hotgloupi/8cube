@@ -1,6 +1,9 @@
 #ifndef  ETC_SCHEDULER_SCHEDULERIMPL_HPP
 # define ETC_SCHEDULER_SCHEDULERIMPL_HPP
 
+// Avoid winsock.h double include on windows
+# include <boost/asio/io_service.hpp>
+
 # include "Context.hpp"
 # include "Scheduler.hpp"
 # include "StrandImpl.hpp"
@@ -11,7 +14,6 @@
 # include <etc/scope_exit.hpp>
 # include <etc/stack_ptr.hpp>
 
-# include <boost/asio/io_service.hpp>
 
 # include <thread>
 # include <vector>
