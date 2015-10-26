@@ -9,8 +9,7 @@ namespace cube { namespace gl { namespace renderer {
 	Shader::Shader(ShaderType const type,
 	               Parameters inputs,
 	               Parameters outputs,
-	               Parameters parameters)
-		ETC_NOEXCEPT_IF(std::is_nothrow_move_constructible<Parameters>())
+	               Parameters parameters) ETC_NOEXCEPT
 		: type{type}
 		, _inputs{std::move(inputs)}
 		, _outputs{std::move(outputs)}

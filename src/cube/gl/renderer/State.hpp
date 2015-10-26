@@ -41,10 +41,7 @@ namespace cube { namespace gl { namespace renderer {
 		 */
 		explicit
 		State(Mode const mode);
-		State(State&& other)
-			ETC_NOEXCEPT_IF(
-				std::is_nothrow_move_constructible<std::unique_ptr<Impl>>()
-			);
+		State(State&& other) ETC_NOEXCEPT;
 		State(State const& other);
 		~State();
 

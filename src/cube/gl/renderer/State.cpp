@@ -63,10 +63,7 @@ namespace cube { namespace gl { namespace renderer {
 		, _this{new Impl{}}
 	{ ETC_TRACE_CTOR(mode); ETC_CONTRACT_CLASS_INVARIANT(); }
 
-	State::State(State&& other)
-		ETC_NOEXCEPT_IF(
-			std::is_nothrow_move_constructible<std::unique_ptr<State::Impl>>()
-		)
+	State::State(State&& other) ETC_NOEXCEPT
 		: mode{other.mode}
 		, _this{std::move(other._this)}
 	{

@@ -35,8 +35,7 @@ namespace cube { namespace gl { namespace renderer {
 		Shader(ShaderType const type,
 		       Parameters inputs,
 		       Parameters outputs,
-		       Parameters parameters)
-			ETC_NOEXCEPT_IF(std::is_nothrow_move_constructible<Parameters>());
+		       Parameters parameters) ETC_NOEXCEPT;
 
 		virtual
 		~Shader();
