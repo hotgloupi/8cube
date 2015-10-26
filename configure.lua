@@ -37,15 +37,34 @@ return function(build)
 	--	include_directories = {'src',},
 	--	libraries = base_libraries,
 	--}
+	local libetc_deps = table.extend({
+			deps.zlib,
+			deps.bzip2,
+			deps.curl,
+	}, deps.boost)
+
+	if build:target():is_windows() then
+		for _, lib in ipairs({'Dbghelp.lib', 'Shlwapi.lib'}) do
+			table.append(
+				libetc_deps,
+				cxx_compiler:find_system_library_from_filename(lib, 'shared')
+			)
+		end
+	end
+
 	local libetc = cxx_compiler:link_shared_library{
 		name = 'etc',
 		object_directory = 'etc-shared',
 		sources = build:fs():rglob('src/etc', '*.cpp'),
 		defines = {'ETC_BUILD_DYNAMIC_LIBRARY'},
 		include_directories = {'src',},
-		libraries = table.extend({
-			deps.zlib, deps.bzip2, deps.curl,
-		}, deps.boost)
+		libraries = libetc_deps,
+	}
+
+	local libglad = cxx_compiler:link_static_library{
+		name = 'glad',
+		sources = {'src/glad-compat-2.1/src/glad.c'},
+		include_directories = {'src/glad-compat-2.1/include'},
 	}
 
 	local libcube = cxx_compiler:link_shared_library{
@@ -63,7 +82,7 @@ return function(build)
 			deps.zlib,
 			deps.bzip2,
 			deps.assimp,
-			deps.glew,
+			libglad,
 			deps.librocket,
 			deps.curl,
 			deps.opengl,
@@ -94,7 +113,7 @@ return function(build)
         libcubeapp,
         deps.opengl,
         deps.librocket,
-        deps.glew,
+        libglad,
         deps.curl,
         deps.assimp,
         deps.bzip2,

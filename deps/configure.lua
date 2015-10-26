@@ -63,6 +63,7 @@ return function(build, args)
 			'thread',
 			'coroutine',
 			'context',
+			'chrono',
 		},
 		python_kind = 'shared',
 	}
@@ -133,12 +134,12 @@ return function(build, args)
 		install_directory = build:directory(),
 	}
 
-	deps.glew = modules.glew.build{
-		build = build,
-		version = '1.13.0',
-		compiler = c_compiler,
-		install_directory = build:directory(),
-	}
+	--deps.glew = modules.glew.build{
+	--	build = build,
+	--	version = '1.13.0',
+	--	compiler = c_compiler,
+	--	install_directory = build:directory(),
+	--}
 
 	return deps
 end
