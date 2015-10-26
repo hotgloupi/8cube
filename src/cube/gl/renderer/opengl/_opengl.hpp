@@ -39,7 +39,8 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	private:
 		template<ThrowPolicy error_policy>
 		static void _check_error(char const* function_)
-			ETC_NOEXCEPT_IF(error_policy == no_throw);
+			//ETC_NOEXCEPT_IF(error_policy == no_throw)
+			;
 		ETC_LOG_COMPONENT("cube.gl.renderer.opengl.Proxy");
 
 	public:

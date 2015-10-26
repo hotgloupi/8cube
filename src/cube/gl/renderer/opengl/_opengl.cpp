@@ -200,7 +200,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 
 	template<gl::ThrowPolicy error_policy>
 	void gl::_check_error(char const* function_)
-		ETC_NOEXCEPT_IF(error_policy == gl::no_throw)
+		//ETC_NOEXCEPT_IF(error_policy == gl::no_throw)
 	{
 		GLenum code = glGetError();
 
@@ -226,9 +226,9 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
     }
 
 	template
-	void gl::_check_error<gl::no_throw>(char const* function_) ETC_NOEXCEPT_IF(true);
+	void gl::_check_error<gl::no_throw>(char const* function_); //ETC_NOEXCEPT_IF(gl::no_throw == gl::no_throw);
 	template
-	void gl::_check_error<gl::can_throw>(char const* function_) ETC_NOEXCEPT_IF(false);
+	void gl::_check_error<gl::can_throw>(char const* function_); // ETC_NOEXCEPT_IF(gl::can_throw == gl::no_throw);
 
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
