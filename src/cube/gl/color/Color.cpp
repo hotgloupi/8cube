@@ -312,8 +312,8 @@ namespace cube { namespace gl { namespace color {
 	template struct Color3<float>;
 	template struct Color4<float>;
 
-	template CUBE_API Color3<float> const& parse_color3(std::string const&);
-	template CUBE_API Color4<float> const& parse_color4(std::string const&);
+	template CUBE_API Color3<float> const& parse_color3(std::string const&) ETC_NOEXCEPT;
+	template CUBE_API Color4<float> const& parse_color4(std::string const&) ETC_NOEXCEPT;
 
 	template<typename T>
 	std::ostream&

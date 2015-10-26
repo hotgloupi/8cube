@@ -141,12 +141,12 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		_CUBE_GL_OPENGL_WRAP(VertexPointer);
 		_CUBE_GL_OPENGL_WRAP(VertexAttribPointer);
 		_CUBE_GL_OPENGL_WRAP(Viewport);
-		_CUBE_GL_OPENGL_WRAP_ARB(ActiveTexture);
-		_CUBE_GL_OPENGL_WRAP_ARB(BindBuffer);
-		_CUBE_GL_OPENGL_WRAP_ARB(BufferData);
-		_CUBE_GL_OPENGL_WRAP_ARB(BufferSubData);
-		_CUBE_GL_OPENGL_WRAP_ARB(DeleteBuffers);
-		_CUBE_GL_OPENGL_WRAP_ARB(GenBuffers);
+		_CUBE_GL_OPENGL_WRAP(ActiveTexture);
+		_CUBE_GL_OPENGL_WRAP(BindBuffer);
+		_CUBE_GL_OPENGL_WRAP(BufferData);
+		_CUBE_GL_OPENGL_WRAP(BufferSubData);
+		_CUBE_GL_OPENGL_WRAP(DeleteBuffers);
+		_CUBE_GL_OPENGL_WRAP(GenBuffers);
 		_CUBE_GL_OPENGL_WRAP_RET(CreateProgram, GLuint);
 		_CUBE_GL_OPENGL_WRAP_RET(CreateShader, GLuint);
 		_CUBE_GL_OPENGL_WRAP_RET(GetUniformLocation, GLint);
