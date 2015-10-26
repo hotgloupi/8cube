@@ -16,6 +16,7 @@
 #   error "Cannot bind frag data location"
 #  endif
 #  define glBindFragDataLocation glBindFragDataLocationEXT
+#  define PFNGLBINDFRAGDATALOCATIONPROC PFNGLBINDFRAGDATALOCATIONEXTPROC
 # endif
 
 # ifndef glGetFragDataLocation
@@ -23,6 +24,7 @@
 #   error "Cannot bind frag data location"
 #  endif
 #  define glGetFragDataLocation glGetFragDataLocationEXT
+#  define PFNGLGETFRAGDATALOCATIONPROC PFNGLGETFRAGDATALOCATIONEXTPROC
 # endif
 
 # ifndef GL_R8_SNORM
