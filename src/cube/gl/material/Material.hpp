@@ -145,8 +145,7 @@ namespace cube { namespace gl { namespace material {
 		inline std::string const& name() const ETC_NOEXCEPT { return _name; }
 
 		/// Set name.
-		inline void name(std::string value)
-			ETC_NOEXCEPT_IF(std::is_nothrow_move_assignable<std::string>())
+		inline void name(std::string value) ETC_NOEXCEPT
 		{ _name = std::move(value); }
 
 		/// Ambient color.
