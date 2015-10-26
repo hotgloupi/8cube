@@ -292,8 +292,8 @@ namespace cube { namespace gl { namespace font {
 				);
 				std::vector<uint8_t> buffer(glyph.bitmap.width * glyph.bitmap.rows * 4);
 				ETC_ASSERT_EQ(buffer.size(), static_cast<size_t>(glyph.bitmap.width * glyph.bitmap.rows * 4));
-				for (int i = 0; i < glyph.bitmap.width; ++i)
-					for (int j = 0; j < glyph.bitmap.rows; ++j)
+				for (unsigned i = 0; i < glyph.bitmap.width; ++i)
+					for (unsigned j = 0; j < glyph.bitmap.rows; ++j)
 					{
 						etc::size_type idx = i + j * glyph.bitmap.width;
 						uint8_t col = glyph.bitmap.buffer[idx];
@@ -303,7 +303,7 @@ namespace cube { namespace gl { namespace font {
 						buffer[idx * 4 + 2] = col;
 						buffer[idx * 4 + 3] = 255;
 					}
-				_texture->set_data(_pen.x, _pen.y,
+				_texture->set_data((int)_pen.x, (int)_pen.y,
 				                   glyph.bitmap.width, glyph.bitmap.rows,
 				                   renderer::PixelFormat::rgba,
 				                   renderer::ContentPacking::uint8,
@@ -596,12 +596,12 @@ namespace cube { namespace gl { namespace font {
 			(face->family_name == nullptr ? "" : face->family_name),
 			(face->style_name == nullptr ? "" : face->style_name),
 			style,
-			static_cast<bool>(FT_HAS_HORIZONTAL(face)),
-			static_cast<bool>(FT_HAS_VERTICAL(face)),
-			static_cast<bool>(FT_IS_FIXED_WIDTH(face)),
-			static_cast<bool>(FT_IS_SCALABLE(face)),
-			static_cast<bool>(FT_HAS_FIXED_SIZES(face)),
-			static_cast<bool>(FT_HAS_KERNING(face)),
+			static_cast<bool>(FT_HAS_HORIZONTAL(face) != 0),
+			static_cast<bool>(FT_HAS_VERTICAL(face) != 0),
+			static_cast<bool>(FT_IS_FIXED_WIDTH(face) != 0),
+			static_cast<bool>(FT_IS_SCALABLE(face) != 0),
+			static_cast<bool>(FT_HAS_FIXED_SIZES(face) != 0),
+			static_cast<bool>(FT_HAS_KERNING(face) != 0),
 			face_index
 		}};
 	}
