@@ -21,7 +21,7 @@ namespace cube { namespace scene { namespace node {
 
 	template<typename NodeType>
 	class Visitor
-		: public virtual Visitor<Node>
+		: public virtual ::cube::scene::node::Visitor<Node>
 	{
 		ETC_LOG_COMPONENT("cube.scene.Visitor<" + pretty_type<NodeType>() + ">");
 

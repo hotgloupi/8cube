@@ -131,10 +131,10 @@ namespace cube { namespace scene { namespace node {
 			using Visitable<Specialized>::visit;
 		};
 
-		struct Visitor : node::Visitor<Specialized>
+		struct SpecializedVisitor : node::Visitor<Specialized>
 		{
 			int& _visited;
-			Visitor(int& visited) : _visited(visited) {}
+			SpecializedVisitor(int& visited) : _visited(visited) {}
 			bool visit(Specialized&) override
 			{ _visited++; return true; }
 		};
@@ -144,7 +144,7 @@ namespace cube { namespace scene { namespace node {
 
 			Graph g;
 			int visited = 0;
-			Visitor v(visited);
+			SpecializedVisitor v(visited);
 			{
 				g.root().visit(v);
 				ETC_ENFORCE_EQ(visited, 0);
@@ -176,11 +176,11 @@ namespace cube { namespace scene { namespace node {
 			{}
 			using Visitable<Specialized2>::visit;
 		};
-		struct SpecializedVisitor
+		struct SpecializedMultipleVisitor
 			: MultipleVisitor<Specialized1, Specialized2>
 		{
 			int s1, s2;
-			SpecializedVisitor() : s1{0}, s2{0} {}
+			SpecializedMultipleVisitor() : s1{0}, s2{0} {}
 			using MultipleVisitor<Specialized1, Specialized2>::visit;
 			bool visit(Specialized1&) override
 			{ return ++s1; }
@@ -196,7 +196,7 @@ namespace cube { namespace scene { namespace node {
 			g.emplace_child<Specialized2>(g.root());
 
 			{
-				SpecializedVisitor v;
+				SpecializedMultipleVisitor v;
 				g.traverse(v);
 				ETC_ENFORCE_EQ(v.s1, 1);
 				ETC_ENFORCE_EQ(v.s2, 2);
