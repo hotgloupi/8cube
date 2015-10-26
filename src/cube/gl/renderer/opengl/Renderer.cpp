@@ -50,24 +50,19 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		if (!initialized)
 		{
 			ETC_LOG.debug("Initializing GLEW");
-			::glewExperimental = GL_TRUE;
-			auto ret = ::glewInit();
-			if (ret != GLEW_OK)
-				throw Exception{
-					"Cannot initialize OpenGL renderer: " +
-					std::string((char const*) glewGetErrorString(ret))
-				};
+
+			if (!gladLoadGL())
+				throw Exception{"Cannot initialize OpenGL renderer"};
 
 #define CHECK(ext) \
 			if (!ext) \
 				throw Exception{"Extension " #ext " is not available"}; \
 			/**/
 
-			CHECK(GLEW_ARB_shading_language_100)
-			CHECK(GLEW_ARB_shader_objects)
-			CHECK(GLEW_ARB_vertex_shader)
-			CHECK(GLEW_ARB_fragment_shader)
-			ETC_LOG.info("GLEW version",    glewGetString(GLEW_VERSION));
+			CHECK(GLAD_GL_ARB_shading_language_100)
+			CHECK(GLAD_GL_ARB_shader_objects)
+			CHECK(GLAD_GL_ARB_vertex_shader)
+			CHECK(GLAD_GL_ARB_fragment_shader)
 			ETC_LOG.info("OpenGL version",  (char*) glGetString(GL_VERSION));
 			ETC_LOG.info("OpenGL renderer", (char*) glGetString(GL_RENDERER));
 			ETC_LOG.info("OpenGL vendor",   (char*) glGetString(GL_VENDOR));
