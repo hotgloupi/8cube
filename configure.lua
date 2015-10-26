@@ -5,10 +5,15 @@ local modules = require('configure.modules')
 return function(build)
 	build:status("Building on", build:host(), "for", build:target())
 
+	local cxx_defines = {}
+	if build:host():is_windows() then
+	 table.extend(cxx_defines, {'NOMINMAX', 'WIN32_LEAN_AND_MEAN'})
+	end
 	local c_compiler = require('configure.lang.c.compiler').find{build = build}
 	local cxx_compiler = require('configure.lang.cxx.compiler').find{
 		build = build,
 		standard = 'c++11',
+		defines = cxx_defines,
 	}
 
 	local deps = build:include{
