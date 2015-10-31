@@ -5,10 +5,13 @@
 
 namespace cube { namespace gl { namespace renderer { namespace opengl {
 
+	struct RendererType;
+
 	class GLRenderer
 		: public renderer::Renderer
 	{
-	public:
+	private:
+		std::unique_ptr<RendererType> _description;
 
 	public:
 		GLRenderer(system::window::RendererContext& context);
@@ -67,6 +70,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 		std::string
 		__str__() const override;
 		Name name() const override { return Name::OpenGL; }
+		void init_versions();
 	};
 
 }}}} // !cube::gl::renderer::opengl

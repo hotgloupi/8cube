@@ -84,8 +84,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			}
 
 			initialized = true;
-
 		}
+		auto descr = etc::make_unique<RendererType>();
+		descr->init_versions();
+		_description = std::move(descr);
 		gl::ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
@@ -98,8 +100,7 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	renderer::RendererType const&
 	GLRenderer::description() const
 	{
-		static RendererType descr;
-		return descr;
+		return *_description;
 	}
 
 	renderer::Painter GLRenderer::begin(Mode mode)
@@ -254,8 +255,11 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 	}
 
 	RendererType::RendererType()
-		: opengl{}
-		, glsl{}
+		: opengl{0,0}
+		, glsl{0,0}
+	{}
+
+	void RendererType::init_versions()
 	{
 		int major, minor;
 		find_version(glGetString(GL_VERSION), &major, &minor);
