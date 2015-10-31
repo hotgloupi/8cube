@@ -28,12 +28,22 @@ return function(build, args)
 		install_directory = build:directory(),
 	}
 
+	if not build:host():is_windows() then
+		deps.idn = modules.idn.build{
+			build = build,
+			version = '1.32',
+			compiler = c_compiler,
+			install_directory = build:directory(),
+		}
+	end
+
 	deps.python = modules.python.build{
 		build = build,
 		version = '3.5.0',
 		compiler = c_compiler,
 		bzip2 = deps.bzip2,
 		zlib = deps.zlib,
+		idn = deps.idn,
 		openssl = deps.openssl,
 		install_directory = build:directory(),
 		kind = 'static',

@@ -114,6 +114,7 @@ return function(build)
         deps.opengl,
         deps.librocket,
         libglad,
+        deps.python,
         deps.curl,
         deps.assimp,
         deps.bzip2,
@@ -122,6 +123,7 @@ return function(build)
 
     if not build:host():is_windows() then
         table.extend(cube_libs, {
+            deps.idn,
             cxx_compiler:find_system_library('util', 'shared'),
             cxx_compiler:find_system_library('dl', 'shared'),
         })
