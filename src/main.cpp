@@ -20,6 +20,10 @@
 #include <stdexcept>
 #include <string>
 
+#ifdef _WIN32
+# include <Shellapi.h>
+#endif
+
 namespace fs = boost::filesystem;
 namespace algo = boost::algorithm;
 
