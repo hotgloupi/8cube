@@ -67,27 +67,37 @@ return function(build)
 		include_directories = {'src/glad-compat-2.1/include'},
 	}
 
+
+	local libcube_libraries = table.extend({
+		deps.glm,
+		deps.bullet,
+		deps.sdlimage,
+		deps.sdl,
+		deps.freetype2,
+		deps.zlib,
+		deps.bzip2,
+		deps.assimp,
+		libglad,
+		deps.librocket,
+		deps.curl,
+		deps.opengl,
+		libetc,
+	}, deps.boost)
+
+	if build:host():is_windows() then
+		table.extend(libcube_libraries, {
+			cxx_compiler:find_system_library_from_filename('User32.lib', 'shared'),
+			cxx_compiler:find_system_library_from_filename('Shell32.lib', 'shared'),
+		})
+	end
+
 	local libcube = cxx_compiler:link_shared_library{
 		name = 'cube',
 		object_directory = 'cube-shared',
 		sources = build:fs():rglob('src/cube', '*.cpp'),
 		defines = {'CUBE_BUILD_DYNAMIC_LIBRARY'},
 		include_directories = {'src',},
-		libraries = table.extend({
-			deps.glm,
-			deps.bullet,
-			deps.sdlimage,
-			deps.sdl,
-			deps.freetype2,
-			deps.zlib,
-			deps.bzip2,
-			deps.assimp,
-			libglad,
-			deps.librocket,
-			deps.curl,
-			deps.opengl,
-			libetc,
-		}, deps.boost),
+		libraries = libcube_libraries,
 	}
 
 	local libcubeapp = cxx_compiler:link_shared_library{
@@ -121,7 +131,11 @@ return function(build)
         deps.zlib,
     }, deps.boost)
 
-    if not build:host():is_windows() then
+    if build:host():is_windows() then
+	    table.extend(cube_libs, {
+			cxx_compiler:find_system_library_from_filename('Shell32.lib', 'shared'),
+		})
+	else
         table.extend(cube_libs, {
             deps.idn,
             cxx_compiler:find_system_library('util', 'shared'),
@@ -148,8 +162,15 @@ return function(build)
 		end
 	end
 
+
+	local cpython_ext = '.so'
+	if build:target():is_windows() then
+		cpython_ext = '.pyd'
+	end
+
 	for _, src in ipairs(build:fs():rglob('src', '*.py++')) do
 		local relpath = src:relative_path(build:project_directory() / "src")
+		local big_object = tostring(src:path():filename()) == 'Vector.py++'
 		cxx_compiler:link_shared_library{
 			name = tostring(relpath:stem()),
 			sources = {src},
@@ -166,8 +187,9 @@ return function(build)
 			directory = 'lib/python' / relpath:parent_path(),
 			import_library_directory = 'lib/python' / relpath:parent_path(),
 			filename_prefix = '',
-			extension = '.so',
+			extension = cpython_ext,
 			allow_unresolved_symbols = true,
+			big_object = big_object,
 		}
 	end
 end
