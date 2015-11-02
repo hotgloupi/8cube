@@ -24,6 +24,8 @@ return function(build)
 		}
 	}
 
+	deps.python.bundle.library_directory:set_property('install', true)
+
 	local base_libraries = table.extend({
 		deps.zlib,
 		deps.bzip2,
@@ -158,7 +160,8 @@ return function(build)
 	for _, ext in ipairs(exts) do
 		for _, src in ipairs(build:fs():rglob('src', "*." .. ext)) do
 			local relpath = src:relative_path(build:project_directory() / "src")
-			build:fs():copy(src, pylib / relpath)
+			local target = build:fs():copy(src, pylib / relpath)
+			target:set_property("install", true)
 		end
 	end
 
