@@ -83,6 +83,7 @@ return function(build)
 		deps.librocket,
 		deps.curl,
 		deps.opengl,
+		deps.libjpeg,
 		libetc,
 	}, deps.boost)
 
