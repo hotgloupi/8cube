@@ -11,6 +11,7 @@ namespace cube { namespace scene { namespace detail {
 
 	gl::material::MaterialPtr assimp_material(aiMaterial* material)
 	{
+		ETC_LOG_SCOPE_COMPONENT("cube.scene.detail")
 		using gl::material::Material;
 		using gl::material::MaterialPtr;
 		using exception::Exception;
@@ -99,19 +100,33 @@ namespace cube { namespace scene { namespace detail {
 				if (ret != AI_SUCCESS)
 					throw Exception{"Couldn't retreive texture"};
 
+				gl::material::TextureMapMode map_mode_converted;
+				gl::material::StackOperation op_converted;
+				gl::material::TextureType type_converted;
 				if (mapping == aiTextureMapping_UV)
 				{
 					// uv coordinates are stored in the mesh that use this
 					// material...
-					throw Exception{"Unhandled mapping format"};
+					//throw Exception{"Unhandled mapping format"};
+
+					ETC_LOG.debug("The material has a texture");
+					map_mode_converted = gl::material::TextureMapMode::wrap;
+					op_converted = gl::material::StackOperation::add;
+					type_converted = gl::material::TextureType::ambient;
+				}
+				else
+				{
+					map_mode_converted = assimp_cast(map_mode);
+					op_converted = assimp_cast(op);
+					type_converted = assimp_cast(type);
 				}
 
 				res->add_texture(
 					path.C_Str(),
-					assimp_cast(type),
+					type_converted,
 					assimp_cast(mapping),
-					assimp_cast(op),
-					assimp_cast(map_mode),
+					op_converted,
+					map_mode_converted,
 					blend
 				);
 			}
