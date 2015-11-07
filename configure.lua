@@ -131,6 +131,7 @@ return function(build)
         deps.assimp,
         deps.bzip2,
         deps.zlib,
+        deps.libjpeg,
     }, deps.boost)
 
     if build:host():is_windows() then

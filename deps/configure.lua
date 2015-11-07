@@ -28,6 +28,13 @@ return function(build, args)
 		install_directory = build:directory(),
 	}
 
+	deps.libjpeg = modules.libjpeg.build{
+		build = build,
+		version = '9a',
+		compiler = c_compiler,
+		install_directory = build:directory(),
+	}
+
 	if not build:host():is_windows() then
 		deps.idn = modules.idn.build{
 			build = build,
@@ -98,6 +105,7 @@ return function(build, args)
 		compiler = c_compiler,
 		install_directory = build:directory(),
 		sdl = deps.sdl,
+		libjpeg = deps.libjpeg,
 	}
 
 	deps.assimp = modules.assimp.build{
