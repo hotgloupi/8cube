@@ -48,7 +48,7 @@ namespace cube { namespace gl { namespace material {
 			}
 			else
 			{
-				throw Exception{"Unimplemented texture type"};
+				throw Exception{"Unimplemented texture type '" + etc::to_string(ch.type) + "'"};
 			}
 		}
 		res += "\tcube_FragColor = Color;\n";
