@@ -63,6 +63,10 @@ namespace cube { namespace gl { namespace renderer { namespace opengl {
 			format = GL_BGRA;
 			type = GL_UNSIGNED_INT_8_8_8_8_REV;
 			break;
+		case PixelFormat::abgr8:
+			format = GL_RGBA;
+			type = GL_UNSIGNED_INT_8_8_8_8_REV;
+			break;
 		case PixelFormat::bgr8:
 			format = GL_BGR;
 			break;
