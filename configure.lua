@@ -163,9 +163,9 @@ return function(build)
 		for _, src in ipairs(build:fs():rglob('src', "*." .. ext)) do
 			local relpath = src:relative_path(build:project_directory() / "src")
 			local target = build:fs():copy(src, pylib / relpath)
-			target:set_property("install", true)
 		end
 	end
+	build:directory_node(pylib):set_property('install', true)
 
 
 	local cpython_ext = '.so'
@@ -195,6 +195,7 @@ return function(build)
 			extension = cpython_ext,
 			allow_unresolved_symbols = true,
 			big_object = big_object,
+			install = false, -- Already installed (in pylib)
 		}
 	end
 end
