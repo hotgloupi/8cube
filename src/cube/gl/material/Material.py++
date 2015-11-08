@@ -95,6 +95,7 @@ BOOST_PYTHON_MODULE(Material)
 	                                             StackOperation,
 	                                             TextureMapMode,
 	                                             float);
+	typedef Material::TextureChannels const& (Material::*get_textures_t)() const;
 
 	{
 		auto cls = py::class_<Material, boost::noncopyable, MaterialPtr>("Material")
@@ -133,7 +134,7 @@ BOOST_PYTHON_MODULE(Material)
 			.add_property(
 				"textures",
 				py::make_function(
-					getter_cast(&Material::textures),
+					static_cast<get_textures_t>(&Material::textures),
 					py::return_value_policy<py::return_by_value>()
 				)
 			)
