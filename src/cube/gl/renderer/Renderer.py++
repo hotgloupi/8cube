@@ -13,6 +13,7 @@
 #include <cube/system/window.hpp>
 
 #include <cube/python.hpp>
+#include <cube/converters.hpp>
 
 namespace {
 
@@ -172,68 +173,6 @@ namespace {
 
 	};
 
-	template<typename T>
-	struct vector_from_python
-	{
-		vector_from_python()
-		{
-		}
-
-		static
-		void* convertible(PyObject* ptr)
-		{
-			// is convertible from list and tuple. if len(ptr) > 0,
-			if (PyList_Check(ptr) || PyTuple_Check(ptr))
-				return ptr;
-			return nullptr;
-		}
-
-		static
-		void construct(PyObject* ptr,
-		               py::converter::rvalue_from_python_stage1_data* data)
-		{
-			typedef PyObject* (*extractor_t)(PyObject*, ssize_t);
-
-			extractor_t extractor;
-			Py_ssize_t len;
-
-			if (PyList_Check(ptr))
-			{
-				extractor = &PyList_GetItem;
-				len = PyList_Size(ptr);
-			}
-			else if (PyTuple_Check(ptr))
-			{
-				extractor = &PyTuple_GetItem;
-				len = PyTuple_Size(ptr);
-			}
-			else
-				throw cube::gl::exception::Exception{
-					"convertible has messed up"
-				};
-
-			typedef py::converter::rvalue_from_python_storage<std::vector<T>> storage_t;
-
-			// Grab pointer to memory into which to construct the new QString
-			void* storage = ((storage_t*) data)->storage.bytes;
-
-			assert(storage != nullptr && "Boost.Python gave a null storage");
-
-			// in-place construct the new std::vector<std::string>.
-			auto vec = new (storage) std::vector<T>{};
-
-			for (Py_ssize_t i = 0; i < len; ++i)
-			{
-				PyObject* item = (*extractor)(ptr, i);
-				boost::python::object obj{boost::python::borrowed(item)};
-				vec->emplace_back(boost::python::extract<T>(obj));
-			}
-
-			// Stash the memory chunk pointer for later use by boost.python
-			data->convertible = storage;
-		}
-	};
-
 } //!anonymous
 
 
@@ -242,11 +181,7 @@ BOOST_PYTHON_MODULE(Renderer)
 {
 	using namespace ::cube::gl::renderer;
 
-	py::converter::registry::push_back(
-		&vector_from_python<std::string>::convertible,
-		&vector_from_python<std::string>::construct,
-		py::type_id<std::vector<std::string>>()
-	);
+	cube::register_vector_converter<std::string>();
 
 	typedef TexturePtr (Renderer::*new_texture_cb_t)(std::string const&);
 
