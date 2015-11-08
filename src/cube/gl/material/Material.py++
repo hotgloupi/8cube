@@ -3,6 +3,7 @@
 #include <cube/gl/renderer/Bindable.hpp>
 
 #include <cube/python.hpp>
+#include <cube/converters.hpp>
 
 namespace {
 
@@ -18,6 +19,10 @@ namespace {
 		-> void (Material::*)(Arg)
 	{ return ptr; }
 
+	cube::gl::renderer::TexturePtr
+	get_texture(cube::gl::material::Material::TextureChannel& self)
+	{ return self.texture; }
+
 }
 
 BOOST_PYTHON_MODULE(Material)
@@ -25,6 +30,9 @@ BOOST_PYTHON_MODULE(Material)
 	namespace py = boost::python;
 	using namespace cube::gl::material;
 	namespace renderer = cube::gl::renderer;
+
+	cube::register_vector_converter<Material::TextureChannel>();
+
 
 	py::enum_<TextureMapping>("TextureMapping")
 		.value("uv", TextureMapping::uv)
@@ -88,40 +96,62 @@ BOOST_PYTHON_MODULE(Material)
 	                                             TextureMapMode,
 	                                             float);
 
-	py::class_<Material, boost::noncopyable, MaterialPtr>("Material")
-		.def(py::init<std::string>())
+	{
+		auto cls = py::class_<Material, boost::noncopyable, MaterialPtr>("Material")
+			.def(py::init<std::string>())
 #define ADD_PROPERTY(__name) \
-		.add_property( \
-			#__name, \
-			py::make_function( \
-			 	getter_cast(&Material::__name), \
-				py::return_value_policy<py::return_by_value>() \
-			), \
-			py::make_function( \
-				setter_cast(&Material::__name) \
+			.add_property( \
+				#__name, \
+				py::make_function( \
+					getter_cast(&Material::__name), \
+					py::return_value_policy<py::return_by_value>() \
+				), \
+				py::make_function( \
+					setter_cast(&Material::__name) \
+				) \
 			) \
-		) \
-/**/
-		ADD_PROPERTY(name)
-		ADD_PROPERTY(ambient)
-		ADD_PROPERTY(ambiant)
-		ADD_PROPERTY(diffuse)
-		ADD_PROPERTY(specular)
-		ADD_PROPERTY(shininess)
-		ADD_PROPERTY(opacity)
-		ADD_PROPERTY(shading_model)
+	/**/
+			ADD_PROPERTY(name)
+			ADD_PROPERTY(ambient)
+			ADD_PROPERTY(ambiant)
+			ADD_PROPERTY(diffuse)
+			ADD_PROPERTY(specular)
+			ADD_PROPERTY(shininess)
+			ADD_PROPERTY(opacity)
+			ADD_PROPERTY(shading_model)
 #undef ADD_PROPERTY
-		.def("add_color", &Material::add_color)
-		.def(
-			"add_texture",
-			static_cast<add_texture_t>(&Material::add_texture)
+			.def("add_color", &Material::add_color)
+			.def(
+				"add_texture",
+				static_cast<add_texture_t>(&Material::add_texture)
+			)
+			.def(
+				"add_texture",
+				static_cast<add_texture_path_t>(&Material::add_texture)
+			)
+			.def("bindable", &Material::bindable)
+			.add_property(
+				"textures",
+				py::make_function(
+					getter_cast(&Material::textures),
+					py::return_value_policy<py::return_by_value>()
+				)
+			)
+		;
+		py::class_<Material::TextureChannel>(
+			"TextureChannel",
+			py::no_init
 		)
-		.def(
-			"add_texture",
-			static_cast<add_texture_path_t>(&Material::add_texture)
-		)
-		.def("bindable", &Material::bindable)
-	;
-
-
+			.def_readonly("path", &Material::TextureChannel::path)
+			.add_property(
+				"texture",
+				py::make_function(
+					&get_texture,
+					py::return_value_policy<py::return_by_value>()
+					//py::return_internal_reference<>()
+				)
+			)
+			.def_readonly("type", &Material::TextureChannel::type)
+		;
+	}
 }
