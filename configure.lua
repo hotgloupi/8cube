@@ -84,6 +84,7 @@ return function(build)
 		deps.curl,
 		deps.opengl,
 		deps.libjpeg,
+		deps.libtiff,
 		libetc,
 	}, deps.boost)
 
@@ -120,32 +121,33 @@ return function(build)
 		allow_unresolved_symbols = true,
 	}
 
-    local cube_libs = table.extend({
-        libetc,
-        libcube,
-        libcubeapp,
-        deps.opengl,
-        deps.librocket,
-        libglad,
-        deps.python,
-        deps.curl,
-        deps.assimp,
-        deps.bzip2,
-        deps.zlib,
-        deps.libjpeg,
-    }, deps.boost)
+	local cube_libs = table.extend({
+		libetc,
+		libcube,
+		libcubeapp,
+		deps.opengl,
+		deps.librocket,
+		libglad,
+		deps.python,
+		deps.curl,
+		deps.assimp,
+		deps.bzip2,
+		deps.zlib,
+		deps.libjpeg,
+		deps.libtiff,
+	}, deps.boost)
 
-    if build:host():is_windows() then
-	    table.extend(cube_libs, {
+	if build:host():is_windows() then
+		table.extend(cube_libs, {
 			cxx_compiler:find_system_library_from_filename('Shell32.lib', 'shared'),
 		})
 	else
-        table.extend(cube_libs, {
-            deps.idn,
-            cxx_compiler:find_system_library('util', 'shared'),
-            cxx_compiler:find_system_library('dl', 'shared'),
-        })
-    end
+		table.extend(cube_libs, {
+			deps.idn,
+			cxx_compiler:find_system_library('util', 'shared'),
+			cxx_compiler:find_system_library('dl', 'shared'),
+		})
+	end
 
 	local cube_exe = cxx_compiler:link_executable{
 		name = '8cube',

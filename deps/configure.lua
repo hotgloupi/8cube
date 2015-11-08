@@ -35,6 +35,15 @@ return function(build, args)
 		install_directory = build:directory(),
 	}
 
+	deps.libtiff = modules.libtiff.build{
+		build = build,
+		version = '4.0.6',
+		compiler = c_compiler,
+		install_directory = build:directory(),
+		zlib = deps.zlib,
+		jpeg = deps.libjpeg,
+	}
+
 	if not build:host():is_windows() then
 		deps.idn = modules.idn.build{
 			build = build,
@@ -105,7 +114,8 @@ return function(build, args)
 		compiler = c_compiler,
 		install_directory = build:directory(),
 		sdl = deps.sdl,
-		libjpeg = deps.libjpeg,
+		jpeg = deps.libjpeg,
+		tiff = deps.libtiff,
 	}
 
 	deps.assimp = modules.assimp.build{
