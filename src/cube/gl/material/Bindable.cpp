@@ -33,6 +33,10 @@ namespace cube { namespace gl { namespace material {
 					throw Exception{"Empty texture path"};
 				auto s = renderer.resource_manager().load<surface::Surface>(ch.path);
 				ch.texture = renderer.new_texture(*s);
+				// XXX We should do something smart here
+				ch.texture->generate_mipmap();
+				ch.texture->min_filter_bilinear(gl::renderer::TextureFilter::linear);
+				ch.texture->mag_filter(gl::renderer::TextureFilter::linear);
 			}
 		}
 	}
