@@ -200,4 +200,27 @@ return function(build)
 			install = false, -- Already installed (in pylib)
 		}
 	end
+
+	if build:host():is_windows() then
+		local vs = os.getenv('VSINSTALLDIR')
+		local version = os.getenv('VisualStudioVersion')
+		if vs == nil or version == nil then
+			error("Cannot find VSINSTALLDIR env var")
+		end
+		version = version:gsub('%.', '')
+		local redist = Path:new(vs) / 'VC' / 'redist'
+		local arch = build:target():arch()
+		if arch == Platform.Arch.x86 then
+			redist = redist / 'x86'
+		elseif arch == Platform.Arch.x86_64 then
+			redist = redist / 'x64'
+		else
+			error("unimplemented")
+		end
+		redist = redist / ('Microsoft.VC' .. version .. '.CRT')
+		for _, dll in ipairs(build:fs():glob(redist, '*.dll')) do
+			local target = build:fs():copy(dll, 'bin' / dll:path():filename())
+			target:set_property('install', true)
+		end
+	end
 end
