@@ -73,6 +73,11 @@ namespace {
 		return std::hash<T>()(v);
 	}
 
+	template<typename Value, typename Vector>
+	Value distance_helper(Vector const& v1, Vector const& v2)
+	{
+		return distance(v1, v2);
+	}
 }
 
 BOOST_PYTHON_MODULE(Vector)
@@ -210,9 +215,7 @@ BOOST_PYTHON_MODULE(Vector)
 	py::def("cross", static_cast<__type (*)(__type const&, __type const&)>(&cross)); \
 	py::def(                                                                  \
 		"distance",                                                           \
-		static_cast<__value_type(*)(__type const&, __type const&)>(           \
-			&distance<__value_type>                                           \
-		)                                                                     \
+		&distance_helper<__value_type, __type>                                           \
 	);                                                                        \
 	/*py::def("transpose",                                                      \
 		static_cast<__type(*)(__type const&)>(                                \
