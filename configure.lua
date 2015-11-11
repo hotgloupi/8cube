@@ -147,6 +147,11 @@ return function(build)
 			cxx_compiler:find_system_library('util', 'shared'),
 			cxx_compiler:find_system_library('dl', 'shared'),
 		})
+		if build:host():is_linux() then
+			table.extend(cube_libs, {
+				cxx_compiler:find_system_library('rt', 'static'),
+			})
+		end
 	end
 
 	local cube_exe = cxx_compiler:link_executable{
