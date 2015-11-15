@@ -4,3 +4,6 @@
 [submodule "share/games/darkling"]
 	path = share/games/darkling
 	url = git@github.com:hotgloupi/darkling
+[submodule "src/libsoundio"]
+	path = src/libsoundio
+	url = https://github.com/hotgloupi/libsoundio.git
