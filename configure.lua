@@ -207,13 +207,13 @@ return function(build)
 	end
 
 	if build:host():is_windows() then
-		local vs = os.getenv('VSINSTALLDIR')
+		local vs = os.getenv('VCINSTALLDIR')
 		local version = os.getenv('VisualStudioVersion')
 		if vs == nil or version == nil then
-			error("Cannot find VSINSTALLDIR env var")
+			error("Cannot find VCINSTALLDIR env var")
 		end
 		version = version:gsub('%.', '')
-		local redist = Path:new(vs) / 'VC' / 'redist'
+		local redist = Path:new(vs) / 'redist'
 		local arch = build:target():arch()
 		if arch == Platform.Arch.x86 then
 			redist = redist / 'x86'
