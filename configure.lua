@@ -227,5 +227,19 @@ return function(build)
 			local target = build:fs():copy(dll, 'bin' / dll:path():filename())
 			target:set_property('install', true)
 		end
+
+		redist = Path:new(os.getenv('UniversalCRTSdkDir'))
+		redist = redist / "Redist/ucrt/DLLs"
+		if arch == Platform.Arch.x86 then
+			redist = redist / 'x86'
+		elseif arch == Platform.Arch.x86_64 then
+			redist = redist / 'x64'
+		else
+			error("unimplemented")
+		end
+		for _, dll in ipairs(build:fs():glob(redist, '*.dll')) do
+			local target = build:fs():copy(dll, 'bin' / dll:path():filename())
+			target:set_property('install', true)
+		end
 	end
 end
