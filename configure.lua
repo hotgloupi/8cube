@@ -7,13 +7,17 @@ return function(build)
 
 	local cxx_defines = {}
 	if build:host():is_windows() then
-	 table.extend(cxx_defines, {'NOMINMAX', 'WIN32_LEAN_AND_MEAN'})
+		table.extend(cxx_defines, {'NOMINMAX', 'WIN32_LEAN_AND_MEAN'})
 	end
-	local c_compiler = require('configure.lang.c.compiler').find{build = build}
+	local c_compiler = require('configure.lang.c.compiler').find{
+		build = build,
+		debug_runtime = false,
+	}
 	local cxx_compiler = require('configure.lang.cxx.compiler').find{
 		build = build,
 		standard = 'c++11',
 		defines = cxx_defines,
+		debug_runtime = false,
 	}
 
 	local deps = build:include{
