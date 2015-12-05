@@ -57,15 +57,14 @@ namespace cube { namespace audio {
 			sizeof(float);
 		while (stream.buffer_free_size() > max_sample_size * 2)
 		{
-			auto sample_size = sound.read(samples);
+			auto sample_size = static_cast<unsigned>(sound.read(samples));
 			//ETC_LOG.debug("Read", samples.size(), "samples of",
 			//              sample_size, "frame");
 			if (sample_size == 0)
 				break;
 
-			unsigned channel_count = samples.size();
-			auto& out = stream.next_write_sample(channel_count,
-												 sample_size);
+			unsigned channel_count = static_cast<unsigned>(samples.size());
+			auto& out = stream.next_write_sample(channel_count, sample_size);
 			float* ptr = &out.data[0];
 			for (unsigned frame = 0; frame < sample_size; frame++)
 			{
@@ -110,7 +109,6 @@ namespace cube { namespace audio {
 			{
 				flush_sound(samples, *pair.first, pair.second);
 			}
-			::usleep(200);
 		}
 	}
 
