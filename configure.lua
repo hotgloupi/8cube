@@ -168,7 +168,7 @@ return function(build)
 		export_libraries = {
 			deps.python,
 		},
-        libraries = cube_libs,
+		libraries = cube_libs,
 		export_dynamic = true,
 	}
 	local exts = {'py', 'bmp', 'ttf', 'rml'}
@@ -188,22 +188,24 @@ return function(build)
 		cpython_ext = '.pyd'
 	end
 
+	local ext_libs = table.extend({deps.glm}, deps.boost)
+
+	if build_type == 'release' then
+		table.extend(ext_libs, {
+			libetc,
+			libcube,
+			libcubeapp,
+		})
+	end
 	for _, src in ipairs(build:fs():rglob('src', '*.py++')) do
 		local relpath = src:relative_path(build:project_directory() / "src")
 		local big_object = tostring(src:path():filename()) == 'Vector.py++'
+
 		cxx_compiler:link_shared_library{
 			name = tostring(relpath:stem()),
 			sources = {src},
 			include_directories = table.extend({'src',}, deps.python.include_directories),
-			libraries = table.extend(
-				{
-					deps.glm,
-					libetc,
-					libcube,
-					libcubeapp,
-				},
-				deps.boost
-			),
+			libraries = ext_libs,
 			directory = 'lib/python' / relpath:parent_path(),
 			import_library_directory = 'lib/python' / relpath:parent_path(),
 			filename_prefix = '',
