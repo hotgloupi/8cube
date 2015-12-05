@@ -20,15 +20,19 @@ return function(build)
 		debug_runtime = false,
 	}
 
-	local libsoundio = build:include{directory = 'src/libsoundio', args = cxx_compiler}
 
 	local deps = build:include{
 		directory = "deps",
 		args = {
 			c_compiler = c_compiler,
-			cxx_compiler = cxx_compiler
+			cxx_compiler = cxx_compiler,
 		}
 	}
+
+	local libsoundio = build:include{directory = 'src/libsoundio', args = {
+		compiler = cxx_compiler,
+		alsa = deps.alsa,
+	}}
 
 	deps.python.bundle.library_directory:set_property('install', true)
 

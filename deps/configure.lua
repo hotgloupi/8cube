@@ -53,6 +53,15 @@ return function(build, args)
 		}
 	end
 
+	if build:host():is_linux() then
+		deps.alsa = modules.alsa.build{
+			build = build,
+			version = '1.1.0',
+			compiler = c_compiler,
+			install_directory = build:directory(),
+		}
+	end
+
 	deps.python = modules.python.build{
 		build = build,
 		version = '3.5.0',
