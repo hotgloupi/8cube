@@ -1,0 +1,16 @@
+#include <cube/python.hpp>
+
+#include "audio.hpp"
+
+BOOST_PYTHON_MODULE(audio)
+{
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
+	namespace py = boost::python;
+	using namespace cube::system::audio;
+
+	py::class_<Device, boost::noncopyable>("Device")
+	;
+
+	py::class_<OutputStream, boost::noncopyable>("OutputStream", py::init<Device&>())
+	;
+}

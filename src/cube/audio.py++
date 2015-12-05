@@ -1,0 +1,31 @@
+#include <cube/python.hpp>
+
+#include "audio.hpp"
+
+namespace py = boost::python;
+using namespace cube::audio;
+
+namespace {
+	static void Station_run(Station& self)
+	{
+		Py_BEGIN_ALLOW_THREADS
+		self.run();
+		Py_END_ALLOW_THREADS
+	}
+}
+
+BOOST_PYTHON_MODULE(audio)
+{
+	CUBE_PYTHON_DOCSTRING_OPTIONS();
+
+	py::class_<Station, boost::noncopyable>("Station")
+		.def("play", &Station::play)
+		.def("run", &Station_run)
+	;
+
+	py::class_<Sound, py::bases<cube::resource::Resource>, SoundPtr, boost::noncopyable>(
+		"Sound",
+		py::init<boost::filesystem::path const&>(py::arg("path"))
+	)
+		;
+}
