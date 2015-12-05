@@ -2,6 +2,8 @@
 
 #include "fwd.hpp"
 
+#include <etc/compiler.hpp>
+
 #include <memory>
 #include <iosfwd>
 
@@ -27,6 +29,10 @@ namespace cube { namespace system { namespace audio {
 		unsigned sample_rate() const;
 
 	public:
+#ifdef BOOST_MSVC
+# pragma warning(push)
+# pragma warning(disable : 4200)
+#endif
 		struct Sample
 		{
 			unsigned const channels;
@@ -39,6 +45,9 @@ namespace cube { namespace system { namespace audio {
 				, total_size(sizeof(float) * frames * channels + sizeof(Sample))
 			{}
 		};
+#ifdef BOOST_MSVC
+# pragma warning(pop)
+#endif
 
 		Sample& next_write_sample(unsigned channels,
 		                          unsigned sample_size);
