@@ -194,7 +194,7 @@ return function(build)
 
 	local ext_libs = table.extend({deps.glm}, deps.boost)
 
-	if build_type == 'release' then
+	if build_type == 'release' or build:host():is_windows() then
 		table.extend(ext_libs, {
 			libetc,
 			libcube,
