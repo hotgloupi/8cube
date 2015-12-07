@@ -1,10 +1,11 @@
 #pragma once
 
+#include <cube/api.hpp>
 #include <memory>
 
 namespace cube { namespace system { namespace audio {
 
-	class Device
+	class CUBE_API Device
 	{
 	public:
 		struct Impl;

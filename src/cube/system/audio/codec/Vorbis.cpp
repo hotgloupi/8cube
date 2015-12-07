@@ -23,8 +23,9 @@ namespace cube { namespace system { namespace audio { namespace codec {
 			Vorbis(boost::filesystem::path const& file)
 				: vorbis(nullptr)
 			{
+				char const* str = file.string().c_str();
 				int err;
-				this->vorbis = ::stb_vorbis_open_filename(file.c_str(), &err, nullptr);
+				this->vorbis = ::stb_vorbis_open_filename(str, &err, nullptr);
 				if (this->vorbis == nullptr)
 					throw Exception("Couldn't create a Vorbis codec for '" +
 									file.string() + "'");

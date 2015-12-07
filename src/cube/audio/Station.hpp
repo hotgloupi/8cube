@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cube/api.hpp>
 #include <cube/audio/fwd.hpp>
 #include <cube/system/audio/fwd.hpp>
 
@@ -7,7 +8,7 @@
 
 namespace cube { namespace audio {
 
-	class Station
+	class CUBE_API Station
 	{
 	private:
 		struct Impl;

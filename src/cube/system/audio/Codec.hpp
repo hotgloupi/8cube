@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cube/api.hpp>
 #include <etc/printable.hpp>
 
 #include <boost/filesystem/path.hpp>
@@ -8,7 +9,7 @@
 
 namespace cube { namespace system { namespace audio {
 
-	class Codec
+	class CUBE_API Codec
 		: public etc::Printable
 	{
 

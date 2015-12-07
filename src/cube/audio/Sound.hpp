@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cube/api.hpp>
 #include <cube/audio/fwd.hpp>
 #include <cube/system/audio/fwd.hpp>
 #include <cube/resource/Resource.hpp>
@@ -10,7 +11,7 @@
 
 namespace cube { namespace audio {
 
-	class Sound
+	class CUBE_API Sound
 		: public resource::Resource
 	{
 	public:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cube/api.hpp>
 #include "fwd.hpp"
 
 #include <etc/compiler.hpp>
@@ -9,7 +10,7 @@
 
 namespace cube { namespace system { namespace audio {
 
-	class OutputStream
+	class CUBE_API OutputStream
 	{
 	public:
 		struct Impl;
