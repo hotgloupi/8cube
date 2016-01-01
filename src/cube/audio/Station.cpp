@@ -58,6 +58,7 @@ namespace cube { namespace audio {
 		while (stream.buffer_free_size() > max_sample_size * 2)
 		{
 			auto sample_size = static_cast<unsigned>(sound.read(samples));
+
 			//ETC_LOG.debug("Read", samples.size(), "samples of",
 			//              sample_size, "frame");
 			if (sample_size == 0)
@@ -86,17 +87,16 @@ namespace cube { namespace audio {
 		std::vector<float*> samples;
 		while (_this->running)
 		{
-			while (!_this->to_play([] (SoundQueue const& queue) { return queue.empty(); }))
-			{
+			while (!_this->to_play(
+			    [](SoundQueue const& queue) { return queue.empty(); })) {
 				{
-					SoundPtr sound = _this->to_play([] (SoundQueue& queue) {
+					SoundPtr sound = _this->to_play([](SoundQueue& queue) {
 						SoundPtr sound = queue.back();
 						queue.pop();
 						return sound;
 					});
-					_this->sounds.emplace_back(
-						std::make_pair(std::move(sound), OutputStream(_this->device))
-					);
+					_this->sounds.emplace_back(std::make_pair(
+					    std::move(sound), OutputStream(_this->device)));
 				}
 				auto& sound = *_this->sounds.back().first;
 				auto& stream = _this->sounds.back().second;
@@ -105,7 +105,7 @@ namespace cube { namespace audio {
 				flush_sound(samples, sound, stream);
 				stream.start();
 			}
-			for (auto& pair: _this->sounds)
+			for (auto& pair : _this->sounds)
 			{
 				flush_sound(samples, *pair.first, pair.second);
 			}
