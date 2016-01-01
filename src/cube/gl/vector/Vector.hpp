@@ -54,6 +54,7 @@ namespace cube { namespace gl { namespace vector {
 	using glm::dot;
 	using glm::distance;
 	using glm::normalize;
+	using glm::length;
 
 }}}
 
